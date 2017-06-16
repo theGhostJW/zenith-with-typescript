@@ -1,0 +1,12 @@
+{
+  "name": "ZWTF",
+  "version": "1.0.0",
+  "description": "Zenith with Types from Flow",
+  "main": "index.js",
+  "repository": "https://theghostjw@bitbucket.org/theghostjw/zwft.git",
+  "author": "theGhostJW <theghostjw@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.4"
+  }
+}
