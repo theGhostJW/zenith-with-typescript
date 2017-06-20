@@ -1,7 +1,12 @@
 'use strict';
 import { sumTwo } from './lib/addition';
 
+
+let x =  sumTwo(1,2);
+
 console.log(
     "2 + 3 = ",
-    sumTwo(2,3) // 5
+    x
 );
+
+sumTwo(2,3);

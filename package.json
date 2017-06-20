@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "ava": "^0.19.1",
+    "babel-node": "^6.5.3",
     "flow-typed": "^2.1.2",
     "lodash": "^4.17.4"
   },
@@ -16,12 +17,13 @@
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.5.2",
     "babel-preset-flow": "^6.23.0",
-    "babel-preset-node": "^5.1.1"
+    "babel-preset-node": "^5.1.1",
+    "flow-bin": "^0.48.0"
   },
   "scripts": {
     "run": "node ./dist/index.js",
     "build": "babel ./src --source-maps-inline -d ./dist",
     "prepublish": "yarn run build",
-    "test": "ava"
+    "test": "ava src/test/*.js"
   }
 }
