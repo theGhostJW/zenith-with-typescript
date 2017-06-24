@@ -24,6 +24,7 @@
     "run": "node ./dist/index.js",
     "build": "babel ./src --source-maps-inline -d ./dist",
     "prepublish": "yarn run build",
-    "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js"
+    "debug": "yarn run prepublish && node inspect ./dist/test/sum.test.js",
+    "test": "mocha --compilers js:babel-core/register -u qunit -w ./src/test/**/*.test.js"
   }
 }
