@@ -4,8 +4,8 @@ import * as _ from 'lodash';
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
 
-export function def(...args : Array <any>) {
-  var lastArg = args.length === 0 ? undefined : _.last(args); // wierd errors with this: if using _.last(args);
+export function def(...args : Array <any>) : any {
+  var lastArg : any = args.length === 0 ? undefined : _.last(args);
   var result = _.find(args, notNullorUndefined);
   return notNullorUndefined(result) ? result : lastArg;
 }
@@ -36,7 +36,7 @@ export function hasValue(arg : any) : boolean {
     return !_.hasIn(arg, key) || arg[key];
   }
 
-  return isNullEmptyOrUndefined(arg)
+  return isNullEmptyOrUndefined(arg)  
     ? false
     : _.isArray(arg)
       ? true
