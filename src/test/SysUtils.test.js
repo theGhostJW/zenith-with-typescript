@@ -1,39 +1,28 @@
 // @flow
 
 import {test, suite} from 'mocha'
-import {reorderProps, fillArray, isDefined, isNullOrUndefined, isNullEmptyOrUndefined, notNullorUndefined, hasValue, def} from '../lib/SysUtils';
+import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def} from '../lib/SysUtils';
 import * as SysUtils from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
 describe('def', () => {
 
-  it('def - all', () => {
-    /* myVar will be undefined */
-    var myVar;
-    var deffedVar : any = def(myVar, 1);
+  it('def - undefined', () => {
+    var deffedVar = def(undefined, 1);
     chkEq(1, deffedVar);
-
-    /* empty string is treated as a value and not defaulted */
-    myVar = "";
-    deffedVar = def(myVar, 1);
-    chkEq("", deffedVar);
-
-    /* null is defalted */
-    myVar = null;
-    deffedVar = def(myVar, 1);
-    chkEq(1, deffedVar);
-
-    /* the first non-null and non-undefined argument is returned */
-    myVar = null;
-    deffedVar = def(myVar, undefined, 1);
-    chkEq(1, deffedVar);
-
-    /* if all arguments are null or undefined will fall back to the last argument */
-    myVar = undefined;
-    deffedVar = def(myVar, undefined, undefined, null);
-    chkEq(null, deffedVar);
   });
+
+  it('def - empty string', () => {
+    /* empty string is treated as a value and not defaulted */
+    let myVar = "",
+        deffedVar = def(myVar, 1);
+    chkEq("", deffedVar);});
+
+  it('def - null', () => {
+    let myVar = null,
+        deffedVar = def(myVar, 1);
+    chkEq(1, deffedVar);});
 });
 
 describe('hasValue', () => {
@@ -90,21 +79,6 @@ describe('hasValue', () => {
     });
   });
 
-describe('notNullorUndefined', () => {
-
-  it('notNullorUndefined - null', () => {
-    chkFalse(notNullorUndefined(null));
-  });
-
-  it('notNullorUndefined - undefined', () => {
-    chkFalse(notNullorUndefined(undefined));
-  });
-
-  it('notNullorUndefined - str', () => {
-    chkFalse(isNullOrUndefined(''));
-  });
-});
-
 describe('isNullEmptyOrUndefined', () => {
 
   it('isNullEmptyOrUndefined  - null', () => {
@@ -124,23 +98,7 @@ describe('isNullEmptyOrUndefined', () => {
   });
 });
 
-describe('isNullOrUndefined', () => {
-
-  it('isNullOrUndefined - null', () => {
-    chk(isNullOrUndefined(null));
-  });
-
-  it('isNullOrUndefined - undefined', () => {
-    chk(isNullOrUndefined(undefined));
-  });
-
-  it('isNullOrUndefined - str', () => {
-    chkFalse(isNullOrUndefined(''));
-  });
-
-});
-
-describe('isNullOrUndefined', () => {
+describe('isDefined', () => {
 
   it('is defined - null', () => {
     chk(isDefined(null));

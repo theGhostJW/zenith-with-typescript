@@ -4,39 +4,45 @@ import * as _ from 'lodash';
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
 
-export function def(...args : Array <any>) : any {
-  var lastArg : any = args.length === 0 ? undefined : _.last(args);
-  var result = _.find(args, notNullorUndefined);
-  return notNullorUndefined(result) ? result : lastArg;
+export function def<a>(val: ?a, defaultVal: a) : a {
+    // != null === not null or undefined
+    if (val != null) {
+      return val;
+    }
+    else {
+      return defaultVal;
+    }
 }
 
-export function isNullOrUndefined(arg : any) : boolean {
-  return isUndefined(arg) || arg === null;
+export function isNullEmptyOrUndefined(arg: mixed) : boolean {
+  return !(arg != null)  || arg === '';
 }
 
-export function isNullEmptyOrUndefined(arg : any) : boolean {
-  return isNullOrUndefined(arg) || arg === '';
-}
-
-export function isDefined(arg : any) : boolean {
+export function isDefined(arg: mixed) : boolean {
   return typeof arg !== 'undefined';
 }
 
-export function isUndefined(arg : any) : boolean {
+export function isUndefined(arg: mixed) : boolean {
   return !isDefined(arg);
 }
 
-export function notNullorUndefined(arg : any) : boolean {
-  return !isNullOrUndefined(arg);
-}
-
-export function hasValue(arg : any) : boolean {
+export function hasValue(arg: mixed) : boolean {
 
   function notFalseVal(key : string): boolean {
-    return !_.hasIn(arg, key) || arg[key];
+    if (arg != null && typeof arg === 'object') {
+      let val: mixed = arg[key];
+      if (val != null){
+        return (typeof val === 'boolean') && val;
+      }
+      else {
+        return true;
+      }
+    } else {
+       return true;
+    }
   }
 
-  return isNullEmptyOrUndefined(arg)  
+  return isNullEmptyOrUndefined(arg)
     ? false
     : _.isArray(arg)
       ? true
@@ -111,7 +117,7 @@ function arraysEqual(expected, actual) {
     : false;
 }
 */
-function xOr(val1, val2) {
+function xOr(val1: boolean, val2: boolean) : boolean  {
   return (val1 || val2) && !(val1 && val2);
 }
 
@@ -147,12 +153,10 @@ export function setParts < T > (arLeftSet : Array < T >, arRightSet : Array < T 
 }
 */
 
-export function reorderProps(obj : {}, ...rest : Array < string >) : {}
-{
-  var result : {} = _.chain(obj).pick(...rest).defaults(obj).value();
-  return result;
+export function reorderProps(obj : {}, ...rest : Array < string >) : {} {
+  return _.defaults(_.pick(obj, rest), obj);
 }
 
-export function fillArray(arrayLength : number, val : any) : Array < any > {
+export function fillArray<a>(arrayLength : number, val : a) : Array <a> {
   return _.times(arrayLength, _.constant(val));
 }
