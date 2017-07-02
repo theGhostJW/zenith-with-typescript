@@ -1,7 +1,8 @@
 // @flow
 
 import * as _ from 'lodash';
-import { toString, startsWith } from '../lib/StringUtils';
+import {flow, reject} from 'lodash/fp';
+import { toString, startsWith, endsWith } from '../lib/StringUtils';
 import { objectsEqual, arraysEqual } from '../lib/SysUtilsNoFlow';
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
@@ -84,59 +85,65 @@ export function areEqual(expected: ?mixed, actual: ?mixed, useTolerance: boolean
   //   return result;
   // }
 }
-
-function areEqualWithTolerance(expectedNumber: number | string, actualNumber: number | string, tolerance: number = 0){
-  return false
-  // var deemedEqual = areEqual(actualNumber, expectedNumber, false);
-  //
-  // function parseNumIfPossible(val){
-  //   return !_.isNumber(val) && stringConvertableToNumber(val) ? parseFloat(val) : val;
-  // }
-  //
-  // if (!deemedEqual){
-  //   var expectedNumberConverted = parseNumIfPossible(expectedNumber),
-  //       actualNumberConverted = parseNumIfPossible(actualNumber);
-  //
-  //   if (_.isNumber(actualNumberConverted) && _.isNumber(expectedNumberConverted)){
-  //     var diff = Math.abs(actualNumberConverted - expectedNumberConverted);
-  //     // 0.10 !== 0.10 in javascript :-( work around
-  //     // deemedEqual = diff <= tolerance will not work
-  //     deemedEqual = !(diff > (tolerance + 0.0000000000000001));
-  //   }
-  // }
-  // return deemedEqual;
-}
 //
-// export function stringConvertableToNumber(val: string): boolean{
+// function areEqualWithTolerance(expectedNumber: number | string, actualNumber: number | string, tolerance: number = 0){
+//   var deemedEqual = areEqual(actualNumber, expectedNumber, false);
 //
-//   function isNumChars(str){
+//   function parseNumIfPossible(val){
+//     return !_.isNumber(val) && stringConvertableToNumber(val) ? parseFloat(val) : val;
+//   }
 //
-//     function isDot(chr){
-//       return chr === '.';
+//   if (!deemedEqual){
+//     var expectedNumberConverted = parseNumIfPossible(expectedNumber),
+//         actualNumberConverted = parseNumIfPossible(actualNumber);
+//
+//     if (_.isNumber(actualNumberConverted) && _.isNumber(expectedNumberConverted)){
+//       var diff = Math.abs(actualNumberConverted - expectedNumberConverted);
+//       // 0.10 !== 0.10 in javascript :-( work around
+//       // deemedEqual = diff <= tolerance will not work
+//       deemedEqual = !(diff > (tolerance + 0.0000000000000001));
 //     }
-//
-//     var chrs = str.split(('')),
-//          dotCount = _.filter(chrs, isDot).length;
-//
-//     return dotCount > 1 || startsWith(str, '.') || endsWith(str, '.') || startsWith(str, '0') && !startsWith(str, '0.') && !(str === '0') ?
-//                   false :
-//                    _.chain(chrs)
-//                       .reject(isCommaWhiteSpaceDot)
-//                       .all(isIntChr)
-//                       .value();
 //   }
-//
-//   function isIntChr(chr){
-//     var chCode = chr.charCodeAt(0);
-//     return chCode > 47 && chCode < 58;
-//   }
-//
-//   function isCommaWhiteSpaceDot(chr){
-//     return _.contains([',', '\t', ' ', '.'], chr);
-//   }
-//
-//   return hasValue(val) && isNumChars(val);
+//   return deemedEqual;
 // }
+//
+
+
+// flow issues with lodash
+export function all<a>(predicate: (a) => boolean, arr: Array<a>): boolean {
+  return arr.reduce((accum, item) => accum && predicate(item), true);
+}
+
+export function stringConvertableToNumber(val: ?string): boolean {
+
+  if (val == null)
+    return false;
+    
+  function isNumChars(str){
+
+    function isDot(chr){
+      return chr === '.';
+    }
+
+    let chrs = str.split(('')),
+        dotCount = _.filter(chrs, isDot).length,
+        allInts = (str: string) => {return all(isIntChr, _.reject(chrs, isCommaWhiteSpaceDot)); };
+
+    return dotCount > 1 || startsWith(str, '.') || endsWith(str, '.') || startsWith(str, '0') && !startsWith(str, '0.') && !(str === '0') ?
+                  false : allInts(str);
+  }
+
+  function isIntChr(chr: string) : boolean {
+    var chCode = chr.charCodeAt(0);
+    return chCode > 47 && chCode < 58;
+  }
+
+  function isCommaWhiteSpaceDot(chr: string): boolean{
+    return [',', '\t', ' ', '.'].includes(chr);
+  }
+
+  return hasValue(val) && isNumChars(val);
+}
 
 export function xOr(val1: boolean, val2: boolean) : boolean  {
   return (val1 || val2) && !(val1 && val2);

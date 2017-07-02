@@ -1,10 +1,57 @@
 // @flow
 
-import {test, suite} from 'mocha'
-import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr} from '../lib/SysUtils';
+import {it, describe} from 'mocha'
+import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr, all, stringConvertableToNumber} from '../lib/SysUtils';
 import * as SysUtils from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
+
+
+
+describe.only('stringConvertableToNumber', () => {
+
+  it('when true', () => {
+    chk(stringConvertableToNumber('0'));
+    chk(stringConvertableToNumber('1'));
+    chk(stringConvertableToNumber('1.1110'));
+    chk(stringConvertableToNumber('0.1110'));
+  });
+
+  it('when false', () => {
+    chkFalse(stringConvertableToNumber('a1.1110'));
+    chkFalse(stringConvertableToNumber('01.1110'));
+    chkFalse(stringConvertableToNumber('.1110'));
+    chkFalse(stringConvertableToNumber('00.1110'));
+    chkFalse(stringConvertableToNumber('.1110'));
+    chkFalse(stringConvertableToNumber(''));
+  });
+
+  it('null / undefined', () => {
+    chkFalse(stringConvertableToNumber(null));
+    chkFalse(stringConvertableToNumber(undefined));
+  });
+
+
+});
+
+describe('all', () => {
+
+  let even = (n: number) => { return n % 2 === 0; },
+      allEven = (arr: Array<number>) => {return all(even, arr) };
+
+  it('when true', () => {
+    chk(allEven([2, 4, 6, 8, 10]));
+  });
+
+  it('when false', () => {
+    chkFalse(allEven([2, 4, 6, 8, 11]));
+  });
+
+  it('empty', () => {
+    chk(allEven([]));
+  });
+
+});
 
 
 describe('xOr', () => {

@@ -5,7 +5,7 @@ import {toString, endsWith, startsWith} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
 
-describe.only('startsWith', () => {
+describe ('startsWith', () => {
 
   it('happy path true', () => {
     chk(startsWith('abcde', 'ab'));
@@ -37,7 +37,7 @@ describe.only('startsWith', () => {
 
 });
 
-describe.only('endsWith', () => {
+describe('endsWith', () => {
 
   it('happy path true', () => {
     chk(endsWith('abcde', 'de'));
