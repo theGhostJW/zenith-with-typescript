@@ -1,4 +1,5 @@
 [ignore]
+.*\*NoFlow\.js
 
 [include]
 
@@ -6,3 +7,4 @@
 flow-typed
 
 [options]
+all=false

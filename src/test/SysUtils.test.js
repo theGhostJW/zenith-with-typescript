@@ -1,10 +1,22 @@
 // @flow
 
 import {test, suite} from 'mocha'
-import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def} from '../lib/SysUtils';
+import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr} from '../lib/SysUtils';
 import * as SysUtils from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
+
+
+describe('xOr', () => {
+
+  it('all', () => {
+    chk(xOr(true, false));
+    chk(xOr(false, true));
+    chkFalse(xOr(false, false));
+    chkFalse(xOr(true, true));
+  });
+
+});
 
 describe('def', () => {
 
