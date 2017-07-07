@@ -1,14 +1,84 @@
 // @flow
 
 import {it, describe} from 'mocha'
-import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr, all, stringConvertableToNumber} from '../lib/SysUtils';
+import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr, all, stringConvertableToNumber,
+        areEqualWithTolerance} from '../lib/SysUtils';
 import * as SysUtils from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
 
+describe('areEqualWithTolerance', () => {
+  
+  it('all', () => {
+    chk(areEqualWithTolerance(1, 1.000000, 0.000001));
+    chk(areEqualWithTolerance(1.000001, 1.000000, 0.000001));
+    chkFalse(areEqualWithTolerance(1.000001, 1.000000, 0.0000009));
+    chk(areEqualWithTolerance(0, 0, 0.000001));
+    chk(areEqualWithTolerance(1, 1.1, 0.1));
+    chk(areEqualWithTolerance(1, '1.1', 0.1));
+    chk(areEqualWithTolerance(1, '0.9', 0.1));
+    chk(areEqualWithTolerance(0.0000000001, 0.0000000001));
 
-describe.only('stringConvertableToNumber', () => {
+    chkFalse(areEqualWithTolerance(1, '0.9', 0.09));
+    chk(areEqualWithTolerance(1.000001, '1', 0.000001));
+    chkFalse(areEqualWithTolerance(1.000001, '1', 0.0000009999999));
+    chkFalse(areEqualWithTolerance(1.000001, '1.000001001', 0));
+  });
+});
+
+describe('_.isEqual - now we have delete areEqual', () => {
+
+  it('null', () => {
+    chk(_.isEqual(null, null));
+  });
+
+  it('2 ints', () => {
+    chk(_.isEqual(22, 22));
+  });
+
+  it('unequal numbers ints one as string', () => {
+    chkFalse(_.isEqual(22, 22.1));
+  });
+
+  it('two floats', () => {
+    chk(_.isEqual(22.111, 22.111));
+  });
+
+  let val1, val2;
+  val1 = {
+      a: {
+        b: 1.2222,
+        c: 5.667
+      },
+
+    b: new Date(1977, 8, 9),
+    c: 66,
+    d: 'hi'
+  }
+
+  val2 = {
+    b: new Date(1977, 8, 9),
+    c: 66,
+    d: 'hi',
+    a: {
+        b: 1.2222,
+        c: (6 - 0.333)
+      }
+  };
+
+  it('two objects', () => {
+    chk(_.isEqual(val1, val2));
+  });
+
+  it('two objects differ', () => {
+    val1.c = 66.00001;
+    chkFalse(_.isEqual(val1, val2));
+  });
+
+});
+
+describe('stringConvertableToNumber', () => {
 
   it('when true', () => {
     chk(stringConvertableToNumber('0'));
@@ -31,8 +101,8 @@ describe.only('stringConvertableToNumber', () => {
     chkFalse(stringConvertableToNumber(undefined));
   });
 
-
 });
+
 
 describe('all', () => {
 

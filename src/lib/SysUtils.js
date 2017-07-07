@@ -1,11 +1,64 @@
 // @flow
 
-import * as _ from 'lodash';
-import {flow, reject} from 'lodash/fp';
-import { toString, startsWith, endsWith } from '../lib/StringUtils';
-import { objectsEqual, arraysEqual } from '../lib/SysUtilsNoFlow';
+import * as _ from 'lodash'
+import {flow, reject} from 'lodash/fp'
+import { toString, startsWith, endsWith } from '../lib/StringUtils'
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
+
+
+type MixedSpecifier = string | FuncSpecifier;
+
+type FuncSpecifier = (val: mixed, key: string) => boolean;
+
+type SeekInObjectFullParams = {
+  wantAll: boolean,
+  wantSafe: boolean,
+  target: {},
+  specifier: MixedSpecifier,
+  otherSpecifiers: FuncSpecifier
+};
+
+function seekInObjFullInfoInfoBase<a>(params: SeekInObjectFullParams): Array<a> {
+
+  let allSpecifiers = [params.specifier].concat(params.otherSpecifiers);
+  // var params =  unPackSeekInObjTrailingArgs(arguments),
+  //               returnFullInfo = params.returnFullInfo,
+  //               wantAll = params.wantAll,
+  //               propSpecifiers = params.propSpecifiers;
+  //
+  // if (wantAll && propSpecifiers.length > 1){
+  //   var privArgs = _.flatten([
+  //                             [target],
+  //                             _.initial(propSpecifiers),
+  //                             [false, false]],
+  //                             true // shallow
+  //                             ),
+  //   target = seekInObjPriv.apply(null, privArgs);
+  //   propSpecifiers = [_.last(propSpecifiers)];
+  // }
+  //
+  // var result = seekInObjBase(target, propSpecifiers, returnFullInfo, wantAll);
+  //
+  // function valueToValues(result){
+  //   result.values = result.value;
+  //   result = _.omit(result, 'value');
+  //   return reorderProps(result, 'parent', 'values');
+  // }
+  //
+  // return (wantAll && isUndefined(result)) ? [] :
+  //                                 wantAll && returnFullInfo ? _.map(result, valueToValues) : result;
+
+  return [];
+}
+
+
+// function unifyObjectSpecifiers(arMixed: Array<MixedSpecifier>): Array<FuncSpecifier> {
+//   function forceFunc(mixed: MixedSpecifier): FuncSpecifier {
+//     typeof mixed === 'function' ? mixed : (val, key) => hasText
+//   }
+//
+// }
 
 export function def<a>(val: ?a, defaultVal: a) : a {
     // != null === not null or undefined
@@ -54,61 +107,6 @@ export function hasValue(arg: mixed) : boolean {
         : true;
 }
 
-export function areEqual(expected: ?mixed, actual: ?mixed, useTolerance: boolean = true): boolean {
-  return false;
-  // var result;
-  // if (!result) {
-  //   if (xOr(hasValue(expected), hasValue(actual))) {
-  //     result = false;
-  //   } else if (expected === null && actual === null) {
-  //     result = true;
-  //   } else if (xOr(typeof expected === 'string', typeof actual === 'string')) {
-  //     return toString(expected) === toString(actual);
-  //   } else if (_.isArray(expected) && _.isArray(actual)) {
-  //     return arraysEqual(expected, actual);
-  //   } else if (_.isObject(expected) && _.isObject(actual)) {
-  //     return objectsEqual(expected, actual);
-  //   } else if (useTolerance && _.isNumber(expected) && _.isNumber(actual)) {
-  //     return areEqualWithTolerance(expected, actual, 0)
-  //   } else {
-  //     var varType = GetVarType(actual);
-  //     switch (varType) {
-  //       case 7: // Date
-  //         result = aqDateTime.Compare(expected, actual) === 0;
-  //         break;
-  //
-  //       default:
-  //         result = _.isEqual(expected, actual);
-  //         break;
-  //     }
-  //   }
-  //   return result;
-  // }
-}
-//
-// function areEqualWithTolerance(expectedNumber: number | string, actualNumber: number | string, tolerance: number = 0){
-//   var deemedEqual = areEqual(actualNumber, expectedNumber, false);
-//
-//   function parseNumIfPossible(val){
-//     return !_.isNumber(val) && stringConvertableToNumber(val) ? parseFloat(val) : val;
-//   }
-//
-//   if (!deemedEqual){
-//     var expectedNumberConverted = parseNumIfPossible(expectedNumber),
-//         actualNumberConverted = parseNumIfPossible(actualNumber);
-//
-//     if (_.isNumber(actualNumberConverted) && _.isNumber(expectedNumberConverted)){
-//       var diff = Math.abs(actualNumberConverted - expectedNumberConverted);
-//       // 0.10 !== 0.10 in javascript :-( work around
-//       // deemedEqual = diff <= tolerance will not work
-//       deemedEqual = !(diff > (tolerance + 0.0000000000000001));
-//     }
-//   }
-//   return deemedEqual;
-// }
-//
-
-
 // flow issues with lodash
 export function all<a>(predicate: (a) => boolean, arr: Array<a>): boolean {
   return arr.reduce((accum, item) => accum && predicate(item), true);
@@ -118,7 +116,7 @@ export function stringConvertableToNumber(val: ?string): boolean {
 
   if (val == null)
     return false;
-    
+
   function isNumChars(str){
 
     function isDot(chr){
@@ -149,37 +147,28 @@ export function xOr(val1: boolean, val2: boolean) : boolean  {
   return (val1 || val2) && !(val1 && val2);
 }
 
-/*
-export function setParts < T > (arLeftSet : Array < T >, arRightSet : Array < T >) {
+export function areEqualWithTolerance(expectedNumber: number | string, actualNumber: number | string, tolerance: number = 0){
+  let deemedEqual = _.isEqual(actualNumber, expectedNumber);
 
-  function intersect(ar1, ar2) {
-    var inIntersection = [],
-      uniqueToFirst = [];
-
-    function isInar2(item) {
-      function equalsTarg(ar2Item) {
-        return areEqual(ar2Item, item);
-      }
-      return _.find(ar2, equalsTarg)
-    }
-
-    function clasify(ar1Item) {
-      var pushTo = isInar2(ar1Item)
-        ? inIntersection
-        : uniqueToFirst;
-      pushTo.push(ar1Item);
-    }
-
-    _.each(ar1, clasify);
-    return [uniqueToFirst, inIntersection];
+  function parseNumIfPossible(val: number | string) : ?number {
+    return typeof val === 'string' ?
+                      stringConvertableToNumber(val) ? parseFloat(val) : null :
+                          (typeof val === 'number' ? val : null);
   }
 
-  var leftCommon = intersect(arLeftSet, arRightSet),
-    rightCommon = intersect(arRightSet, arLeftSet);
+  if (!deemedEqual){
+    let  expectedNumberConverted = parseNumIfPossible(expectedNumber),
+         actualNumberConverted = parseNumIfPossible(actualNumber);
 
-  return [leftCommon[0], leftCommon[1], rightCommon[0]];
-}
-*/
+    if (expectedNumberConverted != null && actualNumberConverted != null){
+      var diff = Math.abs(actualNumberConverted - expectedNumberConverted);
+      // 0.10 !== 0.10 in javascript :-( work around
+      // deemedEqual = diff <= tolerance will not work
+      deemedEqual = !(diff > (tolerance + 0.0000000000000001));
+    }
+   }
+  return deemedEqual;
+ }
 
 export function reorderProps(obj : {}, ...rest : Array < string >) : {} {
   return _.defaults(_.pick(obj, rest), obj);

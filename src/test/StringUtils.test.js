@@ -1,9 +1,89 @@
 // @flow
 
 import {test, describe} from 'mocha'
-import {toString, endsWith, startsWith} from '../lib/StringUtils';
+import {toString, endsWith, startsWith, hasText, wildCardMatch} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
+
+describe.only('wildcardMatch', () => {
+
+  it('null', () => {
+    chkFalse(wildCardMatch(null, 'hi'));
+  });
+
+  it('wildcard surround', () => {
+    chk(wildCardMatch("demo_Array_Data_Driven_Test", "*Array*"));
+  });
+
+  it('complex nested - case insensitive', () => {
+    chk(wildCardMatch("The quick brown fox jumps over the lazy dog", "Th*icK*b*ox*over the*dog"));
+  });
+
+  it('complex nested - case sensitive', () => {
+    chkFalse(wildCardMatch("The quick brown fox jumps over the lazy dog", "Th*icK*b*ox*over the*dog", true));
+  });
+
+  it('complex nested - case sensitive ii', () => {
+    chk(wildCardMatch("The quick brown fox jumps over the lazy dog", "*fox*dog", true));
+  });
+
+  it('complex nested - negative case', () => {
+    chkFalse(wildCardMatch("The quick brown fox jumps over the lazy dog", "*fox*brown"));
+  });
+
+  it('complex nested - trailing negative', () => {
+    chkFalse(wildCardMatch("The quick brown fox jumps over the lazy dog", "*fox*lazy", true));
+  });
+
+  it('same string', () => {
+    chk(wildCardMatch("The quick brown fox jumps over the lazy dog",
+                           "The quick brown fox jumps over the lazy dog",
+                            true));
+  });
+
+
+
+
+  //
+  // result = stringUtils.wildcardMatch(subject, subject);
+  // checkUtils.check(result);
+  //
+  // result = stringUtils.wildcardMatch(null, subject);
+  // checkUtils.checkFalse(result);
+
+});
+
+describe('hasText', () => {
+
+  it('null hayStack', () => {
+      chkFalse(hasText(null, 'blahh'))
+  });
+
+  it('undefined hayStack', () => {
+      chkFalse(hasText(undefined, 'blahh'));
+  });
+
+  it('case sensitivity override - not found', () => {
+      chkFalse(hasText('i am johnie', 'John', true));
+  });
+
+  it('case sensitivity override - found', () => {
+      chk(hasText('i am Johnie', 'John', true));
+  });
+
+  it('case sensitivity default false - found', () => {
+      chk(hasText('i am johnie', 'John'));
+  });
+
+  it('empty string - found', () => {
+    chk(hasText('i am johnie', ''));
+  });
+
+  it('empty string - in null', () => {
+    chkFalse(hasText(null, ''));
+  });
+
+});
 
 describe ('startsWith', () => {
 
