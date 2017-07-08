@@ -1,12 +1,26 @@
 // @flow
 
+//import { replace as nfReplace } from '../lib/StringUtilsLoFlow'
+
+/*
+replaces all
+ */
+export function replace(hayStack: ?string, needle: string, replacement: string, caseSensitive: boolean = false): ?string {
+   // https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
+   if (hayStack == null){
+     return hayStack;
+   }
+   let esc = needle.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),
+       reg = new RegExp(esc, (caseSensitive ? 'g' : 'ig'));
+   return hayStack.replace(reg, replacement);
+}
 
 export function wildCardMatch(hayStack: ?string, needle: string, caseSensitive: boolean = false): boolean {
   // https://stackoverflow.com/questions/26246601/wildcard-string-comparison-in-javascript
   return hayStack == null ? false: new RegExp("^" + needle.split("*").join(".*") + "$", (caseSensitive ? undefined :'i')).test(hayStack);
 }
 
-export function toString(val : mixed){
+export function toString<T>(val : T): string {
   if (val === null)
     return 'null';
 
@@ -15,7 +29,7 @@ export function toString(val : mixed){
 
   switch (typeof val) {
     case 'object':
-      return val.toString();
+      return JSON.stringify(val);
 
     case 'boolean':
       return val ? 'true' : 'false';
@@ -30,7 +44,7 @@ export function toString(val : mixed){
       return val.toString();
 
     default:
-      return 'value cannot be represented as string'
+      return `<<${typeof val}>>`;
   }
 }
 

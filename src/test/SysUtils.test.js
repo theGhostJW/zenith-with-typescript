@@ -2,14 +2,14 @@
 
 import {it, describe} from 'mocha'
 import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr, all, stringConvertableToNumber,
-        areEqualWithTolerance} from '../lib/SysUtils';
+        areEqualWithTolerance, areEqual} from '../lib/SysUtils';
 import * as SysUtils from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
 
 describe('areEqualWithTolerance', () => {
-  
+
   it('all', () => {
     chk(areEqualWithTolerance(1, 1.000000, 0.000001));
     chk(areEqualWithTolerance(1.000001, 1.000000, 0.000001));
@@ -27,22 +27,22 @@ describe('areEqualWithTolerance', () => {
   });
 });
 
-describe('_.isEqual - now we have delete areEqual', () => {
+describe('areEqual', () => {
 
   it('null', () => {
-    chk(_.isEqual(null, null));
+    chk(areEqual(null, null));
   });
 
   it('2 ints', () => {
-    chk(_.isEqual(22, 22));
+    chk(areEqual(22, 22));
   });
 
   it('unequal numbers ints one as string', () => {
-    chkFalse(_.isEqual(22, 22.1));
+    chkFalse(areEqual(22, 22.1));
   });
 
   it('two floats', () => {
-    chk(_.isEqual(22.111, 22.111));
+    chk(areEqual(22.111, 22.111));
   });
 
   let val1, val2;
@@ -68,12 +68,17 @@ describe('_.isEqual - now we have delete areEqual', () => {
   };
 
   it('two objects', () => {
-    chk(_.isEqual(val1, val2));
+    chk(areEqual(val1, val2));
   });
 
   it('two objects differ', () => {
     val1.c = 66.00001;
-    chkFalse(_.isEqual(val1, val2));
+    chkFalse(areEqual(val1, val2));
+  });
+
+  it('two strings', () => {
+    let dStr = () => {return '[1,2,3]';}
+    chk(areEqual('[1,2,3]', dStr()));
   });
 
 });

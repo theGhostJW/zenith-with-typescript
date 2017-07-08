@@ -1,11 +1,67 @@
 // @flow
 
 import {test, describe} from 'mocha'
-import {toString, endsWith, startsWith, hasText, wildCardMatch} from '../lib/StringUtils';
+import {toString, endsWith, startsWith, hasText, wildCardMatch, replace} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
+describe.only('replace()', () => {
 
-describe.only('wildcardMatch', () => {
+  it('null base', () => {
+    chkEq(null, replace(null, 'a', 'A'));
+  });
+
+  it('case insensitive', () => {
+    chkEq(   'the quick red fox jumps over the lazy red dog',
+     replace('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red'));
+  });
+
+  it('case sensitive', () => {
+    chkEq('the quick red fox jumps over the lazy Brown dog', replace('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red', true));
+  });
+
+});
+describe('toString', () => {
+
+  it('object', () => {
+    chkEq('{"hi":1}', toString({hi: 1}));
+  });
+
+  it('number', () => {
+    chkEq('123', toString(123));
+  });
+
+  it('string', () => {
+    chkEq('hi', toString('hi'));
+  });
+
+  it('array', () => {
+    chkEq('[1,2,3]', toString([1, 2, 3]));
+  });
+
+  it('function', () => {
+
+    let expected = `function blahh() {
+      return 'Hi';
+    }`
+
+    function blahh() {
+      return 'Hi';
+    }
+    chkEq(expected, toString(blahh));
+  });
+
+  it('null', () => {
+    chkEq('null', toString(null));
+  });
+
+  it('undefined', () => {
+    chkEq('undefined', toString(undefined));
+  });
+
+});
+
+
+describe('wildcardMatch', () => {
 
   it('null', () => {
     chkFalse(wildCardMatch(null, 'hi'));
@@ -39,17 +95,7 @@ describe.only('wildcardMatch', () => {
     chk(wildCardMatch("The quick brown fox jumps over the lazy dog",
                            "The quick brown fox jumps over the lazy dog",
                             true));
-  });
-
-
-
-
-  //
-  // result = stringUtils.wildcardMatch(subject, subject);
-  // checkUtils.check(result);
-  //
-  // result = stringUtils.wildcardMatch(null, subject);
-  // checkUtils.checkFalse(result);
+                          });
 
 });
 

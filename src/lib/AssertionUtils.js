@@ -2,6 +2,9 @@
 
 import * as _ from 'lodash';
 import {toString} from '../lib/StringUtils';
+import {areEqual} from '../lib/SysUtils';
+
+export const ensure = chk;
 
 export function chk(val : boolean, msg : string = '') {
   if (!val) {
@@ -13,9 +16,9 @@ export function chkFalse(val : boolean, msg : string = '') {
   chk(!val, msg);
 }
 
-export function chkEq(val1 : mixed, val2 : mixed, msg : string = '') : void {
-  if ( !_.isEqual(val1, val2)) {
-    throw new Error(toString(val1) + ' did not equal ' + toString(val2) + ' ' + msg);
+export function chkEq(expected : mixed, actual : mixed, msg : string = '') : void {
+  if ( !areEqual(expected, actual)) {
+    throw new Error(`<${toString(expected)}> did not equal <${toString(actual)}>` + ' ' + msg);
   }
 }
 

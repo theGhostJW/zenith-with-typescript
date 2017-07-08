@@ -6,14 +6,25 @@ import { toString, startsWith, endsWith } from '../lib/StringUtils'
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
 
+export function areEqual<T, U>(val1: T, val2: U, reasonableTypeCoercian: boolean = false): boolean {
+  return _.isEqualWith(val1, val2, eqCustomiser);
+}
+
+function eqCustomiser<T, U>(val1: T, val2: U): void | boolean {
+  return typeof(val1) == 'string' && typeof(val2) == 'string' ? val1.valueOf() == val2.valueOf() : undefined;
+}
 
 type MixedSpecifier = string | FuncSpecifier;
 
 type FuncSpecifier = (val: mixed, key: string) => boolean;
 
+function standardiseSpecifier(mixedSpec: MixedSpecifier): FuncSpecifier {
+  return typeof mixedSpec === 'string' ? (val: mixed, key: string) => {return areEqual(mixedSpec, key)} : mixedSpec;
+}
+
 type SeekInObjectFullParams = {
   wantAll: boolean,
-  wantSafe: boolean,
+  safeFullCheck: boolean,
   target: {},
   specifier: MixedSpecifier,
   otherSpecifiers: FuncSpecifier
@@ -21,7 +32,7 @@ type SeekInObjectFullParams = {
 
 function seekInObjFullInfoInfoBase<a>(params: SeekInObjectFullParams): Array<a> {
 
-  let allSpecifiers = [params.specifier].concat(params.otherSpecifiers);
+  let allSpecifiers = [params.specifier].concat(params.otherSpecifiers).map(standardiseSpecifier);
   // var params =  unPackSeekInObjTrailingArgs(arguments),
   //               returnFullInfo = params.returnFullInfo,
   //               wantAll = params.wantAll,
