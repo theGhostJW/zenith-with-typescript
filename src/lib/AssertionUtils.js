@@ -2,15 +2,9 @@
 
 import * as _ from 'lodash';
 import {toString} from '../lib/StringUtils';
-import {areEqual} from '../lib/SysUtils';
+import {areEqual, ensure} from '../lib/SysUtils';
 
-export const ensure = chk;
-
-export function chk(val : boolean, msg : string = '') {
-  if (!val) {
-    throw new Error('chk failure ' + msg);
-  }
-}
+export const chk = ensure;
 
 export function chkFalse(val : boolean, msg : string = '') {
   chk(!val, msg);

@@ -4,7 +4,7 @@ import {test, describe} from 'mocha'
 import {toString, endsWith, startsWith, hasText, wildCardMatch, replace} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
-describe.only('replace()', () => {
+describe('replace()', () => {
 
   it('null base', () => {
     chkEq(null, replace(null, 'a', 'A'));
@@ -20,6 +20,7 @@ describe.only('replace()', () => {
   });
 
 });
+
 describe('toString', () => {
 
   it('object', () => {
