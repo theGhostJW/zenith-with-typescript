@@ -1,9 +1,15 @@
 // @flow
 
 import * as _ from 'lodash';
-import {toString, startsWith, endsWith} from '../lib/StringUtils';
+import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib/StringUtils';
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
+
+
+export function def <T> (val : ?T, defaultVal: T): T {
+    // != null === not null or undefined
+  return val == null ? defaultVal : val;
+}
 
 export function areEqual <T, U> (val1 : T, val2 : U, reasonableTypeCoercian : boolean = false) : boolean {
   return _.isEqualWith(val1, val2, eqCustomiser);
@@ -39,11 +45,9 @@ function standardiseSpecifier(mixedSpec : MixedSpecifier) : FuncSpecifier {
     return mixedSpec;
   }
 
-  if (typeof mixedSpec === 'string' || typeof mixedSpec === 'number') {
+  if (typeof mixedSpec == 'string' || typeof mixedSpec == 'number') {
     return function keyMatch(val : mixed, key : string | number) : any {
-      return areEqual(mixedSpec, key)
-        ? val
-        : undefined;
+      return wildCardMatch(toString(key), toString(mixedSpec)) ? val : undefined;
     }
   }
 
@@ -59,13 +63,17 @@ function standardiseSpecifier(mixedSpec : MixedSpecifier) : FuncSpecifier {
 
 type GenerationMatchResult = {
   fullyMatched: Array <SeekInObjResultItem>,
-  remainingCandidates: Array <SeekInObjResultItem>,
-  done: boolean
+  remainingCandidates: Array <SeekInObjResultItem>
 };
 
-function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranches : boolean) : GenerationMatchResult {
+type ReducerResult = {
+    done: boolean,
+    result: GenerationMatchResult
+};
 
-  ensure(typeof baseResult.value != 'object', 'baseResult.value be an object')
+function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranches : boolean) : ?GenerationMatchResult {
+
+  ensure(typeof baseResult.value == 'object', 'baseResult.value be an object')
 
   let
     baseVal = baseResult.value,
@@ -73,11 +81,6 @@ function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranch
     result = {
       fullyMatched: ([] : Array <SeekInObjResultItem>),
       remainingCandidates: ([] : Array <SeekInObjResultItem>)
-    },
-
-    base = {
-      done: false,
-      result: result
     };
 
   if (specifers.length > 0 && !_.isArray(baseVal) && typeof baseVal == 'object') {
@@ -93,7 +96,12 @@ function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranch
       return {parent: baseResult, value: val, key: key, remainingSpecifiers: otherSpecs};
     };
 
-    function partitionResults(accum, val : mixed, key : string) {
+    let base: ReducerResult = {
+      done: false,
+      result: result
+    };
+
+    function partitionResults(accum, val: mixed, key: string | number) : ReducerResult {
       if (accum.done)
         return accum;
 
@@ -119,40 +127,92 @@ function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranch
       };
     }
 
-    return _.reduce(baseResult.value, partitionResults, base).result;
+    return _.isArray(baseVal) ? partitionResults(base, baseResult.value, baseResult.key).result : _.reduce(baseResult.value, partitionResults, base).result;
   } else {
+    return null;
+  }
+};
 
+function getResultValues(result: Array <SeekInObjResultItem>): Array<mixed> {
+  return result.map((s) => s.value);
+}
 
+export function seekInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {
+  let info = seekInObjWithInfo(target, specifier, ...otherSpecifiers);
+  return info == null ? undefined : all[0];
+}
+
+export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {
+  let result = seekInObjNoCheckWithInfo(target, specifier, ...otherSpecifiers);
+  return result == null ? undefined : result.value;
+}
+
+export function seekAllInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array <mixed> {
+  return getResultValues((seekAllInObjWithInfo(target, specifier, ...otherSpecifiers)));
+}
+
+function addressOfSeekResult(seekResult: SeekInObjResultItem) : string {
+  let strKey = toString(seekResult.key);
+  return strKey === '' || seekResult.parent == null ? strKey :
+      appendDelim(addressOfSeekResult(seekResult.parent), '.', strKey);
+}
+
+function objectAddresses(allInfo: Array <SeekInObjResultItem>): string {
+  return allInfo.map(addressOfSeekResult).join(', ');
+}
+
+export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?SeekInObjResultItem {
+  let allInfo = seekAllInObjWithInfo(target, specifier, ...otherSpecifiers);
+  if (allInfo.length === 0){
+    return null;
+  }
+  else {
+    ensure(allInfo.length > 1, 'More than one object matches supplied specifiers: ' + objectAddresses(allInfo));
+    return allInfo[0];
   }
 }
 
+export function seekInObjNoCheckWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?SeekInObjResultItem {
+  let allInfo = seekInObjBase(target, false, specifier, ...otherSpecifiers);
+  return allInfo.length === 0 ? null : allInfo[0];
+}
 
-function seekInObjBase(target :? {}, specifiers : Array <FuncSpecifier>, allBranches : boolean): Array<SeekInObjResultItem> {
+export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array <SeekInObjResultItem> {
+  return seekInObjBase(target, true, specifier, ...otherSpecifiers);
+}
+
+function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
     if(typeof target != 'object') {
       return [];
     };
 
-    function getNextGeneration(itemResult : SeekInObjResultItem): GenerationMatchResult {
+    function getNextGeneration(itemResult : SeekInObjResultItem): ?GenerationMatchResult {
       return matchFirstSpecifierOnTarget(itemResult, allBranches);
     };
 
-    function widthSearch(generationResult : GenerationMatchResult): Array <GenerationMatchResult> {
-        let thisRemaining = _.map(generationResult.remainingCandidates, getNextGeneration),
+    function pluckFlatten(baseArray, propPame): Array <SeekInObjResultItem> {
+      let result = _.chain(baseArray)
+                          .map(propPame)
+                          .flatten()
+                          .value();
+      return ((result: any): Array <SeekInObjResultItem>) ;
+    }
 
-            remainingItems = _.chain(thisRemaining)
-                              .pluck('remainingCandidates')
-                              .flatten()
+    function widthSearch(generationResult : GenerationMatchResult): Array <SeekInObjResultItem> {
+        let
+          thisRemaining = _.chain(generationResult.remainingCandidates)
+                              .map(getNextGeneration)
+                              .compact()
                               .value(),
 
-            fullyMatched = _.chain(thisRemaining)
-                            .pluck('fullyMatched')
-                            .flatten()
-                            .value();
+          remainingItems = pluckFlatten(thisRemaining, 'remainingCandidates'),
+          fullyMatched  = pluckFlatten(thisRemaining, 'fullyMatched');
 
-         fullyMatched = generationResult.fullyMatched.concat(fullyMatched);
+        fullyMatched = generationResult.fullyMatched.concat(fullyMatched);
 
-         if (remainingItems.length > 0 && (allBranches || fullyMatched.length === 0)){
-           let nextParam = {
+        if (remainingItems.length > 0 && (allBranches || fullyMatched.length === 0)){
+          let
+            nextParam = {
              fullyMatched: fullyMatched,
              remainingCandidates: remainingItems,
              done: false
@@ -164,145 +224,131 @@ function seekInObjBase(target :? {}, specifiers : Array <FuncSpecifier>, allBran
          }
     };
 
-    let seedResultItem: SeekInObjResultItem = {
+    let
+      allSpecifiers = [specifier].concat(otherSpecifiers).map(standardiseSpecifier),
+      seedResultItem: SeekInObjResultItem = {
         parent: null,
         value: target,
         key: '',
-        remainingSpecifiers: specifiers
-    },
-    seedResult: GenerationMatchResult = {
-      fullyMatched: [],
-      remainingCandidates: [seedResultItem],
-      done: false
-    };
+        remainingSpecifiers: allSpecifiers
+      },
+      seedResult: GenerationMatchResult = {
+        fullyMatched: [],
+        remainingCandidates: [seedResultItem],
+        done: false
+      };
 
-    return widthSearch(seedResult).fullyMatched;
-  }
-}
-
-
-export function def < a > (val :
-    ? a, defaultVal : a): a {
-    // != null === not null or undefined
-    if(val != null) {
-      return val;
-    } else {
-      return defaultVal;
-    }
-  }
+    console.log(toString(widthSearch(seedResult)));
+    return pluckFlatten(widthSearch(seedResult), 'fullyMatched');
+};
 
 export function isNullEmptyOrUndefined(arg : mixed): boolean {
   return !(arg != null) || arg === '';
 }
 
-  export function isDefined(arg : mixed): boolean {
-    return typeof arg !== 'undefined';
-  }
+export function isDefined(arg : mixed): boolean {
+  return typeof arg !== 'undefined';
+}
 
-  export function isUndefined(arg : mixed): boolean {
-    return !isDefined(arg);
-  }
+export function isUndefined(arg : mixed): boolean {
+  return !isDefined(arg);
+}
 
-  export function hasValue(arg : mixed): boolean {
+export function hasValue(arg : mixed): boolean {
 
-    function notFalseVal(key : string): boolean {
-      if(arg != null && typeof arg === 'object') {
-        let val : mixed = arg[key];
-        if (val != null) {
-          return (typeof val === 'boolean') && val;
-        } else {
-          return true;
-        }
+  function notFalseVal(key : string): boolean {
+    if(arg != null && typeof arg === 'object') {
+      let val : mixed = arg[key];
+      if (val != null) {
+        return (typeof val === 'boolean') && val;
       } else {
         return true;
       }
-    }
-
-    return isNullEmptyOrUndefined(arg)
-      ? false
-      : _.isArray(arg)
-        ? true
-        : _.isObject(arg)
-          ? (notFalseVal('exists') && notFalseVal('Exists')) //TODO - this is specific to TC UI unfound UI items update for testCafe
-          : true;
+    } else {
+      return true;
+    };
   }
+
+  return isNullEmptyOrUndefined(arg)
+    ? false
+    : _.isArray(arg)
+      ? true
+      : _.isObject(arg)
+        ? (notFalseVal('exists') && notFalseVal('Exists')) //TODO - this is specific to TC UI unfound UI items update for testCafe
+        : true;
+}
 
   // flow issues with lodash
   export function all < a > (predicate : (a) => boolean, arr : Array < a >): boolean {
     return arr.reduce((accum, item) => accum && predicate(item), true);
   }
 
-  export function stringConvertableToNumber(val :
-    ? string): boolean {
+export function stringConvertableToNumber(val: ?string): boolean {
 
-    if(val == null)
-      return false;
+  if(val == null)
+    return false;
 
-    function isNumChars(str) {
+  function isNumChars(str) {
 
-      function isDot(chr) {
-        return chr === '.';
-      }
-
-      let chrs = str.split(('')),
-        dotCount = _.filter(chrs, isDot).length,
-        allInts = (str : string) => {
-          return all(isIntChr, _.reject(chrs, isCommaWhiteSpaceDot));
-        };
-
-      return dotCount > 1 || startsWith(str, '.') || endsWith(str, '.') || startsWith(str, '0') && !startsWith(str, '0.') && !(str === '0')
-        ? false
-        : allInts(str);
+    function isDot(chr) {
+      return chr === '.';
     }
 
-    function isIntChr(chr : string): boolean {
-      var chCode = chr.charCodeAt(0);
-      return chCode > 47 && chCode < 58;
-    }
+    let chrs = str.split(('')),
+      dotCount = _.filter(chrs, isDot).length,
+      allInts = (str : string) => {
+        return all(isIntChr, _.reject(chrs, isCommaWhiteSpaceDot));
+      };
 
-    function isCommaWhiteSpaceDot(chr : string): boolean {
-      return [',', '\t', ' ', '.'].includes(chr);
-    }
-
-    return hasValue(val) && isNumChars(val);
+    return dotCount > 1 || startsWith(str, '.') || endsWith(str, '.') || startsWith(str, '0') && !startsWith(str, '0.') && !(str === '0')
+      ? false
+      : allInts(str);
   }
 
-  export function xOr(val1 : boolean, val2 : boolean): boolean {
-    return(val1 || val2) && !(val1 && val2);
+  function isIntChr(chr : string): boolean {
+    var chCode = chr.charCodeAt(0);
+    return chCode > 47 && chCode < 58;
   }
 
-  export function areEqualWithTolerance(expectedNumber : number | string, actualNumber : number | string, tolerance : number = 0) {
-    let deemedEqual = _.isEqual(actualNumber, expectedNumber);
-
-    function parseNumIfPossible(val : number | string) :
-      ? number {
-        return typeof val === 'string'
-          ? stringConvertableToNumber(val)
-            ? parseFloat(val)
-            : null : (typeof val === 'number'
-              ? val
-              : null);
-      }
-
-    if (!deemedEqual) {
-      let expectedNumberConverted = parseNumIfPossible(expectedNumber),
-        actualNumberConverted = parseNumIfPossible(actualNumber);
-
-      if (expectedNumberConverted != null && actualNumberConverted != null) {
-        var diff = Math.abs(actualNumberConverted - expectedNumberConverted);
-        // 0.10 !== 0.10 in javascript :-( work around
-        // deemedEqual = diff <= tolerance will not work
-        deemedEqual = !(diff > (tolerance + 0.0000000000000001));
-      }
-    }
-    return deemedEqual;
+  function isCommaWhiteSpaceDot(chr : string): boolean {
+    return [',', '\t', ' ', '.'].includes(chr);
   }
 
-  export function reorderProps(obj : {}, ...rest : Array < string >): {}
-  {
-    return _.defaults(_.pick(obj, rest), obj);
-  }
+  return hasValue(val) && isNumChars(val);
+}
 
-  export function fillArray < a > (arrayLength : number, val : a): Array < a > {
-    return _.times(arrayLength, _.constant(val));
+export function xOr(val1 : boolean, val2 : boolean): boolean {
+  return(val1 || val2) && !(val1 && val2);
+}
+
+export function areEqualWithTolerance(expectedNumber : number | string, actualNumber : number | string, tolerance : number = 0) {
+  let deemedEqual = _.isEqual(actualNumber, expectedNumber);
+
+  function parseNumIfPossible(val : number | string) :
+    ? number {
+      return typeof val === 'string'
+        ? stringConvertableToNumber(val) ? parseFloat(val) : null
+          : (typeof val === 'number'  ? val : null);
+    };
+
+  if (!deemedEqual) {
+    let expectedNumberConverted = parseNumIfPossible(expectedNumber),
+      actualNumberConverted = parseNumIfPossible(actualNumber);
+
+    if (expectedNumberConverted != null && actualNumberConverted != null) {
+      var diff = Math.abs(actualNumberConverted - expectedNumberConverted);
+      // 0.10 !== 0.10 in javascript :-( work around
+      // deemedEqual = diff <= tolerance will not work
+      deemedEqual = !(diff > (tolerance + 0.0000000000000001));
+    };
   }
+  return deemedEqual;
+}
+
+export function reorderProps(obj : {}, ...rest : Array < string >): {} {
+  return _.defaults(_.pick(obj, rest), obj);
+}
+
+export function fillArray <a> (arrayLength : number, val : a): Array <a> {
+  return _.times(arrayLength, _.constant(val));
+}

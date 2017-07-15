@@ -1,10 +1,15 @@
 // @flow
 
-//import { replace as nfReplace } from '../lib/StringUtilsLoFlow'
+import { def } from '../lib/SysUtils';
 
-/*
-replaces all
- */
+export function appendDelim(str1: ?string, delim: string, str2: ?string){
+   str1 = def(str1, "");
+   delim = def(delim, "");
+   str2 = def(str2, "");
+
+   return (str1 === "" || str2 === "") ? str1 + str2 : str1 + delim + str2;
+ };
+
 export function replace(hayStack: ?string, needle: string, replacement: string, caseSensitive: boolean = false): ?string {
    // https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
    if (hayStack == null){

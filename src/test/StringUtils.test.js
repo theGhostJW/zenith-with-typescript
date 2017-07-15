@@ -1,8 +1,34 @@
 // @flow
 
 import {test, describe} from 'mocha'
-import {toString, endsWith, startsWith, hasText, wildCardMatch, replace} from '../lib/StringUtils';
+import {toString, endsWith, startsWith, hasText, wildCardMatch, replace, appendDelim} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
+
+
+describe('appendDelim', () => {
+
+  it('full params', () => {
+    chkEq(appendDelim("Hello", " ", "World" ), "Hello World");
+  });
+
+  it('prefix null', () => {
+    chkEq(appendDelim(null, " ", "World" ), "World");
+  });
+
+  it('suffix null', () => {
+    chkEq(appendDelim("Hello", " ", null), "Hello");
+  });
+
+  it('all null', () => {
+    chkEq(appendDelim(null, " ", null), "");
+  });
+
+  it('prefix undefined', () => {
+    chkEq(appendDelim(undefined, " ", "World" ), "World");
+  });
+
+});
+
 
 describe('replace()', () => {
 

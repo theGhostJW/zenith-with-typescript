@@ -2,10 +2,43 @@
 
 import {it, describe} from 'mocha'
 import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr, all, stringConvertableToNumber,
-        areEqualWithTolerance, areEqual} from '../lib/SysUtils';
+        areEqualWithTolerance, areEqual, seekAllInObjWithInfo} from '../lib/SysUtils';
 import * as SysUtils from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
+
+describe.only('seekAllInObjWithInfo', () => {
+
+  it('finds a single string match', () => {
+
+    let targ = {
+            blah: 1
+            },
+        expected = {},
+        actual = seekAllInObjWithInfo(targ, 'blah');
+    //[1, 2, [1, 2, 3], 'Gary']
+     chkEq(expected, actual);
+  });
+
+  // it('finds many string match', () => {
+  //
+  //   let targ = {
+  //           blah1: 1,
+  //             child: {
+  //               blah: 2,
+  //               grandChild: {
+  //                 blah: [1, 2, 3],
+  //                 blahh2: 'Gary'
+  //               }
+  //             }
+  //           },
+  //       expected = {},
+  //       actual = seekAllInObjWithInfo(targ, 'blah*');
+  //   //[1, 2, [1, 2, 3], 'Gary']
+  //    chkEq(expected, actual);
+  // });
+
+});
 
 
 describe('areEqualWithTolerance', () => {
