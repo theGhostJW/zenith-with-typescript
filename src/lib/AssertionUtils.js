@@ -16,7 +16,7 @@ export function chkEq(expected : mixed, actual : mixed, msg : string = '') : voi
   }
 }
 
-export function chkEqJson(val1 : {}, val2 : {}, msg : string = '') : void {
+export function chkEqJson(val1 : mixed, val2: mixed, msg : string = '') : void {
   let v1 = JSON.stringify(val1),
     v2 = JSON.stringify(val2);
 

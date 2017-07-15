@@ -9,6 +9,7 @@
   "dependencies": {
     "babel-node": "^6.5.3",
     "bluebird": "^3.5.0",
+    "debug": "^2.6.8",
     "flow-typed": "^2.1.2",
     "lodash": "^4.17.4",
     "message": "^0.0.1",

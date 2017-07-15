@@ -5,6 +5,10 @@ import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
 
+export function debug<T>(msg: T, label: ?string): T {
+  console.log(appendDelim(label, ': ', toString(msg)));
+  return msg;
+}
 
 export function def <T> (val : ?T, defaultVal: T): T {
     // != null === not null or undefined
@@ -17,7 +21,7 @@ export function areEqual <T, U> (val1 : T, val2 : U, reasonableTypeCoercian : bo
 
 export function ensure(val : boolean, msg : string = '') : void {
   if(!val) {
-    throw new Error('chk failure ' + msg);
+    throw new Error('ensure failure - ' + msg);
   }
 }
 
@@ -52,10 +56,12 @@ function standardiseSpecifier(mixedSpec : MixedSpecifier) : FuncSpecifier {
   }
 
   // IndexSpecifier
+  ensure(_.isArray(mixedSpec), 'expect this to be an array: ' + toString(mixedSpec));
+
   return function indexmatch(val : mixed, key : string | number): any {
-    ensure(typeof val === 'Array', 'expect this to be an array');
+
     let indexer: IndexSpecifier = ((mixedSpec : any) : IndexSpecifier);
-    return val != null && val.constructor == Array && (indexer[0] < ((val : any) : Array < any >).length)
+    return val != null && _.isArray(val) && (indexer[0] < ((val: any) : Array <any>).length)
       ? ((val : any): Array < any >)[indexer[0]]
       : undefined;
   }
@@ -85,7 +91,7 @@ function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranch
 
   if (specifers.length > 0 && !_.isArray(baseVal) && typeof baseVal == 'object') {
 
-    let [specifier, ...otherSpecs] = baseResult.remainingSpecifiers,
+    let [specifier, ...otherSpecs] = specifers,
       isLastSpecifier = otherSpecs.length === 0;
 
     function matchedResult(val : mixed, key : string | number) : SeekInObjResultItem {
@@ -93,7 +99,7 @@ function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranch
     };
 
     function unMatchedResult(val : mixed, key : string | number) : SeekInObjResultItem {
-      return {parent: baseResult, value: val, key: key, remainingSpecifiers: otherSpecs};
+      return {parent: baseResult, value: val, key: key, remainingSpecifiers: specifers};
     };
 
     let base: ReducerResult = {
@@ -109,12 +115,20 @@ function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranch
         result = accum.result,
         fullyMatched = result.fullyMatched,
         remainingCandidates = result.remainingCandidates,
-        matchResult = specifier(val, key);
+        matchResult = specifier(val, key),
+        matchesThisSpecifier = isDefined(matchResult),
+        matchesAllSpecifiers = matchesThisSpecifier && isLastSpecifier;
 
-      if (isDefined(matchResult)) {
-        fullyMatched.push(matchedResult(val, key));
-        done = !allBranches && isLastSpecifier;
-      } else if (typeof val == 'object') {
+      if (matchesAllSpecifiers) {
+        fullyMatched.push(matchedResult(matchResult, key));
+        if (!allBranches){
+          done = !allBranches;
+        }
+      }
+      else if (matchesThisSpecifier) {
+        remainingCandidates.push(matchedResult(matchResult, key));
+      }
+      else if (typeof val == 'object') {
         remainingCandidates.push(unMatchedResult(val, key));
       }
 
@@ -177,7 +191,7 @@ export function seekInObjNoCheckWithInfo(target :? {}, specifier: MixedSpecifier
   return allInfo.length === 0 ? null : allInfo[0];
 }
 
-export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array <SeekInObjResultItem> {
+export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
   return seekInObjBase(target, true, specifier, ...otherSpecifiers);
 }
 
@@ -195,7 +209,7 @@ function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpec
                           .map(propPame)
                           .flatten()
                           .value();
-      return ((result: any): Array <SeekInObjResultItem>) ;
+      return ((result: any): Array <SeekInObjResultItem>);
     }
 
     function widthSearch(generationResult : GenerationMatchResult): Array <SeekInObjResultItem> {
@@ -205,16 +219,16 @@ function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpec
                               .compact()
                               .value(),
 
-          remainingItems = pluckFlatten(thisRemaining, 'remainingCandidates'),
+          remainingCandidates = pluckFlatten(thisRemaining, 'remainingCandidates'),
           fullyMatched  = pluckFlatten(thisRemaining, 'fullyMatched');
 
         fullyMatched = generationResult.fullyMatched.concat(fullyMatched);
 
-        if (remainingItems.length > 0 && (allBranches || fullyMatched.length === 0)){
+        if (remainingCandidates.length > 0 && (allBranches || fullyMatched.length === 0)){
           let
             nextParam = {
              fullyMatched: fullyMatched,
-             remainingCandidates: remainingItems,
+             remainingCandidates: remainingCandidates,
              done: false
            };
            return widthSearch(nextParam);
@@ -238,8 +252,7 @@ function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpec
         done: false
       };
 
-    console.log(toString(widthSearch(seedResult)));
-    return pluckFlatten(widthSearch(seedResult), 'fullyMatched');
+    return widthSearch(seedResult);
 };
 
 export function isNullEmptyOrUndefined(arg : mixed): boolean {

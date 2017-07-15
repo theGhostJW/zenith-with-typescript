@@ -7,6 +7,15 @@ import * as SysUtils from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
+interface ValKey {
+    key: string | number,
+    value: mixed
+}
+
+function valKeys(searcInfo: Array<$Subtype<ValKey>>): Array<ValKey>{
+  return searcInfo.map((a) => {return {key: a.key, value: a.value}});
+}
+
 describe.only('seekAllInObjWithInfo', () => {
 
   it('finds a single string match', () => {
@@ -14,32 +23,95 @@ describe.only('seekAllInObjWithInfo', () => {
     let targ = {
             blah: 1
             },
-        expected = {},
+        expected = [{"parent":{"parent":null,"value":{"blah":1},"key":"","remainingSpecifiers":[null]},"value":1,"key":"blah","remainingSpecifiers":[]}],
         actual = seekAllInObjWithInfo(targ, 'blah');
-    //[1, 2, [1, 2, 3], 'Gary']
-     chkEq(expected, actual);
+
+     chkEqJson(expected, actual);
   });
 
-  // it('finds many string match', () => {
-  //
-  //   let targ = {
-  //           blah1: 1,
-  //             child: {
-  //               blah: 2,
-  //               grandChild: {
-  //                 blah: [1, 2, 3],
-  //                 blahh2: 'Gary'
-  //               }
-  //             }
-  //           },
-  //       expected = {},
-  //       actual = seekAllInObjWithInfo(targ, 'blah*');
-  //   //[1, 2, [1, 2, 3], 'Gary']
-  //    chkEq(expected, actual);
-  // });
+  it('finds a multiple wildcard string match', () => {
+
+    let targ = {
+              blah1: 1,
+                child: {
+                  blah: 2,
+                  grandChild: {
+                    blah: [1, 2, 3],
+                    blahh2: 'Gary'
+                  }
+                }
+         },
+
+        expected = [
+                    {"key":"blah1","value":1},
+                    {"key":"blah","value":2},
+                    {"key":"blah","value":[1,2,3]},
+                    {"key":"blahh2","value":"Gary"}
+                  ],
+        actual = seekAllInObjWithInfo(targ, 'blah*');
+    chkEq(expected, valKeys(actual));
+  });
+
+  it('finds with multiple specifiers', () => {
+
+    let targ = {
+              blah1: 1,
+                child: {
+                  blah: 2,
+                  grandChild: {
+                    blah: [1, 2, 3],
+                    blahh2: 'Gary'
+                  }
+                }
+         },
+
+        expected = [
+                    {"key":"blah","value":2},
+                    {"key":"blah","value":[1,2,3]},
+                    {"key":"blahh2","value":"Gary"}
+                  ],
+        actual = seekAllInObjWithInfo(targ, 'child', 'blah*');
+     chkEq(expected, valKeys(actual));
+  });
+
+
+  it('index specifier', () => {
+
+      let targ = {
+                blah1: 1,
+                  child: {
+                    blah: 2,
+                    grandChild: {
+                      blah: [1, 2, 3],
+                      blahh2: 'Gary'
+                    }
+                  }
+           },
+          expected = [{"key":"blah","value": 1}],
+          actual = seekAllInObjWithInfo(targ, 'child', [0]);
+
+       chkEq(expected, valKeys(actual));
+    });
+
+    it('index specifier plus multiple specifiers', () => {
+
+        let targ = {
+                  blah1: 1,
+                    child: {
+                      blah: 2,
+                      grandChild: {
+                        blah: [1, 2, {final: 7}],
+                        blahh2: 'Gary'
+                      }
+                    }
+             },
+            expected = [{"key":"blah","value": 1}],
+            actual = seekAllInObjWithInfo(targ, 'child', 'blah', [2], 'final');
+
+         chkEq(expected, valKeys(actual));
+      });
 
 });
-
 
 describe('areEqualWithTolerance', () => {
 
