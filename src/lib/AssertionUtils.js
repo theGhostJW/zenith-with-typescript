@@ -16,11 +16,11 @@ export function chkEq(expected : mixed, actual : mixed, msg : string = '') : voi
   }
 }
 
-export function chkEqJson(val1 : mixed, val2: mixed, msg : string = '') : void {
-  let v1 = JSON.stringify(val1),
-    v2 = JSON.stringify(val2);
+export function chkEqJson(expected : mixed, actual: mixed, msg : string = '') : void {
+  let expectedJ = JSON.stringify(expected),
+      actualJ = JSON.stringify(actual);
 
-  if (v1 !== v2) {
-    throw new Error(v2 + 'did not equal expected ' + v1)
+  if (expectedJ !== actualJ) {
+    throw new Error('Expected:\n' + expectedJ + 'did not equal \nActual:\n' + actualJ);
   };
 }

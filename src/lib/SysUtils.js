@@ -41,10 +41,10 @@ type SeekInObjResultItem = {
   parent: SeekInObjResultItem | null,
   value: any,
   key: string | number,
-  remainingSpecifiers: Array <FuncSpecifier>
+  specifiers: Array <FuncSpecifier>
 };
 
-function standardiseSpecifier(mixedSpec : MixedSpecifier) : FuncSpecifier {
+function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
   if(typeof mixedSpec === 'function') {
     return mixedSpec;
   }
@@ -77,75 +77,74 @@ type ReducerResult = {
     result: GenerationMatchResult
 };
 
-function matchFirstSpecifierOnTarget(baseResult : SeekInObjResultItem, allBranches : boolean) : ?GenerationMatchResult {
-
-  ensure(typeof baseResult.value == 'object', 'baseResult.value be an object')
-
+function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, allBranches : boolean) : ?GenerationMatchResult {
   let
-    baseVal = baseResult.value,
-    specifers = baseResult.remainingSpecifiers,
+    baseVal = parent.value,
+    specifers = parent.specifiers,
     result = {
       fullyMatched: ([] : Array <SeekInObjResultItem>),
       remainingCandidates: ([] : Array <SeekInObjResultItem>)
     };
 
-  if (specifers.length > 0 && !_.isArray(baseVal) && typeof baseVal == 'object') {
+  if (specifers.length > 0 &&  typeof baseVal == 'object') {
 
-    let [specifier, ...otherSpecs] = specifers,
-      isLastSpecifier = otherSpecs.length === 0;
-
-    function matchedResult(val : mixed, key : string | number) : SeekInObjResultItem {
-      return {parent: baseResult, value: val, key: key, remainingSpecifiers: otherSpecs};
-    };
-
-    function unMatchedResult(val : mixed, key : string | number) : SeekInObjResultItem {
-      return {parent: baseResult, value: val, key: key, remainingSpecifiers: specifers};
-    };
-
-    let base: ReducerResult = {
-      done: false,
-      result: result
-    };
-
-    function partitionResults(accum, val: mixed, key: string | number) : ReducerResult {
-      if (accum.done)
-        return accum;
-
-      let done = false,
-        result = accum.result,
-        fullyMatched = result.fullyMatched,
-        remainingCandidates = result.remainingCandidates,
-        matchResult = specifier(val, key),
-        matchesThisSpecifier = isDefined(matchResult),
-        matchesAllSpecifiers = matchesThisSpecifier && isLastSpecifier;
-
-      if (matchesAllSpecifiers) {
-        fullyMatched.push(matchedResult(matchResult, key));
-        if (!allBranches){
-          done = !allBranches;
-        }
-      }
-      else if (matchesThisSpecifier) {
-        remainingCandidates.push(matchedResult(matchResult, key));
-      }
-      else if (typeof val == 'object') {
-        remainingCandidates.push(unMatchedResult(val, key));
-      }
-
-      return {
-        result: {
-          fullyMatched: fullyMatched,
-          remainingCandidates: remainingCandidates
-        },
-        done: done
+    let
+      base: ReducerResult = {
+        done: false,
+        result: result
       };
+
+    function resultPartition(accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
+      return partitionResults(parent, allBranches, accum, val, key);
     }
 
-    return _.isArray(baseVal) ? partitionResults(base, baseResult.value, baseResult.key).result : _.reduce(baseResult.value, partitionResults, base).result;
+    return _.isArray(baseVal) ? resultPartition(base, parent.value, parent.key).result : _.reduce(parent.value, resultPartition, base).result;
   } else {
     return null;
   }
 };
+
+function partitionResults(parent: SeekInObjResultItem, allBranches: boolean, accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
+  if (accum.done)
+    return accum;
+
+  let
+    specifiers = parent.specifiers,
+    [specifier, ...otherSpecs] = specifiers,
+    isLastSpecifier = otherSpecs.length === 0,
+    done = false,
+    result = accum.result,
+    fullyMatched = result.fullyMatched,
+    remainingCandidates = result.remainingCandidates,
+    matchResult = specifier(val, key),
+    matchesThisSpecifier = isDefined(matchResult),
+    matchesAllSpecifiers = matchesThisSpecifier && isLastSpecifier;
+
+    function newMatchInfo(val: mixed, key: string | number, specifiers: Array<FuncSpecifier>) : SeekInObjResultItem {
+      return {parent: parent, value: val, key: key, specifiers: specifiers};
+    };
+
+  if (matchesAllSpecifiers) {
+    fullyMatched.push(newMatchInfo(matchResult, key, otherSpecs));
+    if (!allBranches){
+      done = !allBranches;
+    }
+  }
+  else if (matchesThisSpecifier) {
+    remainingCandidates.push(newMatchInfo(matchResult, key, otherSpecs));
+  }
+  else if (typeof val == 'object') {
+    remainingCandidates.push(newMatchInfo(val, key, specifiers));
+  }
+
+  return {
+    result: {
+      fullyMatched: fullyMatched,
+      remainingCandidates: remainingCandidates
+    },
+    done: done
+  };
+}
 
 function getResultValues(result: Array <SeekInObjResultItem>): Array<mixed> {
   return result.map((s) => s.value);
@@ -204,9 +203,9 @@ function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpec
       return matchFirstSpecifierOnTarget(itemResult, allBranches);
     };
 
-    function pluckFlatten(baseArray, propPame): Array <SeekInObjResultItem> {
+    function pluckFlatten(baseArray, propName): Array <SeekInObjResultItem> {
       let result = _.chain(baseArray)
-                          .map(propPame)
+                          .map(propName)
                           .flatten()
                           .value();
       return ((result: any): Array <SeekInObjResultItem>);
@@ -244,7 +243,7 @@ function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpec
         parent: null,
         value: target,
         key: '',
-        remainingSpecifiers: allSpecifiers
+        specifiers: allSpecifiers
       },
       seedResult: GenerationMatchResult = {
         fullyMatched: [],

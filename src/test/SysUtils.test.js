@@ -23,71 +23,59 @@ describe.only('seekAllInObjWithInfo', () => {
     let targ = {
             blah: 1
             },
-        expected = [{"parent":{"parent":null,"value":{"blah":1},"key":"","remainingSpecifiers":[null]},"value":1,"key":"blah","remainingSpecifiers":[]}],
+        expected = [
+                    {
+                      parent:{"parent": null,
+                      value:{"blah":1},
+                      key:"",
+                      specifiers:[null]
+                    },
+                    value: 1,
+                    key:"blah",
+                    specifiers:[]
+                  }
+              ],
         actual = seekAllInObjWithInfo(targ, 'blah');
 
      chkEqJson(expected, actual);
   });
 
-  it('finds a multiple wildcard string match', () => {
-
-    let targ = {
-              blah1: 1,
-                child: {
-                  blah: 2,
-                  grandChild: {
-                    blah: [1, 2, 3],
-                    blahh2: 'Gary'
-                  }
+  let targ = {
+            blah1: 1,
+              child: {
+                blah: 2,
+                grandChild: {
+                  blah: [1, 2, 3],
+                  blahh2: 'Gary'
                 }
-         },
+              }
+       };
 
-        expected = [
-                    {"key":"blah1","value":1},
-                    {"key":"blah","value":2},
-                    {"key":"blah","value":[1,2,3]},
-                    {"key":"blahh2","value":"Gary"}
-                  ],
-        actual = seekAllInObjWithInfo(targ, 'blah*');
+  it('finds a multiple wildcard string match', () => {
+      let expected = [
+                {"key":"blah1","value":1},
+                {"key":"blah","value":2},
+                {"key":"blah","value":[1,2,3]},
+                {"key":"blahh2","value":"Gary"}
+              ],
+           actual = seekAllInObjWithInfo(targ, 'blah*');
     chkEq(expected, valKeys(actual));
   });
 
   it('finds with multiple specifiers', () => {
-
-    let targ = {
-              blah1: 1,
-                child: {
-                  blah: 2,
-                  grandChild: {
-                    blah: [1, 2, 3],
-                    blahh2: 'Gary'
-                  }
-                }
-         },
-
-        expected = [
+     let expected = [
                     {"key":"blah","value":2},
                     {"key":"blah","value":[1,2,3]},
                     {"key":"blahh2","value":"Gary"}
                   ],
-        actual = seekAllInObjWithInfo(targ, 'child', 'blah*');
+          actual = seekAllInObjWithInfo(targ, 'child', 'blah*');
+
      chkEq(expected, valKeys(actual));
   });
 
 
   it('index specifier', () => {
-
-      let targ = {
-                blah1: 1,
-                  child: {
-                    blah: 2,
-                    grandChild: {
-                      blah: [1, 2, 3],
-                      blahh2: 'Gary'
-                    }
-                  }
-           },
-          expected = [{"key":"blah","value": 1}],
+      let expected = [{"key":"blah","value": 1}],
           actual = seekAllInObjWithInfo(targ, 'child', [0]);
 
        chkEq(expected, valKeys(actual));
@@ -95,21 +83,57 @@ describe.only('seekAllInObjWithInfo', () => {
 
     it('index specifier plus multiple specifiers', () => {
 
+      let targ = {
+                blah1: 1,
+                  child: {
+                    blah: 2,
+                    grandChild: {
+                      blah: [1, 2, {final: 1}],
+                      blahh2: 'Gary'}
+              }
+          };
+
+        let expected = [{key:"final", value: 1}],
+            actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
+
+         chkEq(expected, valKeys(actual));
+      });
+
+      it('index specifier plus multiple specifiers and non obj in array', () => {
+
         let targ = {
                   blah1: 1,
                     child: {
                       blah: 2,
                       grandChild: {
-                        blah: [1, 2, {final: 7}],
-                        blahh2: 'Gary'
-                      }
-                    }
-             },
-            expected = [{"key":"blah","value": 1}],
-            actual = seekAllInObjWithInfo(targ, 'child', 'blah', [2], 'final');
+                        blah: [1, 2, 7],
+                        blahh2: 'Gary'}
+                }
+            };
 
-         chkEq(expected, valKeys(actual));
-      });
+          let expected = [{key:"blah", value: 7}],
+              actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2]);
+
+           chkEq(expected, valKeys(actual));
+        });
+
+        it('index specifier plus multiple specifiers and non obj in array', () => {
+
+          let targ = {
+                    blah1: 1,
+                      child: {
+                        blah: 2,
+                        grandChild: {
+                          blah: [1, 2, 7],
+                          blahh2: 'Gary'}
+                  }
+              };
+
+            let expected = [],
+                actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
+
+             chkEq(expected, []);
+        });
 
 });
 

@@ -32,7 +32,7 @@
     "debug": "yarn run prepublish && node inspect ./dist/test/sum.test.js",
     "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
     "testWatch": "mocha --compilers js:babel-core/register -w ./src/test/**/*.test.js",
-    "fixBabel": "yarn add --dev babel-cli babel-preset-flow babel-preset-env",
+    "fixBabel": "yarn add --dev babel-cli babel-preset-flow babel-preset-env flow-bin",
     "fixFlow": "yarn add --dev flow-bin"
   }
 }
