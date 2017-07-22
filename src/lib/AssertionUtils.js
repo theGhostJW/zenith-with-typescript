@@ -20,7 +20,7 @@ export function chkEqJson(expected : mixed, actual: mixed, msg : string = '') : 
   let expectedJ = JSON.stringify(expected),
       actualJ = JSON.stringify(actual);
 
-  if (expectedJ !== actualJ) {
+  if (expectedJ.valueOf() !== actualJ.valueOf()) {
     throw new Error('Expected:\n' + expectedJ + 'did not equal \nActual:\n' + actualJ);
   };
 }

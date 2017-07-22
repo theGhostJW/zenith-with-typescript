@@ -5,8 +5,8 @@ import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib
 
 export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
 
-export function debug<T>(msg: T, label: ?string): T {
-  console.log(appendDelim(label, ': ', toString(msg)));
+export function debug<T>(msg: T, label: string = 'DEBUG'): T {
+  console.log(appendDelim(_.toUpper(label), ': ', toString(msg)));
   return msg;
 }
 
@@ -31,11 +31,15 @@ function eqCustomiser <T, U> (val1 : T, val2 : U) : void | boolean {
     : undefined;
 }
 
-type MixedSpecifier = string | FuncSpecifier | IndexSpecifier;
+type MixedSpecifier = string | Predicate | IndexSpecifier | {};
 
-type FuncSpecifier = (val : mixed, key : string | number) => any;
+type Predicate = (val : mixed, key : string | number) => bool;
 
-type IndexSpecifier = [number];
+type ArrayItemPredicate = (val : mixed) => bool;
+
+type FuncSpecifier = (val : any, key : string | number) => any;
+
+type IndexSpecifier = [number | ArrayItemPredicate];
 
 type SeekInObjResultItem = {
   parent: SeekInObjResultItem | null,
@@ -45,8 +49,12 @@ type SeekInObjResultItem = {
 };
 
 function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
+
+  // assume predicate
   if(typeof mixedSpec === 'function') {
-    return mixedSpec;
+    return function keyMatch(val : mixed, key : string | number) : any {
+      return ((mixedSpec: any) : Predicate)(val, key) ? val : undefined;
+    }
   }
 
   if (typeof mixedSpec == 'string' || typeof mixedSpec == 'number') {
@@ -55,15 +63,61 @@ function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
     }
   }
 
-  // IndexSpecifier
-  ensure(_.isArray(mixedSpec), 'expect this to be an array: ' + toString(mixedSpec));
+  if (isPOJSO(mixedSpec)) {
+    return function keyMatch(val : mixed, key : string | number) : any {
+      if (isPOJSO(val)) {
+        let specObj = ((mixedSpec: any): {}),
+            valObj = ((val: any): {}),
+            specKeys = _.keys(specObj),
+            valKeys = _.keys(valObj);
+
+        function matchesKeys(keys) {
+
+          if (areEqual(keys, [])){
+            return true;
+          }
+          else {
+            let [specKey, ...otherSpecKeys] = keys,
+                valKey = _.find(valKeys, (vk) => wildCardMatch(vk, specKey, true));
+
+            if (valKey != null){
+              let valPropVal = valObj[valKey],
+                  specPropVal = specObj[specKey];
+
+              return  _.isString(valPropVal) &&
+                      _.isString(specPropVal) &&
+                      wildCardMatch(valPropVal, specPropVal)  ||
+                          areEqual(valPropVal, specPropVal);
+            }
+            else {
+              return false;
+            }
+          }
+        }
+        return matchesKeys(specKeys) ? val : undefined;
+      }
+      else {
+        return undefined;
+      }
+    }
+  }
+
+  // IndexSpecifier / or HOFIndex Specifier
+  ensure(_.isArray(mixedSpec) && ((mixedSpec: any): Array<any>).length === 1, 'expect this to be a single item array: ' + toString(mixedSpec));
+
+  let dummy = (val : mixed, key : string | number) => {return undefined},
+      indexer : IndexSpecifier = ((mixedSpec : any) : IndexSpecifier),
+      item = indexer[0],
+      indexerSpec: FuncSpecifier = typeof item == 'function' ? (val: Array<any>) => { return _.find(val, ((item: any): ArrayItemPredicate)); } :
+                                    typeof item == 'number' ? (val: Array<any>) => {
+                                                                        let idx: number = ((item: any): number);
+                                                                        return val.length > idx ? val[idx] : undefined;
+                                                                      }  : dummy;
+
+  ensure(indexerSpec !== dummy, 'array indexer must be a single element array of function or integer: [int] or [(val) => bool]');
 
   return function indexmatch(val : mixed, key : string | number): any {
-
-    let indexer: IndexSpecifier = ((mixedSpec : any) : IndexSpecifier);
-    return val != null && _.isArray(val) && (indexer[0] < ((val: any) : Array <any>).length)
-      ? ((val : any): Array < any >)[indexer[0]]
-      : undefined;
+    return _.isArray(val) ? indexerSpec(val, key) : undefined;
   }
 }
 
@@ -104,6 +158,10 @@ function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, allBranches : 
   }
 };
 
+export function isPOJSO(val: mixed): boolean {
+  return _.isObject(val) &&  !_.isArray(val);
+}
+
 function partitionResults(parent: SeekInObjResultItem, allBranches: boolean, accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
   if (accum.done)
     return accum;
@@ -133,7 +191,7 @@ function partitionResults(parent: SeekInObjResultItem, allBranches: boolean, acc
   else if (matchesThisSpecifier) {
     remainingCandidates.push(newMatchInfo(matchResult, key, otherSpecs));
   }
-  else if (typeof val == 'object') {
+  else if (isPOJSO(val)) {
     remainingCandidates.push(newMatchInfo(val, key, specifiers));
   }
 
@@ -147,7 +205,7 @@ function partitionResults(parent: SeekInObjResultItem, allBranches: boolean, acc
 }
 
 function getResultValues(result: Array <SeekInObjResultItem>): Array<mixed> {
-  return result.map((s) => s.value);
+  return result.map((s: SeekInObjResultItem) => s.value);
 }
 
 export function seekInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {

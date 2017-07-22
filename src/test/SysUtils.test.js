@@ -1,139 +1,537 @@
 // @flow
 
 import {it, describe} from 'mocha'
-import {reorderProps, fillArray, isDefined, isNullEmptyOrUndefined, hasValue, def, xOr, all, stringConvertableToNumber,
-        areEqualWithTolerance, areEqual, seekAllInObjWithInfo} from '../lib/SysUtils';
-import * as SysUtils from '../lib/SysUtils';
+import {
+  reorderProps,
+  fillArray,
+  isDefined,
+  isNullEmptyOrUndefined,
+  hasValue,
+  def,
+  xOr,
+  all,
+  stringConvertableToNumber,
+  areEqualWithTolerance,
+  areEqual,
+  seekAllInObjWithInfo,
+  isPOJSO,
+  debug
+} from '../lib/SysUtils';
+import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
 interface ValKey {
-    key: string | number,
-    value: mixed
+  key : string | number,
+  value : mixed
 }
 
-function valKeys(searcInfo: Array<$Subtype<ValKey>>): Array<ValKey>{
-  return searcInfo.map((a) => {return {key: a.key, value: a.value}});
+function valKeys(searcInfo : Array < $Subtype < ValKey >>) : Array < ValKey > {
+  return searcInfo.map((a : ValKey) => {
+    return {key: a.key, value: a.value}
+  });
 }
 
-describe.only('seekAllInObjWithInfo', () => {
+describe('seekAllInObjWithInfo', () => {
 
-  it('finds a single string match', () => {
+  const EG_OBJ = {
+    store: {
+      book: {
+        category: "fiction",
+        author: "J. R. R. Tolkien",
+        title: "The Lord of the Rings",
+        isbn: "0-395-19395-8",
+        price: 22.99
+      },
+      books: [
+        {
+          category: "reference",
+          author: "Nigel Rees",
+          title: "Sayings of the Century",
+          price: 8.95
+        }, {
+          category: "fiction",
+          author: "Evelyn Waugh",
+          title: "Sword of Honour",
+          price: 12.99
+        }
+      ],
+      bicycle: {
+        category: "fun",
+        color: "red",
+        gears: 12,
+        price: 19.95
+      }
+    },
+    home: {
+      color: "green",
+      category: "homi",
+      stuff: {
+        category: "stuff cat",
+        toys: "fiction",
+        author: "Me",
+        other: {
+          moreInfo: 'Hi there'
+        }
+      }
+    }
+  };
 
-    let targ = {
-            blah: 1
-            },
+  describe('property selectors', () => {
+    it('finds a single string match', () => {
+
+      let targ = {
+          blah: 1
+        },
         expected = [
-                    {
-                      parent:{"parent": null,
-                      value:{"blah":1},
-                      key:"",
-                      specifiers:[null]
-                    },
-                    value: 1,
-                    key:"blah",
-                    specifiers:[]
-                  }
-              ],
+          {
+            parent: {
+              "parent": null,
+              value: {
+                "blah": 1
+              },
+              key: "",
+              specifiers: [null]
+            },
+            value: 1,
+            key: "blah",
+            specifiers: []
+          }
+        ],
         actual = seekAllInObjWithInfo(targ, 'blah');
 
-     chkEqJson(expected, actual);
-  });
+      chkEqJson(expected, actual);
+    });
 
-  let targ = {
-            blah1: 1,
-              child: {
-                blah: 2,
-                grandChild: {
-                  blah: [1, 2, 3],
-                  blahh2: 'Gary'
-                }
-              }
-       };
+    let targ = {
+      blah1: 1,
+      child: {
+        blah: 2,
+        grandChild: {
+          blah: [
+            1, 2, 3
+          ],
+          blahh2: 'Gary'
+        }
+      }
+    };
 
-  it('finds a multiple wildcard string match', () => {
+    it('finds a multiple wildcard string match', () => {
       let expected = [
-                {"key":"blah1","value":1},
-                {"key":"blah","value":2},
-                {"key":"blah","value":[1,2,3]},
-                {"key":"blahh2","value":"Gary"}
-              ],
-           actual = seekAllInObjWithInfo(targ, 'blah*');
-    chkEq(expected, valKeys(actual));
-  });
+          {
+            "key": "blah1",
+            "value": 1
+          }, {
+            "key": "blah",
+            "value": 2
+          }, {
+            "key": "blah",
+            "value": [1, 2, 3]
+          }, {
+            "key": "blahh2",
+            "value": "Gary"
+          }
+        ],
+        actual = seekAllInObjWithInfo(targ, 'blah*');
+      chkEq(expected, valKeys(actual));
+    });
 
-  it('finds with multiple specifiers', () => {
-     let expected = [
-                    {"key":"blah","value":2},
-                    {"key":"blah","value":[1,2,3]},
-                    {"key":"blahh2","value":"Gary"}
-                  ],
-          actual = seekAllInObjWithInfo(targ, 'child', 'blah*');
+    it('finds with multiple specifiers', () => {
+      let expected = [
+          {
+            "key": "blah",
+            "value": 2
+          }, {
+            "key": "blah",
+            "value": [1, 2, 3]
+          }, {
+            "key": "blahh2",
+            "value": "Gary"
+          }
+        ],
+        actual = seekAllInObjWithInfo(targ, 'child', 'blah*');
 
-     chkEq(expected, valKeys(actual));
-  });
+      chkEq(expected, valKeys(actual));
+    });
 
+    it('index specifier', () => {
+      let expected = [
+          {
+            "key": "blah",
+            "value": 1
+          }
+        ],
+        actual = seekAllInObjWithInfo(targ, 'child', [0]);
 
-  it('index specifier', () => {
-      let expected = [{"key":"blah","value": 1}],
-          actual = seekAllInObjWithInfo(targ, 'child', [0]);
-
-       chkEq(expected, valKeys(actual));
+      chkEq(expected, valKeys(actual));
     });
 
     it('index specifier plus multiple specifiers', () => {
 
       let targ = {
-                blah1: 1,
-                  child: {
-                    blah: 2,
-                    grandChild: {
-                      blah: [1, 2, {final: 1}],
-                      blahh2: 'Gary'}
+        blah1: 1,
+        child: {
+          blah: 2,
+          grandChild: {
+            blah: [
+              1,
+              2, {
+                final: 1
               }
-          };
+            ],
+            blahh2: 'Gary'
+          }
+        }
+      };
 
-        let expected = [{key:"final", value: 1}],
-            actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
+      let expected = [
+          {
+            key: "final",
+            value: 1
+          }
+        ],
+        actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
 
-         chkEq(expected, valKeys(actual));
+      chkEq(expected, valKeys(actual));
+    });
+
+    it('index specifier plus multiple specifiers and non obj in array', () => {
+
+      let targ = {
+        blah1: 1,
+        child: {
+          blah: 2,
+          grandChild: {
+            blah: [
+              1, 2, 7
+            ],
+            blahh2: 'Gary'
+          }
+        }
+      };
+
+      let expected = [
+          {
+            key: "blah",
+            value: 7
+          }
+        ],
+        actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2]);
+
+      chkEq(expected, valKeys(actual));
+    });
+
+    it('index specifier plus multiple specifiers and non obj in array - object does not exist', () => {
+
+      let targ = {
+        blah1: 1,
+        child: {
+          blah: 2,
+          grandChild: {
+            blah: [
+              1, 2, 7
+            ],
+            blahh2: 'Gary'
+          }
+        }
+      };
+
+      let expected = [],
+        actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
+
+      chkEq(expected, []);
+    });
+
+    it('simple prop - deeply nested', () => {
+      let expected = [
+          {
+            key: "gears",
+            value: 12
+          }
+        ],
+        actual = seekAllInObjWithInfo(EG_OBJ, 'gears');
+      chkEq(expected, valKeys(actual));
+    });
+
+    it('simple prop - null', () => {
+      let targ = {
+         prop: null
+       },
+      expected = [
+          {
+            key: "prop",
+            value: null
+          }
+        ],
+       actual = seekAllInObjWithInfo(targ, 'prop');
+       chkEq(expected, valKeys(actual));
+    });
+
+    it('simple prop - shallow', () => {
+      let expected = [
+          {
+            "key": "category",
+            "value": "homi"
+          }, {
+            "key": "category",
+            "value": "fiction"
+          }, {
+            "key": "category",
+            "value": "fun"
+          }, {
+            "key": "category",
+            "value": "stuff cat"
+          }
+        ],
+        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, 'category'));
+
+      chkEq(expected, actual);
+    });
+
+    it('deeply nested - with wildcard', () => {
+      let expected = [
+          {
+            "key": "category",
+            "value": "stuff cat"
+          }
+        ],
+        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, 'stuff', 'cat*'));
+      chkEq(expected, actual);
+    });
+
+    it('property missing - should be null', () => {
+      let actual = seekAllInObjWithInfo(EG_OBJ, 'nonProperty');
+      chkEq([], actual);
+    });
+
+    it('nested property with substring of name', () => {
+      let targ = {
+          blah1: 1,
+          child: {
+            blah: 2
+          }
+        },
+        actual = valKeys(seekAllInObjWithInfo(targ, 'blah')),
+        expected = [
+          {
+            key: "blah",
+            value: 2
+          }
+        ];
+      chkEq(expected, actual);
+    });
+  });
+
+  describe('object Selectors', () => {
+
+    it('nested with object selectors and wild cards', () => {
+      let expected = [
+          {
+            key: "book",
+            value: EG_OBJ.store.book
+          }
+        ],
+        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, {author: '*Tol*'}));
+      chkEq(expected, actual);
+    });
+
+    it('multi prop object specifier', () => {
+      let expected = [
+          {
+            key: "stuff",
+            value: EG_OBJ.home.stuff
+          }
+        ],
+        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, {
+          color: "g*"
+        }, {author: "Me"}));
+
+      chkEq(expected, actual);
+    });
+
+    it('mix object / string specifier', () => {
+      let expected = [
+          {
+            key: 'moreInfo',
+            value: 'Hi there'
+          }
+        ],
+        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, {
+          author: "M*"
+        }, 'moreInfo'));
+      chkEq(expected, actual);
+    });
+
+    it('object specifier missing prop', () => {
+      let expected = [],
+        actual = seekAllInObjWithInfo(EG_OBJ, {
+          noWhereProp: "M*"
+        }, 'moreInfo');
+      chkEq(expected, actual);
+    });
+  });
+
+  describe('function selectors', () => {
+
+    function areToys(val : any, key : string | number) : boolean {
+      return areEqual('toys', key);
+    }
+
+    it('function spec', () => {
+      let expected = [
+          {
+            key: 'toys',
+            value: 'fiction'
+          }
+        ],
+        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, areToys));
+      chkEq(expected, actual);
+    });
+
+  });
+
+  function chkValKeys(expected, actual) {
+    actual = valKeys(actual);
+    chkEq(expected, actual);
+  }
+
+  describe('array selectors', () => {
+    describe('simple array only cases', () => {
+      const EG_OBJ1 = {
+                        blah1: 1,
+                        child: {
+                            blah: [{book: {title: 'Wild Swans'}}]
+                        }
+                      };
+
+      it('simple nested', () => {
+        let expected = [{key: 'blah', value: EG_OBJ1.child.blah[0]}];
+        chkValKeys(expected, seekAllInObjWithInfo(EG_OBJ1, 'blah', [0]));
       });
 
-      it('index specifier plus multiple specifiers and non obj in array', () => {
+      it('simple nested no property', () => {
+        let expected = [];
+        chkEq(expected, seekAllInObjWithInfo(EG_OBJ1, 'blahg', [0]));
+      });
 
-        let targ = {
+      it('simple nested out of bounds', () => {
+        let expected = [];
+        chkEq(expected, seekAllInObjWithInfo(EG_OBJ1, 'blah', [1]));
+      });
+
+   });
+
+   describe('complex nested selectors', () => {
+
+     const TARG = {
+                   blah1: 1,
+                     child: {
+                       blah: [
+                               {
+                                 book: {
+                                       title: 'Wild Swans',
+                                       editions: [1,2,3,4]
+                                     }
+                                 }
+                       ]
+                     }
+                   };
+
+     it('multiple array selectors', () => {
+        let expected = [{key: 'editions', value: 4}];
+        chkValKeys(expected, seekAllInObjWithInfo(TARG, 'blah', [0], 'editions', [3]));
+     });
+
+     it('multiple hof array selectors on array', () => {
+        let expected = [{key: 'editions', value: 2}];
+
+        function hasSwansTitle(val){
+          return hasText(((val: any):  {
+                book: {
+                  title: string
+                }
+              } )['book']['title'], 'swans');
+        }
+
+        function isTwo(val){
+          return val === 2;
+        }
+
+        chkValKeys(expected, seekAllInObjWithInfo(TARG, 'blah', [hasSwansTitle], 'editions', [isTwo]));
+     });
+
+   });
+
+    /*
+
+
+
+       nested properties multiple arrays
+
+
+    nested properties using HOFS
+
+
+      targ = {
                   blah1: 1,
                     child: {
-                      blah: 2,
-                      grandChild: {
-                        blah: [1, 2, 7],
-                        blahh2: 'Gary'}
-                }
-            };
+                      blah: [
+                              {
+                                book: {
+                                      title: 'Wild Swans',
+                                      editions: [1,2,3,4]
+                                    }
+                                }
+                      ]
+                    }
+                  };
 
-          let expected = [{key:"blah", value: 7}],
-              actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2]);
+      expected = {
+                  parent: [1,2,3,4],
+                  value: 2,
+                  key: 1,
+                  address: "child.blah." + ARRAY_QUERY_ITEM_LABEL() + '.book.editions.' + ARRAY_QUERY_ITEM_LABEL()
+                };
 
-           chkEq(expected, valKeys(actual));
-        });
+      function hasSwansTitle(val){
+        return hasText(val.book.title, 'swans');
+      }
 
-        it('index specifier plus multiple specifiers and non obj in array', () => {
+      function isTwo(val){
+        return val === 2;
+      }
+      result = seekInObj(targ, 'blah', [hasSwansTitle], 'editions', [isTwo], true);
+      checkEqual(expected, result, 'multi nested array');
 
-          let targ = {
-                    blah1: 1,
-                      child: {
-                        blah: 2,
-                        grandChild: {
-                          blah: [1, 2, 7],
-                          blahh2: 'Gary'}
-                  }
-              };
+        null property
+      targ = {
+        prop: null
+      };
+      result = seekInObj(targ, 'prop');
+      checkEqual(null, result, 'null prop');
 
-            let expected = [],
-                actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
 
-             chkEq(expected, []);
-        });
+     */
+
+  });
+
+
+
+});
+
+describe('isPOJSO', () => {
+
+  it('returns true for POJSO', () => {
+    chk(isPOJSO({}));
+  });
+
+  it('returns false for null', () => {
+    chkFalse(isPOJSO(null));
+  });
+
+  it('returns false for array', () => {
+    chkFalse(isPOJSO([]));
+  });
 
 });
 
@@ -174,12 +572,13 @@ describe('areEqual', () => {
     chk(areEqual(22.111, 22.111));
   });
 
-  let val1, val2;
+  let val1,
+    val2;
   val1 = {
-      a: {
-        b: 1.2222,
-        c: 5.667
-      },
+    a: {
+      b: 1.2222,
+      c: 5.667
+    },
 
     b: new Date(1977, 8, 9),
     c: 66,
@@ -191,9 +590,9 @@ describe('areEqual', () => {
     c: 66,
     d: 'hi',
     a: {
-        b: 1.2222,
-        c: (6 - 0.333)
-      }
+      b: 1.2222,
+      c: (6 - 0.333)
+    }
   };
 
   it('two objects', () => {
@@ -206,10 +605,52 @@ describe('areEqual', () => {
   });
 
   it('two strings', () => {
-    let dStr = () => {return '[1,2,3]';}
+    let val2 = _.cloneDeep(val1);
+    chk(areEqual(val1, val2));
+  });
+
+  it('two objects with strings', () => {
+    let dStr = () => {
+      return '[1,2,3]';
+    }
     chk(areEqual('[1,2,3]', dStr()));
   });
 
+  it('2 arrays with strings', () => {
+    let v1 = () => {
+        return [
+          {
+            "key": "category",
+            "value": "homi"
+          }, {
+            "key": "category",
+            "value": "fiction"
+          }, {
+            "key": "category",
+            "value": "fun"
+          }, {
+            "key": "category",
+            "value": "stuff cat"
+          }
+        ];
+      },
+      v2 = [
+        {
+          "key": "category",
+          "value": "homi"
+        }, {
+          "key": "category",
+          "value": "fiction"
+        }, {
+          "key": "category",
+          "value": "fun"
+        }, {
+          "key": "category",
+          "value": "stuff cat"
+        }
+      ];
+    chk(areEqual(v1(), v2));
+  });
 });
 
 describe('stringConvertableToNumber', () => {
@@ -237,11 +678,14 @@ describe('stringConvertableToNumber', () => {
 
 });
 
-
 describe('all', () => {
 
-  let even = (n: number) => { return n % 2 === 0; },
-      allEven = (arr: Array<number>) => {return all(even, arr) };
+  let even = (n : number) => {
+      return n % 2 === 0;
+    },
+    allEven = (arr : Array < number >) => {
+      return all(even, arr)
+    };
 
   it('when true', () => {
     chk(allEven([2, 4, 6, 8, 10]));
@@ -256,7 +700,6 @@ describe('all', () => {
   });
 
 });
-
 
 describe('xOr', () => {
 
@@ -279,68 +722,71 @@ describe('def', () => {
   it('def - empty string', () => {
     /* empty string is treated as a value and not defaulted */
     let myVar = "",
-        deffedVar = def(myVar, 1);
-    chkEq("", deffedVar);});
+      deffedVar = def(myVar, 1);
+    chkEq("", deffedVar);
+  });
 
   it('def - null', () => {
     let myVar = null,
-        deffedVar = def(myVar, 1);
-    chkEq(1, deffedVar);});
+      deffedVar = def(myVar, 1);
+    chkEq(1, deffedVar);
+  });
 });
 
 describe('hasValue', () => {
 
   it('hasValue - all', () => {
-      var obj, result;
+    var obj,
+      result;
 
-      result = hasValue(obj);
-      chkFalse(result);
+    result = hasValue(obj);
+    chkFalse(result);
 
-      result = hasValue(null);
-      chkFalse(result);
+    result = hasValue(null);
+    chkFalse(result);
 
-      result = hasValue("");
-      chkFalse(result);
+    result = hasValue("");
+    chkFalse(result);
 
-      result = hasValue("John");
-      chk(result);
+    result = hasValue("John");
+    chk(result);
 
-      result = hasValue("1/1/2000");
-      chk(result);
+    result = hasValue("1/1/2000");
+    chk(result);
 
-      result = hasValue("1\\1\\2000");
-      chk(result);
+    result = hasValue("1\\1\\2000");
+    chk(result);
 
-      result = hasValue(1);
-      chk(result);
+    result = hasValue(1);
+    chk(result);
 
-      result = hasValue(0);
-      chk(result);
+    result = hasValue(0);
+    chk(result);
 
-      var obj = Array(1, 2, 3)
-      result = hasValue(obj);
-      chk(result);
+    var obj = Array(1, 2, 3)
+    result = hasValue(obj);
+    chk(result);
 
-      obj = Date.parse('2013-1-1');
-      result = hasValue(obj);
-      chk(result);
+    obj = Date.parse('2013-1-1');
+    result = hasValue(obj);
+    chk(result);
 
-      result = hasValue({exists: true });
-      chk(result);
+    result = hasValue({exists: true});
+    chk(result);
 
-      result = hasValue({Exists: true });
-      chk(result);
+    result = hasValue({Exists: true});
+    chk(result);
 
-      result = hasValue({exists: false });
-      chkFalse(result);
+    result = hasValue({exists: false});
+    chkFalse(result);
 
-      result = hasValue({Exists: false });
-      chkFalse(result);
+    result = hasValue({Exists: false});
+    chkFalse(result);
 
-      result = hasValue({});
-      chk(result);
-    });
+    result = hasValue({});
+    chk(result);
   });
+});
 
 describe('isNullEmptyOrUndefined', () => {
 

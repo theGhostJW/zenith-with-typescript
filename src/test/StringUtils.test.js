@@ -124,6 +124,10 @@ describe('wildcardMatch', () => {
                             true));
                           });
 
+  it('multi wild cards', () => {
+    chk(wildCardMatch('J. R. R. Tolkien', '*Tol*'));
+  });
+
 });
 
 describe('hasText', () => {
