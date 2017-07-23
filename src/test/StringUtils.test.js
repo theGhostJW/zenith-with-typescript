@@ -29,8 +29,7 @@ describe('appendDelim', () => {
 
 });
 
-
-describe('replace()', () => {
+describe('replace', () => {
 
   it('null base', () => {
     chkEq(null, replace(null, 'a', 'A'));

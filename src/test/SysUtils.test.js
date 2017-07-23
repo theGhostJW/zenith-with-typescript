@@ -14,11 +14,16 @@ import {
   areEqualWithTolerance,
   areEqual,
   seekAllInObjWithInfo,
+  seekAllInObj,
+  seekInObj,
+  seekInObjWithInfo,
+  seekInObjNoCheckWithInfo,
+  seekInObjNoCheck,
   isPOJSO,
   debug
 } from '../lib/SysUtils';
 import {toString, hasText} from '../lib/StringUtils';
-import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
+import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
 interface ValKey {
@@ -31,6 +36,121 @@ function valKeys(searcInfo : Array < $Subtype < ValKey >>) : Array < ValKey > {
     return {key: a.key, value: a.value}
   });
 }
+
+function chkValKeys(expected, actual: Array < $Subtype < ?ValKey >>) {
+  actual = valKeys(actual);
+  chkEq(expected, actual);
+}
+
+
+describe('seekInObjxxx - derived functions', () => {
+
+  const EG_OBJ = {
+    store: {
+      book: {
+        category: "fiction",
+        author: "J. R. R. Tolkien",
+        title: "The Lord of the Rings",
+        isbn: "0-395-19395-8",
+        price: 22.99
+      },
+      books: [
+        {
+          category: "reference",
+          author: "Nigel Rees",
+          title: "Sayings of the Century",
+          price: 8.95
+        }, {
+          category: "fiction",
+          author: "Evelyn Waugh",
+          title: "Sword of Honour",
+          price: 12.99
+        }
+      ],
+      bicycle: {
+        category: "fun",
+        color: "red",
+        gears: 12,
+        price: 19.95
+      }
+    },
+    home: {
+      color: "green",
+      category: "homi",
+      stuff: {
+        category: "stuff cat",
+        toys: "fiction",
+        author: "Me",
+        other: {
+          moreInfo: 'Hi there'
+        }
+      }
+    }
+  };
+
+  describe('seekAllInObj', () => {
+
+    it('single item', () => {
+      chkEq('Hi there', seekAllInObj(EG_OBJ, 'moreInfo'));
+    });
+
+    it('missing item', () => {
+      chkEq([], seekAllInObj(EG_OBJ, 'lessInfo'));
+    });
+
+  });
+
+  describe.only('seekInObj', () => {
+
+    it('single item', () => {
+      chkEq('Hi there', seekInObj(EG_OBJ, 'moreInfo'));
+    });
+
+    it('missing item', () => {
+      chkEq(undefined, seekInObj(EG_OBJ, 'lessInfo'));
+    });
+
+    it('ambiguous - expect error', () => {
+      chkExceptionText(
+          () => {seekInObj(EG_OBJ, 'category')},
+          'More than one object matches supplied specifiers: home.category, store.book.category, store.bicycle.category, home.stuff.category'
+      );
+    });
+
+  });
+
+  describe.only('seekInObjWithInfo', () => {
+
+    it('single item', () => {
+      chkValKeys([{key:'moreInfo', value: 'Hi there'}], [seekInObjWithInfo(EG_OBJ, 'moreInfo')]);
+    });
+
+    it('missing item', () => {
+      chkEq(undefined, seekInObjWithInfo(EG_OBJ, 'lessInfo'));
+    });
+
+    it('ambiguous - expect error', () => {
+      chkExceptionText(
+          () => {seekInObjWithInfo(EG_OBJ, 'category')},
+          'More than one object matches supplied specifiers: home.category, store.book.category, store.bicycle.category, home.stuff.category'
+      );
+    });
+
+  });
+
+  describe.only('seekInObj*NoCheck', () => {
+
+    it('seekInObjNoCheckWithInfo ambiguous - no error', () => {
+      chkValKeys([{"key":"category","value":"homi"}], [seekInObjNoCheckWithInfo(EG_OBJ, 'category')]);
+    });
+
+    it('seekInObjNoCheck ambiguous - no error', () => {
+      chkEq("homi", seekInObjNoCheck(EG_OBJ, 'category'));
+    });
+
+  });
+
+});
 
 describe('seekAllInObjWithInfo', () => {
 
@@ -389,11 +509,6 @@ describe('seekAllInObjWithInfo', () => {
     });
 
   });
-
-  function chkValKeys(expected, actual) {
-    actual = valKeys(actual);
-    chkEq(expected, actual);
-  }
 
   describe('array selectors', () => {
     describe('simple array only cases', () => {

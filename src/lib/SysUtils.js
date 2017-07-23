@@ -19,6 +19,10 @@ export function areEqual <T, U> (val1 : T, val2 : U, reasonableTypeCoercian : bo
   return _.isEqualWith(val1, val2, eqCustomiser);
 }
 
+export function fail(description: string) {
+  throw new Error(description);
+}
+
 export function ensure(val : boolean, msg : string = '') : void {
   if(!val) {
     throw new Error('ensure failure - ' + msg);
@@ -210,7 +214,7 @@ function getResultValues(result: Array <SeekInObjResultItem>): Array<mixed> {
 
 export function seekInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {
   let info = seekInObjWithInfo(target, specifier, ...otherSpecifiers);
-  return info == null ? undefined : all[0];
+  return info == null ? undefined : info.value;
 }
 
 export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {
@@ -235,10 +239,10 @@ function objectAddresses(allInfo: Array <SeekInObjResultItem>): string {
 export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?SeekInObjResultItem {
   let allInfo = seekAllInObjWithInfo(target, specifier, ...otherSpecifiers);
   if (allInfo.length === 0){
-    return null;
+    return undefined;
   }
   else {
-    ensure(allInfo.length > 1, 'More than one object matches supplied specifiers: ' + objectAddresses(allInfo));
+    ensure(allInfo.length === 1, 'More than one object matches supplied specifiers: ' + objectAddresses(allInfo));
     return allInfo[0];
   }
 }
