@@ -91,7 +91,7 @@ describe('seekInObjxxx - derived functions', () => {
   describe('seekAllInObj', () => {
 
     it('single item', () => {
-      chkEq('Hi there', seekAllInObj(EG_OBJ, 'moreInfo'));
+      chkEq(['Hi there'], seekAllInObj(EG_OBJ, 'moreInfo'));
     });
 
     it('missing item', () => {
@@ -100,7 +100,7 @@ describe('seekInObjxxx - derived functions', () => {
 
   });
 
-  describe.only('seekInObj', () => {
+  describe('seekInObj', () => {
 
     it('single item', () => {
       chkEq('Hi there', seekInObj(EG_OBJ, 'moreInfo'));
@@ -119,7 +119,7 @@ describe('seekInObjxxx - derived functions', () => {
 
   });
 
-  describe.only('seekInObjWithInfo', () => {
+  describe('seekInObjWithInfo', () => {
 
     it('single item', () => {
       chkValKeys([{key:'moreInfo', value: 'Hi there'}], [seekInObjWithInfo(EG_OBJ, 'moreInfo')]);
@@ -138,7 +138,7 @@ describe('seekInObjxxx - derived functions', () => {
 
   });
 
-  describe.only('seekInObj*NoCheck', () => {
+  describe('seekInObj*NoCheck', () => {
 
     it('seekInObjNoCheckWithInfo ambiguous - no error', () => {
       chkValKeys([{"key":"category","value":"homi"}], [seekInObjNoCheckWithInfo(EG_OBJ, 'category')]);
