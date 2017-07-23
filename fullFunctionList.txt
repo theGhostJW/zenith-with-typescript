@@ -1,0 +1,342 @@
+===== CheckUtils =====
+/****** Exports *****/
+	module.exports.checkExists = checkExists;
+	module.exports.checkExistsNot = checkExistsNot;
+	module.exports.checkText = checkText;
+	module.exports.checkTextAgainstTextFile = checkTextAgainstTextFile;
+	module.exports.checkEqual = checkEqual;
+	module.exports.checkContains = checkContains;
+	module.exports.checkTextContainsFragments = checkTextContainsFragments;
+	module.exports.checkTextContainsFragmentsFromFile = checkTextContainsFragmentsFromFile;
+	module.exports.check = check;
+	module.exports.checkFalse = checkFalse;
+===== DataEntryUtils =====
+/****** Exports *****/
+	module.exports.read = read;
+	module.exports.set = set;
+===== DateTimeUtils =====
+/****** Exports *****/
+	module.exports.dateTimeToReadableString = dateTimeToReadableString;
+	module.exports.tcDateTimeToInt = tcDateTimeToInt;
+	module.exports.intToTCDateTime = intToTCDateTime;
+	module.exports.dateReplacer = dateReplacer;
+	module.exports.dateReviver = dateReviver;
+	module.exports.now = now;
+	module.exports.today = today;
+	module.exports.getDate = getDate;
+	module.exports.getTime = getTime;
+	module.exports.datePlus = datePlus;
+	module.exports.todayPlus = todayPlus;
+	module.exports.logDateHeader = logDateHeader;
+===== DBUtils =====
+/****** Exports *****/
+	module.exports.makeSQlServerConnectionString = makeSQlServerConnectionString;
+	module.exports.makeSQLite3ConnectionString = makeSQLite3ConnectionString;
+	module.exports.runSQLQuery = runSQLQuery;
+	module.exports.getRecords = getRecords;
+	module.exports.getRecord = getRecord;
+	module.exports.getField = getField;
+===== EmailUtils =====
+/****** Exports *****/
+	module.exports.sendEmail = sendEmail;
+===== ExcelDataConnectionUtils =====
+/****** Exports *****/
+	module.exports.DataConnection = DataConnection;
+===== ExcelParamsLoaderUtils =====
+/****** Exports *****/
+	module.exports.worksheetToArray = worksheetToArray;
+===== ExcelUtils =====
+/****** Exports *****/
+	module.exports.TerminateExcelProcess = TerminateExcelProcess;
+	module.exports.getSheetCount = getSheetCount;
+	module.exports.getSheetValuesAsString = getSheetValuesAsString;
+	module.exports.colNo = colNo;
+===== FileUtils =====
+/****** Exports *****/
+	module.exports.ISSUES_FILE_SUFFIX = ISSUES_FILE_SUFFIX;
+	module.exports.issuesFileSuffix = issuesFileSuffix;
+	module.exports.fileToTables = fileToTables;
+	module.exports.fileToTable = fileToTable;
+	module.exports.parentDir = parentDir;
+	module.exports.listFiles = listFiles;
+	module.exports.listFolders = listFolders;
+	module.exports.eachFile = eachFile;
+	module.exports.eachFolder = eachFolder;
+	module.exports.defaultExtension = defaultExtension;
+	module.exports.clearDirectoy = clearDirectoy;
+	module.exports.toTemp = toTemp;
+	module.exports.toTempReadable = toTempReadable;
+	module.exports.zipAll = zipAll;
+	module.exports.unzipAll = unzipAll;
+	module.exports.fromTemp = fromTemp;
+	module.exports.fileToObject = fileToObject;
+	module.exports.objectToFile = objectToFile;
+	module.exports.toTestData = toTestData;
+	module.exports.fromTestData = fromTestData;
+	module.exports.arrayToFile = arrayToFile;
+	module.exports.fileToArray = fileToArray;
+	module.exports.relativeToAbsolute = relativeToAbsolute;
+	module.exports.changeExtension = changeExtension;
+	module.exports.nowLogSuffix = nowLogSuffix;
+	module.exports.browserdDownLoadFolder = browserdDownLoadFolder;
+	module.exports.forceDirectory = forceDirectory;
+	module.exports.tempFile = tempFile;
+	module.exports.tempDir = tempDir;
+	module.exports.testDataPath = testDataPath;
+	module.exports.runTimeFilesPath = runTimeFilesPath;
+	module.exports.parentFolder = parentFolder;
+	module.exports.runTimeFile = runTimeFile;
+	module.exports.logsDirPath = logsDirPath;
+	module.exports.logFilePath = logFilePath;
+	module.exports.logFilePathWithTimeStampSuffix = logFilePathWithTimeStampSuffix;
+	module.exports.projectChildPath = projectChildPath;
+	module.exports.suiteChildPath = suiteChildPath;
+	module.exports.systemTempFile = systemTempFile;
+	module.exports.combine = combine;
+	module.exports.systemTempDir = systemTempDir;
+	module.exports.forceSlash = forceSlash;
+	module.exports.copyToLogAddDateStamp = copyToLogAddDateStamp;
+	module.exports.clearBrowserDownloadsDirectory = clearBrowserDownloadsDirectory;
+	module.exports.clearDirectory = clearDirectory;
+	module.exports.exportToCSV = exportToCSV;
+	module.exports.lastBrowserDownloadFile = lastBrowserDownloadFile;
+	module.exports.copyFile = copyFile;
+	module.exports.copyTestFile = copyTestFile;
+	module.exports.mockFile = mockFile;
+	module.exports.testDataFile = testDataFile;
+	module.exports.testDataString = testDataString;
+	module.exports.tempString = tempString;
+	module.exports.toTempString = toTempString;
+	module.exports.stringToTestData = stringToTestData;
+	module.exports.testDataFileLastModified = testDataFileLastModified;
+	module.exports.fileLastModified = fileLastModified;
+===== HtmlGridUtils =====
+/****** Exports *****/
+	module.exports.readCell = readCell;
+	module.exports.cell = cell;
+	module.exports.setGrid = setGrid;
+	module.exports.eachCell = eachCell;
+	module.exports.eachCellSimple = eachCellSimple;
+	module.exports.readGrid = readGrid;
+	module.exports.lwrCaseTrimNoWhiteSpace = lwrCaseTrimNoWhiteSpace;
+===== ReflectionUtils =====
+/****** Exports *****/
+	module.exports.scriptContents = scriptContents;
+	module.exports.scriptFilePath = scriptFilePath;
+	module.exports.scriptFilesInProject = scriptFilesInProject;
+	module.exports.testFilesInProject = testFilesInProject;
+	module.exports.testFilePathsInProject = testFilePathsInProject;
+	module.exports.scriptFilesInProjectFile = scriptFilesInProjectFile;
+	module.exports.extendedScriptInfo = extendedScriptInfo;
+	module.exports.extendedScriptInfoFromAllScripts = extendedScriptInfoFromAllScripts;
+	module.exports.isPublicScriptName = isPublicScriptName;
+	module.exports.isPublicScript = isPublicScript;
+	module.exports.isEndPointOrUnitTestName = isEndPointOrUnitTestName;
+===== SimplifiedLogUtils =====
+/****** Exports *****/
+	module.exports.inExpectDefect = inExpectDefect;
+	module.exports.UNMET_DEFECT_EXPECTATION_PREFIX = UNMET_DEFECT_EXPECTATION_PREFIX;
+	module.exports.interestingMessage = interestingMessage;
+	module.exports.onLogMessage = onLogMessage;
+	module.exports.GeneralEvents_OnLogLink = GeneralEvents_OnLogLink;
+	module.exports.logThemessage = logThemessage;
+	module.exports.onLogError = onLogError;
+	module.exports.onLogWarning = onLogWarning;
+	module.exports.callLogErrorWarningEvent = callLogErrorWarningEvent;
+	module.exports.onLogErrorEndPoint = onLogErrorEndPoint;
+	module.exports.logTime = logTime;
+	module.exports.isStartTest = isStartTest;
+	module.exports.isEndTest = isEndTest;
+	module.exports.isDefectStart = isDefectStart;
+	module.exports.isActiveDefectStart = isActiveDefectStart;
+	module.exports.isInActiveDefectStart = isInActiveDefectStart;
+	module.exports.isDefectEnd = isDefectEnd;
+	module.exports.ERROR_PREFIX = ERROR_PREFIX;
+	module.exports.FILTER_LOG_TOKEN = FILTER_LOG_TOKEN;
+	module.exports.FILTER_RESULTS_HEADER = FILTER_RESULTS_HEADER;
+	module.exports.isError = isError;
+	module.exports.isFilterLog = isFilterLog;
+	module.exports.saveProcessSimplifiedLog = saveProcessSimplifiedLog;
+	module.exports.defaultSimpleLogProcessing = defaultSimpleLogProcessing;
+	module.exports.parseSimplifiedLogFile = parseSimplifiedLogFile;
+	module.exports.parseLineUpdateStateAndResult = parseLineUpdateStateAndResult;
+	module.exports.updateKnowDefectCount = updateKnowDefectCount;
+	module.exports.updateResultAndResetState = updateResultAndResetState;
+	module.exports.parseSimplifiedLogFileWriteToTestLog = parseSimplifiedLogFileWriteToTestLog;
+	module.exports.parseSimplifiedLogFileWriteToTestLogEndPoint = parseSimplifiedLogFileWriteToTestLogEndPoint;
+===== StringUtils =====
+/****** Exports *****/
+	module.exports.autoType = autoType;
+	module.exports.stringToTables = stringToTables;
+	module.exports.stringToTable = stringToTable;
+	module.exports.loadTemplate = loadTemplate;
+	module.exports.capFirst = capFirst;
+	module.exports.lowerFirst = lowerFirst;
+	module.exports.padRight = padRight;
+	module.exports.padLeft = padLeft;
+	module.exports.repeatString = repeatString;
+	module.exports.upperCase = upperCase;
+	module.exports.lowerCase = lowerCase;
+	module.exports.lwrFirst = lwrFirst;
+	module.exports.stringToArray = stringToArray;
+	module.exports.arrayToString = arrayToString;
+	module.exports.wildcardMatch = wildcardMatch;
+	module.exports.csvToArray = csvToArray;
+	module.exports.bigString = bigString;
+	module.exports.replace = replace;
+	module.exports.standardiseLineEndings = standardiseLineEndings;
+	module.exports.stringToTimeStampedLogFile = stringToTimeStampedLogFile;
+	module.exports.createGuid = createGuid;
+	module.exports.createGuidTruncated = createGuidTruncated;
+	module.exports.trim = trim;
+	module.exports.trimWhiteSpace = trimWhiteSpace;
+	module.exports.lowerRemoveSpacesTrim = lowerRemoveSpacesTrim;
+	module.exports.trimChars = trimChars;
+	module.exports.startsWith = startsWith;
+	module.exports.endsWith = endsWith;
+	module.exports.appendDelim = appendDelim;
+	module.exports.hasText = hasText;
+	module.exports.stringToFile = stringToFile;
+	module.exports.bisect = bisect;
+	module.exports.subStrBefore = subStrBefore;
+	module.exports.subStrBetween = subStrBetween;
+	module.exports.subStrAfter = subStrAfter;
+	module.exports.fileToString = fileToString;
+	module.exports.newLine = newLine;
+	module.exports.sameText = sameText;
+===== SysUtils =====
+/****** Exports *****/
+	module.exports.ARRAY_QUERY_ITEM_LABEL = ARRAY_QUERY_ITEM_LABEL;
+	DONE - fillArray;
+	module.exports.setParts = setParts;
+	module.exports.hostNameIs = hostNameIs;
+	module.exports.flattenObj = flattenObj;
+	module.exports.valueTracker = valueTracker;
+	DONE -  reorderProps;
+	DONE -  seekInObj;
+	module.exports.seekAllInObj = seekAllInObj;
+	module.exports.setInObj = setInObj;
+	module.exports.defaultDeep = defaultDeep;
+	module.exports.cloneDeep = cloneDeep;
+	module.exports.arrayDefs = arrayDefs;
+	module.exports.mapObjectRecursive = mapObjectRecursive;
+	module.exports.reduceObjectRecursive = reduceObjectRecursive;
+	module.exports.eachObjectRecursive = eachObjectRecursive;
+	module.exports.logLink = logLink;
+	module.exports.TEST_SUMMARY_PREFIX = TEST_SUMMARY_PREFIX;
+	module.exports.ABORT_ITERATION_TOKEN = ABORT_ITERATION_TOKEN;
+	module.exports.ABORT_TEST_TOKEN = ABORT_TEST_TOKEN;
+	module.exports.ABORT_RUN_TOKEN = ABORT_RUN_TOKEN;
+	module.exports.objectToReadable = objectToReadable;
+	module.exports.functionNameFromFunction = functionNameFromFunction;
+	DONE -  xOr;
+	module.exports.isRunnningInInteractiveMode = isRunnningInInteractiveMode;
+	module.exports.chunk = chunk;
+	module.exports.seekParent = seekParent;
+	module.exports.seekParenth = seekParenth;
+	module.exports.doNothing = doNothing;
+	module.exports.pushLogFolder = pushLogFolder;
+	module.exports.popLogFolder = popLogFolder;
+	module.exports.objectToJson = objectToJson;
+	module.exports.jsonToObject = jsonToObject;
+	module.exports.hasProperty = hasProperty;
+	module.exports.highlight = highlight;
+	module.exports.waitRetry = waitRetry;
+	module.exports.projectScriptFileEncoding = projectScriptFileEncoding;
+	module.exports.terminateInternetExplorer = terminateInternetExplorer;
+	module.exports.notImplementedWarning = notImplementedWarning;
+	module.exports.fullyEnableCallStack = fullyEnableCallStack;
+	module.exports.liesWithin = liesWithin;
+	module.exports.pointsOverlap = pointsOverlap;
+	module.exports.seek = seek;
+	module.exports.seekh = seekh;
+	module.exports.seekAll = seekAll;
+	module.exports.logError = logError;
+	module.exports.waitAlias = waitAlias;
+	module.exports.logCheckPoint = logCheckPoint;
+	module.exports.logItalic = logItalic;
+	module.exports.logBold = logBold;
+	module.exports.log = log;
+	module.exports.logWarning = logWarning;
+	module.exports.logAttributes = logAttributes;
+	module.exports.logLinkWithAttributes = logLinkWithAttributes;
+	module.exports.areEqual = areEqual;
+	module.exports.isNullOrUndefined = isNullOrUndefined;
+	module.exports.isNullEmptyOrUndefined = isNullEmptyOrUndefined;
+	module.exports.hasValue = hasValue;
+	module.exports.exists = exists;
+	module.exports.terminateProcess = terminateProcess;
+	module.exports.executeFile = executeFile;
+	module.exports.processExists = processExists;
+	module.exports.expectDefect = expectDefect;
+	module.exports.endDefect = endDefect;
+	DONE -  def;
+	DONE -  throwEx renamed to fail
+	DONE -  ensure;
+	module.exports.forceArray = forceArray;
+	module.exports.globalAbortLevel = globalAbortLevel;
+	module.exports.resetGlobalAbortLevel = resetGlobalAbortLevel;
+	module.exports.RED = RED;
+	module.exports.GREEN = GREEN;
+	module.exports.YELLOW = YELLOW;
+	module.exports.ENUM_ERROR = ENUM_ERROR;
+	module.exports.ENUM_WARNING = ENUM_WARNING;
+	module.exports.ENUM_MESSAGE = ENUM_MESSAGE;
+	module.exports.ENUM_PASS = ENUM_PASS;
+	module.exports.fontColour = fontColour;
+	module.exports.logColourAttributes = logColourAttributes;
+===== TestCaseListUtils =====
+/****** Exports *****/
+	module.exports.testListItems = testListItems;
+	module.exports.listContentAsArrayMinusHeader = listContentAsArrayMinusHeader;
+	module.exports.regenerateTestCaseListFile = regenerateTestCaseListFile;
+===== TestRunner =====
+/****** Exports *****/
+	module.exports.testFilters = testFilters;
+	module.exports.registerTestRunElement = registerTestRunElement;
+	module.exports.defaultRunConfigInfo = defaultRunConfigInfo;
+	module.exports.defaultRunConfigForTestCaseEndPoint = defaultRunConfigForTestCaseEndPoint;
+	module.exports.defaultTestConfigInfo = defaultTestConfigInfo;
+	module.exports.lastItemWithValidators = lastItemWithValidators;
+	module.exports.topIssue = topIssue;
+	module.exports.all = all;
+	module.exports.runTestCaseEndPoint = runTestCaseEndPoint;
+===== TestRunnerUtils =====
+/****** Exports *****/
+	module.exports.MOCK_REPLACE_NONE = MOCK_REPLACE_NONE;
+	module.exports.MOCK_ADD_MISSING_REPLACE_FAILED = MOCK_ADD_MISSING_REPLACE_FAILED;
+	module.exports.MOCK_REPLACE_ALL = MOCK_REPLACE_ALL;
+	module.exports.expect_defect = expect_defect;
+	module.exports.registerTestRunElement = registerTestRunElement;
+	module.exports.getConfig = getConfig;
+	module.exports.isRestart = isRestart;
+	module.exports.testSubList = testSubList;
+	module.exports.issuesPath = issuesPath;
+	module.exports.issuesFileName = issuesFileName;
+	module.exports.generateManifest = generateManifest;
+	module.exports.runTests = runTests;
+	module.exports.validateAndSetDefaultConfigProperties = validateAndSetDefaultConfigProperties;
+	module.exports.runTestCaseEndPoint = runTestCaseEndPoint;
+	module.exports.scriptNameFromId = scriptNameFromId;
+===== ToReadableUtils =====
+/****** Exports *****/
+
+===== XmlTemplateLoaderUtils =====
+/****** Exports *****/
+	module.exports.loadXmlTemplate = loadXmlTemplate;
+	module.exports.convertToSimpleTemplate = convertToSimpleTemplate;
+	module.exports.propsObjectFromTemplate = propsObjectFromTemplate;
+	module.exports.standardStartEndTags = standardStartEndTags;
+	module.exports.templateParts = templateParts;
+	module.exports.removeSection = removeSection;
+	module.exports.transformSection = transformSection;
+===== XmlToJsonUtils =====
+/****** Exports *****/
+	module.exports.xmlToObject = xmlToObject;
+	module.exports.xmlToJson = xmlToJson;
+===== EndPointLauncherUtils =====
+
+===== DataGenerationUtils =====
+/****** Exports *****/
+	module.exports.randomItem = randomItem;
+	module.exports.randomInt = randomInt;
