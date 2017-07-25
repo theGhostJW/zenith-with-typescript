@@ -180,10 +180,10 @@
 	module.exports.lwrFirst = lwrFirst;
 	module.exports.stringToArray = stringToArray;
 	module.exports.arrayToString = arrayToString;
-	module.exports.wildcardMatch = wildcardMatch;
+	DONE - wildcardMatch;
 	module.exports.csvToArray = csvToArray;
 	module.exports.bigString = bigString;
-	module.exports.replace = replace;
+	DONE -  replace;
 	module.exports.standardiseLineEndings = standardiseLineEndings;
 	module.exports.stringToTimeStampedLogFile = stringToTimeStampedLogFile;
 	module.exports.createGuid = createGuid;
@@ -192,10 +192,10 @@
 	module.exports.trimWhiteSpace = trimWhiteSpace;
 	module.exports.lowerRemoveSpacesTrim = lowerRemoveSpacesTrim;
 	module.exports.trimChars = trimChars;
-	module.exports.startsWith = startsWith;
-	module.exports.endsWith = endsWith;
-	module.exports.appendDelim = appendDelim;
-	module.exports.hasText = hasText;
+	DONE - startsWith;
+	DONE - endsWith;
+	DONE - appendDelim;
+	DONE - hasText;
 	module.exports.stringToFile = stringToFile;
 	module.exports.bisect = bisect;
 	module.exports.subStrBefore = subStrBefore;
@@ -204,9 +204,10 @@
 	module.exports.fileToString = fileToString;
 	module.exports.newLine = newLine;
 	module.exports.sameText = sameText;
+
 ===== SysUtils =====
 /****** Exports *****/
-	module.exports.ARRAY_QUERY_ITEM_LABEL = ARRAY_QUERY_ITEM_LABEL;
+	DONE -  ARRAY_QUERY_ITEM_LABEL - Depricated;
 	DONE - fillArray;
 	module.exports.setParts = setParts;
 	module.exports.hostNameIs = hostNameIs;
@@ -214,10 +215,10 @@
 	module.exports.valueTracker = valueTracker;
 	DONE -  reorderProps;
 	DONE -  seekInObj;
-	module.exports.seekAllInObj = seekAllInObj;
+	DONE -  seekAllInObj;
 	module.exports.setInObj = setInObj;
-	module.exports.defaultDeep = defaultDeep;
-	module.exports.cloneDeep = cloneDeep;
+	DONE -  defaultDeep; - depricate in favour of _.defaultsDeep
+	DONE - cloneDeep; - depricate in favour of _.cloneDeep
 	module.exports.arrayDefs = arrayDefs;
 	module.exports.mapObjectRecursive = mapObjectRecursive;
 	module.exports.reduceObjectRecursive = reduceObjectRecursive;
@@ -229,7 +230,7 @@
 	module.exports.ABORT_RUN_TOKEN = ABORT_RUN_TOKEN;
 	module.exports.objectToReadable = objectToReadable;
 	module.exports.functionNameFromFunction = functionNameFromFunction;
-	DONE -  xOr;
+	DONE - xOr
 	module.exports.isRunnningInInteractiveMode = isRunnningInInteractiveMode;
 	module.exports.chunk = chunk;
 	module.exports.seekParent = seekParent;
@@ -260,29 +261,29 @@
 	module.exports.logWarning = logWarning;
 	module.exports.logAttributes = logAttributes;
 	module.exports.logLinkWithAttributes = logLinkWithAttributes;
-	module.exports.areEqual = areEqual;
+	DONE - areEqual;
 	module.exports.isNullOrUndefined = isNullOrUndefined;
-	module.exports.isNullEmptyOrUndefined = isNullEmptyOrUndefined;
-	module.exports.hasValue = hasValue;
-	module.exports.exists = exists;
+	DONE - isNullEmptyOrUndefined;
+	DONE - hasValue;
+	DONE - exists;
 	module.exports.terminateProcess = terminateProcess;
 	module.exports.executeFile = executeFile;
 	module.exports.processExists = processExists;
 	module.exports.expectDefect = expectDefect;
 	module.exports.endDefect = endDefect;
-	DONE -  def;
+	DONE -  def
 	DONE -  throwEx renamed to fail
 	DONE -  ensure;
 	module.exports.forceArray = forceArray;
 	module.exports.globalAbortLevel = globalAbortLevel;
 	module.exports.resetGlobalAbortLevel = resetGlobalAbortLevel;
-	module.exports.RED = RED;
-	module.exports.GREEN = GREEN;
-	module.exports.YELLOW = YELLOW;
-	module.exports.ENUM_ERROR = ENUM_ERROR;
-	module.exports.ENUM_WARNING = ENUM_WARNING;
-	module.exports.ENUM_MESSAGE = ENUM_MESSAGE;
-	module.exports.ENUM_PASS = ENUM_PASS;
+	DONE -  RED;	- Depricated
+	DONE -  GREEN; - Depricated
+	DONE -  YELLOW; - Depricated
+	DONE - ENUM_ERROR; - Depricated
+	DONE -  ENUM_WARNING; - Depricated
+	DONE -  ENUM_MESSAGE; - Depricated
+	DONE -  ENUM_PASS; - Depricated
 	module.exports.fontColour = fontColour;
 	module.exports.logColourAttributes = logColourAttributes;
 ===== TestCaseListUtils =====

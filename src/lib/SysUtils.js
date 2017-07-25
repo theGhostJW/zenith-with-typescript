@@ -3,7 +3,6 @@
 import * as _ from 'lodash';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib/StringUtils';
 
-export const ARRAY_QUERY_ITEM_LABEL = '[Array Query Item]';
 
 export function debug<T>(msg: T, label: string = 'DEBUG'): T {
   console.log(appendDelim(_.toUpper(label), ': ', toString(msg)));
