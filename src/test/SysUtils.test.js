@@ -20,6 +20,10 @@ import {
   seekInObjNoCheckWithInfo,
   seekInObjNoCheck,
   setInObjn,
+  setInObj1,
+  setInObj2,
+  setInObj3,
+  setInObj4,
   seekAllInObj,
   isPOJSO,
   debug
@@ -139,6 +143,50 @@ describe('setInObjn', () => {
       chkExceptionText(() => {
                               setInObjn(ACTUAL, ['st*', 'toys', 'will not work']);
                              }, 'toys, will not work');
+  });
+});
+
+describe.only('setInObj1..4', () => {
+
+  let base = {
+                store: {
+                  home: {
+                    colour: "green",
+                    stuff: {
+                      author: "Me",
+                      other: {
+                        moreInfo: "Hi there"
+                      }
+                    }
+                  }
+                }
+               };
+
+  let targ = () => {return _.cloneDeep(base);}
+
+  it('setInObj1 - sets property', () => {
+    let expected = targ();
+    expected.store.home = {hi: 1};
+    chkEq(expected, setInObj1(targ(), 'home', {hi: 1}));
+  });
+
+  it('setInObj2 - sets property', () => {
+    let expected = targ();
+    expected.store.home = {hi: 1};
+    chkEq(expected, setInObj2(targ(), 'store', 'home', {hi: 1}));
+  });
+
+  debug(targ());
+  it('setInObj3 - sets property', () => {
+    let expected = targ();
+    expected.store.home.colour = 'blu';
+    chkEq(expected, setInObj3(targ(), 'store', 'home', 'colour', 'blu'));
+  });
+
+  it('setInObj4 - sets property', () => {
+    let expected = debug(targ());
+    expected.store.home.stuff.author = 'You';
+    chkEq(expected, setInObj4(debug(targ()), 'store', 'home', 'stuff', 'other', 'You'));
   });
 });
 

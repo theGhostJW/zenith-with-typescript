@@ -220,6 +220,22 @@ export function setInObjn(target : {}, specifiers : Array <MixedSpecifier>, valu
   return setInObjnPrivate(false, target, specifiers, value);
 }
 
+export function setInObj1(target : {}, specifier : MixedSpecifier, value: mixed): {}{
+  return setInObjnPrivate(false, target, [specifier], value);
+}
+
+export function setInObj2(target : {}, specifier : MixedSpecifier, specifier1 : MixedSpecifier, value: mixed): {}{
+  return setInObjnPrivate(false, target, [specifier, specifier1], value);
+}
+
+export function setInObj3(target : {}, specifier : MixedSpecifier, specifier1 : MixedSpecifier, specifier2: MixedSpecifier, value: mixed): {}{
+  return setInObjnPrivate(false, target, [specifier, specifier1, specifier2], value);
+}
+
+export function setInObj4(target : {}, specifier : MixedSpecifier, specifier1 : MixedSpecifier, specifier2: MixedSpecifier, specifier3: MixedSpecifier, value: mixed): {}{
+  return setInObjnPrivate(false, target, [specifier, specifier1, specifier2, specifier3], value);
+}
+
 // export function cast<T>(val: any){
 //   return ((val : any): T);
 // }
