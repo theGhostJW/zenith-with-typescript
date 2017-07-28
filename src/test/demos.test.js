@@ -4,6 +4,14 @@ import jp from 'jsonpath';
 import { debug } from '../lib/SysUtils';
 
 
+describe.skip('process', () => {
+
+  it('platform', () => {
+    debug(`${process.platform}`, 'This platform is');
+  });
+
+});
+
 
 describe.skip('defaultsDeep', () => {
 

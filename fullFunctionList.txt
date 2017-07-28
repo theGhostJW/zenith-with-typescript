@@ -110,15 +110,6 @@
 	TODO: stringToTestData = stringToTestData;
 	TODO: testDataFileLastModified = testDataFileLastModified;
 	TODO: fileLastModified = fileLastModified;
-===== HtmlGridUtils =====
-/****** Exports *****/
-	TODO: readCell = readCell;
-	TODO: cell = cell;
-	TODO: setGrid = setGrid;
-	TODO: eachCell = eachCell;
-	TODO: eachCellSimple = eachCellSimple;
-	TODO: readGrid = readGrid;
-	TODO: lwrCaseTrimNoWhiteSpace = lwrCaseTrimNoWhiteSpace;
 ===== ReflectionUtils =====
 /****** Exports *****/
 	TODO: scriptContents = scriptContents;
@@ -169,22 +160,22 @@
 	TODO: autoType = autoType;
 	TODO: stringToTables = stringToTables;
 	TODO: stringToTable = stringToTable;
-	TODO: loadTemplate = loadTemplate;
-	TODO: capFirst = capFirst;
-	TODO: lowerFirst = lowerFirst;
+	DONE - loadTemplate = loadTemplate - DEPRICATE IN FAVOUR OF TEMPLATES AND TAGGED TEMPLATES
+	DONE - capFirst = capFirst - renamed upperFirst;
+	DONE - lowerFirst = lowerFirst;
 	TODO: padRight = padRight;
 	TODO: padLeft = padLeft;
 	TODO: repeatString = repeatString;
-	TODO: upperCase = upperCase;
-	TODO: lowerCase = lowerCase;
-	TODO: lwrFirst = lwrFirst;
+	DONE - upperCase = upperCase;
+	DONE - lowerCase = lowerCase;
+	DONE - lwrFirst = lwrFirst - Depricated duplicate;
 	TODO: stringToArray = stringToArray;
 	TODO: arrayToString = arrayToString;
 	DONE - wildcardMatch;
 	TODO: csvToArray = csvToArray;
-	TODO: bigString = bigString;
-	DONE -  replace;
-	TODO: standardiseLineEndings = standardiseLineEndings;
+	DONE - bigString = bigString - n/a DEPRICATE IN FAVOUR OF MULTI LINE STRINGS;
+	DONE - replace;
+	DONE - standardiseLineEndings = standardiseLineEndings;
 	TODO: stringToTimeStampedLogFile = stringToTimeStampedLogFile;
 	TODO: createGuid = createGuid;
 	TODO: createGuidTruncated = createGuidTruncated;
@@ -202,7 +193,7 @@
 	TODO: subStrBetween = subStrBetween;
 	TODO: subStrAfter = subStrAfter;
 	TODO: fileToString = fileToString;
-	TODO: newLine = newLine;
+	DONE - newLine = newLine;
 	TODO: sameText = sameText;
 
 ===== SysUtils =====
@@ -213,11 +204,11 @@
 	TODO: hostNameIs = hostNameIs;
 	TODO: flattenObj = flattenObj;
 	TODO: valueTracker = valueTracker;
-	DONE -  reorderProps;
-	DONE -  seekInObj;
-	DONE -  seekAllInObj;
+	DONE - reorderProps;
+	DONE - seekInObj;
+	DONE - seekAllInObj;
 	DONE - setInObj = setInObj;
-	DONE -  defaultDeep; - depricate in favour of _.defaultsDeep
+	DONE - defaultDeep; - depricate in favour of _.defaultsDeep
 	DONE - cloneDeep; - depricate in favour of _.cloneDeep
 	TODO: arrayDefs = arrayDefs;
 	TODO: mapObjectRecursive = mapObjectRecursive;
@@ -233,15 +224,15 @@
 	DONE - xOr
 	TODO: isRunnningInInteractiveMode = isRunnningInInteractiveMode;
 	TODO: chunk = chunk;
-	TODO: seekParent = seekParent;
-	TODO: seekParenth = seekParenth;
+	DONE - seekParent = seekParent - N/A;
+	DONE - seekParenth = seekParenth - N/A;
 	TODO: doNothing = doNothing;
 	TODO: pushLogFolder = pushLogFolder;
 	TODO: popLogFolder = popLogFolder;
 	TODO: objectToJson = objectToJson;
 	TODO: jsonToObject = jsonToObject;
 	TODO: hasProperty = hasProperty;
-	TODO: highlight = highlight;
+	DONE -  highlight = highlight - N/A;
 	TODO: waitRetry = waitRetry;
 	TODO: projectScriptFileEncoding = projectScriptFileEncoding;
 	TODO: terminateInternetExplorer = terminateInternetExplorer;
@@ -249,9 +240,9 @@
 	TODO: fullyEnableCallStack = fullyEnableCallStack;
 	TODO: liesWithin = liesWithin;
 	TODO: pointsOverlap = pointsOverlap;
-	TODO: seek = seek;
-	TODO: seekh = seekh;
-	TODO: seekAll = seekAll;
+	DONE - seek = seek - N/A
+	DONE - seekh = seekh  - N/A
+	DONE - seekAll = seekAll;
 	TODO: logError = logError;
 	TODO: waitAlias = waitAlias;
 	TODO: logCheckPoint = logCheckPoint;

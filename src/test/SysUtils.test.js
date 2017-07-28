@@ -146,7 +146,7 @@ describe('setInObjn', () => {
   });
 });
 
-describe.only('setInObj1..4', () => {
+describe('setInObj1..4', () => {
 
   let base = {
                 store: {
@@ -176,7 +176,6 @@ describe.only('setInObj1..4', () => {
     chkEq(expected, setInObj2(targ(), 'store', 'home', {hi: 1}));
   });
 
-  debug(targ());
   it('setInObj3 - sets property', () => {
     let expected = targ();
     expected.store.home.colour = 'blu';
@@ -184,9 +183,9 @@ describe.only('setInObj1..4', () => {
   });
 
   it('setInObj4 - sets property', () => {
-    let expected = debug(targ());
+    let expected = targ();
     expected.store.home.stuff.author = 'You';
-    chkEq(expected, setInObj4(debug(targ()), 'store', 'home', 'stuff', 'author', 'You'));
+    chkEq(expected, setInObj4(targ(), 'store', 'home', 'stuff', 'author', 'You'));
   });
 });
 

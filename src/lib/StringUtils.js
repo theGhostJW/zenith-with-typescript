@@ -1,6 +1,30 @@
 // @flow
 
-import { def, debug } from '../lib/SysUtils';
+import { def, debug, hasValue } from '../lib/SysUtils';
+import S from 'string'
+
+export function standardiseLineEndings(str: string): string {
+  var result = replace(str, '\n\r', '\n');
+  result = replace(result, '\r\n', '\n');
+  result = replace(result, '\r', '\n');
+  return result;
+}
+
+export function newLine(repeatCount: number = 1): string {
+  return "\n".repeat(repeatCount);
+}
+
+export function lowerFirst(str: string): string {
+  return hasValue(str) ? str.charAt(0).toLowerCase() + str.slice(1): str;
+}
+
+export function upperFirst(str: string): string  {
+  return hasValue(str) ? str.charAt(0).toUpperCase() + str.slice(1): str;
+}
+
+export const upperCase : string => string = (s) => {return s.toUpperCase();}
+
+export const lowerCase : string => string = (s) => {return s.toLowerCase();}
 
 export function appendDelim(str1: ?string, delim: string, str2: ?string){
    str1 = def(str1, "");
@@ -10,11 +34,9 @@ export function appendDelim(str1: ?string, delim: string, str2: ?string){
    return (str1 === "" || str2 === "") ? str1 + str2 : str1 + delim + str2;
  };
 
-export function replace(hayStack: ?string, needle: string, replacement: string, caseSensitive: boolean = false): ?string {
+export function replace(hayStack: string, needle: string, replacement: string, caseSensitive: boolean = false): string {
    // https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
-   if (hayStack == null){
-     return hayStack;
-   }
+
    let esc = needle.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),
        reg = new RegExp(esc, (caseSensitive ? 'g' : 'ig'));
    return hayStack.replace(reg, replacement);

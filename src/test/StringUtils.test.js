@@ -1,18 +1,89 @@
 // @flow
 
 import {test, describe} from 'mocha'
-import {toString, endsWith, startsWith, hasText, wildCardMatch, replace, appendDelim} from '../lib/StringUtils';
+import {
+  toString,
+  endsWith,
+  startsWith,
+  hasText,
+  wildCardMatch,
+  replace,
+  appendDelim,
+  lowerCase,
+  upperCase,
+  lowerFirst,
+  newLine,
+  upperFirst,
+  standardiseLineEndings
+} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
+
+describe.only('standardiseLineEndings', () => {
+
+  it('mixed line endings', () => {
+    var base = '\r\n \n \r \r \n\r';
+    var expected = '\n \n \n \n \n';
+    var result = standardiseLineEndings(base);
+    chkEq(expected, result);
+  });
+
+});
+
+describe('newLine', () => {
+  it('singular', () => {
+    chkEq('\n', newLine());
+  });
+
+  it('many', () => {
+    chkEq('\n\n\n\n\n', newLine(5));
+  });
+});
+
+describe('lowerFirst', () => {
+
+  it('non empty string', () => {
+    chkEq('joHn', lowerFirst('JoHn'))
+  });
+
+  it('empty string', () => {
+    chkEq('', lowerFirst(''))
+  });
+
+});
+
+describe('upperFirst', () => {
+
+  it('non empty string', () => {
+    chkEq('JoHn', upperFirst('joHn'))
+  });
+
+  it('empty string', () => {
+    chkEq('', upperFirst(''))
+  });
+
+});
+
+describe('lowercase / uppercase', () => {
+
+  it('lowerCase', () => {
+    chkEq('john', lowerCase('joHn'))
+  });
+
+  it('upperCase', () => {
+    chkEq('JOHN', upperCase('joHn'))
+  });
+
+});
 
 describe('appendDelim', () => {
 
   it('full params', () => {
-    chkEq(appendDelim("Hello", " ", "World" ), "Hello World");
+    chkEq(appendDelim("Hello", " ", "World"), "Hello World");
   });
 
   it('prefix null', () => {
-    chkEq(appendDelim(null, " ", "World" ), "World");
+    chkEq(appendDelim(null, " ", "World"), "World");
   });
 
   it('suffix null', () => {
@@ -24,20 +95,14 @@ describe('appendDelim', () => {
   });
 
   it('prefix undefined', () => {
-    chkEq(appendDelim(undefined, " ", "World" ), "World");
+    chkEq(appendDelim(undefined, " ", "World"), "World");
   });
 
 });
 
 describe('replace', () => {
-
-  it('null base', () => {
-    chkEq(null, replace(null, 'a', 'A'));
-  });
-
   it('case insensitive', () => {
-    chkEq(   'the quick red fox jumps over the lazy red dog',
-     replace('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red'));
+    chkEq('the quick red fox jumps over the lazy red dog', replace('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red'));
   });
 
   it('case sensitive', () => {
@@ -86,7 +151,6 @@ describe('toString', () => {
 
 });
 
-
 describe('wildcardMatch', () => {
 
   it('null', () => {
@@ -118,10 +182,8 @@ describe('wildcardMatch', () => {
   });
 
   it('same string', () => {
-    chk(wildCardMatch("The quick brown fox jumps over the lazy dog",
-                           "The quick brown fox jumps over the lazy dog",
-                            true));
-                          });
+    chk(wildCardMatch("The quick brown fox jumps over the lazy dog", "The quick brown fox jumps over the lazy dog", true));
+  });
 
   it('multi wild cards', () => {
     chk(wildCardMatch('J. R. R. Tolkien', '*Tol*'));
@@ -132,23 +194,23 @@ describe('wildcardMatch', () => {
 describe('hasText', () => {
 
   it('null hayStack', () => {
-      chkFalse(hasText(null, 'blahh'))
+    chkFalse(hasText(null, 'blahh'))
   });
 
   it('undefined hayStack', () => {
-      chkFalse(hasText(undefined, 'blahh'));
+    chkFalse(hasText(undefined, 'blahh'));
   });
 
   it('case sensitivity override - not found', () => {
-      chkFalse(hasText('i am johnie', 'John', true));
+    chkFalse(hasText('i am johnie', 'John', true));
   });
 
   it('case sensitivity override - found', () => {
-      chk(hasText('i am Johnie', 'John', true));
+    chk(hasText('i am Johnie', 'John', true));
   });
 
   it('case sensitivity default false - found', () => {
-      chk(hasText('i am johnie', 'John'));
+    chk(hasText('i am johnie', 'John'));
   });
 
   it('empty string - found', () => {
@@ -166,7 +228,7 @@ describe('hasText', () => {
 
 });
 
-describe ('startsWith', () => {
+describe('startsWith', () => {
 
   it('happy path true', () => {
     chk(startsWith('abcde', 'ab'));
@@ -185,15 +247,15 @@ describe ('startsWith', () => {
   });
 
   it('case sensitive', () => {
-    chkFalse(startsWith('abcde',  'aB'));
+    chkFalse(startsWith('abcde', 'aB'));
   });
 
   it('undefined', () => {
-    chkFalse(startsWith(undefined,  'dE'));
+    chkFalse(startsWith(undefined, 'dE'));
   });
 
   it('exact', () => {
-    chk(startsWith('dE',  'dE'));
+    chk(startsWith('dE', 'dE'));
   });
 
 });
@@ -217,15 +279,15 @@ describe('endsWith', () => {
   });
 
   it('case sensitive', () => {
-    chkFalse(endsWith('abcde',  'dE'));
+    chkFalse(endsWith('abcde', 'dE'));
   });
 
   it('undefined', () => {
-    chkFalse(endsWith(undefined,  'dE'));
+    chkFalse(endsWith(undefined, 'dE'));
   });
 
   it('exact', () => {
-    chk(endsWith('dE',  'dE'));
+    chk(endsWith('dE', 'dE'));
   });
 
 });
