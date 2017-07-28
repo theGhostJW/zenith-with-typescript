@@ -13,13 +13,14 @@ import {
   stringConvertableToNumber,
   areEqualWithTolerance,
   areEqual,
-  seekAllInObjWithInfo,
-  seekAllInObj,
+  seekManyInObjWithInfo,
+  seekManyInObj,
   seekInObj,
   seekInObjWithInfo,
   seekInObjNoCheckWithInfo,
   seekInObjNoCheck,
   setInObjn,
+  seekAllInObj,
   isPOJSO,
   debug
 } from '../lib/SysUtils';
@@ -38,7 +39,8 @@ function valKeys(searcInfo : Array < $Subtype < ValKey >>) : Array < ValKey > {
   });
 }
 
-function chkValKeys(expected, actual: Array < $Subtype < ?ValKey >>) {
+function chkValKeys(expected, actual : Array < $Subtype <
+  ? ValKey >>) {
   actual = valKeys(actual);
   chkEq(expected, actual);
 }
@@ -46,85 +48,89 @@ function chkValKeys(expected, actual: Array < $Subtype < ?ValKey >>) {
 describe('setInObjn', () => {
 
   const EXPECTED = {
-             store: {
-                    book: {
-                              category: "fiction",
-                              author: "J. R. R. Tolkien",
-                              title: "The Lord of the Rings",
-                              isbn: "0-395-19395-8",
-                              price: 22.99
-                          },
-                    books: [
-                            {
-                              category: "reference",
-                              author: "Nigel Rees",
-                              title: "Sayings of the Century",
-                              price: 8.95
-                            }
-                          ],
-                bicycle: {
-                  category: "fun",
-                  color: "red",
-                  gears: 12,
-                  price: 19.95
-                }
-              },
-            home: {
-                  color: "green",
-                  category: "homi",
-                  stuff: {
-                            category: "stuff cat",
-                            toys: "fiction",
-                            author: "Me",
-                            other : {
-                                    moreInfo: 'Hi there'
-                            }
-                          }
-            }
-          };
+    store: {
+      book: {
+        category: "fiction",
+        author: "J. R. R. Tolkien",
+        title: "The Lord of the Rings",
+        isbn: "0-395-19395-8",
+        price: 22.99
+      },
+      books: [
+        {
+          category: "reference",
+          author: "Nigel Rees",
+          title: "Sayings of the Century",
+          price: 8.95
+        }
+      ],
+      bicycle: {
+        category: "fun",
+        color: "red",
+        gears: 12,
+        price: 19.95
+      }
+    },
+    home: {
+      color: "green",
+      category: "homi",
+      stuff: {
+        category: "stuff cat",
+        toys: "fiction",
+        author: "Me",
+        other: {
+          moreInfo: 'Hi there'
+        }
+      }
+    }
+  };
 
   const ACTUAL = {
-                  store: {
-                    book: {
-                      category: "new non fiction",
-                      author: "J. R. R. Tolkien",
-                      title: "The Lord of the Rings",
-                      isbn: "0-395-19395-8",
-                      price: 22.99
-                    },
-                    books: [
-                      {
-                        category: "reference",
-                        author: "Nigel Rees",
-                        title: "Sayings of the Century",
-                        price: 8.95
-                      }
-                    ],
-                    bicycle: {
-                      category: "fun",
-                      color: "red",
-                      gears: 12,
-                      price: 19.95
-                    }
-                  },
-                  home: {
-                    color: "green",
-                    category: "new Home",
-                    stuff: {
-                      category: "stuff cat",
-                      toys: "new Toys",
-                      author: "Me",
-                      other: {
-                        moreInfo: "Hi there"
-                      }
-                    }
-                  }
-                };
+    store: {
+      book: {
+        category: "new non fiction",
+        author: "J. R. R. Tolkien",
+        title: "The Lord of the Rings",
+        isbn: "0-395-19395-8",
+        price: 22.99
+      },
+      books: [
+        {
+          category: "reference",
+          author: "Nigel Rees",
+          title: "Sayings of the Century",
+          price: 8.95
+        }
+      ],
+      bicycle: {
+        category: "fun",
+        color: "red",
+        gears: 12,
+        price: 19.95
+      }
+    },
+    home: {
+      color: "green",
+      category: "new Home",
+      stuff: {
+        category: "stuff cat",
+        toys: "new Toys",
+        author: "Me",
+        other: {
+          moreInfo: "Hi there"
+        }
+      }
+    }
+  };
 
-  it('updates properties as expected', () => {
+  it.skip('updates properties as expected', () => {
     setInObjn(ACTUAL, ['toys'], 'new Toys');
-    setInObjn(ACTUAL, ['home', 'category'], 'new Home');
-    setInObjn(ACTUAL, ['st*', 'category'], 'new non fiction');
+    setInObjn(ACTUAL, [
+      'home', 'category'
+    ], 'new Home');
+    setInObjn(ACTUAL, [
+      'st*', 'category'
+    ], 'new non fiction');
     setInObjn(ACTUAL, ['color'], 'green');
     chkEq(EXPECTED, ACTUAL);
   });
@@ -188,13 +194,17 @@ describe('seekInObjxxx - derived functions', () => {
   };
 
   describe('seekAllInObj', () => {
+    chkEq(["homi","fiction","fun","stuff cat"], seekAllInObj(EG_OBJ, 'category'));
+  });
+
+  describe('seekManyInObj', () => {
 
     it('single item', () => {
-      chkEq(['Hi there'], seekAllInObj(EG_OBJ, 'moreInfo'));
+      chkEq(['Hi there'], seekManyInObj(EG_OBJ, 'moreInfo'));
     });
 
     it('missing item', () => {
-      chkEq([], seekAllInObj(EG_OBJ, 'lessInfo'));
+      chkEq([], seekManyInObj(EG_OBJ, 'lessInfo'));
     });
 
   });
@@ -210,10 +220,10 @@ describe('seekInObjxxx - derived functions', () => {
     });
 
     it('ambiguous - expect error', () => {
-      chkExceptionText(
-          () => {seekInObj(EG_OBJ, 'category')},
-          'More than one object matches supplied specifiers: home.category, store.book.category, store.bicycle.category, home.stuff.category'
-      );
+      chkExceptionText(() => {
+        seekInObj(EG_OBJ, 'store', 'category')
+      },
+      'More than one object matches supplied specifiers: store.book.category, store.bicycle.category');
     });
 
   });
@@ -221,7 +231,12 @@ describe('seekInObjxxx - derived functions', () => {
   describe('seekInObjWithInfo', () => {
 
     it('single item', () => {
-      chkValKeys([{key:'moreInfo', value: 'Hi there'}], [seekInObjWithInfo(EG_OBJ, 'moreInfo')]);
+      chkValKeys([
+        {
+          key: 'moreInfo',
+          value: 'Hi there'
+        }
+      ], [seekInObjWithInfo(EG_OBJ, 'moreInfo')]);
     });
 
     it('missing item', () => {
@@ -229,10 +244,9 @@ describe('seekInObjxxx - derived functions', () => {
     });
 
     it('ambiguous - expect error', () => {
-      chkExceptionText(
-          () => {seekInObjWithInfo(EG_OBJ, 'category')},
-          'More than one object matches supplied specifiers: home.category, store.book.category, store.bicycle.category, home.stuff.category'
-      );
+      chkExceptionText(() => {
+        seekInObjWithInfo(EG_OBJ, 'store', 'category')
+      }, 'More than one object matches supplied specifiers: store.book.category, store.bicycle.category');
     });
 
   });
@@ -240,7 +254,12 @@ describe('seekInObjxxx - derived functions', () => {
   describe('seekInObj*NoCheck', () => {
 
     it('seekInObjNoCheckWithInfo ambiguous - no error', () => {
-      chkValKeys([{"key":"category","value":"homi"}], [seekInObjNoCheckWithInfo(EG_OBJ, 'category')]);
+      chkValKeys([
+        {
+          "key": "category",
+          "value": "fiction"
+        }
+      ], [seekInObjNoCheckWithInfo(EG_OBJ, 'store', 'category')]);
     });
 
     it('seekInObjNoCheck ambiguous - no error', () => {
@@ -251,7 +270,7 @@ describe('seekInObjxxx - derived functions', () => {
 
 });
 
-describe.only('seekAllInObjWithInfo', () => {
+describe('seekManyInObjWithInfo', () => {
 
   const EG_OBJ = {
     store: {
@@ -296,7 +315,6 @@ describe.only('seekAllInObjWithInfo', () => {
     }
   };
 
-
   describe('property selectors', () => {
     it('finds a single string match', () => {
 
@@ -318,23 +336,25 @@ describe.only('seekAllInObjWithInfo', () => {
             specifiers: []
           }
         ],
-        actual = seekAllInObjWithInfo(targ, 'blah');
+        actual = seekManyInObjWithInfo(targ, 'blah');
 
       chkEqJson(expected, actual);
     });
 
     it('only finds single object in branch', () => {
       let expected = [
-          {
-            key: "category",
-            value: "homi"
-          }
-        ];
-        chkValKeys(expected, seekAllInObjWithInfo(EG_OBJ, 'home', 'category'));
+        {
+          key: "category",
+          value: "homi"
+        }
+      ];
+      chkValKeys(expected, seekManyInObjWithInfo(EG_OBJ, 'home', 'category'));
     });
 
     let targ = {
       blah1: 1,
+      blah: 2,
+      blahh2: 'Gary',
       child: {
         blah: 2,
         grandChild: {
@@ -355,31 +375,22 @@ describe.only('seekAllInObjWithInfo', () => {
             "key": "blah",
             "value": 2
           }, {
-            "key": "blah",
-            "value": [1, 2, 3]
-          }, {
             "key": "blahh2",
             "value": "Gary"
           }
         ],
-        actual = seekAllInObjWithInfo(targ, 'blah*');
+        actual = seekManyInObjWithInfo(targ, 'blah*');
       chkEq(expected, valKeys(actual));
     });
 
-    it('finds with multiple specifiers', () => {
+    it('finds with multiple specifiers - single not nested', () => {
       let expected = [
           {
             "key": "blah",
             "value": 2
-          }, {
-            "key": "blah",
-            "value": [1, 2, 3]
-          }, {
-            "key": "blahh2",
-            "value": "Gary"
           }
         ],
-        actual = seekAllInObjWithInfo(targ, 'child', 'blah*');
+        actual = seekManyInObjWithInfo(targ, 'child', 'blah*');
 
       chkEq(expected, valKeys(actual));
     });
@@ -391,7 +402,7 @@ describe.only('seekAllInObjWithInfo', () => {
             "value": 1
           }
         ],
-        actual = seekAllInObjWithInfo(targ, 'child', [0]);
+        actual = seekManyInObjWithInfo(targ, 'child', [0]);
 
       chkEq(expected, valKeys(actual));
     });
@@ -420,7 +431,7 @@ describe.only('seekAllInObjWithInfo', () => {
             value: 1
           }
         ],
-        actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
+        actual = seekManyInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
 
       chkEq(expected, valKeys(actual));
     });
@@ -446,7 +457,7 @@ describe.only('seekAllInObjWithInfo', () => {
             value: 7
           }
         ],
-        actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2]);
+        actual = seekManyInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2]);
 
       chkEq(expected, valKeys(actual));
     });
@@ -467,7 +478,7 @@ describe.only('seekAllInObjWithInfo', () => {
       };
 
       let expected = [],
-        actual = seekAllInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
+        actual = seekManyInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
 
       chkEq(expected, []);
     });
@@ -479,41 +490,35 @@ describe.only('seekAllInObjWithInfo', () => {
             value: 12
           }
         ],
-        actual = seekAllInObjWithInfo(EG_OBJ, 'gears');
+        actual = seekManyInObjWithInfo(EG_OBJ, 'gears');
       chkEq(expected, valKeys(actual));
     });
 
     it('simple prop - null', () => {
       let targ = {
-         prop: null
-       },
-      expected = [
+          prop: null
+        },
+        expected = [
           {
             key: "prop",
             value: null
           }
         ],
-       actual = seekAllInObjWithInfo(targ, 'prop');
-       chkEq(expected, valKeys(actual));
+        actual = seekManyInObjWithInfo(targ, 'prop');
+      chkEq(expected, valKeys(actual));
     });
 
     it('simple prop - shallow', () => {
       let expected = [
           {
             "key": "category",
-            "value": "homi"
-          }, {
-            "key": "category",
             "value": "fiction"
           }, {
             "key": "category",
             "value": "fun"
-          }, {
-            "key": "category",
-            "value": "stuff cat"
           }
         ],
-        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, 'category'));
+        actual = valKeys(seekManyInObjWithInfo(EG_OBJ, 'store', 'category'));
 
       chkEq(expected, actual);
     });
@@ -525,12 +530,12 @@ describe.only('seekAllInObjWithInfo', () => {
             "value": "stuff cat"
           }
         ],
-        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, 'stuff', 'cat*'));
+        actual = valKeys(seekManyInObjWithInfo(EG_OBJ, 'stuff', 'cat*'));
       chkEq(expected, actual);
     });
 
     it('property missing - should be null', () => {
-      let actual = seekAllInObjWithInfo(EG_OBJ, 'nonProperty');
+      let actual = seekManyInObjWithInfo(EG_OBJ, 'nonProperty');
       chkEq([], actual);
     });
 
@@ -541,7 +546,7 @@ describe.only('seekAllInObjWithInfo', () => {
             blah: 2
           }
         },
-        actual = valKeys(seekAllInObjWithInfo(targ, 'blah')),
+        actual = valKeys(seekManyInObjWithInfo(targ, 'blah')),
         expected = [
           {
             key: "blah",
@@ -561,7 +566,7 @@ describe.only('seekAllInObjWithInfo', () => {
             value: EG_OBJ.store.book
           }
         ],
-        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, {author: '*Tol*'}));
+        actual = valKeys(seekManyInObjWithInfo(EG_OBJ, {author: '*Tol*'}));
       chkEq(expected, actual);
     });
 
@@ -572,7 +577,7 @@ describe.only('seekAllInObjWithInfo', () => {
             value: EG_OBJ.home.stuff
           }
         ],
-        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, {
+        actual = valKeys(seekManyInObjWithInfo(EG_OBJ, {
           color: "g*"
         }, {author: "Me"}));
 
@@ -586,7 +591,7 @@ describe.only('seekAllInObjWithInfo', () => {
             value: 'Hi there'
           }
         ],
-        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, {
+        actual = valKeys(seekManyInObjWithInfo(EG_OBJ, {
           author: "M*"
         }, 'moreInfo'));
       chkEq(expected, actual);
@@ -594,7 +599,7 @@ describe.only('seekAllInObjWithInfo', () => {
 
     it('object specifier missing prop', () => {
       let expected = [],
-        actual = seekAllInObjWithInfo(EG_OBJ, {
+        actual = seekManyInObjWithInfo(EG_OBJ, {
           noWhereProp: "M*"
         }, 'moreInfo');
       chkEq(expected, actual);
@@ -614,7 +619,7 @@ describe.only('seekAllInObjWithInfo', () => {
             value: 'fiction'
           }
         ],
-        actual = valKeys(seekAllInObjWithInfo(EG_OBJ, areToys));
+        actual = valKeys(seekManyInObjWithInfo(EG_OBJ, areToys));
       chkEq(expected, actual);
     });
 
@@ -623,69 +628,90 @@ describe.only('seekAllInObjWithInfo', () => {
   describe('array selectors', () => {
     describe('simple array only cases', () => {
       const EG_OBJ1 = {
-                        blah1: 1,
-                        child: {
-                            blah: [{book: {title: 'Wild Swans'}}]
-                        }
-                      };
+        blah1: 1,
+        child: {
+          blah: [
+            {
+              book: {
+                title: 'Wild Swans'
+              }
+            }
+          ]
+        }
+      };
 
       it('simple nested', () => {
-        let expected = [{key: 'blah', value: EG_OBJ1.child.blah[0]}];
-        chkValKeys(expected, seekAllInObjWithInfo(EG_OBJ1, 'blah', [0]));
+        let expected = [
+          {
+            key: 'blah',
+            value: EG_OBJ1.child.blah[0]
+          }
+        ];
+        chkValKeys(expected, seekManyInObjWithInfo(EG_OBJ1, 'blah', [0]));
       });
 
       it('simple nested no property', () => {
         let expected = [];
-        chkEq(expected, seekAllInObjWithInfo(EG_OBJ1, 'blahg', [0]));
+        chkEq(expected, seekManyInObjWithInfo(EG_OBJ1, 'blahg', [0]));
       });
 
       it('simple nested out of bounds', () => {
         let expected = [];
-        chkEq(expected, seekAllInObjWithInfo(EG_OBJ1, 'blah', [1]));
+        chkEq(expected, seekManyInObjWithInfo(EG_OBJ1, 'blah', [1]));
       });
 
-   });
+    });
 
-   describe('complex nested selectors', () => {
+    describe('complex nested selectors', () => {
 
-     const TARG = {
-                   blah1: 1,
-                     child: {
-                       blah: [
-                               {
-                                 book: {
-                                       title: 'Wild Swans',
-                                       editions: [1,2,3,4]
-                                     }
-                                 }
-                       ]
-                     }
-                   };
+      const TARG = {
+        blah1: 1,
+        child: {
+          blah: [
+            {
+              book: {
+                title: 'Wild Swans',
+                editions: [1, 2, 3, 4]
+              }
+            }
+          ]
+        }
+      };
 
-     it('multiple array selectors', () => {
-        let expected = [{key: 'editions', value: 4}];
-        chkValKeys(expected, seekAllInObjWithInfo(TARG, 'blah', [0], 'editions', [3]));
-     });
+      it('multiple array selectors', () => {
+        let expected = [
+          {
+            key: 'editions',
+            value: 4
+          }
+        ];
+        chkValKeys(expected, seekManyInObjWithInfo(TARG, 'blah', [0], 'editions', [3]));
+      });
 
-     it('multiple hof array selectors on array', () => {
-        let expected = [{key: 'editions', value: 2}];
+      it('multiple hof array selectors on array', () => {
+        let expected = [
+          {
+            key: 'editions',
+            value: 2
+          }
+        ];
 
-        function hasSwansTitle(val){
-          return hasText(((val: any):  {
-                book: {
-                  title: string
-                }
-              } )['book']['title'], 'swans');
+        function hasSwansTitle(val) {
+          return hasText(((val : any) : {
+            book: {
+              title: string
+            }
+          })['book']['title'], 'swans');
         }
 
-        function isTwo(val){
+        function isTwo(val) {
           return val === 2;
         }
 
-        chkValKeys(expected, seekAllInObjWithInfo(TARG, 'blah', [hasSwansTitle], 'editions', [isTwo]));
-     });
+        chkValKeys(expected, seekManyInObjWithInfo(TARG, 'blah', [hasSwansTitle], 'editions', [isTwo]));
+      });
 
-   });
+    });
 
     /*
 
@@ -739,8 +765,6 @@ describe.only('seekAllInObjWithInfo', () => {
      */
 
   });
-
-
 
 });
 

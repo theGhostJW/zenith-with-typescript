@@ -4,9 +4,10 @@ import * as _ from 'lodash';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib/StringUtils';
 
 
-export function debug<T>(msg: T, label: string = 'DEBUG'): T {
-  console.log(appendDelim(_.toUpper(label), ': ', toString(msg)));
-  return msg;
+export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
+  let msgStr = typeof msg == 'function' ? msg() : msg;
+  console.log(appendDelim(_.toUpper(label), ': ', toString(msgStr)));
+  return msgStr;
 }
 
 export function def <T> (val : ?T, defaultVal: T): T {
@@ -134,7 +135,7 @@ type ReducerResult = {
     result: GenerationMatchResult
 };
 
-function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, allBranches : boolean) : ?GenerationMatchResult {
+function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, searchType: SearchDirective) : ?GenerationMatchResult {
   let
     baseVal = parent.value,
     specifers = parent.specifiers,
@@ -152,7 +153,7 @@ function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, allBranches : 
       };
 
     function resultPartition(accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
-      return partitionResults(parent, allBranches, accum, val, key);
+      return partitionResults(parent, searchType, accum, val, key);
     }
 
     return _.isArray(baseVal) ? resultPartition(base, parent.value, parent.key).result : _.reduce(parent.value, resultPartition, base).result;
@@ -165,9 +166,10 @@ export function isPOJSO(val: mixed): boolean {
   return _.isObject(val) &&  !_.isArray(val);
 }
 
-function partitionResults(parent: SeekInObjResultItem, allBranches: boolean, accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
-  if (accum.done)
+function partitionResults(parent: SeekInObjResultItem, searchType: SearchDirective, accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
+  if (accum.done){
     return accum;
+  }
 
   let
     specifiers = parent.specifiers,
@@ -187,9 +189,7 @@ function partitionResults(parent: SeekInObjResultItem, allBranches: boolean, acc
 
   if (matchesAllSpecifiers) {
     fullyMatched.push(newMatchInfo(matchResult, key, otherSpecs));
-    if (!allBranches){
-      done = !allBranches;
-    }
+    done = searchType == 'singleton';
   }
   else if (matchesThisSpecifier) {
     remainingCandidates.push(newMatchInfo(matchResult, key, otherSpecs));
@@ -252,9 +252,11 @@ export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...oth
   return result == null ? undefined : result.value;
 }
 
-export function seekAllInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array <mixed> {
-  return getResultValues((seekAllInObjWithInfo(target, specifier, ...otherSpecifiers)));
-}
+// export function seekManyInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array <mixed> {
+//   return getResultValues((seekManyInObjWithInfo(target, specifier, ...otherSpecifiers)));
+// }
+
+export const seekManyInObj = _.flowRight(getResultValues, seekManyInObjWithInfo);
 
 function addressOfSeekResult(seekResult: SeekInObjResultItem) : string {
   let strKey = toString(seekResult.key);
@@ -266,8 +268,16 @@ function objectAddresses(allInfo: Array <SeekInObjResultItem>): string {
   return allInfo.map(addressOfSeekResult).join(', ');
 }
 
+const SEARCH_DIRECTIVE = {
+  includeNested: 2,
+  eachBranch: 1,
+  singleton: 0
+};
+
+type SearchDirective = $Keys<typeof SEARCH_DIRECTIVE>;
+
 export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?SeekInObjResultItem {
-  let allInfo = seekAllInObjWithInfo(target, specifier, ...otherSpecifiers);
+  let allInfo = seekManyInObjWithInfo(target, specifier, ...otherSpecifiers);
   if (allInfo.length === 0){
     return undefined;
   }
@@ -278,21 +288,27 @@ export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...ot
 }
 
 export function seekInObjNoCheckWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?SeekInObjResultItem {
-  let allInfo = seekInObjBase(target, false, specifier, ...otherSpecifiers);
+  let allInfo = seekInObjBase(target, 'singleton', specifier, ...otherSpecifiers);
   return allInfo.length === 0 ? null : allInfo[0];
 }
 
 export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
-  return seekInObjBase(target, true, specifier, ...otherSpecifiers);
+  return seekInObjBase(target, 'includeNested', specifier, ...otherSpecifiers);
 }
 
-function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
+export const seekAllInObj = _.flowRight(getResultValues, seekAllInObjWithInfo);
+
+export function seekManyInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
+  return seekInObjBase(target, 'eachBranch', specifier, ...otherSpecifiers);
+}
+
+function seekInObjBase(target :? {}, searchType: SearchDirective, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
     if(typeof target != 'object') {
       return [];
     };
 
     function getNextGeneration(itemResult : SeekInObjResultItem): ?GenerationMatchResult {
-      return matchFirstSpecifierOnTarget(itemResult, allBranches);
+      return matchFirstSpecifierOnTarget(itemResult, searchType);
     };
 
     function pluckFlatten(baseArray, propName): Array <SeekInObjResultItem> {
@@ -302,6 +318,7 @@ function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpec
                           .value();
       return ((result: any): Array <SeekInObjResultItem>);
     }
+
 
     function widthSearch(generationResult : GenerationMatchResult): Array <SeekInObjResultItem> {
         let
@@ -315,7 +332,7 @@ function seekInObjBase(target :? {}, allBranches : boolean, specifier: MixedSpec
 
         fullyMatched = generationResult.fullyMatched.concat(fullyMatched);
 
-        if (remainingCandidates.length > 0 && (allBranches || fullyMatched.length === 0)){
+        if (remainingCandidates.length > 0 && (searchType == 'includeNested' || fullyMatched.length === 0)){
           let
             nextParam = {
              fullyMatched: fullyMatched,
