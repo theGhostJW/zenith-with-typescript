@@ -50,44 +50,6 @@ describe('setInObjn', () => {
   const EXPECTED = {
     store: {
       book: {
-        category: "fiction",
-        author: "J. R. R. Tolkien",
-        title: "The Lord of the Rings",
-        isbn: "0-395-19395-8",
-        price: 22.99
-      },
-      books: [
-        {
-          category: "reference",
-          author: "Nigel Rees",
-          title: "Sayings of the Century",
-          price: 8.95
-        }
-      ],
-      bicycle: {
-        category: "fun",
-        color: "red",
-        gears: 12,
-        price: 19.95
-      }
-    },
-    home: {
-      color: "green",
-      category: "homi",
-      stuff: {
-        category: "stuff cat",
-        toys: "fiction",
-        author: "Me",
-        other: {
-          moreInfo: 'Hi there'
-        }
-      }
-    }
-  };
-
-  const ACTUAL = {
-    store: {
-      book: {
         category: "new non fiction",
         author: "J. R. R. Tolkien",
         title: "The Lord of the Rings",
@@ -123,29 +85,61 @@ describe('setInObjn', () => {
     }
   };
 
-  it.skip('updates properties as expected', () => {
+  const ACTUAL = {
+    store: {
+      book: {
+        category: "fiction",
+        author: "J. R. R. Tolkien",
+        title: "The Lord of the Rings",
+        isbn: "0-395-19395-8",
+        price: 22.99
+      },
+      books: [
+        {
+          category: "reference",
+          author: "Nigel Rees",
+          title: "Sayings of the Century",
+          price: 8.95
+        }
+      ],
+      bicycle: {
+        category: "fun",
+        color: "red",
+        gears: 12,
+        price: 19.95
+      }
+    },
+    home: {
+      color: "green",
+      category: "homi",
+      stuff: {
+        category: "stuff cat",
+        toys: "fiction",
+        author: "Me",
+        other: {
+          moreInfo: 'Hi there'
+        }
+      }
+    }
+  };
+
+  it('updates properties as expected', () => {
     setInObjn(ACTUAL, ['toys'], 'new Toys');
     setInObjn(ACTUAL, [
       'home', 'category'
     ], 'new Home');
     setInObjn(ACTUAL, [
-      'st*', 'category'
+      'st*', 'book', 'category'
     ], 'new non fiction');
     setInObjn(ACTUAL, ['color'], 'green');
     chkEq(EXPECTED, ACTUAL);
   });
 
   it('throws on missing property', () => {
-    // expectDefect('Should throw exception')
-    //  setInObj(actual, 'st*', 'toys', 'will not work');
+      chkExceptionText(() => {
+                              setInObjn(ACTUAL, ['st*', 'toys', 'will not work']);
+                             }, 'toys, will not work');
   });
-
-  //
-  //
-  // it('', () => {
-  //
-  // });
-
 });
 
 describe('seekInObjxxx - derived functions', () => {

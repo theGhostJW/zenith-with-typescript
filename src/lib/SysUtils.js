@@ -241,7 +241,7 @@ function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : Array <Mix
       fail('parent is null - this should not happen');
     }
     else {
-      parent.value[parent.key] = value;
+      parent.value[propInfo.key] = value;
     }
   }
   return target;

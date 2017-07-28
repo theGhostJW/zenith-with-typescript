@@ -34,7 +34,7 @@ export function chkExceptionText(action : () => void, exceptionText: string, cas
         return hasText(failMessage, exceptionText, caseSensitive);
       },
       () => failMessage == null ? exceptionText :
-                exceptionText + ' not found in: \n<' + failMessage +'>'
+              '<' +  exceptionText + '> not found in: \n<' + failMessage +'>'
   );
 }
 

@@ -159,6 +159,11 @@ describe('hasText', () => {
     chkFalse(hasText(null, ''));
   });
 
+  it('same test with wildcard', () => {
+    let actual = 'setInObj matching property not found for specification: st*, toys, will not work';
+    chk(hasText(actual, actual));
+  });
+
 });
 
 describe ('startsWith', () => {

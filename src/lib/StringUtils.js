@@ -64,6 +64,6 @@ export function endsWith(str: ?string, suffix: string) {
 
 export function hasText(hayStack: ?string, needle: string, caseSensitive: boolean = false): boolean {
   return hayStack == null ? false :
-                            caseSensitive ? new RegExp(needle).test(hayStack) :
-                                            new RegExp(needle, "i").test(hayStack);
+                            caseSensitive ? hayStack.includes(needle) :
+                                            debug(hayStack.toLowerCase(), 'haystack').includes(debug(needle.toLowerCase())) ;
 }
