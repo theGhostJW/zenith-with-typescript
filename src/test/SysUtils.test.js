@@ -186,7 +186,7 @@ describe.only('setInObj1..4', () => {
   it('setInObj4 - sets property', () => {
     let expected = debug(targ());
     expected.store.home.stuff.author = 'You';
-    chkEq(expected, setInObj4(debug(targ()), 'store', 'home', 'stuff', 'other', 'You'));
+    chkEq(expected, setInObj4(debug(targ()), 'store', 'home', 'stuff', 'author', 'You'));
   });
 });
 
