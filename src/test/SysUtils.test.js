@@ -19,6 +19,7 @@ import {
   seekInObjWithInfo,
   seekInObjNoCheckWithInfo,
   seekInObjNoCheck,
+  setInObjn,
   isPOJSO,
   debug
 } from '../lib/SysUtils';
@@ -42,6 +43,104 @@ function chkValKeys(expected, actual: Array < $Subtype < ?ValKey >>) {
   chkEq(expected, actual);
 }
 
+describe('setInObjn', () => {
+
+  const EXPECTED = {
+             store: {
+                    book: {
+                              category: "fiction",
+                              author: "J. R. R. Tolkien",
+                              title: "The Lord of the Rings",
+                              isbn: "0-395-19395-8",
+                              price: 22.99
+                          },
+                    books: [
+                            {
+                              category: "reference",
+                              author: "Nigel Rees",
+                              title: "Sayings of the Century",
+                              price: 8.95
+                            }
+                          ],
+                bicycle: {
+                  category: "fun",
+                  color: "red",
+                  gears: 12,
+                  price: 19.95
+                }
+              },
+            home: {
+                  color: "green",
+                  category: "homi",
+                  stuff: {
+                            category: "stuff cat",
+                            toys: "fiction",
+                            author: "Me",
+                            other : {
+                                    moreInfo: 'Hi there'
+                            }
+                          }
+            }
+          };
+
+  const ACTUAL = {
+                  store: {
+                    book: {
+                      category: "new non fiction",
+                      author: "J. R. R. Tolkien",
+                      title: "The Lord of the Rings",
+                      isbn: "0-395-19395-8",
+                      price: 22.99
+                    },
+                    books: [
+                      {
+                        category: "reference",
+                        author: "Nigel Rees",
+                        title: "Sayings of the Century",
+                        price: 8.95
+                      }
+                    ],
+                    bicycle: {
+                      category: "fun",
+                      color: "red",
+                      gears: 12,
+                      price: 19.95
+                    }
+                  },
+                  home: {
+                    color: "green",
+                    category: "new Home",
+                    stuff: {
+                      category: "stuff cat",
+                      toys: "new Toys",
+                      author: "Me",
+                      other: {
+                        moreInfo: "Hi there"
+                      }
+                    }
+                  }
+                };
+
+  it('updates properties as expected', () => {
+    setInObjn(ACTUAL, ['toys'], 'new Toys');
+    setInObjn(ACTUAL, ['home', 'category'], 'new Home');
+    setInObjn(ACTUAL, ['st*', 'category'], 'new non fiction');
+    setInObjn(ACTUAL, ['color'], 'green');
+    chkEq(EXPECTED, ACTUAL);
+  });
+
+  it('throws on missing property', () => {
+    // expectDefect('Should throw exception')
+    //  setInObj(actual, 'st*', 'toys', 'will not work');
+  });
+
+  //
+  //
+  // it('', () => {
+  //
+  // });
+
+});
 
 describe('seekInObjxxx - derived functions', () => {
 
@@ -152,7 +251,7 @@ describe('seekInObjxxx - derived functions', () => {
 
 });
 
-describe('seekAllInObjWithInfo', () => {
+describe.only('seekAllInObjWithInfo', () => {
 
   const EG_OBJ = {
     store: {
@@ -197,6 +296,7 @@ describe('seekAllInObjWithInfo', () => {
     }
   };
 
+
   describe('property selectors', () => {
     it('finds a single string match', () => {
 
@@ -221,6 +321,16 @@ describe('seekAllInObjWithInfo', () => {
         actual = seekAllInObjWithInfo(targ, 'blah');
 
       chkEqJson(expected, actual);
+    });
+
+    it('only finds single object in branch', () => {
+      let expected = [
+          {
+            key: "category",
+            value: "homi"
+          }
+        ];
+        chkValKeys(expected, seekAllInObjWithInfo(EG_OBJ, 'home', 'category'));
     });
 
     let targ = {

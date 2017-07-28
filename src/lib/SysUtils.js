@@ -216,6 +216,37 @@ export function seekInObj(target :? {}, specifier: MixedSpecifier, ...otherSpeci
   return info == null ? undefined : info.value;
 }
 
+export function setInObjn(target : {}, specifiers : Array <MixedSpecifier>, value: mixed): {}{
+  return setInObjnPrivate(false, target, specifiers, value);
+}
+
+// export function cast<T>(val: any){
+//   return ((val : any): T);
+// }
+
+function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : Array <MixedSpecifier>, value: mixed) : {} {
+
+  let [spec, ...otherSpecs] = specifiers,
+      propInfo = noCheck ?  seekInObjNoCheckWithInfo(target, spec, ...otherSpecs) :  seekInObjWithInfo(target, spec, ...otherSpecs);
+
+  if (propInfo == null){
+    fail( 'setInObj matching property not found for specification: ' + _.map(specifiers, toString).join(', '));
+  }
+  else {
+    let parent = propInfo.parent;
+    if (parent == null){
+      fail('parent is null - this should not happen');
+    }
+    else if (parent.value == null) {
+      fail('parent is null - this should not happen');
+    }
+    else {
+      parent.value[parent.key] = value;
+    }
+  }
+  return target;
+}
+
 export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {
   let result = seekInObjNoCheckWithInfo(target, specifier, ...otherSpecifiers);
   return result == null ? undefined : result.value;
