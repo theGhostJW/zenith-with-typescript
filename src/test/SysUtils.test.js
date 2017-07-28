@@ -162,7 +162,7 @@ describe.only('setInObj1..4', () => {
                 }
                };
 
-  let targ = () => {return _.cloneDeep(base);}
+  let targ = () => {return (_.cloneDeep(base) : any);}
 
   it('setInObj1 - sets property', () => {
     let expected = targ();

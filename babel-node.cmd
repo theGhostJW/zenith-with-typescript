@@ -1,1 +1,0 @@
-"%~dp0node_modules\.bin\babel-node.cmd" %*
