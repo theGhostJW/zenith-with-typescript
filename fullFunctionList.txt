@@ -10,10 +10,6 @@
 	TODO: checkTextContainsFragmentsFromFile = checkTextContainsFragmentsFromFile;
 	TODO: check = check;
 	TODO: checkFalse = checkFalse;
-===== DataEntryUtils =====
-/****** Exports *****/
-	TODO: read = read;
-	TODO: set = set;
 ===== DateTimeUtils =====
 /****** Exports *****/
 	TODO: dateTimeToReadableString = dateTimeToReadableString;
