@@ -4,10 +4,14 @@ import jp from 'jsonpath';
 import { debug } from '../lib/SysUtils';
 
 
-describe.skip('process', () => {
+describe('process', () => {
 
   it('platform', () => {
     debug(`${process.platform}`, 'This platform is');
+  });
+
+  it('file name', () => {
+    debug(module.filename, 'module name');
   });
 
 });

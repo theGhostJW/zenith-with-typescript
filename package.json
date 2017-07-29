@@ -34,8 +34,9 @@
     "prepublish": "yarn run build",
     "debug": "yarn run prepublish && node inspect ./dist/test/sum.test.js",
     "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
-    "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "testWatch": "mocha --compilers js:babel-core/register -w ./src/test/**/*.test.js",
+    "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
+    "testAllWatch": "mocha --compilers js:babel-core/register -w ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env flow-bin nyc istanbul-reports --dev"
   }

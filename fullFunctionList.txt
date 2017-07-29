@@ -88,7 +88,7 @@
 	TODO: projectChildPath = projectChildPath;
 	TODO: suiteChildPath = suiteChildPath;
 	TODO: systemTempFile = systemTempFile;
-	TODO: combine = combine;
+	DONE - combine;
 	TODO: systemTempDir = systemTempDir;
 	TODO: forceSlash = forceSlash;
 	TODO: copyToLogAddDateStamp = copyToLogAddDateStamp;

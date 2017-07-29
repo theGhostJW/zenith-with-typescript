@@ -19,7 +19,8 @@ export function areEqual <T, U> (val1 : T, val2 : U, reasonableTypeCoercian : bo
   return _.isEqualWith(val1, val2, eqCustomiser);
 }
 
-export function fail(description: string) {
+// a fudge to keep the type checker happy
+export function fail<T>(description: string): T {
   throw new Error(description);
 }
 
