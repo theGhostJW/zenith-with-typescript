@@ -19,7 +19,7 @@ import {
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
 
-describe.only('standardiseLineEndings', () => {
+describe('standardiseLineEndings', () => {
 
   it('mixed line endings', () => {
     var base = '\r\n \n \r \r \n\r';

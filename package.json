@@ -23,7 +23,9 @@
     "babel-preset-flow": "^6.23.0",
     "babel-preset-node": "^5.1.1",
     "flow-bin": "^0.51.1",
-    "flow-types": "^1.0.0"
+    "flow-types": "^1.0.0",
+    "istanbul": "^0.4.5",
+    "nyc": "^11.0.3"
   },
   "scripts": {
     "run": "node ./dist/index.js",
@@ -32,6 +34,7 @@
     "debug": "yarn run prepublish && node inspect ./dist/test/sum.test.js",
     "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
     "testWatch": "mocha --compilers js:babel-core/register -w ./src/test/**/*.test.js",
-    "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env flow-bin --dev"
+    "testCoverage": "nyc ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
+    "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env flow-bin nyc --dev"
   }
 }
