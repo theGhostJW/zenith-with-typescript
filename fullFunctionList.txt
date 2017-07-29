@@ -1,3 +1,5 @@
+19.79 %
+
 ===== CheckUtils =====
 /****** Exports *****/
 	TODO: checkExists = checkExists;
@@ -15,8 +17,8 @@
 	TODO: dateTimeToReadableString = dateTimeToReadableString;
 	TODO: tcDateTimeToInt = tcDateTimeToInt;
 	TODO: intToTCDateTime = intToTCDateTime;
-	TODO: dateReplacer = dateReplacer;
-	TODO: dateReviver = dateReviver;
+	DONE - dateReplacer  - Depricated - for tcDateTime
+	DONE - dateReviver   - Depricated - for tcDateTime
 	TODO: now = now;
 	TODO: today = today;
 	TODO: getDate = getDate;
@@ -76,30 +78,30 @@
 	TODO: nowLogSuffix = nowLogSuffix;
 	TODO: browserdDownLoadFolder = browserdDownLoadFolder;
 	TODO: forceDirectory = forceDirectory;
-	TODO: tempFile = tempFile;
+	DONE - tempFile = tempFile;
 	TODO: tempDir = tempDir;
 	TODO: testDataPath = testDataPath;
 	TODO: runTimeFilesPath = runTimeFilesPath;
 	TODO: parentFolder = parentFolder;
-	TODO: runTimeFile = runTimeFile;
-	TODO: logsDirPath = logsDirPath;
-	TODO: logFilePath = logFilePath;
+	Done - runTimeFile = runTimeFile;
+	Done - logsDirPath = logsDirPath - renamed logfile;
+	Done - logFilePath = logFilePath;
 	TODO: logFilePathWithTimeStampSuffix = logFilePathWithTimeStampSuffix;
-	TODO: projectChildPath = projectChildPath;
-	TODO: suiteChildPath = suiteChildPath;
+	Done - projectChildPath = projectChildPath - made private;
+	Done - suiteChildPath = depricated;
 	TODO: systemTempFile = systemTempFile;
-	DONE - combine;
 	TODO: systemTempDir = systemTempDir;
-	TODO: forceSlash = forceSlash;
+	DONE - combine;
+	DONE - forceSlash = depricated use combine;
 	TODO: copyToLogAddDateStamp = copyToLogAddDateStamp;
 	TODO: clearBrowserDownloadsDirectory = clearBrowserDownloadsDirectory;
 	TODO: clearDirectory = clearDirectory;
 	TODO: exportToCSV = exportToCSV;
 	TODO: lastBrowserDownloadFile = lastBrowserDownloadFile;
 	TODO: copyFile = copyFile;
-	TODO: copyTestFile = copyTestFile;
-	TODO: mockFile = mockFile;
-	TODO: testDataFile = testDataFile;
+	DONE - copyTestFile = Depricated;
+	DONE - mockFile = mockFile;
+	DONE - testDataFile = testDataFile;
 	TODO: testDataString = testDataString;
 	TODO: tempString = tempString;
 	TODO: toTempString = toTempString;

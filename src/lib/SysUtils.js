@@ -33,9 +33,14 @@ export function ensure<T>(condition : boolean, successVal: T, failMsg : string =
 
 export function ensureHasVal<T>(successVal: ?T, failMsg : string = '') : T {
   if(successVal == null) {
-    throw new Error('ensure failure - ' + failMsg);
+    throw new Error('value must not be null or undefined - ' + failMsg);
   }
   return successVal;
+}
+
+export function ensureHasValAnd<T>(successVal: ?T, predicate: (T) => boolean, failMsg : string = '') : T {
+  let result = ensureHasVal(successVal, failMsg);
+  return ensure(predicate(result), result, failMsg);
 }
 
 function eqCustomiser <T, U> (val1 : T, val2 : U) : void | boolean {
@@ -307,8 +312,7 @@ export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...ot
     return undefined;
   }
   else {
-    ensure(allInfo.length === 1, 'More than one object matches supplied specifiers: ' + objectAddresses(allInfo));
-    return allInfo[0];
+    return ensure(allInfo.length === 1, allInfo[0], 'More than one object matches supplied specifiers: ' + objectAddresses(allInfo));
   }
 }
 
