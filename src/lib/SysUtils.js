@@ -24,10 +24,18 @@ export function fail<T>(description: string): T {
   throw new Error(description);
 }
 
-export function ensure(val : boolean, msg : string = '') : void {
-  if(!val) {
-    throw new Error('ensure failure - ' + msg);
+export function ensure<T>(condition : boolean, successVal: T, failMsg : string = '') : T {
+  if(!condition) {
+    throw new Error('ensure failure - ' + failMsg);
   }
+  return successVal;
+}
+
+export function ensureHasVal<T>(successVal: ?T, failMsg : string = '') : T {
+  if(successVal == null) {
+    throw new Error('ensure failure - ' + failMsg);
+  }
+  return successVal;
 }
 
 function eqCustomiser <T, U> (val1 : T, val2 : U) : void | boolean {

@@ -1,6 +1,6 @@
 // @flow
 
-import {def, debug, hasValue, areEqual, ensure, fail} from '../lib/SysUtils';
+import {def, debug, hasValue, areEqual, ensureHasVal, fail} from '../lib/SysUtils';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -31,13 +31,10 @@ export function projectDir(): string {
   let seedName = module.filename,
       projFolder = seekFolder(seedName, isProjectDir);
 
-  if (projFolder == null){
-    return fail( `Cannot find project file path when searching up from: ${seedName} - tried: ${tried.join(', ')} `);
-  }
-  else {
-    return projFolder;
-  }
-
+  return ensureHasVal(projFolder, `Cannot find project file path when searching up from: ${seedName} - tried: ${tried.join(', ')}`);
 }
 
-const projDir = (subDir: string): string => {return combine(projectDir(), subDir)};
+function projectSubDir(subDir: string) {
+  let result = combine(projectDir(), subDir);
+  return
+}

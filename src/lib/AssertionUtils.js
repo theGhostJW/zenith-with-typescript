@@ -4,19 +4,25 @@ import * as _ from 'lodash';
 import {toString, hasText} from '../lib/StringUtils';
 import {areEqual, ensure, fail, debug} from '../lib/SysUtils';
 
-export const chk = ensure;
-
-export function chkFalse(val : boolean, msg : string = '') {
-  chk(!val, msg);
+function chkWithMessage(val: boolean, message: string = ''): void {
+  ensure(val, true, message);
 }
 
-export function chkEq(expected : mixed, actual : mixed, msg : string = '') : void {
+export function chk(val: boolean): void {
+  chkWithMessage(val);
+}
+
+export function chkFalse(val : boolean) : void {
+  chk(!val);
+}
+
+export function chkEq(expected : mixed, actual : mixed) : void {
   if ( !areEqual(expected, actual)) {
-    fail(`expected: <${toString(expected)}> did not equal actual <${toString(actual)}>` + ' ' + msg);
+    fail(`expected: <${toString(expected)}> did not equal actual <${toString(actual)}>`);
   }
 }
 
-export function chkEqJson(expected : mixed, actual: mixed, msg : string = '') : void {
+export function chkEqJson(expected : mixed, actual: mixed) : void {
   let expectedJ = JSON.stringify(expected),
       actualJ = JSON.stringify(actual);
 
@@ -50,7 +56,7 @@ export function chkException(action : () => void, erroCheck: Error => boolean, m
     action();
     exceptionHit = false;
   } catch (e) {
-    chk(erroCheck(e), 'error check failed ' + messageFunc())
+    chkWithMessage(erroCheck(e), 'error check failed ' + messageFunc())
   }
-  chk(exceptionHit, 'No Exception thrown when exception expected. Expecting: ' + messageFunc());
+  chkWithMessage(exceptionHit, 'No Exception thrown when exception expected. Expecting: ' + messageFunc());
 }
