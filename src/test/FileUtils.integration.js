@@ -1,20 +1,59 @@
 // @flow
 
-import {chk, chkEq, chkEqJson, chkFalse, chkHasText} from '../lib/AssertionUtils';
+import {
+        chk, chkEq, chkEqJson, chkFalse, chkHasText,
+        chkWithMessage
+      } from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { debug, areEqual } from '../lib/SysUtils';
 import type {LogAttributes} from '../lib/Logging';
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
-         runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString} from '../lib/FileUtils';
+         runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
+         deleteFile, toTestDataString, fromTestDataString } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
 
-describe.only('from / to tempString', () => {
+describe.only('delete file', () => {
+
+  let tempPath = tempFile('blah.txt');
+  it('simple delete', () => {
+    stringToFile('blah', tempPath);
+    chkWithMessage(pathExists(tempPath), 'precheck');
+    chkWithMessage(deleteFile(tempPath), 'returns true');
+    chkWithMessage(!pathExists(tempPath), 'file gone');
+  });
+
+  it('simple delete - no file exists', () => {
+    chkWithMessage(deleteFile(tempFile('nonExistantFile')), 'returns true when no file exists');
+  });
+
+});
+
+describe.only('<to / from>TestDataString round trip', () => {
+
+  it('simple round trip', () => {
+    toTestDataString('blah', 'blah');
+    let actual = fromTestDataString('blah');
+    chkEq('blah', actual);
+    deleteFile(testDataFile('blah.txt'));
+  });
+
+
+  it('simple round trip different extnesion', () => {
+    toTestDataString('blah', 'blah.yaml');
+    let actual = fromTestDataString('blah.yaml');
+    chkEq('blah', actual);
+    deleteFile(testDataFile('blah.yaml'));
+  });
+
+});
+
+describe('from / to tempString', () => {
 
   it('simple round trip full defaults', () => {
     toTempString('Hi');

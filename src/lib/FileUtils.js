@@ -2,7 +2,7 @@
 
 import {def, debug, hasValue, areEqual, ensureHasVal, ensureHasValAnd} from '../lib/SysUtils';
 import { newLine } from '../lib/StringUtils';
-import { logWarning } from '../lib/Logging';
+import { logWarning, log } from '../lib/Logging';
 import { parse, join } from 'path';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -42,10 +42,26 @@ export function fromTempString(fileName: ?string, wantWarning: boolean = true) :
   return fileToString(path);
 }
 
-// export function toTestDataString(str: string, fileName: string) : string  {
-//
-// }
-//
+const tdsPath = (fileName: string): string => {return testDataFile(defaultExtension(fileName, '.txt'));}
+
+export function toTestDataString(str: string, fileName: string) : string  {
+  let path = tdsPath(fileName);
+  stringToFile(str, path);
+  return path;
+}
+
+export function fromTestDataString(fileName: string) : string  {
+  return fileToString(tdsPath(fileName));
+}
+
+export function deleteFile(path: string) : boolean {
+  if (pathExists(path)){
+    log(`Deleting file: ${path}`);
+    fs.unlinkSync(path);
+  }
+  return !pathExists(path);
+}
+
 // export function fromTestData<T>(str: string, fileName: string) : T  {
 //
 // }

@@ -1,4 +1,7 @@
-19.79 %
+Date 				ToDo			Done			Completion
+------------------------------------
+01-08-2017 	231				57				19.8 %
+06-08-2017 	225				65				22.4 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -60,7 +63,7 @@
 	TODO: listFolders = listFolders;
 	TODO: eachFile = eachFile;
 	TODO: eachFolder = eachFolder;
-	TODO: defaultExtension = defaultExtension;
+	DONE - defaultExtension = defaultExtension;
 	TODO: clearDirectoy = clearDirectoy;
 	TODO: toTemp = toTemp;
 	TODO: toTempReadable = toTempReadable;
@@ -74,21 +77,21 @@
 	TODO: arrayToFile = arrayToFile;
 	TODO: fileToArray = fileToArray;
 	TODO: relativeToAbsolute = relativeToAbsolute;
-	TODO: changeExtension = changeExtension;
+	DONE - changeExtension = changeExtension;
 	TODO: nowLogSuffix = nowLogSuffix;
 	TODO: browserdDownLoadFolder = browserdDownLoadFolder;
 	TODO: forceDirectory = forceDirectory;
 	DONE - tempFile = tempFile;
-	TODO: tempDir = tempDir;
-	TODO: testDataPath = testDataPath;
+	DONE - tempDir = tempDir;
+	DONE - testDataPath = testDataPath;
 	TODO: runTimeFilesPath = runTimeFilesPath;
 	TODO: parentFolder = parentFolder;
-	Done - runTimeFile = runTimeFile;
-	Done - logsDirPath = logsDirPath - renamed logfile;
-	Done - logFilePath = logFilePath;
+	DONE - runTimeFile = runTimeFile;
+	DONE - logsDirPath = logsDirPath - renamed logfile;
+	DONE - logFilePath = logFilePath;
 	TODO: logFilePathWithTimeStampSuffix = logFilePathWithTimeStampSuffix;
-	Done - projectChildPath = projectChildPath - made private;
-	Done - suiteChildPath = depricated;
+	DONE - projectChildPath = projectChildPath - made private;
+	DONE - suiteChildPath = depricated;
 	TODO: systemTempFile = systemTempFile;
 	TODO: systemTempDir = systemTempDir;
 	DONE - combine;
@@ -103,9 +106,9 @@
 	DONE - mockFile = mockFile;
 	DONE - testDataFile = testDataFile;
 	TODO: testDataString = testDataString;
-	TODO: tempString = tempString;
-	TODO: toTempString = toTempString;
-	TODO: stringToTestData = stringToTestData;
+	DONE - tempString = tempString;
+	DONE - toTempString = toTempString;
+	DONE - stringToTestData = renamed testDataString ;
 	TODO: testDataFileLastModified = testDataFileLastModified;
 	TODO: fileLastModified = fileLastModified;
 ===== ReflectionUtils =====

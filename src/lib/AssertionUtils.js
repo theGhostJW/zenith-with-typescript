@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import {toString, hasText} from '../lib/StringUtils';
 import {areEqual, ensure, fail, debug} from '../lib/SysUtils';
 
-function chkWithMessage(val: boolean, message: string = ''): void {
+export function chkWithMessage(val: boolean, message: string = ''): void {
   ensure(val, true, message);
 }
 
