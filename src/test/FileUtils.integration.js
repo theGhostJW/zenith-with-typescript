@@ -1,13 +1,127 @@
-import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
+// @flow
+
+import {chk, chkEq, chkEqJson, chkFalse, chkHasText} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
-import { debug } from '../lib/SysUtils';
-import { combine, seekFolder, pathExists, projectDir, runTimeFilesFile, tempFile, mockFile, testDataFile, runTimeFile, logFile } from '../lib/FileUtils';
+import { debug, areEqual } from '../lib/SysUtils';
+import type {LogAttributes} from '../lib/Logging';
+import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
+import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
+         runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString} from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
-      BASE_FILE = SOURCE_DIR + '\\lib\\FileUtils.js';
+      BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
+
+describe.only('from / to tempString', () => {
+
+  it('simple round trip full defaults', () => {
+    toTempString('Hi');
+    chkEq('Hi', fromTempString());
+  });
+
+
+  let msg = '';
+  function logWarning(message: string, additionalInfo: ?string, link: ?string, attr: ?LogAttributes): void {
+    msg = message;
+  }
+
+  let mockLogging = {
+                        logWarning: logWarning,
+                        logError: DEFAULT_LOGGING_FUNCTIONS.logError,
+                        log: DEFAULT_LOGGING_FUNCTIONS.log
+                      };
+
+  it('check for warnings toTempString', () => {
+    setLoggingFunctions(mockLogging);
+    try {
+      msg = '';
+      toTempString('Hi');
+      chkHasText(msg, 'Temp file written to');
+    } finally {
+      setLoggingFunctions(DEFAULT_LOGGING_FUNCTIONS);
+    }
+  });
+
+  it('check for warnings fromTempString', () => {
+    setLoggingFunctions(mockLogging);
+    try {
+      toTempString('Hi');
+      msg = '';
+      fromTempString();
+      chkHasText(msg, 'Reading temp file');
+    } finally {
+      setLoggingFunctions(DEFAULT_LOGGING_FUNCTIONS);
+    }
+  });
+
+  it('check for warnings off', () => {
+    setLoggingFunctions(mockLogging);
+    try {
+      msg = '';
+      toTempString('Hi', null, false);
+      chkEq(msg, '');
+    } finally {
+      setLoggingFunctions(DEFAULT_LOGGING_FUNCTIONS);
+    }
+  });
+
+  it('check for warnings off fromTempString', () => {
+    setLoggingFunctions(mockLogging);
+    try {
+      toTempString('Hi');
+      msg = '';
+      fromTempString(null, false);
+      chkEq(msg, '');
+    } finally {
+      setLoggingFunctions(DEFAULT_LOGGING_FUNCTIONS);
+    }
+  });
+
+  it('check rewrite warning', () => {
+      toTempString('Hi');
+      toTempString('Hi');
+      let content = fromTempString();
+      chkHasText(content, '!!!!! IF YOU ARE USING THIS FOR DEBUGGING');
+  });
+
+});
+
+describe('stringToFile / fileToString round trips', () => {
+
+  let DEST_FILE : string = tempFile('hello.txt');
+  it('happy simple - round trip', () => {
+    stringToFile('Hello', DEST_FILE);
+    let actual: string = fileToString(DEST_FILE);
+    chkEq('Hello', actual)
+  });
+
+  it('happy simple - round trip default ext', () => {
+    stringToFile('Hello', tempFile('hello1'));
+    let actual: string  = fileToString(tempFile('hello1'));
+    chkEq('Hello', actual)
+  });
+
+  const UTF8_STR: string = 'ĂĂĂĂĂĂĂĂĂĂĂĂĂĂĂĂĂĂĂĂĂ';
+  it('utf8 - default', () => {
+    stringToFile(UTF8_STR, tempFile('utf8.txt'));
+    let actual: string  = fileToString(tempFile('utf8.txt'));
+    chkEq(UTF8_STR, actual);
+  });
+
+  it('ascii simple round trip', () => {
+    stringToFile('Hello there', tempFile('ascii.txt'), 'ascii');
+    let actual: string  = fileToString(tempFile('ascii.txt'), 'ascii');
+    chkEq('Hello there', actual);
+  });
+
+  it('ascii from utf8 - expect file to be corrupt', () => {
+    stringToFile(UTF8_STR, tempFile('utf8.txt'));
+    let actual: string  = fileToString(tempFile('utf8.txt'), 'ascii');
+    chkFalse(areEqual(UTF8_STR, actual));
+  });
+});
 
 describe('projectSubPathFuncs', () => {
 
@@ -66,23 +180,23 @@ describe('Integration - seekFolder', () => {
 
   it('project folder - exists', () => {
 
-    function isProjectDir(dir) {
-      let fullPath = combine(dir, 'package.json');
+    function isProjectDir(dir: string) {
+      let fullPath: string = combine(dir, 'package.json');
       return pathExists(fullPath);
     }
 
-    let projFolder = seekFolder(BASE_FILE, isProjectDir);
+    let projFolder: ?string = seekFolder(BASE_FILE, isProjectDir);
     chkEq(PROJECT_PATH, projFolder);
   });
 
   it('project does not exist', () => {
 
-    function isProjectDir(dir) {
-      let fullPath = combine(dir, 'package.notExists');
+    function isProjectDir(dir: string) {
+      let fullPath: string = combine(dir, 'package.notExists');
       return pathExists(fullPath);
     }
 
-    let projFolder = seekFolder(BASE_FILE, isProjectDir);
+    let projFolder: ?string  = seekFolder(BASE_FILE, isProjectDir);
     chkEq(null, projFolder);
   });
 
@@ -91,22 +205,22 @@ describe('Integration - seekFolder', () => {
 describe('Integration - pathExists', () => {
 
   it('known file', () => {
-    const BASE_DIR = SOURCE_DIR + '\\lib\\FileUtils.js';
+    const BASE_DIR: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
     chk(pathExists(BASE_DIR));
   });
 
   it('known directory', () => {
-    const BASE_DIR = SOURCE_DIR + '\\lib';
+    const BASE_DIR: string  = SOURCE_DIR + '\\lib';
     chk(pathExists(BASE_DIR));
   });
 
   it('known directory trailing backslash', () => {
-    const BASE_DIR = SOURCE_DIR + '\\lib\\';
+    const BASE_DIR: string  = SOURCE_DIR + '\\lib\\';
     chk(pathExists(BASE_DIR));
   });
 
   it('missing file', () => {
-    const BASE_DIR = SOURCE_DIR + '\\Blahhhhh.hs';
+    const BASE_DIR: string  = SOURCE_DIR + '\\Blahhhhh.hs';
     chkFalse(pathExists(BASE_DIR));
   });
 

@@ -12,6 +12,12 @@ export function chk(val: boolean): void {
   chkWithMessage(val);
 }
 
+export function chkHasText(actualHaystack: ?string, expectedNeedle: string) : void {
+  chkWithMessage(hasText(actualHaystack, expectedNeedle),
+    `looking for: <${expectedNeedle}> \n  IN \n <${toString(actualHaystack)}>`);
+}
+
+
 export function chkFalse(val : boolean) : void {
   chk(!val);
 }

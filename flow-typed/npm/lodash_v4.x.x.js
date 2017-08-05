@@ -1,5 +1,5 @@
-// flow-typed signature: 4d419bd847d2e7d3a719e75e9bd58d82
-// flow-typed version: 0953311d72/lodash_v4.x.x/flow_>=v0.47.x
+// flow-typed signature: 77a78044a6021c0258fb1b8b69dd4318
+// flow-typed version: 9821eaaefe/lodash_v4.x.x/flow_>=v0.47.x
 
 declare module 'lodash' {
   declare type TemplateSettings = {
@@ -77,8 +77,8 @@ declare module 'lodash' {
     dropRightWhile<T>(array: ?Array<T>, predicate?: Predicate<T>): Array<T>;
     dropWhile<T>(array: ?Array<T>, predicate?: Predicate<T>): Array<T>;
     fill<T, U>(array: ?Array<T>, value: U, start?: number, end?: number): Array<T|U>;
-    findIndex<T>(array: ?Array<T>, predicate?: Predicate<T>): number;
-    findLastIndex<T>(array: ?Array<T>, predicate?: Predicate<T>): number;
+    findIndex<T>(array: ?Array<T>, predicate?: Predicate<T>, fromIndex?: number): number;
+    findLastIndex<T>(array: ?Array<T>, predicate?: Predicate<T>, fromIndex?: number): number;
     // alias of _.head
     first<T>(array: ?Array<T>): T;
     flatten<T,X>(array: Array<Array<T>|X>): Array<T|X>;
@@ -193,8 +193,8 @@ declare module 'lodash' {
     forEach<T: Object>(object: T, iteratee?: OIteratee<T>): T;
     forEachRight<T>(array: ?Array<T>, iteratee?: Iteratee<T>): Array<T>;
     forEachRight<T: Object>(object: T, iteratee?: OIteratee<T>): T;
-    groupBy<V, T>(array: ?Array<T>, iteratee?: ValueOnlyIteratee<T>): {[key: V]: ?Array<T>};
-    groupBy<V, A, T: {[id: string]: A}>(object: T, iteratee?: ValueOnlyIteratee<A>): {[key: V]: ?Array<A>};
+    groupBy<V, T>(array: ?Array<T>, iteratee?: ValueOnlyIteratee<T>): {[key: V]: Array<T>};
+    groupBy<V, A, T: {[id: string]: A}>(object: T, iteratee?: ValueOnlyIteratee<A>): {[key: V]: Array<A>};
     includes<T>(array: ?Array<T>, value: T, fromIndex?: number): bool;
     includes<T: Object>(object: T, value: any, fromIndex?: number): bool;
     includes(str: string, value: string, fromIndex?: number): bool;

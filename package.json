@@ -8,8 +8,9 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.5.0",
+    "color": "^2.0.0",
     "debug": "^2.6.8",
-    "flow-typed": "^2.1.2",
+    "flow-typed": "^2.1.5",
     "jsonpath": "^0.2.12",
     "lodash": "^4.17.4",
     "message": "^0.0.1",
@@ -22,11 +23,11 @@
     "babel-preset-env": "^1.6.0",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-node": "^5.1.1",
-    "flow-bin": "^0.51.1",
+    "flow-bin": "^0.52.0",
     "flow-types": "^1.0.0",
     "istanbul": "^0.4.5",
     "istanbul-reports": "^1.1.1",
-    "nyc": "^11.0.3"
+    "nyc": "^11.1.0"
   },
   "scripts": {
     "run": "node ./dist/index.js",
@@ -38,6 +39,6 @@
     "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "testAllWatch": "mocha --compilers js:babel-core/register -w ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
-    "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env flow-bin nyc istanbul-reports --dev"
+    "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node flow-bin nyc istanbul-reports --dev"
   }
 }
