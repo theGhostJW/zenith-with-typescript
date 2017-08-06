@@ -11,6 +11,7 @@
     "color": "^2.0.0",
     "debug": "^2.6.8",
     "flow-typed": "^2.1.5",
+    "js-yaml": "^3.9.1",
     "jsonpath": "^0.2.12",
     "lodash": "^4.17.4",
     "message": "^0.0.1",
