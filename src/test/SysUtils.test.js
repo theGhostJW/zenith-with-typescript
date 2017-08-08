@@ -26,11 +26,34 @@ import {
   setInObj4,
   seekAllInObj,
   isPOJSO,
-  debug
+  debug,
+  yamlToObj,
+  objToYaml
 } from '../lib/SysUtils';
+import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
+
+describe.only('objToYaml / YamlToObj', () => {
+
+  it('basic round trip', () => {
+    let obj = {
+      p1: 'hi',
+      p2: [1,2,3,4],
+      p3: {
+        pp1: 345,
+        p2: null,
+       'unconventional prop': 'hello there',
+       arr:['j', 34, 9]
+      }
+    };
+
+    let actual = yamlToObj(objToYaml(obj));
+    chkEq(obj, actual);
+  });
+
+});
 
 interface ValKey {
   key : string | number,
@@ -754,57 +777,6 @@ describe('seekManyInObjWithInfo', () => {
 
     });
 
-    /*
-
-
-
-       nested properties multiple arrays
-
-
-    nested properties using HOFS
-
-
-      targ = {
-                  blah1: 1,
-                    child: {
-                      blah: [
-                              {
-                                book: {
-                                      title: 'Wild Swans',
-                                      editions: [1,2,3,4]
-                                    }
-                                }
-                      ]
-                    }
-                  };
-
-      expected = {
-                  parent: [1,2,3,4],
-                  value: 2,
-                  key: 1,
-                  address: "child.blah." + ARRAY_QUERY_ITEM_LABEL() + '.book.editions.' + ARRAY_QUERY_ITEM_LABEL()
-                };
-
-      function hasSwansTitle(val){
-        return hasText(val.book.title, 'swans');
-      }
-
-      function isTwo(val){
-        return val === 2;
-      }
-      result = seekInObj(targ, 'blah', [hasSwansTitle], 'editions', [isTwo], true);
-      checkEqual(expected, result, 'multi nested array');
-
-        null property
-      targ = {
-        prop: null
-      };
-      result = seekInObj(targ, 'prop');
-      checkEqual(null, result, 'null prop');
-
-
-     */
-
   });
 
 });
@@ -940,6 +912,32 @@ describe('areEqual', () => {
         }
       ];
     chk(areEqual(v1(), v2));
+  });
+
+  it.only('nested obj with array', () => {
+    let obj = {
+      p1: 'hi',
+      p2: [1,2,3,4],
+      p3: {
+        pp1: 345,
+        p2: null,
+        p5: undefined,
+       'unconventional prop': 'hello there',
+       arr:['j', 34, 9]
+      }
+    };
+    let oth = {
+      p1: 'hi',
+      p2: [1,2,3,4],
+      p3: {
+        pp1: 345,
+        p2: null,
+        p5: undefined,
+       'unconventional prop': 'hello there',
+       arr:['j', 34, 9]
+      }
+    };
+    chkEq(obj, oth)
   });
 });
 

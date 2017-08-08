@@ -15,11 +15,11 @@ export function newLine(repeatCount: number = 1): string {
 }
 
 export function lowerFirst(str: string): string {
-  return hasValue(str) ? str.charAt(0).toLowerCase() + str.slice(1): str;
+  return str.length > 0 ? str.charAt(0).toLowerCase() + str.slice(1) : str;
 }
 
 export function upperFirst(str: string): string  {
-  return hasValue(str) ? str.charAt(0).toUpperCase() + str.slice(1): str;
+  return str.length > 0 ? str.charAt(0).toUpperCase() + str.slice(1): str;
 }
 
 export const upperCase : string => string = (s) => {return s.toUpperCase();}

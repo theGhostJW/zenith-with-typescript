@@ -2,7 +2,15 @@
 
 import * as _ from 'lodash';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib/StringUtils';
+import * as yaml from 'js-yaml';
 
+export function objToYaml(obj: mixed) : string {
+  return yaml.safeDump(obj, {skipInvalid: true}) ;
+}
+
+export function yamlToObj<T>(yamlStr: string): T {
+  return yaml.safeLoad(yamlStr);
+}
 
 export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;

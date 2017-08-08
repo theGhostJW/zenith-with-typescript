@@ -18,6 +18,14 @@ const PROJECT_PATH : string = 'C:\\ZWTF',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
 
+describe('special dirs / round trip', () => {
+
+  it('', () => {
+
+  });
+
+});
+
 describe.only('delete file', () => {
 
   let tempPath = tempFile('blah.txt');

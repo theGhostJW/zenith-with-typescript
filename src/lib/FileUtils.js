@@ -1,6 +1,6 @@
 // @flow
 
-import {def, debug, hasValue, areEqual, ensureHasVal, ensureHasValAnd} from '../lib/SysUtils';
+import {def, debug, hasValue, areEqual, ensureHasVal, ensureHasValAnd, objToYaml, yamlToObj} from '../lib/SysUtils';
 import { newLine } from '../lib/StringUtils';
 import { logWarning, log } from '../lib/Logging';
 import { parse, join } from 'path';
@@ -62,30 +62,53 @@ export function deleteFile(path: string) : boolean {
   return !pathExists(path);
 }
 
-// export function fromTestData<T>(str: string, fileName: string) : T  {
-//
-// }
-//
-// export function fromTemp<T>(str: string, fileName: string, wantWarning: boolean = true) : T  {
-//
-// }
-//
-// export function toTestData<T>(val: T, fileName: string) : string  {
-//
-// }
-//
-// export function toMock<T>(val: T, fileName: string) : string  {
-//
-// }
-//
-//
-// export function toLogDir<T>(val: T, fileName: string) : string  {
-//
-// }
-//
-// export function toTemp<T>(val: T, fileName: string, wantWarning: boolean = true) : string  {
-//
-// }
+export function fromTestData<T>(fileName: string) : T  {
+  return fromSpecialDir(fileName, testDataFile);
+}
+
+export function fromLogDir<T>(fileName: string) : T  {
+  return fromSpecialDir(fileName, logFile);
+}
+
+export function fromMock<T>(fileName: string) : T  {
+  return fromSpecialDir(fileName, mockFile);
+}
+
+function fromSpecialDir<T>(fileName: string, pathMaker : (string) => string): T {
+  let path = pathMaker(fileName),
+      str = fileToString(path),
+      rslt: T = yamlToObj(str);
+  return rslt;
+}
+
+export function toTestData<T>(val: T, fileName: string) : string  {
+  return toSpecialDir(val, fileName, testDataFile);
+}
+
+export function toMock<T>(val: T, fileName: string) : string  {
+  return toSpecialDir(val, fileName, mockFile);
+}
+
+function toSpecialDir<T>(val: T, fileName: string, pathMaker : (string) => string) : string  {
+  let path = pathMaker(fileName),
+      yml = objToYaml(val);
+  stringToFile(yml, path);
+  return path;
+}
+
+export function toLogDir<T>(val: T, fileName: string) : string  {
+  return toSpecialDir(val, fileName, logFile);
+}
+
+export function toTemp<T>(val: T, fileName: string, wantWarning: boolean = true, wantDuplicateOverwriteWarning: boolean  = true) : string  {
+  let str = objToYaml(val);
+  return toTempString(str, fileName, wantWarning, wantDuplicateOverwriteWarning);
+}
+
+export function fromTemp<T>(fileName: string, wantWarning: boolean = true) : T  {
+  let str = fromTempString(fileName, wantWarning);
+  return yamlToObj(str);
+}
 
 export function defaultExtension(path: string, defExt: string) : string {
   let parts = parse(path);
