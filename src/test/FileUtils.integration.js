@@ -13,7 +13,8 @@ import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
-         fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory} from '../lib/FileUtils';
+         fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
+         clearDirectory } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
@@ -36,16 +37,49 @@ describe.only('deleteDirectory', () => {
     chk(pathExists(tf2));
 
     let delDirs = deleteDirectory(parent, true);
-    chkEq([parent, child, tf1, tf2], delDirs);
+    chk(pathExists(parent));
+    chkEq([parent, child, tf1, tf2].sort(), delDirs.sort());
 
     let delDirs2 = deleteDirectory(parent);
-    chkEq(delDirs, delDirs2);
+    chkEq(delDirs, delDirs2.sort());
 
     chkFalse(pathExists(parent));
   });
 
+  it('deleteDirectory - not exist', () => {
+    let dir = combine(tempFile(), createGuidTruncated(5)),
+        delDirs = deleteDirectory(dir);
+
+    chkEq([], delDirs);
+  });
+
 });
 
+describe.only('clearDirectory', () => {
+
+  it('clearDirectory', () => {
+    let parent = combine(tempFile(), createGuidTruncated(5)),
+        child = combine(parent, createGuidTruncated(5)),
+        tf1 = combine(parent, 'tst'),
+        tf2 = combine(child, 'tst');
+
+    forceDirectory(parent);
+    forceDirectory(child);
+    stringToFile('Hi', tf1);
+    stringToFile('Hello', tf2);
+
+    chk(pathExists(tf1));
+    chk(pathExists(tf2));
+
+    let delDirs = clearDirectory(parent, true);
+    chkEq([child, tf1, tf2].sort(), delDirs.sort());
+
+    let delDirs2 = clearDirectory(parent);
+    chk(pathExists(parent));
+    chkFalse(pathExists(child));
+  });
+
+});
 
 describe.only('forceDirectory', () => {
 
