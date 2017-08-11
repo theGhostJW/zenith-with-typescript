@@ -5,11 +5,12 @@ import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib
 import * as yaml from 'js-yaml';
 
 export function objToYaml(obj: mixed) : string {
-  return yaml.safeDump(obj, {skipInvalid: true}) ;
+  return ((yaml.safeDump(obj, {skipInvalid: true}): any): string) ;
 }
 
 export function yamlToObj<T>(yamlStr: string): T {
-  return yaml.safeLoad(yamlStr);
+  let untypedVal: any = yaml.safeLoad(yamlStr);
+	return (untypedVal: T);
 }
 
 export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {

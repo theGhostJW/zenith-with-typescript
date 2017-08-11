@@ -13,29 +13,37 @@ export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' |
 
 const TEMP_STR_FILES : { [string]: boolean } = {};
 
-const tmpStrPath = (fileName: ?string) => {return defaultExtension(tempFile(def(fileName, 'tempString')), '.txt');}
+const tmpStrPath = (fileName: ?string = 'tempString', defaultExt: string) => {return defaultExtension(tempFile(def(fileName, 'tempString')), defaultExt);}
 
 export function toTempString(str: string, fileName: ?string, wantWarning: boolean = true, wantDuplicateOverwriteWarning: boolean = true) : string {
-  let path = tmpStrPath(fileName);
+  return toTempStringPriv(str, fileName, wantWarning, wantDuplicateOverwriteWarning, '.txt');
+}
 
-  if (wantDuplicateOverwriteWarning && TEMP_STR_FILES[path]){
-    str = `# !!!!!!!!!!!!!!!!!!  WARNING THIS FILE HAS BEEN OVERWRITTEN AT LEAST ONCE DURING THIS TEST RUN !!!!!!!!!!!!!!!!!\n` +
-    `# !!!!!!!!!!!!!!!!!! IF YOU ARE USING THIS FOR DEBUGGING YOU MAY NOT BE LOOKING AT WHAT YOU THINK YOU ARE !!!!!!!!!!!!!!!!!!` + newLine(2) +
-    str;
-  }
-  else if (wantDuplicateOverwriteWarning) {
-    TEMP_STR_FILES[path] = true;
-  }
+function toTempStringPriv(str: string, fileName: ?string, wantWarning: boolean, wantDuplicateOverwriteWarning: boolean, fileExt: string) : string {
+ let path = tmpStrPath(fileName, fileExt);
 
-  if (wantWarning) {
-    logWarning(`Temp file written to ${path}`);
-  }
-  stringToFile(str, path);
-  return path;
+ if (wantDuplicateOverwriteWarning && TEMP_STR_FILES[path]){
+   str = `# !!!!!!!!!!!!!!!!!!  WARNING THIS FILE HAS BEEN OVERWRITTEN AT LEAST ONCE DURING THIS TEST RUN !!!!!!!!!!!!!!!!!\n` +
+   `# !!!!!!!!!!!!!!!!!! IF YOU ARE USING THIS FOR DEBUGGING YOU MAY NOT BE LOOKING AT WHAT YOU THINK YOU ARE !!!!!!!!!!!!!!!!!!` + newLine(2) +
+   str;
+ }
+ else if (wantDuplicateOverwriteWarning) {
+   TEMP_STR_FILES[path] = true;
+ }
+
+ if (wantWarning) {
+   logWarning(`Temp file written to ${path}`);
+ }
+ stringToFile(str, path);
+ return path;
 }
 
 export function fromTempString(fileName: ?string, wantWarning: boolean = true) : string  {
-  let path = tmpStrPath(fileName);
+  return fromTempStringPriv(fileName, wantWarning, '.txt');
+}
+
+function fromTempStringPriv(fileName: ?string, wantWarning: boolean, fileExt: string) : string  {
+  let path = tmpStrPath(fileName, fileExt);
   if (wantWarning) {
     logWarning(`Reading temp file from ${path}`);
   }
@@ -48,6 +56,10 @@ export function toTestDataString(str: string, fileName: string) : string  {
   let path = tdsPath(fileName);
   stringToFile(str, path);
   return path;
+}
+
+export function fileToObj<T>(fullPath: string) : T  {
+  return yamlToObj(fileToString(fullPath));
 }
 
 export function fromTestDataString(fileName: string) : string  {
@@ -74,10 +86,10 @@ export function fromMock<T>(fileName: string) : T  {
   return fromSpecialDir(fileName, mockFile);
 }
 
-function fromSpecialDir<T>(fileName: string, pathMaker : (string) => string): T {
-  let path = pathMaker(fileName),
+function fromSpecialDir<T>(fileName: string, pathMaker : (string) => string, defaultExt: string = '.yaml'): T {
+  let path = pathMaker(defaultExtension(fileName, defaultExt)),
       str = fileToString(path),
-      rslt: T = yamlToObj(str);
+      rslt: T = ((yamlToObj(str): any): T);
   return rslt;
 }
 
@@ -89,11 +101,15 @@ export function toMock<T>(val: T, fileName: string) : string  {
   return toSpecialDir(val, fileName, mockFile);
 }
 
-function toSpecialDir<T>(val: T, fileName: string, pathMaker : (string) => string) : string  {
-  let path = pathMaker(fileName),
-      yml = objToYaml(val);
-  stringToFile(yml, path);
-  return path;
+function toSpecialDir<T>(val: T, fileName: string, pathMaker : (string) => string, defaultExt: string = '.yaml') : string  {
+  let path = pathMaker(defaultExtension(fileName, defaultExt));
+  return objToFile(val, path);
+}
+
+export function objToFile<T>(val: T, filePath: string) : string  {
+  let yml = objToYaml(val);
+  stringToFile(yml, filePath);
+  return filePath;
 }
 
 export function toLogDir<T>(val: T, fileName: string) : string  {
@@ -102,11 +118,11 @@ export function toLogDir<T>(val: T, fileName: string) : string  {
 
 export function toTemp<T>(val: T, fileName: string, wantWarning: boolean = true, wantDuplicateOverwriteWarning: boolean  = true) : string  {
   let str = objToYaml(val);
-  return toTempString(str, fileName, wantWarning, wantDuplicateOverwriteWarning);
+  return toTempStringPriv(str, fileName, wantWarning, wantDuplicateOverwriteWarning, '.yaml');
 }
 
 export function fromTemp<T>(fileName: string, wantWarning: boolean = true) : T  {
-  let str = fromTempString(fileName, wantWarning);
+  let str = fromTempStringPriv(fileName, wantWarning, '.yaml');;
   return yamlToObj(str);
 }
 

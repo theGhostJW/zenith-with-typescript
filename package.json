@@ -41,5 +41,11 @@
     "testAllWatch": "mocha --compilers js:babel-core/register -w ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node flow-bin nyc istanbul-reports --dev"
+  },
+  "nyc": {
+    "exclude": [
+      "**/*.integration.js",
+      "**/*.test.js"
+    ]
   }
 }

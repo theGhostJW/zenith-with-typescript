@@ -11,22 +11,67 @@ import type {LogAttributes} from '../lib/Logging';
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
-         deleteFile, toTestDataString, fromTestDataString } from '../lib/FileUtils';
+         deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
+         fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension} from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
 
-describe('special dirs / round trip', () => {
+describe('fileToObj', () => {
 
-  it('', () => {
+  it('round trip', () => {
+    let obj = {hi: 'hi'},
+        pth = tempFile('test.yaml');
 
+    toTemp(obj, 'test');
+    let actual = fileToObj(pth);
+    chkEq(obj, actual);
   });
 
 });
 
-describe.only('delete file', () => {
+describe('special dirs / round trip', () => {
+
+  function roundTripTest<T>(save: (any, string) => string, load: (string) => T, pathFragment: string, extension: ?string) {
+    let obj = {
+      name: 'Betty Boo',
+      age: 20
+    }
+
+    const FILE_NAME = 'testFile';
+    let path = save(obj, FILE_NAME);
+    chkHasText(path, pathFragment);
+    chk(pathExists(path));
+    if (extension != null){
+      chkEq(extension, fileExtension(path));
+    }
+
+    let actual = load(FILE_NAME);
+    chkEq(obj, actual);
+    deleteFile(path);
+  }
+
+  it('from / to temp', () => {
+    roundTripTest(toTemp, fromTemp, 'temp', '.yaml');
+  });
+
+  it('from / to testData', () => {
+    roundTripTest(toTestData, fromTestData, 'testData');
+  });
+
+  it('from / to mock', () => {
+    roundTripTest(toMock, fromMock, 'mock');
+  });
+
+  it('from / to log', () => {
+    roundTripTest(toLogDir, fromLogDir, 'log');
+  });
+
+});
+
+describe('delete file', () => {
 
   let tempPath = tempFile('blah.txt');
   it('simple delete', () => {
@@ -42,7 +87,7 @@ describe.only('delete file', () => {
 
 });
 
-describe.only('<to / from>TestDataString round trip', () => {
+describe('<to / from>TestDataString round trip', () => {
 
   it('simple round trip', () => {
     toTestDataString('blah', 'blah');

@@ -35,7 +35,7 @@ import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
-describe.only('objToYaml / YamlToObj', () => {
+describe('objToYaml / YamlToObj', () => {
 
   it('basic round trip', () => {
     let obj = {
@@ -914,7 +914,7 @@ describe('areEqual', () => {
     chk(areEqual(v1(), v2));
   });
 
-  it.only('nested obj with array', () => {
+  it('nested obj with array', () => {
     let obj = {
       p1: 'hi',
       p2: [1,2,3,4],

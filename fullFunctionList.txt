@@ -2,6 +2,7 @@ Date 				ToDo			Done			Completion
 ------------------------------------
 01-08-2017 	231				57				19.8 %
 06-08-2017 	225				65				22.4 %
+11-08-2017	209				74				35.4 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -65,14 +66,14 @@ Date 				ToDo			Done			Completion
 	TODO: eachFolder = eachFolder;
 	DONE - defaultExtension = defaultExtension;
 	TODO: clearDirectoy = clearDirectoy;
-	TODO: toTemp = toTemp;
-	TODO: toTempReadable = toTempReadable;
+	DONE -  toTemp = toTemp;
+	DONE -  toTempReadable = depricate - usning YAML;
 	TODO: zipAll = zipAll;
 	TODO: unzipAll = unzipAll;
-	TODO: fromTemp = fromTemp;
-	TODO: fileToObject = fileToObject;
-	TODO: objectToFile = objectToFile;
-	TODO: toTestData = toTestData;
+	DONE -  fromTemp = fromTemp;
+	DONE -  fileToObject = fileToObject;
+	DONE -  objectToFile = now objToFile;
+	DONE - toTestData = toTestData;
 	TODO: fromTestData = fromTestData;
 	TODO: arrayToFile = arrayToFile;
 	TODO: fileToArray = fileToArray;
@@ -84,7 +85,7 @@ Date 				ToDo			Done			Completion
 	DONE - tempFile = tempFile;
 	DONE - tempDir = tempDir;
 	DONE - testDataPath = testDataPath;
-	TODO: runTimeFilesPath = runTimeFilesPath;
+	DONE - runTimeFilesPath = runTimeFilesPath;
 	TODO: parentFolder = parentFolder;
 	DONE - runTimeFile = runTimeFile;
 	DONE - logsDirPath = logsDirPath - renamed logfile;
@@ -105,25 +106,15 @@ Date 				ToDo			Done			Completion
 	DONE - copyTestFile = Depricated;
 	DONE - mockFile = mockFile;
 	DONE - testDataFile = testDataFile;
-	TODO: testDataString = testDataString;
+	DONE - testDataString = testDataString;
 	DONE - tempString = tempString;
 	DONE - toTempString = toTempString;
 	DONE - stringToTestData = renamed testDataString ;
-	TODO: testDataFileLastModified = testDataFileLastModified;
+	DONE - testDataFileLastModified = Depricatted;
 	TODO: fileLastModified = fileLastModified;
 ===== ReflectionUtils =====
 /****** Exports *****/
-	TODO: scriptContents = scriptContents;
-	TODO: scriptFilePath = scriptFilePath;
-	TODO: scriptFilesInProject = scriptFilesInProject;
-	TODO: testFilesInProject = testFilesInProject;
-	TODO: testFilePathsInProject = testFilePathsInProject;
-	TODO: scriptFilesInProjectFile = scriptFilesInProjectFile;
-	TODO: extendedScriptInfo = extendedScriptInfo;
-	TODO: extendedScriptInfoFromAllScripts = extendedScriptInfoFromAllScripts;
-	TODO: isPublicScriptName = isPublicScriptName;
-	TODO: isPublicScript = isPublicScript;
-	TODO: isEndPointOrUnitTestName = isEndPointOrUnitTestName;
+  -- Depricated - better alternatives for utilities that use this
 ===== SimplifiedLogUtils =====
 /****** Exports *****/
 	TODO: inExpectDefect = inExpectDefect;
