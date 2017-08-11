@@ -127,9 +127,14 @@ export function fromTemp<T>(fileName: string, wantWarning: boolean = true) : T  
   return yamlToObj(str);
 }
 
-export function deleteDirectory(dir: string, dryRun: false): Array<string> {
+export function deleteDirectory(dir: string, dryRun: boolean = false): Array<string> {
   return del.sync([combine(dir, '**')], {dryRun: dryRun});
 }
+
+export function clearDirectory(dir: string, dryRun: boolean = false): Array<string> {
+  return del.sync([combine(dir, '**'), '!' + dir], {dryRun: dryRun});
+}
+
 
 export function forceDirectory(path: string): string {
   mkdirp.sync(path);
