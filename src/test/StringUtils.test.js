@@ -1,6 +1,7 @@
 // @flow
 
 import {test, describe} from 'mocha'
+import {debug, areEqual} from '../lib/SysUtils';
 import {
   toString,
   endsWith,
@@ -14,10 +15,35 @@ import {
   lowerFirst,
   newLine,
   upperFirst,
-  standardiseLineEndings
+  standardiseLineEndings,
+  createGuid,
+  createGuidTruncated
 } from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
+
+describe.only('createGuid', () => {
+
+  it('simple example', () => {
+    let g1 = createGuid(),
+        g2 = createGuid();
+
+    chkFalse(areEqual(g1, g2));
+  });
+
+});
+
+describe.only('createGuidTruncated', () => {
+
+  it('simple example', () => {
+    let g1 = createGuidTruncated(12),
+        g2 = createGuidTruncated(12);
+
+    chkFalse(areEqual(g1, g2));
+    chkEq(12, g1.length);
+  });
+
+});
 
 describe('standardiseLineEndings', () => {
 

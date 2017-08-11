@@ -3,6 +3,29 @@
 import { def, debug, hasValue } from '../lib/SysUtils';
 import S from 'string'
 
+const lut = Array(256).fill().map((_, i) => (i < 16 ? '0' : '') + (i).toString(16));
+const formatUuid = ({d0, d1, d2, d3}) =>
+  lut[d0       & 0xff]        + lut[d0 >>  8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' +
+  lut[d1       & 0xff]        + lut[d1 >>  8 & 0xff] + '-' +
+  lut[d1 >> 16 & 0x0f | 0x40] + lut[d1 >> 24 & 0xff] + '-' +
+  lut[d2       & 0x3f | 0x80] + lut[d2 >>  8 & 0xff] + '-' +
+  lut[d2 >> 16 & 0xff]        + lut[d2 >> 24 & 0xff] +
+  lut[d3       & 0xff]        + lut[d3 >>  8 & 0xff] +
+  lut[d3 >> 16 & 0xff]        + lut[d3 >> 24 & 0xff];
+
+const getRandomValuesFunc =
+  () => ({
+    d0: Math.random() * 0x100000000 >>> 0,
+    d1: Math.random() * 0x100000000 >>> 0,
+    d2: Math.random() * 0x100000000 >>> 0,
+    d3: Math.random() * 0x100000000 >>> 0,
+  });
+
+// from https://codepen.io/avesus/pen/wgQmaV?editors=0012
+export const createGuid = () => formatUuid(getRandomValuesFunc());
+
+export const createGuidTruncated = (length: number) => replace(createGuid(), '-', '').slice(0, length);
+
 export function standardiseLineEndings(str: string): string {
   var result = replace(str, '\n\r', '\n');
   result = replace(result, '\r\n', '\n');

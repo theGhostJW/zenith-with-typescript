@@ -55,8 +55,8 @@ Date 				ToDo			Done			Completion
 	TODO: colNo = colNo;
 ===== FileUtils =====
 /****** Exports *****/
-	TODO: ISSUES_FILE_SUFFIX = ISSUES_FILE_SUFFIX;
-	TODO: issuesFileSuffix = issuesFileSuffix;
+	DONE - ISSUES_FILE_SUFFIX = Depricated;
+	DONE - issuesFileSuffix = issuesFileSuffix;
 	TODO: fileToTables = fileToTables;
 	TODO: fileToTable = fileToTable;
 	TODO: parentDir = parentDir;
@@ -66,7 +66,7 @@ Date 				ToDo			Done			Completion
 	TODO: eachFolder = eachFolder;
 	DONE - defaultExtension = defaultExtension;
 	TODO: clearDirectoy = clearDirectoy;
-	DONE -  toTemp = toTemp;
+	DONE - toTemp = toTemp;
 	DONE -  toTempReadable = depricate - usning YAML;
 	TODO: zipAll = zipAll;
 	TODO: unzipAll = unzipAll;
@@ -169,8 +169,8 @@ Date 				ToDo			Done			Completion
 	DONE - replace;
 	DONE - standardiseLineEndings = standardiseLineEndings;
 	TODO: stringToTimeStampedLogFile = stringToTimeStampedLogFile;
-	TODO: createGuid = createGuid;
-	TODO: createGuidTruncated = createGuidTruncated;
+	DONE - createGuid = createGuid;
+	DONE - createGuidTruncated = createGuidTruncated;
 	TODO: trim = trim;
 	TODO: trimWhiteSpace = trimWhiteSpace;
 	TODO: lowerRemoveSpacesTrim = lowerRemoveSpacesTrim;
@@ -184,7 +184,7 @@ Date 				ToDo			Done			Completion
 	TODO: subStrBefore = subStrBefore;
 	TODO: subStrBetween = subStrBetween;
 	TODO: subStrAfter = subStrAfter;
-	TODO: fileToString = fileToString;
+	DONE - fileToString = fileToString;
 	DONE - newLine = newLine;
 	TODO: sameText = sameText;
 

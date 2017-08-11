@@ -7,17 +7,28 @@ import {
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { debug, areEqual } from '../lib/SysUtils';
+import { createGuidTruncated } from '../lib/StringUtils';
 import type {LogAttributes} from '../lib/Logging';
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
-         fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension} from '../lib/FileUtils';
+         fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory} from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
+
+describe.only('forceDirectory', () => {
+
+  it('forceDirectory', () => {
+    let target = combine(tempFile(), createGuidTruncated(5), createGuidTruncated(5));
+    let path = forceDirectory(target);
+    chk(pathExists(path));
+  });
+
+});
 
 describe('fileToObj', () => {
 

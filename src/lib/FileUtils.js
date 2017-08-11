@@ -6,10 +6,11 @@ import { logWarning, log } from '../lib/Logging';
 import { parse, join } from 'path';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as mkdirp from 'mkdirp';
+import * as del from  'del';
 
 export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' |
                             'latin1' | 'binary' | 'base64' | 'hex';
-
 
 const TEMP_STR_FILES : { [string]: boolean } = {};
 
@@ -124,6 +125,15 @@ export function toTemp<T>(val: T, fileName: string, wantWarning: boolean = true,
 export function fromTemp<T>(fileName: string, wantWarning: boolean = true) : T  {
   let str = fromTempStringPriv(fileName, wantWarning, '.yaml');;
   return yamlToObj(str);
+}
+
+export function deleteDirectory(dir: string, dryRun: false): Array<string> {
+  return del.sync([combine(dir, '**')], {dryRun: dryRun});
+}
+
+export function forceDirectory(path: string): string {
+  mkdirp.sync(path);
+  return path;
 }
 
 export function defaultExtension(path: string, defExt: string) : string {
