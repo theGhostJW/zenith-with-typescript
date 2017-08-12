@@ -4,7 +4,7 @@ import { debug } from '../lib/SysUtils';
 import { combine, fileExtension, changeExtension, defaultExtension, fileOrFolderName, fileOrFolderNameNoExt,  parentDir } from '../lib/FileUtils';
 
 
-describe.only('parentDir', () => {
+describe('parentDir', () => {
 
   it('full dir', () => {
     chkEq('C:\\ZWTF', parentDir('C:\\ZWTF\\fullFunctionList.txt'));

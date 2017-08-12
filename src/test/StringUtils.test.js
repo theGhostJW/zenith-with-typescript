@@ -21,7 +21,6 @@ import {
 } from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
-
 describe('createGuid', () => {
 
   it('simple example', () => {

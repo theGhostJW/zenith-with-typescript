@@ -28,12 +28,208 @@ import {
   isPOJSO,
   debug,
   yamlToObj,
-  objToYaml
+  objToYaml,
+  forceArray,
+  autoType
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
+import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
+
+describe.only('autoType', () => {
+
+  it('single obj array', () => {
+
+    let targ = [{noChange: 'hi'}],
+        typed = autoType(targ);
+
+    chkEq(targ, typed);
+  });
+
+  describe('simple array', () => {
+
+    var target = [
+               {
+                 "id": "10",
+                 "name": "exact",
+                 "dob": "1979-01-01",
+                 "drivers": "N",
+                 "address": "N",
+                 "outcome": "Y",
+                 "flip/repeat": "Y"
+               },
+               {
+                 "id": "11",
+                 "name": "exact",
+                 "dob": "1971-01-01",
+                 "drivers": "Y",
+                 "address": "N",
+                 "outcome": "Y",
+                 "flip/repeat": "Y"
+               },
+               {
+                 "id": "12",
+                 "name": "exact",
+                 "dob": "1980-01-01",
+                 "drivers": "N",
+                 "address": "Y",
+                 "outcome": "Y",
+                 "flip/repeat": "Y"
+               },
+               {
+                 "id": "13",
+                 "name": "concatFM",
+                 "dob": "1970-02-01",
+                 "drivers": "N",
+                 "address": "N",
+                 "outcome": "Y",
+                 "flip/repeat": "Y"
+               },
+               {
+                 "id": "14",
+                 "name": "concatML",
+                 "dob": "1970-01-02",
+                 "drivers": "Y",
+                 "address": "N",
+                 "outcome": "Y",
+                 "flip/repeat": "Y"
+               },
+               {
+                 "id": "15",
+                 "name": "concatFM",
+                 "dob": "1970-01-01",
+                 "drivers": "N",
+                 "address": "Y",
+                 "outcome": "Y",
+                 "flip/repeat": "Y"
+               },
+               {
+                 "id": "16",
+                 "name": "exact",
+                 "dob": "1970-01-01",
+                 "drivers": "Y",
+                 "address": "Y",
+                 "outcome": "Y",
+                 "flip/repeat": "N"
+               }
+             ];
+
+     function makeTypeCheck(typeMap) {
+       return function chkTypes(obj: {}) {
+         function typeChk(val, key) {
+           let expectedType = typeMap[key],
+               actualType = typeof val,
+               id = (obj: any).id;
+           chkWithMessage(expectedType == actualType, `id: ${id} - ${key} - expected: ${expectedType} - actual: ${actualType} - ${val}`);
+         }
+         _.each(obj, typeChk);
+       }
+     }
+
+    it('multiple autotypes', () => {
+      const EXPECTED_TYPES =  {
+         id: "number",
+         name: "string",
+         dob: "object",
+         drivers: "boolean",
+         address: "boolean",
+         outcome: "boolean",
+         'flip/repeat': "boolean"
+       };
+      let typed = autoType(target);
+      _.each(typed, makeTypeCheck(EXPECTED_TYPES));
+    });
+
+    it('define exlcuded fields', () => {
+      const EXPECTED_TYPES =  {
+         id: "string",
+         name: "string",
+         dob: "object",
+         drivers: "boolean",
+         address: "boolean",
+         outcome: "string",
+         'flip/repeat': "boolean"
+       };
+      let typed = autoType(target, 'id', 'outcome');
+      _.each(typed, makeTypeCheck(EXPECTED_TYPES));
+    });
+
+    it('simple non string vals - should not happen', () => {
+      let targ = [{dob: 1234}],
+          expected = [{dob: 1234}],
+          actual = autoType(targ);
+
+      chkEq(expected, actual);
+    });
+
+    it('dot nulls', () => {
+      let targ =  [{
+              first: 'blahh',
+              middle: '.',
+              last: '.',
+              dob: 1234
+            }],
+            expected = [{
+                  first: 'blahh',
+                  middle: null,
+                  last: null,
+                  dob: 1234
+          }],
+          actual = autoType(targ);
+
+      chkEq(expected, actual);
+    });
+
+    it('dot nulls - exclude', () => {
+      let targ =  [{
+                          first: 'blahh',
+                          middle: '.',
+                          last: '.',
+                          dob: 1234
+                  },
+                  {
+                          first: '.',
+                          middle: '.',
+                          last: '.',
+                          dob: 1234
+                  }],
+
+            expected =   [{
+                            first: 'blahh',
+                            middle: null,
+                            last: '.',
+                            dob: 1234
+                          },
+                          {
+                            first: null,
+                            middle: null,
+                            last: '.',
+                            dob: 1234
+                          }],
+          actual = autoType(targ, 'last');
+
+      chkEq(expected, actual);
+    });
+  });
+
+});
+
+describe('forceArray', () => {
+
+  it('single vals', () => {
+    chkEq([1, 2, 3, 4], forceArray(1, 2, 3, 4));
+  });
+
+  it('single vals and arrays', () => {
+    chkEq([1, 2, 3, 4], forceArray(1, [2, 3], [4]));
+  });
+
+  it('single vals and arrays and undefined', () => {
+    chkEq([1, 2, 3, 4], forceArray(1, [2, 3], [4], undefined, undefined));
+  });
+
+});
 
 describe('objToYaml / YamlToObj', () => {
 
@@ -1031,6 +1227,10 @@ describe('hasValue', () => {
     chkFalse(result);
 
     result = hasValue(null);
+    chkFalse(result);
+
+    obj = null;
+    result = hasValue(obj);
     chkFalse(result);
 
     result = hasValue("");

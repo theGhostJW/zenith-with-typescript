@@ -3,6 +3,203 @@
 import * as _ from 'lodash';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib/StringUtils';
 import * as yaml from 'js-yaml';
+import moment from 'moment';
+
+
+export function forceArray(...args: Array<any>): Array<any> {
+
+  function forceArraySingleVal(val){
+     return isUndefined(val) ? [] :
+             _.isArray(val) ? val : [val];
+  }
+
+ return _.chain(args)
+         .map(forceArraySingleVal)
+         .flatten(true)
+         .value();
+}
+
+export function autoType(targ: {} | Array<{}>, ...exclusions: Array<string>): {} | Array<{}> | Array<Array<{}>> {
+
+    function autoTypeSingleArrayWithExclusions(arr: Array<{}>): Array<{}> {
+      var args = forceArray([arr], exclusions);
+      return autoTypeArray(...args);
+    }
+
+    function autoTypeArrayWithExclusions(arr: Array<{}> | Array<Array<{}>>):  {} | Array<{}> | Array<Array<{}>> {
+      if (arr.length > 0 && _.isArray(arr[0])){
+        // handle sections e.g TestData/FileToTableGrouped.txt
+        let result: Array<Array<{}>> =  ((arr: any): Array<Array<{}>>).map(autoTypeSingleArrayWithExclusions);
+        return result;
+      }
+      else {
+        return autoTypeSingleArrayWithExclusions(((arr: any): Array<{}>));
+      }
+    }
+
+    if (_.isArray(targ)){
+      let targArray = ((targ: any): Array<{}> | Array<Array<{}>>);
+      return autoTypeArrayWithExclusions(targArray);
+    }
+
+    return _.isArray(targ) ?
+              autoTypeArrayWithExclusions(((targ: any): Array<{}>)) :
+               _.isObject(targ) ?
+                  _.mapValues(((targ: any): {}), autoTypeArrayWithExclusions) :
+                   fail('autoType must be applied to arrays or an object of arrays');
+}
+
+function autoTypeArray(arr, ...arExcluded: Array<string>){
+
+  function nullDotProps(obj){
+    return dotToNulls(((obj: any): {}), ...arExcluded)
+  }
+
+  var result = _.map(arr, nullDotProps);
+
+  function validateParsers(parsers, obj){
+
+    function compatitableParser(remainingParsers, key){
+      function canParse(parser){
+        var result =  parser.canParse(obj[key]);
+        return result;
+      }
+      return _.filter(remainingParsers, canParse);
+    }
+
+    var result = _.mapValues(parsers, compatitableParser);
+    return result;
+  }
+
+  if (result.length > 0){
+    var parsers = _.mapValues(result[0], _.constant(allParsers()));
+    var validParsers = _.reduce(result, validateParsers, parsers);
+    function firstOrNull(arr){
+      return arr.length > 0 ? arr[0] : null;
+    }
+    validParsers = _.mapValues(validParsers, firstOrNull);
+
+    function parseFields(obj){
+      function parseField(val, key){
+        var psr = validParsers[key];
+        return _.isNull(psr) || _.includes(arExcluded, key) ? val : psr.parse(val);
+      }
+      return _.mapValues(obj, parseField);
+    }
+
+    result = _.map(result, parseFields);
+  }
+
+  return result;
+}
+
+function allParsers(){
+  return _.map(
+               [
+                  boolParser(),
+                  // check for date first
+                  dateTimeParser(),
+                  numberParser()
+                ],
+               wrapParser
+             );
+}
+
+function wrapParser(parser){
+  return {
+    name: parser.name,
+    canParse: function(val){
+                      return val == null || _.isString(val) && parser.canParse(val);
+                    },
+    parse:  function(val){
+                      return val == null  || !_.isString(val) ? val : parser.parse(val);
+                    }
+  };
+}
+
+function boolParser(){
+  const BOOL_CHARS = ['Y', 'N', 'T', 'F'];
+
+  function parse(val){
+     return _.includes(['Y', 'T'], val);
+  }
+
+  function canParse(val){
+    return _.includes(BOOL_CHARS, val);
+  }
+
+  return {
+      name: 'boolParser',
+      canParse: canParse,
+      parse: parse
+  }
+}
+
+function numberParser(){
+
+  function parse(val){
+     return val.search('.') > -1 ? parseFloat(val): parseInt(val);
+  }
+
+  function canParse(val){
+    return stringConvertableToNumber(val);
+  }
+
+  return {
+      name: 'numberParser',
+      canParse: canParse,
+      parse: parse
+  }
+}
+
+function dateTimeParser(){
+
+  // assumes null and str check already done
+  function isNumber(str){
+    var els = str.split('');
+    function isNumChar(chr){
+      return chr.charCodeAt(0) > 47 && chr.charCodeAt(0) < 58;
+    }
+
+    var nonNums = _.reject(els, isNumChar);
+    return nonNums.length < 2;
+  }
+
+  function parse(val){
+     return moment(val);
+  }
+
+  function canParse(val){
+    let result = false,
+        pr = null;
+
+    try {
+      pr = parse(val);
+      result = true;
+    }
+    catch (e) {
+      if (e.message !== 'The string cannot be parsed.'){
+        throw(e);
+      }
+    }
+
+    // wierd hasValue error when use hasvalue in the return
+    return result && pr != null && pr.isValid();
+  }
+
+  return {
+      name: 'dateTimeParser',
+      canParse: canParse,
+      parse: parse
+  }
+}
+
+function dotToNulls(obj: {}, ...arExcluded: Array<string>){
+  function dotToNull(val, key){
+    return val === '.' && !_.includes(arExcluded, key) ? null : val;
+  }
+  return _.mapValues(obj, dotToNull);
+}
 
 export function objToYaml(obj: mixed) : string {
   return ((yaml.safeDump(obj, {skipInvalid: true}): any): string) ;
