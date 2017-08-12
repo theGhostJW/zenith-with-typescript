@@ -3,7 +3,7 @@ Date 				To Do			Done			Completion
 01-08-2017 	231				57				19.8 %
 06-08-2017 	225				65				22.4 %
 11-08-2017	209				74				35.4 %
-12-08-2017	190				87				47.2 %
+12-08-2017	162				96				59.3 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -147,7 +147,7 @@ Date 				To Do			Done			Completion
 	TODO: parseSimplifiedLogFileWriteToTestLogEndPoint = parseSimplifiedLogFileWriteToTestLogEndPoint;
 ===== StringUtils =====
 /****** Exports *****/
-	TODO: autoType = autoType;
+	DONE - autoType =  -moved to sysutils;
 	TODO: stringToTables = stringToTables;
 	TODO: stringToTable = stringToTable;
 	DONE - loadTemplate = loadTemplate - DEPRICATE IN FAVOUR OF TEMPLATES AND TAGGED TEMPLATES
@@ -205,11 +205,11 @@ Date 				To Do			Done			Completion
 	TODO: reduceObjectRecursive = reduceObjectRecursive;
 	TODO: eachObjectRecursive = eachObjectRecursive;
 	TODO: logLink = logLink;
-	TODO: TEST_SUMMARY_PREFIX = TEST_SUMMARY_PREFIX;
-	TODO: ABORT_ITERATION_TOKEN = ABORT_ITERATION_TOKEN;
-	TODO: ABORT_TEST_TOKEN = ABORT_TEST_TOKEN;
-	TODO: ABORT_RUN_TOKEN = ABORT_RUN_TOKEN;
-	TODO: objectToReadable = objectToReadable;
+	N/A:  TEST_SUMMARY_PREFIX = TEST_SUMMARY_PREFIX;
+	N/A:  ABORT_ITERATION_TOKEN = ABORT_ITERATION_TOKEN;
+	N/A:  ABORT_TEST_TOKEN = ABORT_TEST_TOKEN;
+	N/A:  ABORT_RUN_TOKEN = ABORT_RUN_TOKEN;
+	Done -  objectToReadable = depricated use yaml;
 	TODO: functionNameFromFunction = functionNameFromFunction;
 	DONE - xOr
 	TODO: isRunnningInInteractiveMode = isRunnningInInteractiveMode;
@@ -220,16 +220,16 @@ Date 				To Do			Done			Completion
 	TODO: pushLogFolder = pushLogFolder;
 	TODO: popLogFolder = popLogFolder;
 	TODO: objectToJson = objectToJson;
-	TODO: jsonToObject = jsonToObject;
-	TODO: hasProperty = hasProperty;
-	DONE -  highlight = highlight - N/A;
-	TODO: waitRetry = waitRetry;
-	TODO: projectScriptFileEncoding = projectScriptFileEncoding;
-	TODO: terminateInternetExplorer = terminateInternetExplorer;
+	DONE -  jsonToObject = depricated using YAML;
+	DEFER - hasProperty = hasProperty - UI;
+	DEFER - highlight = highlight - UI;
+	DEFER - waitRetry = waitRetry - UI;
+	DONE -  projectScriptFileEncoding = Depricated;
+	DONE -  terminateInternetExplorer = Depricated;
 	TODO: notImplementedWarning = notImplementedWarning;
-	TODO: fullyEnableCallStack = fullyEnableCallStack;
-	TODO: liesWithin = liesWithin;
-	TODO: pointsOverlap = pointsOverlap;
+	N/A -  fullyEnableCallStack = fullyEnableCallStack;
+	DEFER - liesWithin = liesWithin; UI
+	DEFER - pointsOverlap = pointsOverlap; UI
 	DONE - seek = seek - N/A
 	DONE - seekh = seekh  - N/A
 	DONE - seekAll = seekAll;
@@ -252,11 +252,11 @@ Date 				To Do			Done			Completion
 	TODO: processExists = processExists;
 	TODO: expectDefect = expectDefect;
 	TODO: endDefect = endDefect;
-	DONE -  def
-	DONE -  throwEx renamed to fail
-	DONE -  ensure;
-	TODO: forceArray = forceArray;
-	TODO: globalAbortLevel = globalAbortLevel;
+	DONE - def
+	DONE - throwEx renamed to fail
+	DONE - ensure;
+	DONE - forceArray = forceArray;
+	N/A - globalAbortLevel = globalAbortLevel;
 	TODO: resetGlobalAbortLevel = resetGlobalAbortLevel;
 	DONE -  RED;	- Depricated
 	DONE -  GREEN; - Depricated
