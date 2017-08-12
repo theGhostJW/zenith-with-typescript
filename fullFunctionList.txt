@@ -1,8 +1,9 @@
-Date 				ToDo			Done			Completion
+Date 				To Do			Done			Completion
 ------------------------------------
 01-08-2017 	231				57				19.8 %
 06-08-2017 	225				65				22.4 %
 11-08-2017	209				74				35.4 %
+12-08-2017	190				87				47.2 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -43,29 +44,26 @@ Date 				ToDo			Done			Completion
 	TODO: sendEmail = sendEmail;
 ===== ExcelDataConnectionUtils =====
 /****** Exports *****/
-	TODO: DataConnection = DataConnection;
+	 depricate in favour of CSV
 ===== ExcelParamsLoaderUtils =====
 /****** Exports *****/
 	TODO: worksheetToArray = worksheetToArray;
 ===== ExcelUtils =====
 /****** Exports *****/
-	TODO: TerminateExcelProcess = TerminateExcelProcess;
-	TODO: getSheetCount = getSheetCount;
-	TODO: getSheetValuesAsString = getSheetValuesAsString;
-	TODO: colNo = colNo;
+	 depricate in favour of CSV
 ===== FileUtils =====
 /****** Exports *****/
 	DONE - ISSUES_FILE_SUFFIX = Depricated;
-	DONE - issuesFileSuffix = issuesFileSuffix;
+	DONE - issuesFileSuffix = Depricated;
 	TODO: fileToTables = fileToTables;
 	TODO: fileToTable = fileToTable;
-	TODO: parentDir = parentDir;
-	TODO: listFiles = listFiles;
-	TODO: listFolders = listFolders;
-	TODO: eachFile = eachFile;
-	TODO: eachFolder = eachFolder;
+	DONE - parentDir = parentDir;
+	DONE - listFiles = listFiles;
+	DONE - listFolders = listFolders;
+	DONE - eachFile = eachFile;
+	DONE - eachFolder = eachFolder;
 	DONE - defaultExtension = defaultExtension;
-	TODO: clearDirectoy = clearDirectoy;
+	DONE - clearDirectoy = clearDirectoy;
 	DONE - toTemp = toTemp;
 	DONE -  toTempReadable = depricate - usning YAML;
 	TODO: zipAll = zipAll;
@@ -73,15 +71,15 @@ Date 				ToDo			Done			Completion
 	DONE -  fromTemp = fromTemp;
 	DONE -  fileToObject = fileToObject;
 	DONE -  objectToFile = now objToFile;
-	DONE - toTestData = toTestData;
-	TODO: fromTestData = fromTestData;
+	DONE -  toTestData = toTestData;
+	DONE -  fromTestData = fromTestData;
 	TODO: arrayToFile = arrayToFile;
 	TODO: fileToArray = fileToArray;
 	TODO: relativeToAbsolute = relativeToAbsolute;
 	DONE - changeExtension = changeExtension;
 	TODO: nowLogSuffix = nowLogSuffix;
-	TODO: browserdDownLoadFolder = browserdDownLoadFolder;
-	TODO: forceDirectory = forceDirectory;
+	DEFER - browserdDownLoadFolder = browserdDownLoadFolder;
+	DONE - forceDirectory = forceDirectory;
 	DONE - tempFile = tempFile;
 	DONE - tempDir = tempDir;
 	DONE - testDataPath = testDataPath;
@@ -101,7 +99,7 @@ Date 				ToDo			Done			Completion
 	TODO: clearBrowserDownloadsDirectory = clearBrowserDownloadsDirectory;
 	TODO: clearDirectory = clearDirectory;
 	TODO: exportToCSV = exportToCSV;
-	TODO: lastBrowserDownloadFile = lastBrowserDownloadFile;
+	DEFER: lastBrowserDownloadFile = lastBrowserDownloadFile;
 	TODO: copyFile = copyFile;
 	DONE - copyTestFile = Depricated;
 	DONE - mockFile = mockFile;

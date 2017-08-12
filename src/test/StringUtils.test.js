@@ -22,7 +22,7 @@ import {
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
 
-describe.only('createGuid', () => {
+describe('createGuid', () => {
 
   it('simple example', () => {
     let g1 = createGuid(),
@@ -33,7 +33,7 @@ describe.only('createGuid', () => {
 
 });
 
-describe.only('createGuidTruncated', () => {
+describe('createGuidTruncated', () => {
 
   it('simple example', () => {
     let g1 = createGuidTruncated(12),

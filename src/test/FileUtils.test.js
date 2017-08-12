@@ -1,10 +1,59 @@
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug } from '../lib/SysUtils';
-import { combine, fileExtension, changeExtension, defaultExtension } from '../lib/FileUtils';
+import { combine, fileExtension, changeExtension, defaultExtension, fileOrFolderName, fileOrFolderNameNoExt,  parentDir } from '../lib/FileUtils';
 
 
-describe('defualtExtension', () => {
+describe.only('parentDir', () => {
+
+  it('full dir', () => {
+    chkEq('C:\\ZWTF', parentDir('C:\\ZWTF\\fullFunctionList.txt'));
+  });
+
+  it('folder', () => {
+    chkEq('C:\\ZWTF', parentDir('C:\\ZWTF\\subfldr\\'));
+  });
+
+});
+
+describe('fileOrFolderName', () => {
+
+  it('full file', () => {
+    chkEq('tableRecords.json', fileOrFolderName('C:\\Automation\\TestComplete\\Basis\\Seed\\Temp\\tableRecords.json'))
+  });
+
+  it('directory', () => {
+    chkEq('Temp', fileOrFolderName('C:\\Automation\\TestComplete\\Basis\\Seed\\Temp\\'))
+  });
+
+  it('directory no slash', () => {
+    chkEq('Temp', fileOrFolderName('C:\\Automation\\TestComplete\\Basis\\Seed\\Temp\\'))
+  });
+
+});
+
+describe('fileOrFolderNameNoExt', () => {
+
+  it('full path', () => {
+    chkEq('tableRecords', fileOrFolderNameNoExt('C:\\Automation\\TestComplete\\Basis\\Seed\\Temp\\tableRecords.json'))
+  });
+
+  it('already no ext', () => {
+    chkEq('tableRecords', fileOrFolderNameNoExt('C:\\Automation\\TestComplete\\Basis\\Seed\\Temp\\tableRecords'))
+  });
+
+});
+
+
+describe('folderName', () => {
+
+  it('', () => {
+
+  });
+
+});
+
+describe('defaultExtension', () => {
 
   it('full path', () => {
       chkEq('C:\\Program Files\\Blahh.txt', defaultExtension('C:\\Program Files\\Blahh', '.txt'));

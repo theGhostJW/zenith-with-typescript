@@ -7,20 +7,182 @@ import {
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { debug, areEqual } from '../lib/SysUtils';
-import { createGuidTruncated } from '../lib/StringUtils';
-import type {LogAttributes} from '../lib/Logging';
+import { createGuidTruncated, hasText } from '../lib/StringUtils';
+import type { LogAttributes } from '../lib/Logging';
+import type { FileFilterFunc } from '../lib/FileUtils';
+import type { FileFilterGlobs } from '../lib/FileUtils';
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
          fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
-         clearDirectory } from '../lib/FileUtils';
+         clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
-describe.only('deleteDirectory', () => {
+
+describe.only('list files / folders', () => {
+
+  let parent = combine(tempFile(), createGuidTruncated(5)),
+      child = combine(parent, createGuidTruncated(5) + '_child_txt'),
+      grandChild = combine(child, createGuidTruncated(5)),
+      yaml1 = combine(parent, 'tst1.yaml'),
+      txt1 = combine(parent, 'tst1.txt'),
+      yaml2 = combine(parent, 'tst2.yaml'),
+      txt2 = combine(child, 'tst2.txt');
+
+  before(function() {
+    forceDirectory(grandChild);
+    stringToFile('Hi', yaml1);
+    stringToFile('Hello', txt1);
+    stringToFile('Hi', yaml2);
+    stringToFile('Hello', txt2);
+   });
+
+  it('listFiles', () => {
+    chkEq([yaml1, txt1, yaml2, txt2].sort(), listFiles(parent).sort());
+  });
+
+  it('listFolders', () => {
+    chkEq([child, grandChild].sort(), listFolders(parent).sort());
+  });
+
+
+  after(function() {
+    deleteDirectory(parent);
+  });
+
+});
+
+describe('eachPathNonRecursive', () => {
+
+  let parent = combine(tempFile(), createGuidTruncated(5)),
+      child = combine(parent, createGuidTruncated(5) + '_child_txt'),
+      grandChild = combine(child, createGuidTruncated(5)),
+      yaml1 = combine(parent, 'tst1.yaml'),
+      txt1 = combine(parent, 'tst1.txt'),
+      yaml2 = combine(parent, 'tst2.yaml'),
+      txt2 = combine(child, 'tst2.txt'),
+      nameList = [];
+
+  before(function() {
+    forceDirectory(grandChild);
+    stringToFile('Hi', yaml1);
+    stringToFile('Hello', txt1);
+    stringToFile('Hi', yaml2);
+    stringToFile('Hello', txt2);
+   });
+
+   beforeEach(function() {
+     nameList = [];
+   });
+
+   function listFile(pathName) : void {
+     nameList.push(pathName);
+   }
+
+  it('only direct children should be visited', () => {
+    eachPathNonRecursive(parent, listFile);
+    chkEq([child, yaml1, txt1, yaml2].map(fileOrFolderName).sort(), nameList.sort());
+  });
+
+  after(function() {
+    deleteDirectory(parent);
+  });
+
+});
+
+
+describe('eachFile / eachFolder', () => {
+
+  let parent = combine(tempFile(), createGuidTruncated(5) + 'yaml'),
+      child = combine(parent, createGuidTruncated(5) + '_child_txt'),
+      grandChild = combine(child, createGuidTruncated(5)),
+      yaml1 = combine(parent, 'tst1.yaml'),
+      txt1 = combine(child, 'tst1.txt'),
+      yaml2 = combine(parent, 'tst2.yaml'),
+      txt2 = combine(child, 'tst2.txt'),
+      pathList = [];
+
+  before(function() {
+    forceDirectory(grandChild);
+    stringToFile('Hi', yaml1);
+    stringToFile('Hello', txt1);
+    stringToFile('Hi', yaml2);
+    stringToFile('Hello', txt2);
+   });
+
+   beforeEach(function() {
+     pathList = [];
+   });
+
+  function listFile(fileName, filePath) : void {
+    pathList.push(filePath);
+  }
+
+  function fileFilter(filename: string, filePath: string) {
+    return hasText(filename, 'Yaml');
+  }
+
+  describe('eachFile', () => {
+
+    it('simple', () => {
+      eachFile(parent, listFile);
+      chkEq([yaml1, txt1, yaml2, txt2].sort(), pathList.sort());
+    });
+
+    it('with filter func', () => {
+      eachFile(parent, listFile, fileFilter);
+      chkEq([yaml1, yaml2].sort(), pathList.sort());
+    });
+
+    it('with glob', () => {
+      eachFile(parent, listFile, '**/*.{txt, yaml}');
+      chkEq([yaml1, txt1, yaml2, txt2].sort(), pathList.sort());
+    });
+
+    it('with glob restricting results', () => {
+      eachFile(parent, listFile, '**/*.{txt}');
+      chkEq([txt1, txt2].sort(), pathList.sort());
+    });
+
+    it('with glob and function', () => {
+      eachFile(parent, listFile, (name, path) => hasText(name, '1'), '**/*.txt');
+      chkEq([txt1], pathList);
+    });
+
+    it('with glob array and function', () => {
+      eachFile(parent, listFile, (name, path) => hasText(name, '1'), ['**/*.txt', '**/*.yaml']);
+      chkEq([txt1, yaml1], pathList);
+    });
+  });
+
+  describe('eachFolder', () => {
+
+    const listFolder = (folderName, fullPath) => {
+        pathList.push(fullPath);
+    };
+
+    it('simple', () => {
+      eachFolder(parent, listFolder);
+      chkEq([child, grandChild].sort(), pathList.sort());
+    });
+
+    it('eachFile - with filter func', () => {
+      eachFolder(parent, listFolder, (dirName, dir) => hasText(dirName, '_child_'));
+      chkEq([child], pathList);
+    });
+  });
+
+  after(function() {
+    deleteDirectory(parent);
+  });
+
+});
+
+describe('deleteDirectory', () => {
 
   it('deleteDirectory', () => {
     let parent = combine(tempFile(), createGuidTruncated(5)),
@@ -55,7 +217,7 @@ describe.only('deleteDirectory', () => {
 
 });
 
-describe.only('clearDirectory', () => {
+describe('clearDirectory', () => {
 
   it('clearDirectory', () => {
     let parent = combine(tempFile(), createGuidTruncated(5)),
@@ -81,7 +243,7 @@ describe.only('clearDirectory', () => {
 
 });
 
-describe.only('forceDirectory', () => {
+describe('forceDirectory', () => {
 
   it('forceDirectory', () => {
     let target = combine(tempFile(), createGuidTruncated(5), createGuidTruncated(5));
