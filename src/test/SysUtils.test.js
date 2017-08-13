@@ -155,6 +155,23 @@ describe.only('autoType', () => {
       _.each(typed, makeTypeCheck(EXPECTED_TYPES));
     });
 
+    it('mixed type should not be autotyped', () => {
+      const EXPECTED_TYPES =  {
+         id: "number",
+         name: "string",
+         dob: "object",
+         drivers: "boolean",
+         address: "boolean",
+         outcome: "string",
+         'flip/repeat': "boolean"
+       };
+      let newTarget = _.cloneDeep(target);
+      // will disable atotyping to bool
+      newTarget[4].outcome = 'M';
+      let typed = autoType(newTarget);
+      _.each(typed, makeTypeCheck(EXPECTED_TYPES));
+    });
+
     it('simple non string vals - should not happen', () => {
       let targ = [{dob: 1234}],
           expected = [{dob: 1234}],
