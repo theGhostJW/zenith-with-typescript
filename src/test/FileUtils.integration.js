@@ -23,7 +23,7 @@ const PROJECT_PATH : string = 'C:\\ZWTF',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
 
-describe.only('list files / folders', () => {
+describe('list files / folders', () => {
 
   let parent = combine(tempFile(), createGuidTruncated(5)),
       child = combine(parent, createGuidTruncated(5) + '_child_txt'),

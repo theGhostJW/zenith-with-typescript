@@ -1,0 +1,11 @@
+2 requests same account no / sub no
+		
+id						name							dob				 drivers						address					outcome				flip/repeat
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+10						exact							Y				 N								N						Y							Y
+11						exact							N				 Y								N						Y							Y
+12						exact							N				 N								Y						Y							Y
+13						concatFM						Y				 N								N						Y							Y
+14						concatML						N				 Y								N						Y							Y
+15						concatFM						N				 N								Y						Y							Y
+16						exact							Y				 Y								Y						Y							N

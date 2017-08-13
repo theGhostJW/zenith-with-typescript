@@ -37,7 +37,7 @@ import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
-describe.only('autoType', () => {
+describe('autoType', () => {
 
   it('single obj array', () => {
 

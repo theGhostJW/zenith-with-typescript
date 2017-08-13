@@ -1,0 +1,17 @@
+
+=== Secondary Matching Grouped ===
+
+id					name								dob						drivers					  	address							outcome				flip/repeat
+----------------------------------------------------------------------------------------------------------------
+28					none 								N							N										N									N								N
+ .					> 80%								N							N										N									Y								N
+ .					first								Y							N										N									Y								Y
+ .					first								N							Y										N									Y								Y
+
+---------------------------------------------------------------------------------------------------------
+10					last								N							Y										N									Y								Y
+ .					first & last				N							N										N									Y								Y
+ .					first								N							N										N									N								N
+ .					last								N							N										N									N								N
+
+

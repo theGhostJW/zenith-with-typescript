@@ -1,0 +1,49 @@
+2 requests same account no / sub no
+		
+=== Direct Hit Matching ===
+
+directHitCases::
+id					name	   			 		dob				 drivers			 address							outcome				flip/repeat
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+10					exact							Y					 N							N										2001-01-15							Y
+11					exact							N					 Y							N										2001-01-07							Y
+12					exact							N					 N							Y										2001-01-15							Y
+13					concatFM					Y					 N							N										2001-01-11							Y
+14					concatML					N					 Y							N										2001-01-15							Y
+15					concatFM					N					 N							Y										2001-01-15							Y
+16					exact							Y					 Y							Y										2001-01-10							N
+
+
+=== Secondary Matching ===
+
+secondaryMatch::
+id					name								dob						drivers					  	address							outcome				flip/repeat
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+20					none 								N					 		N											N									N							N
+21					> 80%								N					 		N											N									Y							N
+22					first								Y					 		N											N									Y							Y
+23					first								N					 		Y											N									Y							Y
+							
+24					last								N					 		Y											N									Y							Y
+25					first & last				N					 		N											N									Y							Y
+26					first								N					 		N											N									N							N
+27					last								N					 		N											N									N							N
+
+
+=== Secondary Matching Grouped ===
+
+secondaryMatchGroups::
+id					name								dob						drivers					  	address							outcome				flip/repeat
+----------------------------------------------------------------------------------------------------------------
+28					none 								N							N										N									N								N
+ .					> 80%								N							N										N									Y								N
+ .					first								Y							N										N									Y								Y
+ .					first								N							Y										N									Y								Y
+
+---------------------------------------------------------------------------------------------------------
+29					last								N							Y										N									Y								Y
+ .					first & last				N							N										N									Y								Y
+ .					first								N							N										N									N								N
+ .					last								N							N										N									N								N
+
+

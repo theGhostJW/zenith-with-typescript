@@ -1,0 +1,53 @@
+
+=== Secondary Matching Grouped ===
+
+rec1::
+
+id					name								dob						drivers					  	address							outcome				flip/repeat
+----------------------------------------------------------------------------------------------------------------
+18					none 								N							N										N									N								N
+ .					> 80%								N							N										N									Y								N
+ .					first								Y							N										N									Y								Y
+ .					first								N							Y										N									Y								Y
+
+---------------------------------------------------------------------------------------------------------
+19					last								N							Y										N									Y								Y
+ .					first & last				N							N										N									Y								Y
+10					first								N							N										N									N								N
+ .					last								N							N										N									N								N
+
+
+=== Second Record ===
+
+rec2::
+
+id					name								dob						drivers					  	address							outcome				flip/repeat
+----------------------------------------------------------------------------------------------------------------
+28					none 								N							N										N									N								N
+ .					> 80%								N							N										N									Y								N
+10					first								Y							N										N									Y								Y
+ .					first								N							Y										N									Y								Y
+
+---------------------------------------------------------------------------------------------------------
+29					last								N							Y										N									Y								Y
+ .					first & last				N							N										N									Y								Y
+ .					first								N							N										N									N								N
+ .					last								N							N										N									N								N
+ 
+ 
+rec3::
+
+=== Third Record ===
+
+id					name								dob						drivers					  	address							outcome				flip/repeat
+----------------------------------------------------------------------------------------------------------------
+38					none 								N							N										N									N								N
+ .					> 80%								N							N										N									Y								N
+ .					first								Y							N										N									Y								Y
+ .					first								N							Y										N									Y								Y
+
+---------------------------------------------------------------------------------------------------------
+39					last								N							Y										N									Y								Y
+ .					first & last				N							N										N									Y								Y
+ .					first								N							N										N									N								N
+ .					last								N							N										N									N								N
