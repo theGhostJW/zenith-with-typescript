@@ -151,8 +151,22 @@ describe('autoType', () => {
          outcome: "string",
          'flip/repeat': "boolean"
        };
-      let typed = autoType(target, 'id', 'outcome');
+
+      let targetLocal = _.cloneDeep(target),
+          recOne = targetLocal[0],
+          oldId = recOne.id,
+          oldOutcome =  recOne.outcome;
+
+      recOne.id = '`' + oldId;
+      recOne.outcome =  '`' +  oldOutcome;
+
+      let typed = autoType(targetLocal);
       _.each(typed, makeTypeCheck(EXPECTED_TYPES));
+
+      // typed
+      recOne = typed[0];
+      chkEq(oldId, recOne.id);
+      chkEq(oldOutcome, recOne.outcome);
     });
 
     it('mixed type should not be autotyped', () => {
@@ -172,20 +186,12 @@ describe('autoType', () => {
       _.each(typed, makeTypeCheck(EXPECTED_TYPES));
     });
 
-    it('simple non string vals - should not happen', () => {
-      let targ = [{dob: 1234}],
-          expected = [{dob: 1234}],
-          actual = autoType(targ);
-
-      chkEq(expected, actual);
-    });
-
     it('dot nulls', () => {
       let targ =  [{
               first: 'blahh',
               middle: '.',
               last: '.',
-              dob: 1234
+              dob: '1234'
             }],
             expected = [{
                   first: 'blahh',
@@ -202,14 +208,14 @@ describe('autoType', () => {
       let targ =  [{
                           first: 'blahh',
                           middle: '.',
-                          last: '.',
-                          dob: 1234
+                          last: '`.',
+                          dob: '1234'
                   },
                   {
                           first: '.',
                           middle: '.',
                           last: '.',
-                          dob: 1234
+                          dob: '1234'
                   }],
 
             expected =   [{
@@ -224,8 +230,10 @@ describe('autoType', () => {
                             last: '.',
                             dob: 1234
                           }],
-          actual = autoType(targ, 'last');
+          actual = autoType(targ),
+          recOne = actual[0];
 
+      chkEq('.', recOne.last);
       chkEq(expected, actual);
     });
   });
@@ -618,7 +626,7 @@ describe('seekManyInObjWithInfo', () => {
       chkEqJson(expected, actual);
     });
 
-    it('only finds single object in branch', () => {
+    it('on-ly finds single object in branch', () => {
       let expected = [
         {
           key: "category",
@@ -903,7 +911,7 @@ describe('seekManyInObjWithInfo', () => {
   });
 
   describe('array selectors', () => {
-    describe('simple array only cases', () => {
+    describe('simple array on-ly cases', () => {
       const EG_OBJ1 = {
         blah1: 1,
         child: {

@@ -19,43 +19,49 @@ export function forceArray(...args: Array<any>): Array<any> {
          .value();
 }
 
-export function autoType(targ: {} | Array<{}>, ...exclusions: Array<string>): {} | Array<{}> | Array<Array<{}>> {
+// export function autoType(targ: {} | Array<{}>): {} | Array<{}> | Array<Array<{}>> {
+//
+//     function autoTypeSingleArrayWithExclusions(arr: Array<{}>): Array<{}> {
+//       return autoTypeArray(arr);
+//     }
+//
+//     function autoTypeArrayWithExclusions(arr: Array<{}> | Array<Array<{}>>):  {} | Array<{}> | Array<Array<{}>> {
+//       if (arr.length > 0 && _.isArray(arr[0])){
+//         // handle sections e.g TestData/FileToTableGrouped.txt
+//         let result: Array<Array<{}>> =  ((arr: any): Array<Array<{}>>).map(autoTypeSingleArrayWithExclusions);
+//         return result;
+//       }
+//       else {
+//         return autoTypeSingleArrayWithExclusions(((arr: any): Array<{}>));
+//       }
+//     }
+//
+//     if (_.isArray(targ)){
+//       let targArray = ((targ: any): Array<{}> | Array<Array<{}>>);
+//       return autoTypeArrayWithExclusions(targArray);
+//     }
+//
+//     return _.isArray(targ) ?
+//               autoTypeArrayWithExclusions(((targ: any): Array<{}>)) :
+//                _.isObject(targ) ?
+//                   _.mapValues(((targ: any): {}), autoTypeArrayWithExclusions) :
+//                    fail('autoType must be applied to arrays or an object of arrays');
+// }
 
-    function autoTypeSingleArrayWithExclusions(arr: Array<{}>): Array<{}> {
-      var args = forceArray([arr], exclusions);
-      return autoTypeArray(...args);
-    }
 
-    function autoTypeArrayWithExclusions(arr: Array<{}> | Array<Array<{}>>):  {} | Array<{}> | Array<Array<{}>> {
-      if (arr.length > 0 && _.isArray(arr[0])){
-        // handle sections e.g TestData/FileToTableGrouped.txt
-        let result: Array<Array<{}>> =  ((arr: any): Array<Array<{}>>).map(autoTypeSingleArrayWithExclusions);
-        return result;
-      }
-      else {
-        return autoTypeSingleArrayWithExclusions(((arr: any): Array<{}>));
-      }
-    }
+export function autoType(arr: Array<{[string]: string}>) : Array<{[string]: any}> {
 
-    if (_.isArray(targ)){
-      let targArray = ((targ: any): Array<{}> | Array<Array<{}>>);
-      return autoTypeArrayWithExclusions(targArray);
-    }
+  let exclusions: Array<string> = arr.length === 0 ? [] : _.reduce(
+                                                            arr[0],
+                                                            (accum, val, key) => startsWith(val, '`') ? accum.concat(key) : accum,
+                                                            []
+                                                          );
 
-    return _.isArray(targ) ?
-              autoTypeArrayWithExclusions(((targ: any): Array<{}>)) :
-               _.isObject(targ) ?
-                  _.mapValues(((targ: any): {}), autoTypeArrayWithExclusions) :
-                   fail('autoType must be applied to arrays or an object of arrays');
-}
-
-function autoTypeArray(arr, ...arExcluded: Array<string>){
-
-  function nullDotProps(obj){
-    return dotToNulls(((obj: any): {}), ...arExcluded)
+  function nullDotProps(obj: {[string]: string}){
+    return dotToNulls(((obj: any): {}), exclusions)
   }
 
-  var result = _.map(arr, nullDotProps);
+  var result = arr.map(nullDotProps);
 
   function validateParsers(parsers, obj){
 
@@ -82,12 +88,22 @@ function autoTypeArray(arr, ...arExcluded: Array<string>){
     function parseFields(obj){
       function parseField(val, key){
         var psr = validParsers[key];
-        return _.isNull(psr) || _.includes(arExcluded, key) ? val : psr.parse(val);
+        return _.isNull(psr) ? val : psr.parse(val);
       }
       return _.mapValues(obj, parseField);
     }
 
     result = _.map(result, parseFields);
+
+    let rec0 = result[0];
+
+    function mutateBackTickedprops(val, key, obj) {
+
+      obj[key] = typeof val == 'string' && startsWith(val, '`') ? val.slice(1, val.length) : val;
+    }
+
+    // mutates underlying values
+    _.mapValues(rec0, mutateBackTickedprops);
   }
 
   return result;
@@ -97,9 +113,10 @@ function allParsers(){
   return _.map(
                [
                   boolParser(),
-                  // check for date first
-                  dateTimeParser(),
-                  numberParser()
+                  // check number first as moment parses
+                  // number as date
+                  numberParser(),
+                  dateTimeParser()
                 ],
                wrapParser
              );
@@ -194,9 +211,9 @@ function dateTimeParser(){
   }
 }
 
-function dotToNulls(obj: {}, ...arExcluded: Array<string>){
+function dotToNulls(obj: {}, exclusions: Array<string>): {} {
   function dotToNull(val, key){
-    return val === '.' && !_.includes(arExcluded, key) ? null : val;
+    return (val == '.') && !exclusions.includes(key) ? null : val;
   }
   return _.mapValues(obj, dotToNull);
 }
