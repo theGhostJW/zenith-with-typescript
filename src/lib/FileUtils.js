@@ -23,12 +23,15 @@ import * as _ from 'lodash';
 
 export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
 
+export function fileToTable() {
+
+}
+
 const TEMP_STR_FILES : {
   [string] : boolean
 } = {};
 
-const tmpStrPath = (fileName :
-  ? string = 'tempString', defaultExt : string) => {
+const tmpStrPath = (fileName :?string = 'tempString', defaultExt : string) => {
   return defaultExtension(tempFile(def(fileName, 'tempString')), defaultExt);
 }
 
@@ -44,8 +47,7 @@ export function fileOrFolderName(fullPath: string): string {
 
 export const fileOrFolderNameNoExt = (fullPath: string) => changeExtension(fileOrFolderName(fullPath), '');
 
-function toTempStringPriv(str : string, fileName :
-  ? string, wantWarning : boolean, wantDuplicateOverwriteWarning : boolean, fileExt : string) : string {
+function toTempStringPriv(str : string, fileName : ?string, wantWarning : boolean, wantDuplicateOverwriteWarning : boolean, fileExt : string) : string {
   let path = tmpStrPath(fileName, fileExt);
 
   if (wantDuplicateOverwriteWarning && TEMP_STR_FILES[path]) {
@@ -74,9 +76,7 @@ function fromTempStringPriv(fileName :
   return fileToString(path);
 }
 
-const tdsPath = (fileName : string) : string => {
-  return testDataFile(defaultExtension(fileName, '.txt'));
-}
+const tdsPath = (fileName : string) : string => testDataFile(defaultExtension(fileName, '.txt'));
 
 export function toTestDataString(str : string, fileName : string) : string {
   let path = tdsPath(fileName);

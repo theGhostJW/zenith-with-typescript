@@ -4,6 +4,7 @@ Date 				To Do			Done			Completion
 06-08-2017 	225				65				22.4 %
 11-08-2017	209				74				35.4 %
 12-08-2017	162				96				59.3 %
+12-08-2017	161				97				60.2 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -169,7 +170,7 @@ Date 				To Do			Done			Completion
 	TODO: stringToTimeStampedLogFile = stringToTimeStampedLogFile;
 	DONE - createGuid = createGuid;
 	DONE - createGuidTruncated = createGuidTruncated;
-	TODO: trim = trim;
+	DONE - trim = trim;
 	TODO: trimWhiteSpace = trimWhiteSpace;
 	TODO: lowerRemoveSpacesTrim = lowerRemoveSpacesTrim;
 	TODO: trimChars = trimChars;

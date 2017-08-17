@@ -17,9 +17,18 @@ import {
   upperFirst,
   standardiseLineEndings,
   createGuid,
-  createGuidTruncated
+  createGuidTruncated,
+  trim
 } from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
+
+
+describe('trim', () => {
+  it('word', () => {
+    chkEq('hi', trim(' hi '));
+  });
+
+});
 
 describe('createGuid', () => {
 
