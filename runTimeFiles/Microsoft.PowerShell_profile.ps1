@@ -1,0 +1,1 @@
+Set-PSReadLineOption -HistoryNoDuplicates:$True

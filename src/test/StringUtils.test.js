@@ -26,6 +26,7 @@ import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
 import { SIMPLE_TABLE, SECTIONED_TABLE } from '../test/StringUtils.data.test';
 
+
 describe('stringToTableLooseTyped', () => {
 
   describe('simple', () => {
@@ -43,6 +44,24 @@ describe('stringToTableLooseTyped', () => {
      it('is autoTyped', () => {
        let rec1 = actual[1];
        chk(rec1.drivers);
+     });
+
+  });
+
+  describe('with field transformer', () => {
+
+    let trans1 = (val, key, obj) => val && key === 'address' ? 'YO ADDRESS' : val,
+        trans2 = (val, key, obj) => val && key === 'drivers' ? 'YO DRIVER' : val;
+
+     it('single transformer', () => {
+       let actual = stringToTableLooseTyped(SIMPLE_TABLE, trans1);
+       chkEq('YO ADDRESS', actual[2].address);
+     });
+
+     it('multiple transformers', () => {
+       let actual = stringToTableLooseTyped(SIMPLE_TABLE, trans1, trans2);
+       chkEq('YO ADDRESS', actual[2].address);
+       chkEq('YO DRIVER', actual[1].drivers);
      });
 
   });

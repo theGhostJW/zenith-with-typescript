@@ -150,7 +150,7 @@ Date 				To Do			Done			Completion
 /****** Exports *****/
 	DONE - autoType =  -moved to sysutils;
 	TODO: stringToTables = stringToTables;
-	TODO: stringToTable = stringToTable;
+	DONE - stringToTable = stringToTable;
 	DONE - loadTemplate = loadTemplate - DEPRICATE IN FAVOUR OF TEMPLATES AND TAGGED TEMPLATES
 	DONE - capFirst = capFirst - renamed upperFirst;
 	DONE - lowerFirst = lowerFirst;

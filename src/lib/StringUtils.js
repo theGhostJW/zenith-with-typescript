@@ -30,6 +30,10 @@ export function transformGroupedTable<T>(unTypedTable: Array<Array<{[string]: an
   return unTypedTable.map((row) => row.map(rowTransformer));
 }
 
+function fieldToRowTransformer(fieldTransformer: FieldTransformer): ({[string]: any}) => {[string]: any} {
+   return (obj) => _.mapValues(obj, fieldTransformer);
+}
+
 // export function stringToTableTyped(txt: string) : Array<{[string]: any}> {
 //   let result: Array<Array<{[string]: any}>> = stringToGroupedTable(txt);
 //   ensure(result.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
@@ -38,19 +42,33 @@ export function transformGroupedTable<T>(unTypedTable: Array<Array<{[string]: an
 //
 // export const stringToGroupedTableTyped: <T>(txt: string) => Array<Array<{[string]: T}>> = _.flowRight(transformGroupedTable, stringToGroupedTableDefinedTabSize)(txt, 2);
 
-export function stringToTableLooseTyped(txt: string) : Array<{[string]: any}> {
-  let result: Array<Array<{[string]: any}>> = stringToGroupedTableLooseTyped(txt);
+type FieldTransformer = (val: any, key: string, obj: {[string]: any}) => any;
+
+export function stringToTableLooseTyped(txt: string, ...fieldTransformers: Array<FieldTransformer>) : Array<{[string]: any}> {
+  let result: Array<Array<{[string]: any}>> = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
   ensure(result.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
   return result.length === 0 ? [] : result[0];
 }
 
-export function stringToGroupedTableLooseTyped(txt: string) : Array<Array<{[string]: any}>> {
-  return stringToGroupedTableDefinedTabSize(txt, 2);
+export function stringToGroupedTableLooseTyped(txt: string, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<{[string]: any}>> {
+  return stringToGroupedTableDefinedTabSize(txt, 2, ...fieldTransformers);
 }
 
-export function stringToGroupedTableDefinedTabSize(txt: string, spaceCountToTab: number = 2) : Array<Array<{[string]: any}>> {
-  let lines = standardiseLineEndings(txt).split(newLine());
-  return linesToGroupedObjects(lines, '', spaceCountToTab).map(autoType);
+export function stringToGroupedTableDefinedTabSize(txt: string, spaceCountToTab: number = 2, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<{[string]: any}>> {
+  let lines = standardiseLineEndings(txt).split(newLine()),
+      result =  linesToGroupedObjects(lines, '', spaceCountToTab).map(autoType);
+
+  return applyFieldTransformers(result, fieldTransformers);
+}
+
+function applyFieldTransformers(target: Array<Array<{[string]: any}>>, fieldTransformers: Array<FieldTransformer>): Array<Array<{[string]: any}>> {
+  let rowTrans = fieldTransformers.map(fieldToRowTransformer);
+
+  function transformRows(rows: Array<{[string]: any}>): Array<{[string]: any}> {
+    return _.reduce(rowTrans, (accum, rowTrans) => accum.map(rowTrans), rows);
+  }
+
+  return target.map(transformRows);
 }
 
 function linesToGroupedObjects(lines: Array<string>, errorInfo: string, spaceCountToTab: number) : Array<Array<{[string]: any}>>  {
