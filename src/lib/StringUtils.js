@@ -1,6 +1,6 @@
 // @flow
 
-import { def, debug, hasValue, ensure } from '../lib/SysUtils';
+import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn } from '../lib/SysUtils';
 import S from 'string'
 import * as _ from 'lodash'
 
@@ -26,32 +26,47 @@ const getRandomValuesFunc =
     d3: Math.random() * 0x100000000 >>> 0,
   });
 
-function stringToTable<T : {}>(txt: string, rowTransformer: ({}) => T) : Array<T> | Array<Array<T>> {
-  return stringToTableDefinedTabSize(txt, 2, rowTransformer);
+export function transformGroupedTable<T>(unTypedTable: Array<Array<{[string]: any}>>, rowTransformer: {[string]: any} => T) : Array<Array<T>> {
+  return unTypedTable.map((row) => row.map(rowTransformer));
 }
 
-function stringToTableDefinedTabSize<T : {}>(txt: string, spaceCountToTab: number = 2, rowTransformer: ({}) => T) : Array<Array<T>> {
-  let lines = standardiseLineEndings(txt).split(newLine()),
-      result : Array<Array<{}>> = linesToObjects(lines, '', spaceCountToTab),
-      finalResult = result.map((row) => row.map(rowTransformer));
+// export function stringToTableTyped(txt: string) : Array<{[string]: any}> {
+//   let result: Array<Array<{[string]: any}>> = stringToGroupedTable(txt);
+//   ensure(result.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
+//   return result.length === 0 ? [] : result[0];
+// }
+//
+// export const stringToGroupedTableTyped: <T>(txt: string) => Array<Array<{[string]: T}>> = _.flowRight(transformGroupedTable, stringToGroupedTableDefinedTabSize)(txt, 2);
 
-  return finalResult;
+export function stringToTableLooseTyped(txt: string) : Array<{[string]: any}> {
+  let result: Array<Array<{[string]: any}>> = stringToGroupedTableLooseTyped(txt);
+  ensure(result.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
+  return result.length === 0 ? [] : result[0];
 }
 
-function linesToObjects(lines: Array<string>, errorInfo: string, spaceCountToTab: number) : Array<Array<{}>>  {
+export function stringToGroupedTableLooseTyped(txt: string) : Array<Array<{[string]: any}>> {
+  return stringToGroupedTableDefinedTabSize(txt, 2);
+}
+
+export function stringToGroupedTableDefinedTabSize(txt: string, spaceCountToTab: number = 2) : Array<Array<{[string]: any}>> {
+  let lines = standardiseLineEndings(txt).split(newLine());
+  return linesToGroupedObjects(lines, '', spaceCountToTab).map(autoType);
+}
+
+function linesToGroupedObjects(lines: Array<string>, errorInfo: string, spaceCountToTab: number) : Array<Array<{[string]: any}>>  {
   let headAndLines = headerAndRemainingLines(lines, spaceCountToTab),
       header: Array<string> = headAndLines.header,
       groups: Array<Array<string>>  = headAndLines.groups,
-      arrToObjs: (Array<string>) => Array<{}> = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
-      result: Array<Array<{}>> = _.map(groups, arrToObjs);
+      arrToObjs: (Array<string>) => Array<{[string]: any}> = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
+      result: Array<Array<{[string]: any}>> = _.map(groups, arrToObjs);
 
    return result;
 }
 
-function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: Array<string>): (Array<string>) => Array<{}> {
-  return (lines: Array<string>): Array<{}> => {
+function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: Array<string>): (Array<string>) => Array<{[string]: any}>  {
+  return (lines: Array<string>): Array<{[string]: any}> => {
     function makeObjs(accum: Array<{}>, fields: Array<string>, idx: number): Array<{}> {
-      ensure(header.length === fields.length, errorInfo + ' row no: ' + idx +
+      ensureReturn(header.length === fields.length, errorInfo + ' row no: ' + idx +
                                             ' has incorrect number of elements expect: ' + header.length +
                                             ' actual is: ' + fields.length,
                                             'property names' +  newLine() +
@@ -59,7 +74,7 @@ function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, 
                                             'fields' +  newLine() +
                                             fields.join(', ')
                                           );
-      function addProp(accum, prpVal){
+      function addProp(accum: {[string]: any} , prpVal: [string, string]): {[string]: any} {
         accum[prpVal[0]] = prpVal[1];
         return accum;
       }
@@ -67,7 +82,7 @@ function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, 
       function makeRecord(){
        return _.chain(header)
                 .zip(fields)
-                .reduce(addProp, {})
+                .reduce(addProp, ({}: {[string]: any}) )
                 .value();
       }
       accum.push(makeRecord());
@@ -258,7 +273,7 @@ export function toString<T>(val : T): string {
 
   switch (typeof val) {
     case 'object':
-      return JSON.stringify(val);
+      return objToYaml(val);
 
     case 'boolean':
       return val ? 'true' : 'false';

@@ -216,11 +216,15 @@ export function fail<T>(description: string): T {
   throw new Error(description);
 }
 
-export function ensure<T>(condition : boolean, successVal: T, failMsg : string = '') : T {
-  if(!condition) {
-    throw new Error('ensure failure - ' + failMsg);
-  }
+export function ensureReturn<T>(condition : boolean, successVal: T, failMsg : string = '') : T {
+  ensure(condition, failMsg);
   return successVal;
+}
+
+export function ensure(condition : boolean, failMsg : string = '') {
+  if(!condition) {
+    fail('ensure failure - ' + failMsg);
+  }
 }
 
 export function ensureHasVal<T>(successVal: ?T, failMsg : string = '') : T {
@@ -232,7 +236,7 @@ export function ensureHasVal<T>(successVal: ?T, failMsg : string = '') : T {
 
 export function ensureHasValAnd<T>(successVal: ?T, predicate: (T) => boolean, failMsg : string = '') : T {
   let result = ensureHasVal(successVal, failMsg);
-  return ensure(predicate(result), result, failMsg);
+  return ensureReturn(predicate(result), result, failMsg);
 }
 
 function eqCustomiser <T, U> (val1 : T, val2 : U) : void | boolean {
@@ -504,7 +508,7 @@ export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...ot
     return undefined;
   }
   else {
-    return ensure(allInfo.length === 1, allInfo[0], 'More than one object matches supplied specifiers: ' + objectAddresses(allInfo));
+    return ensureReturn(allInfo.length === 1, allInfo[0], 'More than one object matches supplied specifiers: ' + objectAddresses(allInfo));
   }
 }
 

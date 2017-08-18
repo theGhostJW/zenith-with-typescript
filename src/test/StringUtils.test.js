@@ -18,9 +18,99 @@ import {
   standardiseLineEndings,
   createGuid,
   createGuidTruncated,
-  trim
+  trim,
+  stringToGroupedTableLooseTyped,
+  stringToTableLooseTyped
 } from '../lib/StringUtils';
-import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
+import { toTemp } from '../lib/FileUtils';
+import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
+import { SIMPLE_TABLE, SECTIONED_TABLE } from '../test/StringUtils.data.test';
+
+describe('stringToTableLooseTyped', () => {
+
+  describe('simple', () => {
+
+    let actual: Array<{[string]: any}> = [];
+
+    before(() => {
+      actual = stringToTableLooseTyped(SIMPLE_TABLE);
+     });
+
+     it('correct no of records', () => {
+       chkEq(7, actual.length);
+     });
+
+     it('is autoTyped', () => {
+       let rec1 = actual[1];
+       chk(rec1.drivers);
+     });
+
+  });
+
+  describe('sectioned should cause exception', () => {
+
+     it('throws expected exception', () => {
+       chkExceptionText(() => stringToTableLooseTyped(SECTIONED_TABLE),  'loading nested rows with stringToTable - use stringToGroupedTable');
+     });
+
+  });
+
+});
+
+describe('stringToGroupedTableLooseTyped', () => {
+
+
+  describe('simple', () => {
+
+    let actual: Array<Array<{[string]: any}>> = [];
+
+    before(() => {
+      actual = stringToGroupedTableLooseTyped(SIMPLE_TABLE);
+     });
+
+     it('correct no of records', () => {
+       chkEq(1, actual.length);
+     });
+
+     it('correct no of inner records', () => {
+       chkEq(7, actual[0].length);
+       let rec1 = actual[0][1];
+       chk(rec1.drivers);
+     });
+
+     it('is autoTyped', () => {
+       let rec1 = actual[0][1];
+       chk(rec1.drivers);
+     });
+
+  });
+
+  describe('truly sectioned', () => {
+
+    let actual: Array<Array<{[string]: any}>> = [];
+
+    before(() => {
+      actual = stringToGroupedTableLooseTyped(SECTIONED_TABLE);
+     });
+
+     it('correct no of records', () => {
+       chkEq(3, actual.length);
+     });
+
+     it('correct no of inner records', () => {
+       chkEq(3, actual[1].length);
+       let rec1 = actual[0][1];
+       chk(rec1.drivers);
+     });
+
+     it('is autoTyped', () => {
+       let rec1 = actual[1][2];
+       chk(rec1.outcome);
+     });
+
+  });
+
+});
 
 
 describe('trim', () => {
@@ -148,7 +238,7 @@ describe('replace', () => {
 describe('toString', () => {
 
   it('object', () => {
-    chkEq('{"hi":1}', toString({hi: 1}));
+    chkEq('hi: 1\n', toString({hi: 1}));
   });
 
   it('number', () => {
@@ -160,7 +250,7 @@ describe('toString', () => {
   });
 
   it('array', () => {
-    chkEq('[1,2,3]', toString([1, 2, 3]));
+    chkEq('- 1\n- 2\n- 3\n', toString([1, 2, 3]));
   });
 
   it('function', () => {

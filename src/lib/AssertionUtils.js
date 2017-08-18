@@ -5,7 +5,7 @@ import {toString, hasText} from '../lib/StringUtils';
 import {areEqual, ensure, fail, debug} from '../lib/SysUtils';
 
 export function chkWithMessage(val: boolean, message: string = ''): void {
-  ensure(val, true, message);
+  ensure(val, message);
 }
 
 export function chk(val: boolean): void {
@@ -37,7 +37,7 @@ export function chkEqJson(expected : mixed, actual: mixed) : void {
   };
 }
 
-export function chkExceptionText(action : () => void, exceptionText: string, caseSensitive: boolean = false) {
+export function chkExceptionText(action : () => any, exceptionText: string, caseSensitive: boolean = false) {
   let failMessage = null;
   chkException(
       action,
@@ -50,7 +50,7 @@ export function chkExceptionText(action : () => void, exceptionText: string, cas
   );
 }
 
-export function chkException(action : () => void, erroCheck: Error => boolean, message : (() => string) | string | void){
+export function chkException(action : () => any, erroCheck: Error => boolean, message : (() => string) | string | void){
 
   function messageFunc(): string {
     return message == null ? '' :

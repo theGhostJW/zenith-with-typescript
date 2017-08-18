@@ -231,7 +231,7 @@ export function toLogDir < T > (val : T, fileName : string) : string {
   return toSpecialDir(val, fileName, logFile);
 }
 
-export function toTemp < T > (val : T, fileName : string, wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true) : string {
+export function toTemp <T> (val : T, fileName : string = 'toTemp', wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true) : string {
   let str = objToYaml(val);
   return toTempStringPriv(str, fileName, wantWarning, wantDuplicateOverwriteWarning, '.yaml');
 }

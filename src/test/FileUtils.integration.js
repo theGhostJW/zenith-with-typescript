@@ -67,7 +67,7 @@ describe('list files / folders', () => {
       yaml2 = combine(parent, 'tst2.yaml'),
       txt2 = combine(child, 'tst2.txt');
 
-  before(function() {
+  before(() => {
     forceDirectory(grandChild);
     stringToFile('Hi', yaml1);
     stringToFile('Hello', txt1);
@@ -84,9 +84,7 @@ describe('list files / folders', () => {
   });
 
 
-  after(function() {
-    deleteDirectory(parent);
-  });
+  after(() => deleteDirectory(parent));
 
 });
 
