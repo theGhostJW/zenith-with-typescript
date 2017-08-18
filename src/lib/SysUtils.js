@@ -19,36 +19,6 @@ export function forceArray(...args: Array<any>): Array<any> {
          .value();
 }
 
-// export function autoType(targ: {} | Array<{}>): {} | Array<{}> | Array<Array<{}>> {
-//
-//     function autoTypeSingleArrayWithExclusions(arr: Array<{}>): Array<{}> {
-//       return autoTypeArray(arr);
-//     }
-//
-//     function autoTypeArrayWithExclusions(arr: Array<{}> | Array<Array<{}>>):  {} | Array<{}> | Array<Array<{}>> {
-//       if (arr.length > 0 && _.isArray(arr[0])){
-//         // handle sections e.g TestData/FileToTableGrouped.txt
-//         let result: Array<Array<{}>> =  ((arr: any): Array<Array<{}>>).map(autoTypeSingleArrayWithExclusions);
-//         return result;
-//       }
-//       else {
-//         return autoTypeSingleArrayWithExclusions(((arr: any): Array<{}>));
-//       }
-//     }
-//
-//     if (_.isArray(targ)){
-//       let targArray = ((targ: any): Array<{}> | Array<Array<{}>>);
-//       return autoTypeArrayWithExclusions(targArray);
-//     }
-//
-//     return _.isArray(targ) ?
-//               autoTypeArrayWithExclusions(((targ: any): Array<{}>)) :
-//                _.isObject(targ) ?
-//                   _.mapValues(((targ: any): {}), autoTypeArrayWithExclusions) :
-//                    fail('autoType must be applied to arrays or an object of arrays');
-// }
-
-
 export function autoType(arr: Array<{[string]: string}>) : Array<{[string]: any}> {
 
   let exclusions: Array<string> = arr.length === 0 ? [] : _.reduce(
@@ -67,7 +37,7 @@ export function autoType(arr: Array<{[string]: string}>) : Array<{[string]: any}
 
     function compatitableParser(remainingParsers, key){
       function canParse(parser){
-        var result =  parser.canParse(obj[key]);
+        var result = !exclusions.includes(key) && parser.canParse(obj[key]);
         return result;
       }
       return _.filter(remainingParsers, canParse);
@@ -98,7 +68,6 @@ export function autoType(arr: Array<{[string]: string}>) : Array<{[string]: any}
     let rec0 = result[0];
 
     function mutateBackTickedprops(val, key, obj) {
-
       obj[key] = typeof val == 'string' && startsWith(val, '`') ? val.slice(1, val.length) : val;
     }
 
@@ -116,7 +85,7 @@ function allParsers(){
                   // check number first as moment parses
                   // number as date
                   numberParser(),
-                  dateTimeParser()
+                  dateParser()
                 ],
                wrapParser
              );
@@ -169,7 +138,7 @@ function numberParser(){
   }
 }
 
-function dateTimeParser(){
+function dateParser(){
 
   // assumes null and str check already done
   function isNumber(str){
@@ -183,7 +152,7 @@ function dateTimeParser(){
   }
 
   function parse(val){
-     return moment(val);
+     return moment(val, 'YYYY-MM-DD');
   }
 
   function canParse(val){
@@ -205,7 +174,7 @@ function dateTimeParser(){
   }
 
   return {
-      name: 'dateTimeParser',
+      name: 'dateParser',
       canParse: canParse,
       parse: parse
   }
