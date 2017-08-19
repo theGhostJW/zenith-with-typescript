@@ -1,10 +1,11 @@
-Date 				To Do			Done			Completion
+Date 					To Do			Done			Completion
 ------------------------------------
-01-08-2017 	231				57				19.8 %
-06-08-2017 	225				65				22.4 %
-11-08-2017	209				74				35.4 %
-12-08-2017	162				96				59.3 %
-12-08-2017	161				97				60.2 %
+01-08-2017 		231				57				19.8 %
+06-08-2017 		225				65				22.4 %
+11-08-2017		209				74				26.1 %
+12-08-2017		162				96				37.2 %
+12-08-2017		161				97				37.6%
+19-08-2017		150				108				41.9 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -56,8 +57,8 @@ Date 				To Do			Done			Completion
 /****** Exports *****/
 	DONE - ISSUES_FILE_SUFFIX = Depricated;
 	DONE - issuesFileSuffix = Depricated;
-	TODO: fileToTables = fileToTables;
-	TODO: fileToTable = fileToTable;
+	DONE - fileToTables = fileToTables; - depricated
+	DONE - fileToTable = fileToTable;
 	DONE - parentDir = parentDir;
 	DONE - listFiles = listFiles;
 	DONE - listFolders = listFolders;
@@ -74,8 +75,8 @@ Date 				To Do			Done			Completion
 	DONE -  objectToFile = now objToFile;
 	DONE -  toTestData = toTestData;
 	DONE -  fromTestData = fromTestData;
-	TODO: arrayToFile = arrayToFile;
-	TODO: fileToArray = fileToArray;
+	DONE - arrayToFile = arrayToFile; - renamed to linesToFile
+	DONE - fileToArray = fileToArray; - renamed to fileToLines
 	TODO: relativeToAbsolute = relativeToAbsolute;
 	DONE - changeExtension = changeExtension;
 	TODO: nowLogSuffix = nowLogSuffix;
@@ -85,7 +86,7 @@ Date 				To Do			Done			Completion
 	DONE - tempDir = tempDir;
 	DONE - testDataPath = testDataPath;
 	DONE - runTimeFilesPath = runTimeFilesPath;
-	TODO: parentFolder = parentFolder;
+	DONE - parentFolder = parentFolder; - depricated (duplicate of parent dir)
 	DONE - runTimeFile = runTimeFile;
 	DONE - logsDirPath = logsDirPath - renamed logfile;
 	DONE - logFilePath = logFilePath;
@@ -149,7 +150,7 @@ Date 				To Do			Done			Completion
 ===== StringUtils =====
 /****** Exports *****/
 	DONE - autoType =  -moved to sysutils;
-	TODO: stringToTables = stringToTables;
+	DONE - stringToTables = stringToTables;
 	DONE - stringToTable = stringToTable;
 	DONE - loadTemplate = loadTemplate - DEPRICATE IN FAVOUR OF TEMPLATES AND TAGGED TEMPLATES
 	DONE - capFirst = capFirst - renamed upperFirst;
@@ -178,11 +179,11 @@ Date 				To Do			Done			Completion
 	DONE - endsWith;
 	DONE - appendDelim;
 	DONE - hasText;
-	TODO: stringToFile = stringToFile;
-	TODO: bisect = bisect;
-	TODO: subStrBefore = subStrBefore;
+	DONE - stringToFile = stringToFile; - moved to fileUtils
+	DONE - bisect = bisect;
+	DONE - subStrBefore = subStrBefore;
 	TODO: subStrBetween = subStrBetween;
-	TODO: subStrAfter = subStrAfter;
+	DONE - subStrAfter = subStrAfter;
 	DONE - fileToString = fileToString;
 	DONE - newLine = newLine;
 	TODO: sameText = sameText;
