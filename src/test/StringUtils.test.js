@@ -20,12 +20,48 @@ import {
   createGuidTruncated,
   trim,
   stringToGroupedTableLooseTyped,
-  stringToTableLooseTyped
+  stringToTableLooseTyped,
+  stringToGroupedTableLooseTypedDefinedTabSize,
+  stringToTable
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
-import { SIMPLE_TABLE, SECTIONED_TABLE } from '../test/StringUtils.data.test';
+import { SIMPLE_TABLE, SECTIONED_TABLE, SIMPLE_TABLE_BIG_TABS } from '../test/StringUtils.data.test';
 
+
+describe('stringToTable', () => {
+
+  type RecType = {
+    id: number,
+    name: string,
+    dob: string,
+    drivers: boolean,
+    address: boolean,
+    outcome: string,
+    'flip/repeat': boolean
+  }
+
+  function rowTransformer(untyped): RecType {
+    untyped.dob = untyped.dob ? 'OLD' : 'YOUNG';
+    return ((untyped: any): RecType);
+  }
+
+  it.only('simple', () => {
+    let actual = stringToTable(SIMPLE_TABLE, rowTransformer, (val: mixed, key) => key == 'address' ? val ? 'SUCCESS' : 'FAIL' : val);
+    chkEq('OLD', actual[0].dob);
+    chkEq('SUCCESS', actual[6].address);
+  });
+
+});
+
+describe('stringToGroupedTableLooseTypedDefinedTabSize', () => {
+
+  it('simple', () => {
+    let actual = stringToGroupedTableLooseTypedDefinedTabSize(SIMPLE_TABLE_BIG_TABS, 4);
+    chkEq('Y  Y', actual[0][0].outcome);
+  });
+
+});
 
 describe('stringToTableLooseTyped', () => {
 
