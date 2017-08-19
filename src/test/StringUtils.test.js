@@ -22,12 +22,104 @@ import {
   stringToGroupedTableLooseTyped,
   stringToTableLooseTyped,
   stringToGroupedTableLooseTypedDefinedTabSize,
-  stringToTable
+  stringToTable,
+  bisect,
+  subStrBefore,
+  subStrAfter
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
 import { SIMPLE_TABLE, SECTIONED_TABLE, SIMPLE_TABLE_BIG_TABS } from '../test/StringUtils.data.test';
 
+
+describe('bisect', () => {
+
+  function bisectTest(src: string, delim: string, preExpected: string, sufExpected: string) {
+    let actual = bisect(src, delim);
+    chkEq(preExpected, actual[0]);
+    chkEq(sufExpected, actual[1]);
+  }
+
+  it('no delim', () => {
+    bisectTest('Hello Cool World', ',', 'Hello Cool World', '');
+  });
+
+  it('simple delim', () => {
+    bisectTest('The quick e brown fox jumps', 'e', 'Th', ' quick e brown fox jumps');
+  });
+
+  it('trailing delim', () => {
+    bisectTest('The quick e brown fox jumps', 's', 'The quick e brown fox jump', '');
+  });
+
+  it('leading delim', () => {
+    bisectTest('The quick e brown fox jumps', 'T', '', 'he quick e brown fox jumps');
+  });
+
+  it('multi-line trailing delim', () => {
+    bisectTest('The quick brown fox jumpsz', 'sz', 'The quick brown fox jump', '');
+  });
+
+  it('empty delim', () => {
+    bisectTest('The quick brown fox jumps', '', '', 'The quick brown fox jumps');
+  });
+
+  it('empty delim and target', () => {
+    bisectTest('', '', '', '');
+  });
+
+  it('file paths - defect', () => {
+    bisectTest('<Prp name="relpath" type="S" value="..\\..\\Utils\\FileUtils.sj"/>', 'value="', '<Prp name="relpath" type="S" ', '..\\..\\Utils\\FileUtils.sj"/>');
+  });
+});
+
+describe.only('subStrBefore', () => {
+
+  const test = (s: string, delim: string, ex: string) => chkEq(ex, subStrBefore(s, delim));
+
+  it('empty target', () => {
+   test('', ',', '');
+  });
+
+  it('leading delim', () => {
+   test(",Gee wilikers me kent", "," , '');
+  });
+
+  it('trailing delim', () => {
+   test("Gee wilikers me kent,", "," , "Gee wilikers me kent");
+  });
+
+  it('inline delim', () => {
+   test("Gee wilikers, Mr Kent", "," , "Gee wilikers");
+  });
+
+  it('no delim', () => {
+   test("[Hi", "]", "");
+  });
+
+});
+
+describe.only('subStrAfter', () => {
+
+  const test = (s: string, delim: string, ex: string) => chkEq(ex, subStrAfter(s, delim));
+
+  it('empty target', () => {
+   test('', ',', '');
+  });
+
+  it('leading delim', () => {
+   test(",Gee wilikers me kent", "," , "Gee wilikers me kent");
+  });
+
+  it('trailing delim', () => {
+   test("Gee wilikers me kent,", "," , "");
+  });
+
+  it('no delim', () => {
+   test("[Hi", "]", "");
+  });
+
+});
 
 describe('stringToTable', () => {
 
@@ -46,7 +138,7 @@ describe('stringToTable', () => {
     return ((untyped: any): RecType);
   }
 
-  it.only('simple', () => {
+  it('simple', () => {
     let actual = stringToTable(SIMPLE_TABLE, rowTransformer, (val: mixed, key) => key == 'address' ? val ? 'SUCCESS' : 'FAIL' : val);
     chkEq('OLD', actual[0].dob);
     chkEq('SUCCESS', actual[6].address);

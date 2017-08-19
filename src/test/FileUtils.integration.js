@@ -16,45 +16,38 @@ import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDa
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
          fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
-         clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders } from '../lib/FileUtils';
+         clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders,
+         fileToLines, linesToFile  } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
-describe('fileToTable', () => {
+describe('fileToLines / fromLines', () => {
 
-  it('', () => {
+  let path: string = tempFile('lines.txt');
 
+  function roundTripTest(arr: Array<string>) {
+    linesToFile(arr, path);
+    let actual: Array<string>  = fileToLines(path);
+    chkEq(arr, actual);
+  }
+
+  // Known issue empty array returns an arrau with single empty string
+  // Use yaml if this is anissue
+  // it('round trip empty', () => {
+  //   roundTripTest([]) ;
+  // });
+
+  it('round trip null string', () => {
+    roundTripTest(['']);
   });
 
-  // function yeaBoo(val, key, obj){
-  //   return obj.id === 10 ? 10 : _.isBoolean(val) ? val ? 'Yea' : 'Boo' : val;
-  // }
-  //
-  // result = fileToTable("FileToTable.txt", false);
-  // toTemp(result, 'noParse');
-  //
-  // result = fileToTable("FileToTable.txt");
-  // toTemp(result, 'parseAll');
-  //
-  // result = fileToTable("FileToTable.txt", yeaBoo);
-  // toTemp(result, 'parseAllWithConverter');
-  //
-  // result = fileToTable("FileToTable.txt", 'dob', 'address');
-  // toTemp(result, 'dobAndAddressNotParsed');
-  //
-  // result = fileToTable("FileToTableGrouped.txt", false);
-  // toTemp(result, 'noParseGrouped');
-  //
-  // result = fileToTable("FileToTableGrouped.txt");
-  // toTemp(result, 'parseAllGrouped');
-  //
-  // result = fileToTable("FileToTablesWithDefect.txt");
-  // checkEqual('55/f', result[0].nonNum, 'should be string');
+  it('populated array', () => {
+    roundTripTest(['one', 'two', 'three']);
+  });
 
 });
-
 
 
 describe('list files / folders', () => {

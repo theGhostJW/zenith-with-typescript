@@ -277,8 +277,15 @@ export function stringToFile(str : string, path : string, encoding : FileEncodin
   fs.writeFileSync(path, str, encoding);
 }
 
-export function tempFile(fileName :
-  ? string) : string {
+export function fileToLines(path : string, encoding : FileEncoding = 'utf8') : Array<string> {
+  return fs.readFileSync(path, encoding).split(newLine());
+}
+
+export function linesToFile(lines : Array<string>, path : string, encoding : FileEncoding = 'utf8') {
+  fs.writeFileSync(path, lines.join(newLine()), encoding);
+}
+
+export function tempFile(fileName :? string) : string {
   return subFile('temp', fileName);
 }
 

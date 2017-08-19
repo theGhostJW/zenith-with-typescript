@@ -31,23 +31,8 @@ export function transformGroupedTable<T>(unTypedTable: Array<Array<{[string]: an
 }
 
 function fieldToRowTransformer(fieldTransformer: FieldTransformer): ({[string]: any}) => {[string]: any} {
-   return (obj) => _.mapValues(obj, fieldTransformer);
+  return (obj) => _.mapValues(obj, fieldTransformer);
 }
-
-// export function stringToTableTyped(txt: string) : Array<{[string]: any}> {
-//   let result: Array<Array<{[string]: any}>> = stringToGroupedTable(txt);
-//   ensure(result.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
-//   return result.length === 0 ? [] : result[0];
-// }
-//
-// export const stringToGroupedTableTyped: <T>(txt: string) => Array<Array<{[string]: T}>> = _.flowRight(transformGroupedTable, stringToGroupedTableDefinedTabSize)(txt, 2);
-
-// export function stringToGroupedTable<T : {}>(txt: string, rowTransformer: {[string]: any} => T, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<T>> {
-//   return stringToGroupedTableDefinedTabSize(txt, 2, ...fieldTransformers);
-// }
-//
-// export export function stringToGroupedTableDefinedTabSize(txt: string, spaceCountToTab: number = 2, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<{[string]: any}>>
-
 
 export function stringToTable<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: Array<FieldTransformer>) : Array<T> {
   let result = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
@@ -63,7 +48,6 @@ export function stringToGroupedTableTypedDefinedTabSize<T>(txt: string, spaceCou
 type FieldTransformer = (val: any, key: string, obj: {[string]: any}) => any;
 type RowTransformer<T> = {[string]: any} => T;
 
-
 export function stringToTableLooseTyped(txt: string, ...fieldTransformers: Array<FieldTransformer>) : Array<{[string]: any}> {
   let result: Array<Array<{[string]: any}>> = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
   return safeCheckedFirst(result);
@@ -78,9 +62,11 @@ export function stringToGroupedTableLooseTyped(txt: string, ...fieldTransformers
   return stringToGroupedTableLooseTypedDefinedTabSize(txt, 2, ...fieldTransformers);
 }
 
+const stdLinesAndSplit = (str: string) => standardiseLineEndings(str).split(newLine());
+
 export function stringToGroupedTableLooseTypedDefinedTabSize(txt: string, spaceCountToTab: number = 2, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<{[string]: any}>> {
-  let lines = standardiseLineEndings(txt).split(newLine()),
-      result =  linesToGroupedObjects(lines, '', spaceCountToTab).map(autoType);
+  let lines = stdLinesAndSplit(txt),
+      result = linesToGroupedObjects(lines, '', spaceCountToTab).map(autoType);
 
   return applyFieldTransformers(result, fieldTransformers);
 }
@@ -98,7 +84,7 @@ function applyFieldTransformers(target: Array<Array<{[string]: any}>>, fieldTran
 function linesToGroupedObjects(lines: Array<string>, errorInfo: string, spaceCountToTab: number) : Array<Array<{[string]: any}>>  {
   let headAndLines = headerAndRemainingLines(lines, spaceCountToTab),
       header: Array<string> = headAndLines.header,
-      groups: Array<Array<string>>  = headAndLines.groups,
+      groups: Array<Array<string>> = headAndLines.groups,
       arrToObjs: (Array<string>) => Array<{[string]: any}> = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
       result: Array<Array<{[string]: any}>> = _.map(groups, arrToObjs);
 
@@ -238,24 +224,58 @@ function isGroupDivider(line){
   return hasText(line, '----');
 }
 
+// splits a string on the first delimiter returns two parts
+// EXCLUDING the delimiter
+export function bisect(strSource: string, delim: string): [string, string] {
+  let delimLength = delim.length,
+      pos = strSource.indexOf(delim),
+      srcLength = strSource.length,
+      before,
+      after;
 
+  if (pos < 0){
+    before = strSource;
+    after = "";
+  }
+  else {
+    before = strSource.slice(0, pos);
+    after = (pos < srcLength - delimLength) ?
+              strSource.slice(pos + delimLength):
+              "";
+  }
 
-// unp to here
-// export type =
-//                  {
-//                   txt: _.first(arArgs),
-//                   spaceCountToTab: def(_.find(arArgs, _.isNumber), 2),
-//                   wantAutoTyping: def(_.find(arArgs, _.isBoolean), true),
-//                   postProcessFunctions: _.filter(arArgs, _.isObject),
-//                   excludedFieldsN: _.chain(_.rest(arArgs))
-//                                       .reject(_.isBoolean)
-//                                       .reject(_.isNumber)
-//                                       .reject(_.isObject)
-//                                       .value()
-//                   };
+  return [before, after]
+}
+
+export function subStrBefore(strSource: string, delim: string): string {
+  var pos = strSource.indexOf(delim);
+  return (pos < 0) ? '' : bisect(strSource, delim)[0];
+}
+
+export function subStrAfter(strSource: string, delim: string){
+  var result = bisect(strSource, delim);
+  return result[1];
+}
+
+// function splitOnPropName(txt: string) : {[string]: Array<string>}{
 //
-//     return result;
+//   let lines = stdLinesAndSplit(txt);
+//
+//   function buildSection(accum, line){
+//     if (hasText(line, '::')){
+//       var prop = subStrBefore(line, '::');
+//       ensure(!hasValue(accum[prop]), 'Duplicate property names in text');
+//       accum.result[prop] = [];
+//       accum.active = accum.result[prop];
+//     }
+//     else if (hasValue(accum.active)){
+//       accum.active.push(line);
+//     }
+//     return accum;
 //   }
+//
+//   return _.reduce(lines, buildSection, {result: {}, active: null}).result;
+// }
 
 // from https://codepen.io/avesus/pen/wgQmaV?editors=0012
 export const createGuid = () => formatUuid(getRandomValuesFunc());
