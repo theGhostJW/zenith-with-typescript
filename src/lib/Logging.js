@@ -57,14 +57,13 @@ export const PLAIN_CONSOLE_LOGGING_FUNCTIONS: LoggingFunctions = {
 
 export const logger = newWinstton();
 
-function newWinstton() {
-  let filePath = logFile('latest.yaml');
-  deleteRecreateFile(filePath);
 
+function newWinstton() {
   return new (winston.Logger)({
     transports: [
       consoleLogger(),
-      fileLogger(filePath)
+      fileLogger('latest.yaml'),
+      fileLogger(`log ${nowFileFormatted()}.yaml`),
     ]
   });
 }
@@ -85,8 +84,11 @@ export function consoleLogger() {
     });
 }
 
-export function fileLogger(filePath: string) {
+export function fileLogger(fileNameNoPath: string) {
+  let filePath = logFile(fileNameNoPath);
+  deleteRecreateFile(filePath);
   return new (winston.transports.File)({
+      name: fileNameNoPath,
       timestamp: nowAsLogFormat,
       filename: filePath,
       level: 'info',

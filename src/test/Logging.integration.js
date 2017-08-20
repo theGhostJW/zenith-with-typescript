@@ -18,5 +18,4 @@ describe.only('winston log', () => {
     logWarning('Something not so bad happenned', 'Heres some info - Warning');
   });
 
-
 });
