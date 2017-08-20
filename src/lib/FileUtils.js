@@ -23,10 +23,6 @@ import * as _ from 'lodash';
 
 export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
 
-export function fileToTable() {
-
-}
-
 const TEMP_STR_FILES : {
   [string] : boolean
 } = {};
@@ -304,13 +300,11 @@ export function runTimeFile(fileName :
   return subFile('runTimeFiles', fileName);
 }
 
-export function logFile(fileName :
-  ? string) : string {
+export function logFile(fileName :? string) : string {
   return subFile('logs', fileName);
 }
 
-function subFile(subDir : string, fileName :
-  ? string) : string {
+function subFile(subDir :string, fileName: ?string) : string {
   return fileName == null
     ? projectSubDir(subDir)
     : combine(projectSubDir(subDir), fileName);
@@ -332,11 +326,13 @@ export function seekFolder(startFileOrFolder : string, pathPredicate : (path : s
 
 export function pathExists(path : string) : boolean {return fs.existsSync(path);}
 
+export const SENTINAL_PROJECT_FILE: string = 'package.json';
+
 export function projectDir() : string {
 
   let tried = [];
   function isProjectDir(dir : string): boolean {
-    let fullPath = combine(dir, 'package.json');
+    let fullPath = combine(dir, SENTINAL_PROJECT_FILE);
     tried.push(fullPath);
     return pathExists(fullPath);
   }

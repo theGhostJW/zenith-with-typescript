@@ -28,7 +28,8 @@ import {
   subStrAfter,
   stringToGroupedTable,
   stringToTableMap,
-  stringToGroupedTableMap
+  stringToGroupedTableMap,
+  capFirst
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
@@ -43,6 +44,18 @@ type RecType = {
   outcome: string,
   'flip/repeat': boolean
 }
+
+describe('capFirst', () => {
+
+  it('simple', () => {
+    chkEq('Simple', capFirst('simple'))
+  });
+
+  it('empty', () => {
+    chkEq('', capFirst(''))
+  });
+
+});
 
 function rowTransformer(untyped): RecType {
   untyped.dob = untyped.dob ? 'OLD' : 'YOUNG';

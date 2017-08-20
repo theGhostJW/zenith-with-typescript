@@ -274,6 +274,10 @@ export function subStrAfter(strSource: string, delim: string){
   return result[1];
 }
 
+export function capFirst(str: string): string {
+  return hasValue(str) ? str.charAt(0).toUpperCase() + str.slice(1): str;
+}
+
 function splitOnPropName(txt: string) : {[string]: string}{
 
   let lines = stdLinesAndSplit(txt);
