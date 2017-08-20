@@ -55,14 +55,26 @@ export const PLAIN_CONSOLE_LOGGING_FUNCTIONS: LoggingFunctions = {
 
 /*===================  Winston Logging  ========================*/
 
-export const logger = new (winston.Logger)({
-  transports: [
-    consoleLogger()
-    , fileLogger()
-    // colorize the output to the console
+export const logger = newWinstton();
 
-  ]
-});
+function newWinstton() {
+  let filePath = logFile('latest.yaml');
+  deleteRecreateFile(filePath);
+
+  return new (winston.Logger)({
+    transports: [
+      consoleLogger(),
+      fileLogger(filePath)
+    ]
+  });
+}
+
+function deleteRecreateFile(filePath: string) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+  fs.writeFileSync(filePath, '');
+}
 
 export function consoleLogger() {
   return new (winston.transports.Console)({
@@ -73,17 +85,13 @@ export function consoleLogger() {
     });
 }
 
-export function fileLogger() {
-  console.log('BEFORE ' + module.filename);
-  fs.existsSync(module.filename);
-  console.log('AFTER ' + module.filename);
-  console.log(projectDirDuplicate());
-  console.log('AFTER PATH EXISTS');
+export function fileLogger(filePath: string) {
   return new (winston.transports.File)({
       timestamp: nowAsLogFormat,
-      filename: logFile('latest.yaml'),
+      filename: filePath,
       level: 'info',
       json: false,
+      options: {flags: 'a'},
       formatter: formatFileLog
     });
 }
@@ -99,8 +107,6 @@ function projectDirDuplicate() : string {
   const SENTINAL_PROJECT_FILE_DUPLICATE: string = 'package.json';
   let tried = [];
   function isProjectDir(dir : string): boolean {
-    console.log(dir +  ' dir');
-    console.log(SENTINAL_PROJECT_FILE_DUPLICATE + ' - SENTINAL_PROJECT_FILE_DUPLICATE');
     let fullPath = path.join(dir, SENTINAL_PROJECT_FILE_DUPLICATE);
     tried.push(fullPath);
     return fs.existsSync(fullPath);
@@ -115,7 +121,6 @@ function projectDirDuplicate() : string {
 
 function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePath : string) => boolean) :
   ? string {
-    console.log(startFileOrFolder +  ' startFileOrFolder');
     return hasValue(startFileOrFolder)
       ? pathPredicate(startFileOrFolder)
         ? startFileOrFolder
@@ -129,6 +134,7 @@ function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePa
  */
 function formatFileLog(options) {
   // Return string will be passed to logger.
+  //console.log('FORMATTER ' + options.level);
   return objToYaml(options) + '--------';
 }
 
