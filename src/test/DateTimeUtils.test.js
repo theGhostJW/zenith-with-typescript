@@ -22,16 +22,16 @@ describe('formatters', () => {
 });
 
 
-describe('formatted nows', () => {
+describe.only('formatted nows', () => {
 
   it('just check it does not blow up - nowAsLogFormat', () => {
     var actual = nowAsLogFormat();
-    //debug(actual);
+    debug(actual);
   });
 
   it('just check it does not blow up - nowFileFormatted', () => {
     var actual = nowFileFormatted();
-    //debug(actual);
+    debug(actual);
   });
 
 });

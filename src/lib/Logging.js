@@ -3,7 +3,7 @@
 import Color from "color";
 import * as _ from 'lodash';
 import * as winston from 'winston';
-import {appendDelim, newLine, capFirst } from '../lib/StringUtils';
+import {appendDelim, newLine, capFirst, subStrAfter } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
 import { nowAsLogFormat, nowFileFormatted } from '../lib/DateTimeUtils';
 // force loading of module
@@ -90,6 +90,7 @@ export function fileLogger(filePath: string) {
       timestamp: nowAsLogFormat,
       filename: filePath,
       level: 'info',
+      colorize: true,
       json: false,
       options: {flags: 'a'},
       formatter: formatFileLog
@@ -133,9 +134,15 @@ function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePa
  It's general properties are: timestamp, level, message, meta. Depending on the transport type, there may be additional properties.
  */
 function formatFileLog(options) {
-  // Return string will be passed to logger.
-  //console.log('FORMATTER ' + options.level);
-  return objToYaml(options) + '--------';
+  let meta = options.meta;
+  let logItem = {
+    timestamp: options.timestamp(),
+    [options.level]: options.message,
+    additionalInfo: meta.additionalInfo,
+    link: meta.link,
+    callstack: meta.callstack == null ?  meta.callstack : subStrAfter(meta.callstack, 'Error\n')
+  }
+  return objToYaml(logItem) + '--------';
 }
 
 function formatConsoleLog(options) {
@@ -156,9 +163,9 @@ type LogLevel = $Keys<typeof LOG_LEVELS>;
 type WinstonLogFunc = (LogLevel, string, {}) => void;
 
 export const DEFAULT_LOGGING_FUNCTIONS: LoggingFunctions = {
-   log: winstonLog('info'),
-   logWarning: winstonLog('warn'),
-   logError: winstonLog('error')
+   log: winstonLog('info', false),
+   logWarning: winstonLog('warn', true),
+   logError: winstonLog('error', true)
 }
 
 let winstonLogFuncs = {
@@ -167,12 +174,16 @@ let winstonLogFuncs = {
   message: logger.info
 }
 
-function winstonLog(level: LogLevel) : LogFunction {
+function winstonLog(level: LogLevel, callStack: boolean) : LogFunction {
 
   return function logWithlabel (message: string, additionalInfo: ?string, attrs: ?LogAttributes) : void {
     attrs = attrs == null ? defAttributes() : attrs;
     let meta: LogAttributes = _.clone(attrs);
     meta.additionalInfo = additionalInfo;
+    if (callStack) {
+      meta.callstack = new Error().stack;
+    }
+
     logger.log(level, message, meta);
   }
 
