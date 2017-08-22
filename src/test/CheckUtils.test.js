@@ -8,6 +8,7 @@ describe('check', () => {
   it('check - pass', () => {
     chk(check(true, 'should pass', 'more info about the pass'));
   });
+  
 
   it('check - fail', () => {
 
