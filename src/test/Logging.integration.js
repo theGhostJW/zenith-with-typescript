@@ -4,7 +4,7 @@ import {it, describe} from 'mocha'
 import { debug } from '../lib/SysUtils';
 import { log, logWarning, logError } from '../lib/Logging';
 
-describe.only('winston log', () => {
+describe('winston log', () => {
 
   it('error', () => {
     logError('Something bad happenned', 'Heres some info - error');

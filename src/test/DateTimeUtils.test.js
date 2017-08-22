@@ -22,7 +22,7 @@ describe('formatters', () => {
 });
 
 
-describe.only('formatted nows', () => {
+describe('formatted nows', () => {
 
   it('just check it does not blow up - nowAsLogFormat', () => {
     var actual = nowAsLogFormat();

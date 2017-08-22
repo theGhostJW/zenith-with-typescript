@@ -40,6 +40,32 @@ export type LoggingFunctions = {
    logError: LogFunction
 }
 
+export type LogSubType = "Message" |
+                          "RunStart" |
+                          "TestStart" |
+                          "IterationStart" |
+                          "IterationEnd" |
+                          "TestEnd" |
+                          "RunEnd" |
+                          "StartDefect" |
+                          "EndDefect" |
+                          "CheckPass" |
+                          "CheckFail";
+
+const specialMessage = (subType: LogSubType): LogFunction => specialLog(subType, log);
+const specialError = (subType: LogSubType): LogFunction => specialLog(subType, logError);
+
+function specialLog(subType: LogSubType, baseFunction: LogFunction): LogFunction {
+  return function logSpecial(message: string, additionalInfo: ?string, attr: ?LogAttributes) {
+    attr = attr == null ? {} : attr;
+    attr.subType = subType;
+    baseFunction(message, additionalInfo, attr);
+  }
+}
+
+export const logCheckFailure: LogFunction = specialError('CheckFail');
+export const logCheckPassed: LogFunction = specialMessage('CheckPass');
+
 function consoleLog(label: string) : LogFunction {
   return function logWithlabel (message: string, additionalInfo: ?string, attr: ?LogAttributes) : void {
     let fullMessage = _.toUpper(label) + ': ' + message;
@@ -59,6 +85,10 @@ export const logger = newWinstton();
 
 
 function newWinstton() {
+  if (logger) {
+    logger.close();
+  }
+
   return new (winston.Logger)({
     transports: [
       consoleLogger(),
@@ -70,6 +100,7 @@ function newWinstton() {
 
 function deleteRecreateFile(filePath: string) {
   if (fs.existsSync(filePath)) {
+    console.log(filePath);
     fs.unlinkSync(filePath);
   }
   fs.writeFileSync(filePath, '');
@@ -83,6 +114,7 @@ export function consoleLogger() {
       formatter: formatConsoleLog
     });
 }
+
 
 export function fileLogger(fileNameNoPath: string) {
   let filePath = logFile(fileNameNoPath);
@@ -165,9 +197,9 @@ type LogLevel = $Keys<typeof LOG_LEVELS>;
 type WinstonLogFunc = (LogLevel, string, {}) => void;
 
 export const DEFAULT_LOGGING_FUNCTIONS: LoggingFunctions = {
-   log: winstonLog('info', false),
-   logWarning: winstonLog('warn', true),
-   logError: winstonLog('error', true)
+   log: logFunction('info', false),
+   logWarning: logFunction('warn', true),
+   logError: logFunction('error', true)
 }
 
 let winstonLogFuncs = {
@@ -176,7 +208,7 @@ let winstonLogFuncs = {
   message: logger.info
 }
 
-function winstonLog(level: LogLevel, callStack: boolean) : LogFunction {
+function logFunction(level: LogLevel, callStack: boolean) : LogFunction {
 
   return function logWithlabel (message: string, additionalInfo: ?string, attrs: ?LogAttributes) : void {
     attrs = attrs == null ? defAttributes() : attrs;
