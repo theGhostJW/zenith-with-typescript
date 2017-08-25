@@ -31,17 +31,14 @@ export function checkText(expected: string, actual: string, message: string, add
   else {
     let nameBase = createGuidTruncated(6),
         expectedFile =  nameBase + '_Expected.txt',
-        actualFile =  nameBase + '_Expected.txt';
+        actualFile =  nameBase + '_Actual.txt';
 
     stringToLogFile(expected, expectedFile);
     stringToLogFile(actual, actualFile);
 
     let fileMessage = `Text differs - expect: .\\${expectedFile} - actual: .\\${actualFile}`;
 
-//    todo strigToLogfile integeration tests
-
-  //   string to log file
-    genericCheck(prefix, result, message, fileMessage + newLine() + additionalInfo);
+    genericCheck(prefix, result, message, appendDelim(fileMessage, newLine(), additionalInfo));
   }
   return result;
 }

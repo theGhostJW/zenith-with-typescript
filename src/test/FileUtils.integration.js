@@ -9,8 +9,7 @@ import * as fs from 'fs';
 import { debug, areEqual } from '../lib/SysUtils';
 import { createGuidTruncated, hasText } from '../lib/StringUtils';
 import type { LogAttributes } from '../lib/Logging';
-import type { FileFilterFunc } from '../lib/FileUtils';
-import type { FileFilterGlobs } from '../lib/FileUtils';
+import type { FileFilterFunc, FileFilterGlobs  } from '../lib/FileUtils';
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
@@ -22,6 +21,7 @@ import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDa
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
+
 
 describe('fileToLines / fromLines', () => {
 
@@ -439,7 +439,7 @@ describe('from / to tempString', () => {
 
 });
 
-describe.only('stringToLogFile', () => {
+describe('stringToLogFile', () => {
 
   it('simple', () => {
     let fileName = createGuidTruncated(8) + '.txt';
