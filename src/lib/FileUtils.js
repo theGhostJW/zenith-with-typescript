@@ -227,6 +227,10 @@ export function toLogDir < T > (val : T, fileName : string) : string {
   return toSpecialDir(val, fileName, logFile);
 }
 
+export function stringToLogFile(str : string, fileNameNoPath : string, encoding : FileEncoding = 'utf8') : string {
+  return stringToFile(str, logFile(fileNameNoPath), encoding);
+}
+
 export function toTemp <T> (val : T, fileName : string = 'toTemp', wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true) : string {
   let str = objToYaml(val);
   return toTempStringPriv(str, fileName, wantWarning, wantDuplicateOverwriteWarning, '.yaml');
@@ -269,8 +273,9 @@ export function fileToString(path : string, encoding : FileEncoding = 'utf8') : 
   return fs.readFileSync(path, encoding);
 }
 
-export function stringToFile(str : string, path : string, encoding : FileEncoding = 'utf8') {
+export function stringToFile(str : string, path : string, encoding : FileEncoding = 'utf8'): string {
   fs.writeFileSync(path, str, encoding);
+  return path;
 }
 
 export function fileToLines(path : string, encoding : FileEncoding = 'utf8') : Array<string> {
@@ -285,13 +290,11 @@ export function tempFile(fileName :? string) : string {
   return subFile('temp', fileName);
 }
 
-export function mockFile(fileName :
-  ? string) : string {
+export function mockFile(fileName :? string) : string {
   return subFile('mocks', fileName);
 }
 
-export function testDataFile(fileName :
-  ? string) : string {
+export function testDataFile(fileName :? string) : string {
   return subFile('testData', fileName);
 }
 

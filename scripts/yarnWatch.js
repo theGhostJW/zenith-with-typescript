@@ -24,7 +24,7 @@ gaze.on('all', function(event, filepath) {
    });
 
    child.stderr.on( 'data', data => {
-      console.log( `stderr: ${data}` );
+      console.log( `${data}` );
    });
 
    child.on('exit', function (code, signal) {

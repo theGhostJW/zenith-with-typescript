@@ -17,7 +17,7 @@ import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDa
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
          fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
          clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders,
-         fileToLines, linesToFile  } from '../lib/FileUtils';
+         fileToLines, linesToFile, stringToLogFile  } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
@@ -435,6 +435,17 @@ describe('from / to tempString', () => {
       toTempString('Hi');
       let content = fromTempString();
       chkHasText(content, '!!!!! IF YOU ARE USING THIS FOR DEBUGGING');
+  });
+
+});
+
+describe.only('stringToLogFile', () => {
+
+  it('simple', () => {
+    let fileName = createGuidTruncated(8) + '.txt';
+    stringToLogFile('Blahhhhh', fileName);
+    let content = fileToString(combine(logFile(), fileName));
+    chkEq('Blahhhhh', content)
   });
 
 });

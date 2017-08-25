@@ -29,6 +29,9 @@ export const log : LogFunction = (message: string, additionalInfo: ?string, attr
 export const logWarning : LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.logWarning(message, additionalInfo, attr);
 export const logError: LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.logError(message, additionalInfo, attr);
 
+const specialMessage = (subType: LogSubType): LogFunction => specialLog(subType, log);
+const specialError = (subType: LogSubType): LogFunction => specialLog(subType, logError);
+
 const BLUE : Color = new Color('#00008B');
 const WHITE  : Color = Color('#FFFFFF');
 
@@ -51,9 +54,6 @@ export type LogSubType = "Message" |
                           "EndDefect" |
                           "CheckPass" |
                           "CheckFail";
-
-const specialMessage = (subType: LogSubType): LogFunction => specialLog(subType, log);
-const specialError = (subType: LogSubType): LogFunction => specialLog(subType, logError);
 
 function specialLog(subType: LogSubType, baseFunction: LogFunction): LogFunction {
   return function logSpecial(message: string, additionalInfo: ?string, attr: ?LogAttributes) {
@@ -181,8 +181,8 @@ function formatFileLog(options) {
 
 function formatConsoleLog(options) {
   // Return string will be passed to logger.
-  let header = appendDelim(capFirst(options.level), ': ', options.message)
-  return appendDelim(header, newLine(), def(options.meta, {}).additionalInfo)
+  let header = appendDelim(capFirst(options.level), ': ', options.message);
+  return winston.config.colorize(options.level, appendDelim(header , newLine(), def(options.meta, {}).additionalInfo));
 }
 
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
