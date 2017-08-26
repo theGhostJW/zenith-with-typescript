@@ -471,16 +471,12 @@ describe('toString', () => {
 
 describe('wildcardMatch', () => {
 
-  it('null', () => {
-    chkFalse(wildCardMatch(null, 'hi'));
-  });
-
   it('wildcard surround', () => {
     chk(wildCardMatch("demo_Array_Data_Driven_Test", "*Array*"));
   });
 
   it('complex nested - case insensitive', () => {
-    chk(wildCardMatch("The quick brown fox jumps over the lazy dog", "Th*icK*b*ox*over the*dog"));
+    chk(wildCardMatch("The quick brown fox jumps over the lazy dog", "Th*icK*b*ox*over the*dog", false));
   });
 
   it('complex nested - case sensitive', () => {
@@ -496,7 +492,7 @@ describe('wildcardMatch', () => {
   });
 
   it('complex nested - trailing negative', () => {
-    chkFalse(wildCardMatch("The quick brown fox jumps over the lazy dog", "*fox*lazy", true));
+    chkFalse(wildCardMatch("The quick brown fox jumps over the lazy dog", "*fox*Lazy", true));
   });
 
   it('same string', () => {

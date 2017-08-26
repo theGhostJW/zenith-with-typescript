@@ -349,9 +349,39 @@ export function replace(hayStack: string, needle: string, replacement: string, c
    return hayStack.replace(reg, replacement);
 }
 
-export function wildCardMatch(hayStack: ?string, needle: string, caseSensitive: boolean = false): boolean {
-  // https://stackoverflow.com/questions/26246601/wildcard-string-comparison-in-javascript
-  return hayStack == null ? false: new RegExp("^" + needle.split("*").join(".*") + "$", (caseSensitive ? undefined :'i')).test(hayStack);
+export function wildCardMatch(hayStack: string, needlePattern: string, caseSensitive: boolean = true, checkForAll: boolean = true, processFragmentResult: (fragment: string, remainder: string, found: boolean) => void = (f,r,ff) => {} ): boolean {
+
+  if (!caseSensitive){
+    hayStack = lowerCase(hayStack);
+    needlePattern =  lowerCase(needlePattern);
+  }
+
+  function findNextPattern(accum, fragment){
+    if (!checkForAll && !accum.result){
+      return accum;
+    }
+
+    // make forgiving with spaces
+    fragment = trim(fragment);
+    let result = {},
+        remainder = accum.remainder,
+        idx = remainder.indexOf(fragment),
+        found = (idx > -1);
+
+    processFragmentResult(fragment, remainder, found);
+
+    return {
+      result: accum.result && found,
+      remainder: found ? remainder.slice(idx + fragment.length) : remainder
+    };
+  }
+
+  let result = _.chain(needlePattern.split('*'))
+                  .filter(hasValue) // ignore empty strings in pattern
+                  .reduce(findNextPattern, {result: true, remainder: hayStack})
+                  .value();
+
+  return result.result;
 }
 
 export function toString<T>(val : T): string {

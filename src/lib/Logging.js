@@ -66,6 +66,8 @@ function specialLog(subType: LogSubType, baseFunction: LogFunction): LogFunction
 export const logCheckFailure: LogFunction = specialError('CheckFail');
 export const logCheckPassed: LogFunction = specialMessage('CheckPass');
 
+const isCheckPointSubType = (subType: ?LogSubType) =>  subType != null && ['CheckFail', 'CheckPass'].includes(subType);
+
 function consoleLog(label: string) : LogFunction {
   return function logWithlabel (message: string, additionalInfo: ?string, attr: ?LogAttributes) : void {
     let fullMessage = _.toUpper(label) + ': ' + message;
@@ -181,7 +183,8 @@ function formatFileLog(options) {
 
 function formatConsoleLog(options) {
   // Return string will be passed to logger.
-  let header = appendDelim(capFirst(options.level), ': ', options.message);
+  let meta = options.meta,
+      header = isCheckPointSubType(meta.subType) ? options.message : appendDelim(capFirst(options.level), ': ', options.message);
   return winston.config.colorize(options.level, appendDelim(header , newLine(), def(options.meta, {}).additionalInfo));
 }
 

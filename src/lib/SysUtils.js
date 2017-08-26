@@ -1,7 +1,7 @@
 // @flow
 
 import * as _ from 'lodash';
-import {toString, startsWith, endsWith, appendDelim, wildCardMatch} from '../lib/StringUtils';
+import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText} from '../lib/StringUtils';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
 
@@ -207,7 +207,7 @@ export function def <T> (val : ?T, defaultVal: T): T {
   return val == null ? defaultVal : val;
 }
 
-export function areEqual <T, U> (val1 : T, val2 : U, reasonableTypeCoercian : boolean = false) : boolean {
+export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
   return _.isEqualWith(val1, val2, eqCustomiser);
 }
 
@@ -272,8 +272,9 @@ function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
   }
 
   if (typeof mixedSpec == 'string' || typeof mixedSpec == 'number') {
+    let matcher = typeof mixedSpec == 'string' && hasText(mixedSpec, '*') ? wildCardMatch : areEqual;
     return function keyMatch(val : mixed, key : string | number) : any {
-      return wildCardMatch(toString(key), toString(mixedSpec)) ? val : undefined;
+      return matcher(toString(key), toString(mixedSpec)) ? val : undefined;
     }
   }
 
