@@ -4,7 +4,7 @@ import {it, describe} from 'mocha'
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
-import { check, checkText, checkEqual, checkTextContains } from '../lib/CheckUtils';
+import { check, checkText, checkEqual, checkTextContains, checkTextContainsFragments } from '../lib/CheckUtils';
 
 describe('check', () => {
 
@@ -84,6 +84,30 @@ describe('checkTextContains', () => {
 
   it('pass message case insensitive', () => {
     chk(checkTextContains('the quick brown fox jusmps over the lazy dog', 'qUick B', 'should pass !!', false));
+  });
+
+});
+
+describe('checkTextContainsFragments', () => {
+
+  it('pass single fragment', () => {
+    chk(checkTextContainsFragments('the quick brown fox jusmps over the lazy dog', 'quick b'));
+  });
+
+  it('multi fragment pass', () => {
+    chk(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*y d'));
+  });
+
+  it('multi fragment fail', () => {
+    chkFalse(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*oov*y d'));
+  });
+
+  it('multi fragment pass - case insensitive', () => {
+    chk(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*Y d', false));
+  });
+
+  it('multi fragment fal - case sensitive', () => {
+    chkFalse(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*Y d'));
   });
 
 });

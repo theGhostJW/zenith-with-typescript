@@ -7,19 +7,6 @@ import { logCheckFailure, logCheckPassed } from '../lib/Logging';
 import { tempFile, stringToLogFile } from '../lib/FileUtils';
 import * as _ from 'lodash';
 
-
-/*
-TODO: checkExists = checkExists;
-TODO: checkExistsNot = checkExistsNot;
-TODO: checkText = checkText;
-TODO: checkTextAgainstTextFile = checkTextAgainstTextFile;
-TODO: checkEqual = checkEqual;
-TODO: checkContains = checkContains;
-TODO: checkTextContainsFragments = checkTextContainsFragments;
-TODO: checkTextContainsFragmentsFromFile = checkTextContainsFragmentsFromFile;
-TODO: checkWithinTolerance
- */
-
 export const check = (condition: boolean, message: string, additionalInfo: ?string) => genericCheck('Check', condition, message, additionalInfo);
 export const checkFalse = (condition: boolean, message: string, additionalInfo: ?string) => genericCheck('Check False', !condition, message, additionalInfo);
 
@@ -31,7 +18,7 @@ export const checkEqual = (expected: any, actual: any, message: string, addition
   return genericCheck('EqualityChck', result, updatedMessage, updatedInfo);
 }
 
-export function checkTextContainsFragments(expectedContent: string, actualContent: string, caseSensitive: boolean = true): boolean {
+export function checkTextContainsFragments(targetString: string, searchPattern: string, caseSensitive: boolean = true): boolean {
   function standardisNewLines(str){
     str = standardiseLineEndings(str);
     str = replace(str, newLine() + ' ', ' ');
@@ -39,12 +26,12 @@ export function checkTextContainsFragments(expectedContent: string, actualConten
     return replace(str, newLine(), ' ');
   }
 
-  expectedContent = standardisNewLines(expectedContent);
-  actualContent = standardisNewLines(actualContent);
+  let expectedContent = standardisNewLines(searchPattern),
+      actualContent = standardisNewLines(targetString);
 
   function processFoundResult(fragment, remainder, found){
     var detailMessage = 'Looking for Fragment' + newLine() + fragment + newLine(2) + 'Looking In' + newLine() + remainder
-    genericCheck('EqualityChck', found, 'Text Fragment Found - ' + fragment, detailMessage);
+    genericCheck('Text Fragment Check', found, 'Target Fragment :' + fragment, detailMessage);
   }
 
   return wildCardMatch(actualContent, expectedContent, caseSensitive, true, processFoundResult);

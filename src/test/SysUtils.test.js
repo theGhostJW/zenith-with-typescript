@@ -1055,6 +1055,10 @@ describe('areEqual', () => {
     chk(areEqual(22.111, 22.111));
   });
 
+  it('two floats ii', () => {
+    chk(areEqual(22.0000000001, 22.0000000001));
+  });
+
   let val1,
     val2;
   val1 = {

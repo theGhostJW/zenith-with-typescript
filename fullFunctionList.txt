@@ -7,24 +7,25 @@ TDate 					To Do			Done			Completion
 12-08-2017		161				97				37.6%
 19-08-2017		150				108				41.9 %
 20-08-2017		141				115				44.9 %
+26-08-2017		129				127				49.6 %
 
 ===== CheckUtils =====
 /****** Exports *****/
-	TODO: checkExists = checkExists;
-	TODO: checkExistsNot = checkExistsNot;
-	TODO: checkText = checkText;
-	TODO: checkTextAgainstTextFile = checkTextAgainstTextFile;
-	TODO: checkEqual = checkEqual;
-	TODO: checkContains = checkContains;
-	TODO: checkTextContainsFragments = checkTextContainsFragments;
-	TODO: checkTextContainsFragmentsFromFile = checkTextContainsFragmentsFromFile;
-	TODO: check = check;
-	TODO: checkFalse = checkFalse;
+	DONE - checkExists = checkExists - depricated;
+	DONE -  checkExistsNot = checkExistsNot - depricated;
+	DONE - checkText = checkText;
+	DONE -  checkTextAgainstTextFile = depricated;
+	DONE - checkEqual = checkEqual;
+	DONE - checkContains = checkContains;
+	DONE - checkTextContainsFragments = checkTextContainsFragments;
+	DONE - checkTextContainsFragmentsFromFile = Depricated;
+	DONE - check = check;
+	DONE - checkFalse = checkFalse;
 ===== DateTimeUtils =====
 /****** Exports *****/
 	DONE - dateTimeToReadableString = dateTimeToReadableString; - YAML
-	TODO: tcDateTimeToInt = tcDateTimeToInt;
-	TODO: intToTCDateTime = intToTCDateTime;
+	DONE - tcDateTimeToInt = tcDateTimeToInt; - depricated
+	DONE - intToTCDateTime = intToTCDateTime- depricated
 	DONE - dateReplacer  - Depricated - for tcDateTime
 	DONE - dateReviver   - Depricated - for tcDateTime
 	TODO: now = now;
