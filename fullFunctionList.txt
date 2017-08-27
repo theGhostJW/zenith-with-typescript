@@ -160,14 +160,14 @@ TDate 					To Do			Done			Completion
 	DONE - loadTemplate = loadTemplate - DEPRICATE IN FAVOUR OF TEMPLATES AND TAGGED TEMPLATES
 	DONE - capFirst = capFirst - renamed upperFirst;
 	DONE - lowerFirst = lowerFirst;
-	TODO: padRight = padRight;
-	TODO: padLeft = padLeft;
+	DONE - padRight = padRight;  depricaated use padEnd
+	DONE - padLeft = padLeft; depricaated use padStart
 	DONE - repeatString = repeatString; use str.repeat(count);
 	DONE - upperCase = upperCase;
 	DONE - lowerCase = lowerCase;
-	DONE - lwrFirst = lwrFirst - Depricated duplicate;
-	TODO: stringToArray = stringToArray;
-	TODO: arrayToString = arrayToString;
+	DONE - lwrFirst = lwrFirst - Depricated duplicate;``
+	DONE - stringToArray = stringToArray;
+	DONE - arrayToString = arrayToString;
 	DONE - wildcardMatch;
 	TODO: csvToArray = csvToArray;
 	DONE - bigString = bigString - n/a DEPRICATE IN FAVOUR OF MULTI LINE STRINGS;

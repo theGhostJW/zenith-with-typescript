@@ -5,6 +5,9 @@ import { toTemp } from '../lib/FileUtils';
 import S from 'string'
 import * as _ from 'lodash'
 
+export const stringToArray = (str: string): Array<string> => str.split(newLine());
+export const arrayToString = (ar: Array<string>): string => ar.join(newLine());
+
 export function trim(str: string): string {
   return _.trim(str);
 }

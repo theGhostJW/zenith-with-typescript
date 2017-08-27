@@ -29,7 +29,9 @@ import {
   stringToGroupedTable,
   stringToTableMap,
   stringToGroupedTableMap,
-  capFirst
+  capFirst,
+  stringToArray,
+  arrayToString
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
@@ -44,6 +46,26 @@ type RecType = {
   outcome: string,
   'flip/repeat': boolean
 }
+
+describe('stringToArray / arrayToString', () => {
+
+  it('empty round trip', () => {
+    // have to suck this up
+    chkEq([''], stringToArray(arrayToString([])));
+  });
+
+  it('empty round trip ii', () => {
+    // have to suck this up
+    chkEq([''], stringToArray(arrayToString([''])));
+  });
+
+  it('non empty round trip ii', () => {
+    // have to suck this up
+    let src = ['a', 'b', 'c']
+    chkEq(src, stringToArray(arrayToString(src)));
+  });
+
+});
 
 describe('capFirst', () => {
 

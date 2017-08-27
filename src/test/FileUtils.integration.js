@@ -24,7 +24,7 @@ const PROJECT_PATH : string = 'C:\\ZWTF',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
 
-describe.only('fileLastModified', () => {
+describe('fileLastModified', () => {
 
   it('simple', () => {
     let time = now(),
