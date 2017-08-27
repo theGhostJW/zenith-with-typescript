@@ -4,6 +4,20 @@ import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn } from 
 import { toTemp } from '../lib/FileUtils';
 import S from 'string'
 import * as _ from 'lodash'
+import parseCsvSync from 'csv-parse/lib/sync'
+
+export const parseCsv = (text: string, options: {[string]: string | boolean} = DEFAULT_CSV_PARSE_OPTIONS, wantAutoType: boolean = true): Array<{[string]: string}> => {
+  let result = parseCsvSync(text, options);
+  return wantAutoType ? autoType(result) : result;
+}
+
+export const DEFAULT_CSV_PARSE_OPTIONS = {
+                                          comment: '#',
+                                          skip_empty_lines: true,
+                                          skip_lines_with_empty_values: true,
+                                          trim: true,
+                                          columns: true
+                                        };
 
 export const stringToArray = (str: string): Array<string> => str.split(newLine());
 export const arrayToString = (ar: Array<string>): string => ar.join(newLine());

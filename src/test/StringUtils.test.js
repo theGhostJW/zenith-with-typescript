@@ -31,7 +31,9 @@ import {
   stringToGroupedTableMap,
   capFirst,
   stringToArray,
-  arrayToString
+  arrayToString,
+  parseCsv,
+  DEFAULT_CSV_PARSE_OPTIONS
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
@@ -46,6 +48,43 @@ type RecType = {
   outcome: string,
   'flip/repeat': boolean
 }
+
+describe.only('parseCsv', () => {
+
+  const CSV =
+  ` todo,done,total,% done
+    231,57,288,19.8%
+    225,65,290,22.4%
+    209,74,283,26.1%
+    162,96,258,37.2%
+    161,97,258,37.6%
+    150,108,258,41.9%
+    141,115,256,44.9%
+    129,127,256,49.6%
+    123,133,256,52.0%
+    120,135,255,52.9%
+    116,139,255,54.5%
+    ,,0,#DIV/0!
+    `;
+
+  it('simple', () => {
+    let actual = parseCsv(CSV);
+    chkEq(12, actual.length);
+    chkEq('161', actual[4].todo);
+  });
+
+  it('check autotyped', () => {
+    let actual = parseCsv(CSV);
+    chkEq(0, actual[11].total);
+  });
+
+  it('autotyping off', () => {
+    let actual = parseCsv(CSV, DEFAULT_CSV_PARSE_OPTIONS, false);
+    chkEq('0', actual[11].total);
+  });
+
+
+});
 
 describe('stringToArray / arrayToString', () => {
 
