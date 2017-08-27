@@ -2,9 +2,39 @@
 
 import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn } from '../lib/SysUtils';
 import { toTemp } from '../lib/FileUtils';
-import S from 'string'
-import * as _ from 'lodash'
-import parseCsvSync from 'csv-parse/lib/sync'
+import S from 'string';
+import * as _ from 'lodash';
+import parseCsvSync from 'csv-parse/lib/sync';
+
+
+export function subStrBetween(haystack: string, startDelim: string, endDelim: string, trim: boolean = true): string {
+  let result = subStrAfter(haystack, startDelim);
+  result = subStrBefore(result, endDelim);
+  return trim ? result.trim() : result;
+}
+
+
+export function trimChars(str: string, arChars: Array<string>): string {
+  ensure(!arChars.includes(''), 'Empty string passed in to trimChars char array (param: arChars) - you cannot trim an empty string');
+
+  const inTrim = (char) => arChars.includes(char);
+
+  while (inTrim(str.substr(0, 1))){
+    str = str.substr(1);
+  }
+
+  let result = '',
+      trimFinished = false;
+
+  for (var counter = str.length - 1; counter > -1; counter--) {
+    var thisChar = str.charAt(counter);
+    if (trimFinished || !inTrim(thisChar)){
+      result = thisChar + result;
+      trimFinished = true;
+    }
+  }
+  return result;
+}
 
 export const parseCsv = (text: string, options: {[string]: string | boolean} = DEFAULT_CSV_PARSE_OPTIONS, wantAutoType: boolean = true): Array<{[string]: string}> => {
   let result = parseCsvSync(text, options);

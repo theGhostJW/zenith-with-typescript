@@ -33,7 +33,9 @@ import {
   stringToArray,
   arrayToString,
   parseCsv,
-  DEFAULT_CSV_PARSE_OPTIONS
+  DEFAULT_CSV_PARSE_OPTIONS,
+  trimChars,
+  subStrBetween
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
@@ -49,7 +51,69 @@ type RecType = {
   'flip/repeat': boolean
 }
 
-describe.only('parseCsv', () => {
+describe('substrBetween', () => {
+  const chkSubStr = (base: string, sDelim: string, eDelim: string, trim: boolean, expected: string) => chkEq(expected, subStrBetween(base, sDelim, eDelim, trim));
+  const chkSubStrDefDefault = (base: string, sDelim: string, eDelim: string, expected: string) => chkEq(expected, subStrBetween(base, sDelim, eDelim));
+
+  it('basic with trim default', () => {
+    chkSubStrDefDefault('automation is great fun', 'is', 'fun', 'great');
+  });
+
+  it('basic ii', () => {
+    chkSubStrDefDefault('[Hi]', '[', ']', 'Hi');
+  });
+
+  it('basic trim explicit', () => {
+    chkSubStr('[Hi' + newLine() + ']', '[', ']', true, 'Hi');
+  });
+
+  it('basic no trim ', () => {
+    chkSubStr('[Hi' + newLine() + ']', '[', ']', false, 'Hi' + newLine());
+  });
+
+  it('empty', () => {
+    chkSubStrDefDefault('[]', '[', ']', '');
+  });
+
+  it('missing trailing delim', () => {
+    chkSubStr('[Hi' + newLine(), '[', ']', false, '');
+  });
+
+  it('missing leading delim', () => {
+    chkSubStr('Hi' + newLine() + ']', '[', ']', false, '');
+  });
+
+  it('missing delims', () => {
+    chkSubStr('Hi' + newLine(), '[', ']', false, '');
+  });
+
+});
+
+describe('trimChars', () => {
+
+  it('basic array', () => {
+    let trimAr = ['a','b','}'],
+        target = 'aabcccdf}b',
+        actual = trimChars(target, trimAr);
+
+    chkEq('cccdf', actual);
+  });
+
+  it('throws exception on empty', () => {
+    chkExceptionText(() => trimChars('target', ['a', '']), 'Empty string passed in to trimChars char array');
+  });
+
+  it('empty trim chars array', () => {
+    let trimAr = [],
+        target = 'aabcccdf}b',
+        actual = trimChars(target, trimAr);
+
+    chkEq(target, actual);
+  });
+
+});
+
+describe('parseCsv', () => {
 
   const CSV =
   ` todo,done,total,% done

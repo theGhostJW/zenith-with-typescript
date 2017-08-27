@@ -11,6 +11,7 @@ TDate 					To Do			Done			Completion
 26-08-2017		123 		 	133 			52.0 %
 27-08-2017		120 		 	135 			52.9 %
 27-08-2017		116 		 	139 			54.5 %
+28-08-2017		107 		 	148 			58.0 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -169,17 +170,17 @@ TDate 					To Do			Done			Completion
 	DONE - stringToArray = stringToArray;
 	DONE - arrayToString = arrayToString;
 	DONE - wildcardMatch;
-	TODO: csvToArray = csvToArray;
+	DONE - csvToArray = csvToArray;
 	DONE - bigString = bigString - n/a DEPRICATE IN FAVOUR OF MULTI LINE STRINGS;
 	DONE - replace;
 	DONE - standardiseLineEndings = standardiseLineEndings;
 	N/A stringToTimeStampedLogFile = stringToTimeStampedLogFile;
 	DONE - createGuid = createGuid;
 	DONE - createGuidTruncated = createGuidTruncated;
-	DONE - trim = trim;
-	TODO: trimWhiteSpace = trimWhiteSpace;
-	TODO: lowerRemoveSpacesTrim = lowerRemoveSpacesTrim;
-	TODO: trimChars = trimChars;
+	DONE - trim = trim; -depricate - use string.trim()
+	DONE - trimWhiteSpace = -depricate - use string.trim()
+	DONE - lowerRemoveSpacesTrim = lowerRemoveSpacesTrim; - depricate
+	DONE - trimChars = trimChars;
 	DONE - startsWith;
 	DONE - endsWith;
 	DONE - appendDelim;
@@ -187,7 +188,7 @@ TDate 					To Do			Done			Completion
 	DONE - stringToFile = stringToFile; - moved to fileUtils
 	DONE - bisect = bisect;
 	DONE - subStrBefore = subStrBefore;
-	TODO: subStrBetween = subStrBetween;
+	DONE - subStrBetween = subStrBetween;
 	DONE - subStrAfter = subStrAfter;
 	DONE - fileToString = fileToString;
 	DONE - newLine = newLine;
