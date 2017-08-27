@@ -9,6 +9,7 @@ TDate 					To Do			Done			Completion
 20-08-2017		141				115				44.9 %
 26-08-2017		129				127				49.6 %
 26-08-2017		123 		 	133 			52.0 %
+27-08-2017		120 		 	135 			52.9 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -71,8 +72,8 @@ TDate 					To Do			Done			Completion
 	DONE - clearDirectoy = clearDirectoy;
 	DONE - toTemp = toTemp;
 	DONE -  toTempReadable = depricate - usning YAML;
-	TODO: zipAll = zipAll;
-	TODO: unzipAll = unzipAll;
+	DONE - zipAll = zipAll;
+	DONE - unzipAll = unzipAll;
 	DONE -  fromTemp = fromTemp;
 	DONE -  fileToObject = fileToObject;
 	DONE -  objectToFile = now objToFile;

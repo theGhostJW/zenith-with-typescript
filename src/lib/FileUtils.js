@@ -11,21 +11,58 @@ import {
   objToYaml,
   yamlToObj
 } from '../lib/SysUtils';
-import {newLine} from '../lib/StringUtils';
-import {logWarning, log} from '../lib/Logging';
-import {parse, join} from 'path';
+import {newLine, toString} from '../lib/StringUtils';
+import {logWarning, log, logError} from '../lib/Logging';
+import {parse, join, relative } from 'path';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
 import * as del from 'del';
 import * as fsEx from 'file-system';
 import * as _ from 'lodash';
+import nodeZip from 'node-zip';
 
 export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
 
 const TEMP_STR_FILES : {
   [string] : boolean
 } = {};
+
+export const relativePath = relative;
+
+export function zipAll(sourceDir: string, destPath: string, fileFilter: (fileName: string, filePath: string) => boolean = (p, s) => true ): string {
+
+ log(`zipping ${sourceDir} to ${destPath}`);
+
+ let zip = nodeZip();
+
+ function archiveFile(name, path) {
+   let relPath = relative(sourceDir, path);
+   zip.file(relPath, fs.readFileSync(path));
+ }
+
+ eachFile(sourceDir, archiveFile, fileFilter);
+
+ let data = zip.generate({base64:false, compression:'DEFLATE'});
+ fs.writeFileSync(destPath, data, 'binary');
+ return destPath;
+}
+
+
+export function unzipAll(zipFilePath: string, destDirectory: string){
+  var zip = nodeZip(fs.readFileSync(zipFilePath, 'binary'), {base64: false, checkCRC32: true});
+
+  const unZip = (fileInfo) => {
+    let fileName = fileInfo.name,
+        destPath = combine(destDirectory, fileName);
+    forceDirectory(parentDir(destPath));
+    fs.writeFileSync(destPath, fileInfo._data, 'binary');
+    log(`${fileName} unzipped to ${destPath}`);
+  }
+  _.each(zip.files, (val, idx, arr) => unZip(val));
+
+  return destDirectory;
+}
 
 const tmpStrPath = (fileName :?string = 'tempString', defaultExt : string) => {
   return defaultExtension(tempFile(def(fileName, 'tempString')), defaultExt);
@@ -252,8 +289,10 @@ export function clearDirectory(dir : string, dryRun : boolean = false) : Array <
   ], {dryRun: dryRun});
 }
 
-export function forceDirectory(path : string) : string {mkdirp.sync(path);
-  return path;}
+export function forceDirectory(path : string) : string {
+  mkdirp.sync(path);
+  return path;
+}
 
 export function defaultExtension(path : string, defExt : string) : string {
   let parts = parse(path);

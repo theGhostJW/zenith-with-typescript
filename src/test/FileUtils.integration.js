@@ -7,20 +7,73 @@ import {
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { debug, areEqual } from '../lib/SysUtils';
-import { createGuidTruncated, hasText } from '../lib/StringUtils';
 import type { LogAttributes } from '../lib/Logging';
 import type { FileFilterFunc, FileFilterGlobs  } from '../lib/FileUtils';
+import { createGuidTruncated, hasText } from '../lib/StringUtils';
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
          fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
          clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders,
-         fileToLines, linesToFile, stringToLogFile  } from '../lib/FileUtils';
+         fileToLines, linesToFile, stringToLogFile, zipAll, unzipAll, relativePath } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
+
+
+describe.only('zipAll / unzipAll', () => {
+
+  let dir = '',
+      childDir = '',
+      zipOut = '',
+      fileOne = '',
+      fileTwo = '',
+      destDir = '';
+
+  const FILE_ONE_CONTENT = 'fsdfsf',
+        FILE_TWO_CONTENT = 'dsffd';
+
+  const destPath = (srcpath) => combine(destDir, relativePath(dir, srcpath)),
+        decompressedFile1Path = () => destPath(fileOne),
+        decompressedFile2Path = () => destPath(fileTwo);
+
+  beforeEach(() => {
+    dir = forceDirectory(combine(tempFile(), createGuidTruncated(10)));
+    destDir = forceDirectory(combine(tempFile(), createGuidTruncated(10)));
+    childDir = forceDirectory(combine(dir, createGuidTruncated(10)));
+    fileOne = stringToFile(FILE_ONE_CONTENT, combine(dir, 'file.txt'));
+    fileTwo = stringToFile(FILE_TWO_CONTENT, combine(childDir, 'file.yaml'));
+    zipOut = tempFile('zipTest.zip');
+    deleteFile(zipOut);
+  });
+
+  it('basic round trip', () => {
+    let zipped = zipAll(dir, zipOut);
+    unzipAll(zipped, destDir);
+
+    chkEq(FILE_ONE_CONTENT, fileToString(decompressedFile1Path()));
+    chkEq(FILE_TWO_CONTENT, fileToString(decompressedFile2Path()));
+  });
+
+  it('basic round trip with filter', () => {
+    function hasYaml(name, path) {
+      return hasText(name, 'yaml');
+    }
+    let zipped = zipAll(dir, zipOut, hasYaml);
+    unzipAll(zipped, destDir);
+
+    chkFalse(pathExists(decompressedFile1Path()));
+    chkEq(FILE_TWO_CONTENT, fileToString(decompressedFile2Path()));
+  });
+
+  afterEach(() => {
+    deleteDirectory(dir);
+    deleteDirectory(destDir);
+  });
+
+});
 
 
 describe('fileToLines / fromLines', () => {
@@ -100,7 +153,7 @@ describe('eachPathNonRecursive', () => {
     stringToFile('Hello', txt2);
    });
 
-   beforeEach(function() {
+   beforeEach(() => {
      nameList = [];
    });
 
