@@ -3,7 +3,8 @@
 import {test, describe} from 'mocha'
 import {debug, areEqual} from '../lib/SysUtils';
 import {  testFormatter, nowAsLogFormat, nowFileFormatted,
-        LOG_FILE_MS_SEC_FORMAT, LOG_TO_SEC_FORMAT, now, today, date, time, datePlus, todayPlus } from '../lib/DateTimeUtils';
+        LOG_FILE_MS_SEC_FORMAT, LOG_TO_SEC_FORMAT, now, today, date, time, datePlus, todayPlus,
+        toMoment } from '../lib/DateTimeUtils';
 import { chk, chkEq, chkEqJson, chkFalse, chkHasText,
         chkWithMessage
       } from '../lib/AssertionUtils';
@@ -17,6 +18,17 @@ function jsToday() {
 function truncDate(jsDate) {
   return new Date(jsDate.getFullYear(), jsDate.getMonth(), jsDate.getDate());
 }
+
+describe('toMoment', () => {
+
+  it('simple', () => {
+    let jsDate = new Date(),
+        actual = toMoment(jsDate);
+
+    chkEq(jsDate, actual.toDate())
+  });
+
+});
 
 describe('todayPlus', () => {
 

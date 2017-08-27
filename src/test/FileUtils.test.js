@@ -4,7 +4,16 @@ import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug } from '../lib/SysUtils';
 import { combine, fileExtension, changeExtension, defaultExtension, fileOrFolderName, fileOrFolderNameNoExt,  parentDir,
-         tempFile} from '../lib/FileUtils';
+         tempFile, relativeToAbsolute} from '../lib/FileUtils';
+
+
+describe('relativeToAbsolute ', () => {
+  it('base dir set', () => {
+    let actual = relativeToAbsolute('..\\..\\file', 'C:\\dir\\dir2\\dir3\\filebase' );
+    chkEq('C:\\dir\\file', actual)
+  });
+
+});
 
 describe('parentDir', () => {
 

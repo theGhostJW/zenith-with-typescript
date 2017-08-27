@@ -8,3 +8,10 @@
 # Lodash
     1. use es6 where possible - start with - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
     1. different functions - https://github.com/lodash/lodash/wiki/Migrating
+
+
+# flow
+https://github.com/facebook/nuclide/issues/321
+zsol commented on Sep 17, 2016
+
+@subtleGradient this is probably because flow is either not on your path, or it's found multiple times. Try running where.exe flow in a cmd/powershell (.exe is important for the latter) and manually copy one of the paths into nuclide settings. I'm working on a PR to fix this

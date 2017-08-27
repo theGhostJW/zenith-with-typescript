@@ -23,6 +23,10 @@ export function nowFileFormatted(): string {
   return moment().format(LOG_FILE_MS_SEC_FORMAT);
 }
 
+export function toMoment(jsDateTime: Date): moment$Moment {
+  return moment(jsDateTime);
+}
+
 export function now(): moment$Moment {
   return moment();
 }

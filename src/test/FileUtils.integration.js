@@ -10,20 +10,73 @@ import { debug, areEqual } from '../lib/SysUtils';
 import type { LogAttributes } from '../lib/Logging';
 import type { FileFilterFunc, FileFilterGlobs  } from '../lib/FileUtils';
 import { createGuidTruncated, hasText } from '../lib/StringUtils';
+import { now } from '../lib/DateTimeUtils';
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
          runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
          fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
          clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders,
-         fileToLines, linesToFile, stringToLogFile, zipAll, unzipAll, relativePath } from '../lib/FileUtils';
+         fileToLines, linesToFile, stringToLogFile, zipAll, unzipAll, relativePath, copyFile, fileLastModified } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 
 
-describe.only('zipAll / unzipAll', () => {
+describe.only('fileLastModified', () => {
+
+  it('simple', () => {
+    let time = now(),
+        dir = forceDirectory(combine(tempFile(), createGuidTruncated(10))),
+        fileOne = stringToFile('dfhfjhds', combine(dir, 'file.txt')),
+        modTime = fileLastModified(fileOne);
+        // burn some millisecs
+        stringToFile('dfhfjhds', combine(dir, 'file.txt'));
+        let afterTime = now();
+
+    chk(time.isBefore(modTime));
+    chk(modTime.isBefore(afterTime));
+  });
+
+});
+
+describe('copyFile', () => {
+
+  let dir = '',
+      childDir = '',
+      zipOut = '',
+      fileOne = '',
+      fileTwoPath = '';
+
+  const FILE_ONE_CONTENT = 'fsdfsf';
+
+  beforeEach(() => {
+    dir = forceDirectory(combine(tempFile(), createGuidTruncated(10)));
+    childDir = forceDirectory(combine(dir, createGuidTruncated(10)));
+    fileOne = stringToFile(FILE_ONE_CONTENT, combine(dir, 'file.txt'));
+    fileTwoPath = combine(childDir, 'file.yaml');
+  });
+
+  it('no dest file', () => {
+    copyFile(fileOne, fileTwoPath);
+    chkEq(FILE_ONE_CONTENT, fileToString(fileTwoPath))
+  });
+
+  it('dest file overwrite', () => {
+    stringToFile('sdfsdfdsfdfdsfd', fileTwoPath);
+    copyFile(fileOne, fileTwoPath);
+    chkEq(FILE_ONE_CONTENT, fileToString(fileTwoPath))
+  });
+
+  afterEach(() => {
+    deleteDirectory(dir);
+  });
+
+});
+
+
+describe('zipAll / unzipAll', () => {
 
   let dir = '',
       childDir = '',

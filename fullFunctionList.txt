@@ -10,6 +10,7 @@ TDate 					To Do			Done			Completion
 26-08-2017		129				127				49.6 %
 26-08-2017		123 		 	133 			52.0 %
 27-08-2017		120 		 	135 			52.9 %
+27-08-2017		116 		 	139 			54.5 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -81,7 +82,7 @@ TDate 					To Do			Done			Completion
 	DONE -  fromTestData = fromTestData;
 	DONE - arrayToFile = arrayToFile; - renamed to linesToFile
 	DONE - fileToArray = fileToArray; - renamed to fileToLines
-	TODO: relativeToAbsolute = relativeToAbsolute;
+	DONE - relativeToAbsolute = relativeToAbsolute;
 	DONE - changeExtension = changeExtension;
 	DONE - nowLogSuffix = nowLogSuffix;
 	DEFER - browserdDownLoadFolder = browserdDownLoadFolder;
@@ -104,9 +105,9 @@ TDate 					To Do			Done			Completion
 	DEFER - copyToLogAddDateStamp = copyToLogAddDateStamp;
 	DEFER - clearBrowserDownloadsDirectory = clearBrowserDownloadsDirectory;
 	DONE - clearDirectory = clearDirectory;
-	TODO: exportToCSV = exportToCSV;
+	DONE - exportToCSV = exportToCSV; - depricated no longer using excel
 	DEFER: lastBrowserDownloadFile = lastBrowserDownloadFile;
-	TODO: copyFile = copyFile;
+	DONE - copyFile = copyFile;
 	DONE - copyTestFile = Depricated;
 	DONE - mockFile = mockFile;
 	DONE - testDataFile = testDataFile;
@@ -115,7 +116,7 @@ TDate 					To Do			Done			Completion
 	DONE - toTempString = toTempString;
 	DONE - stringToTestData = renamed testDataString ;
 	DONE - testDataFileLastModified = Depricatted;
-	TODO: fileLastModified = fileLastModified;
+	DONE - fileLastModified = fileLastModified;
 ===== ReflectionUtils =====
 /****** Exports *****/
   -- Depricated - better alternatives for utilities that use this

@@ -11,7 +11,7 @@ import {
   objToYaml,
   yamlToObj
 } from '../lib/SysUtils';
-import {newLine, toString} from '../lib/StringUtils';
+import {newLine, toString, replace} from '../lib/StringUtils';
 import {logWarning, log, logError} from '../lib/Logging';
 import {parse, join, relative } from 'path';
 import * as path from 'path';
@@ -21,12 +21,58 @@ import * as del from 'del';
 import * as fsEx from 'file-system';
 import * as _ from 'lodash';
 import nodeZip from 'node-zip';
+import { toMoment } from '../lib/DateTimeUtils'
 
 export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
 
 const TEMP_STR_FILES : {
   [string] : boolean
 } = {};
+
+
+
+export function fileLastModified(fullFilePath: string ): moment$Moment  {
+  ensure(pathExists(fullFilePath), 'Source file does not exist ${fullFilePath}');
+  let stats = fs.statSync(fullFilePath);
+  return toMoment(stats.mtime);
+}
+
+
+export const copyFile = (sourcePath: string, desPath: string): string => {
+  ensure(pathExists(sourcePath), 'Source file does not exist ${sourcePath}');
+  fs.writeFileSync(desPath, fs.readFileSync(sourcePath));
+  //fsEx.copySync(debug(sourcePath, 'source'), debug(desPath, 'dest'));
+  log(`${sourcePath} copied to ${desPath}`);
+  return desPath;
+//  fsEx.copySync(debug(sourcePath, 'source'), debug(desPath, 'dest'));
+//  return desPath;
+}
+
+/*\
+|*| Based on MDN function
+|*|  :: translate relative paths to absolute paths ::
+|*|
+|*|  https://developer.mozilla.org/en-US/docs/Web/API/document.cookie
+|*|
+|*|  The following code is released under the GNU Public License, version 3 or later.
+|*|  http://www.gnu.org/licenses/gpl-3.0-standalone.html
+|*|
+\*/
+export function relativeToAbsolute (relativePath: string, basePath: string): string {
+  let nUpLn, sDir = "",
+      sPath = basePath;
+
+  sPath = replace(sPath, path.sep, '/');
+  relativePath = replace(relativePath, path.sep, '/');
+
+  sPath = sPath.replace(/[^\/]*$/, relativePath.replace(/(\/|^)(?:\.?\/+)+/g, "$1"));
+
+  for (var nEnd, nStart = 0; nEnd = sPath.indexOf("/../", nStart), nEnd > -1; nStart = nEnd + nUpLn) {
+    nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))[0].length;
+    sDir = (sDir + sPath.substring(nStart, nEnd)).replace(new RegExp("(?:\\\/+[^\\\/]*){0," + ((nUpLn - 1) / 3) + "}$"), "/");
+  }
+  return replace(sDir + sPath.substr(nStart), '/', path.sep) ;
+}
 
 export const relativePath = relative;
 
@@ -279,6 +325,9 @@ export function fromTemp < T > (fileName : string, wantWarning : boolean = true)
 }
 
 export function deleteDirectory(dir : string, dryRun : boolean = false) : Array < string > {
+  if (!dryRun){
+    log(`Deleting directory: ${dir}`);
+  }
   return del.sync([combine(dir, '**')], {dryRun: dryRun});
 }
 
