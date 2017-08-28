@@ -2,8 +2,40 @@
 
 import * as _ from 'lodash';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText} from '../lib/StringUtils';
+import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
+
+export const hostName = () => os.hostname();
+
+export function setParts<T>(arLeftSet: Array<T>, arRightSet: Array<T>): [Array<T>, Array<T>, Array<T>] {
+
+  function intersect(ar1, ar2){
+    var inIntersection = [],
+        uniqueToFirst = [];
+
+    function isInar2(item){
+      function equalsTarg(ar2Item){
+        return areEqual(ar2Item, item);
+      }
+      return _.find(ar2, equalsTarg)
+    }
+
+    function clasify(ar1Item){
+      var pushTo = isInar2(ar1Item) ? inIntersection : uniqueToFirst;
+      pushTo.push(ar1Item);
+    }
+
+    _.each(ar1, clasify);
+    return [uniqueToFirst, inIntersection];
+  }
+
+  var leftCommon = intersect(arLeftSet, arRightSet),
+      rightCommon = intersect(arRightSet, arLeftSet);
+
+
+  return [leftCommon[0], leftCommon[1], rightCommon[0]];
+}
 
 
 export function forceArray(...args: Array<any>): Array<any> {

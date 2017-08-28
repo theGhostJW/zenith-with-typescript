@@ -30,12 +30,38 @@ import {
   yamlToObj,
   objToYaml,
   forceArray,
-  autoType
+  autoType,
+  setParts,
+  hostName
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
+
+describe.only('hostName', () => {
+
+  it('does not blow up returns a string', () => {
+    let actual = hostName();
+    debug(actual);
+    chkEq('string', typeof actual);
+  });
+
+});
+
+describe.only('setparts', () => {
+
+  it('numbers', () => {
+    let expected = setParts([1,2,3,4], [2,4,6,8]);
+    chkEq([[1, 3], [2, 4], [6, 8]], expected);
+  });
+
+  it('strings', () => {
+    let expected = setParts(['one','two','three','four'], ['two','four','six','eight']);
+    chkEq([['one','three'], ['two','four'], ['six','eight']], expected);
+  });
+
+});
 
 describe('autoType', () => {
 

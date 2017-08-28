@@ -198,8 +198,8 @@ TDate 					To Do			Done			Completion
 /****** Exports *****/
 	DONE -  ARRAY_QUERY_ITEM_LABEL - Depricated;
 	DONE - fillArray;
-	TODO: setParts = setParts;
-	TODO: hostNameIs = hostNameIs;
+	DONE - setParts = setParts;
+	DONE - hostNameIs = hostNameIs;
 	TODO: flattenObj = flattenObj;
 	TODO: valueTracker = valueTracker;
 	DONE - reorderProps;
