@@ -12,7 +12,7 @@ export function flattenObj(obj: {[string|number]: any}, allowDuplicateKeyOverwri
   var result: {[string|number]: any} = {}
   function flattenKey(val: any, path: string): void {
     let lastDot = path.lastIndexOf('.'),
-         key = path.slice(lastDot);
+         key = lastDot == -1 ? path : path.slice(lastDot + 1);
     ensure(allowDuplicateKeyOverwrites || !hasValue(result[key]), 'the key: ' + key + ' would appear more than once in the flattened object');
     result[key] = val;
   }

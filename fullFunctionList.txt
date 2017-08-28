@@ -200,7 +200,7 @@ TDate 					To Do			Done			Completion
 	DONE - fillArray;
 	DONE - setParts = setParts;
 	DONE - hostNameIs = hostNameIs;
-	TODO: flattenObj = flattenObj;
+	DONE - flattenObj = flattenObj;
 	TODO: valueTracker = valueTracker;
 	DONE - reorderProps;
 	DONE - seekInObj;

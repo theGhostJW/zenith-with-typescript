@@ -49,85 +49,57 @@ describe.only('flattenObj', () => {
     chkEq(targ, actual);
   });
 
-  // function flattenObjEndPoint() {
 
-  //
-  //   /* === simple object return itself === */
-  //
-  //
-  //
-  //
-  //   /* === nested object should return simple values === */
-  //   targ = {
-  //           a: 'hi',
-  //           b: {
-  //             c: 'there',
-  //             d: 1,
-  //             e: {
-  //                 f: 2,
-  //                 g: null
-  //             }
-  //           }
-  //   };
-  //   result = flattenObj(targ);
-  //
-  //   checkEqual(
-  //               {
-  //                 a: 'hi',
-  //                 c: 'there',
-  //                 d: 1,
-  //                 f: 2,
-  //                 g: null
-  //               }, result);
-  //
-  //
-  //   /* === deeply nested values should override shallow values where allowDuplicateKeyOverwrites - true  === */
-  //   targ = {
-  //           a: 'hi',
-  //           b: {
-  //             c: 'there',
-  //             d: 1,
-  //             e: {
-  //                 f: 2,
-  //                 g: null,
-  //                 d: 2,
-  //                 a: 'ehi'
-  //             }
-  //           }
-  //   };
-  //   result = flattenObj(targ, true);
-  //
-  //   checkEqual(
-  //               {
-  //                 a: 'ehi',
-  //                 c: 'there',
-  //                 d: 2,
-  //                 f: 2,
-  //                 g: null
-  //               }, result);
-  //
-  //    /* === deeply nested duplicate keys should cause exception where allowDuplicateKeyOverwrites - false (the default)  === */
-  //   expectDefect('Defect expected');
-  //   targ = {
-  //           a: 'hi',
-  //           b: {
-  //             c: 'there',
-  //             d: 1,
-  //             e: {
-  //                 f: 2,
-  //                 g: null,
-  //                 d: 2,
-  //                 a: 'ehi'
-  //             }
-  //           }
-  //   };
-  //   result = flattenObj(targ);
-  //
-  //
-  // }
 
-  it('', () => {
+  it('nested returns simple values', () => {
+    let targ = {
+                a: 'hi',
+                b: {
+                  c: 'there',
+                  d: 1,
+                  e: {
+                      f: 2,
+                      g: null
+                  }
+                }
+     };
+     const EXPECTED = {
+                       a: 'hi',
+                       c: 'there',
+                       d: 1,
+                       f: 2,
+                       g: null
+                     };
+    chkEq(EXPECTED, flattenObj(targ));
+  });
 
+  const NESTED = {
+          a: 'hi',
+          b: {
+            c: 'there',
+            d: 1,
+            e: {
+                f: 2,
+                g: null,
+                d: 2,
+                a: 'ehi'
+            }
+          }
+  };
+
+  it('deeply nested values should override shallow values where allowDuplicateKeyOverwrites', () => {
+    const EXPECTED = {
+      a: 'ehi',
+      c: 'there',
+      d: 2,
+      f: 2,
+      g: null
+    }
+    chkEq(EXPECTED, flattenObj(NESTED, true));
+  });
+
+  it('deeply nested values should throw exception when allowDuplicateKeyOverwrites is false', () => {
+    chkExceptionText(() => flattenObj(NESTED), 'the key: d would appear more than once in the flattened object');
   });
 
 });
