@@ -192,7 +192,7 @@ TDate 					To Do			Done			Completion
 	DONE - subStrAfter = subStrAfter;
 	DONE - fileToString = fileToString;
 	DONE - newLine = newLine;
-	TODO: sameText = sameText;
+	DONE - sameText = sameText;
 
 ===== SysUtils =====
 /****** Exports *****/

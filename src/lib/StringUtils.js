@@ -1,18 +1,21 @@
 // @flow
 
-import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn } from '../lib/SysUtils';
+import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn, areEqual } from '../lib/SysUtils';
 import { toTemp } from '../lib/FileUtils';
 import S from 'string';
 import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
 
 
+export function sameText(str1: string, str2: string, caseSensitive: boolean = false) {
+  return caseSensitive ? areEqual(str1, str2) : areEqual(str1.toLowerCase(), str2.toLowerCase());
+}
+
 export function subStrBetween(haystack: string, startDelim: string, endDelim: string, trim: boolean = true): string {
   let result = subStrAfter(haystack, startDelim);
   result = subStrBefore(result, endDelim);
   return trim ? result.trim() : result;
 }
-
 
 export function trimChars(str: string, arChars: Array<string>): string {
   ensure(!arChars.includes(''), 'Empty string passed in to trimChars char array (param: arChars) - you cannot trim an empty string');

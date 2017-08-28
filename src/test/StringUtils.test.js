@@ -35,7 +35,8 @@ import {
   parseCsv,
   DEFAULT_CSV_PARSE_OPTIONS,
   trimChars,
-  subStrBetween
+  subStrBetween,
+  sameText
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
@@ -50,6 +51,22 @@ type RecType = {
   outcome: string,
   'flip/repeat': boolean
 }
+
+describe.only('sameText', () => {
+
+  it('empty', () => {
+    chk(sameText('', ''))
+  });
+
+  it('case insensitive', () => {
+    chk(sameText('aaa', 'AAa'))
+  });
+
+  it('case sensitive', () => {
+    chkFalse(sameText('aaa', 'AAa', true))
+  });
+
+});
 
 describe('substrBetween', () => {
   const chkSubStr = (base: string, sDelim: string, eDelim: string, trim: boolean, expected: string) => chkEq(expected, subStrBetween(base, sDelim, eDelim, trim));
