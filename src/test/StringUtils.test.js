@@ -52,7 +52,7 @@ type RecType = {
   'flip/repeat': boolean
 }
 
-describe.only('sameText', () => {
+describe('sameText', () => {
 
   it('empty', () => {
     chk(sameText('', ''))

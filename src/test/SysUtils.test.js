@@ -32,14 +32,107 @@ import {
   forceArray,
   autoType,
   setParts,
-  hostName
+  hostName,
+  flattenObj
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
-describe.only('hostName', () => {
+
+describe.only('flattenObj', () => {
+
+  it('simple obj should return itself', () => {
+    let targ = {a: 'hi'},
+        actual = flattenObj(targ);
+    chkEq(targ, actual);
+  });
+
+  // function flattenObjEndPoint() {
+
+  //
+  //   /* === simple object return itself === */
+  //
+  //
+  //
+  //
+  //   /* === nested object should return simple values === */
+  //   targ = {
+  //           a: 'hi',
+  //           b: {
+  //             c: 'there',
+  //             d: 1,
+  //             e: {
+  //                 f: 2,
+  //                 g: null
+  //             }
+  //           }
+  //   };
+  //   result = flattenObj(targ);
+  //
+  //   checkEqual(
+  //               {
+  //                 a: 'hi',
+  //                 c: 'there',
+  //                 d: 1,
+  //                 f: 2,
+  //                 g: null
+  //               }, result);
+  //
+  //
+  //   /* === deeply nested values should override shallow values where allowDuplicateKeyOverwrites - true  === */
+  //   targ = {
+  //           a: 'hi',
+  //           b: {
+  //             c: 'there',
+  //             d: 1,
+  //             e: {
+  //                 f: 2,
+  //                 g: null,
+  //                 d: 2,
+  //                 a: 'ehi'
+  //             }
+  //           }
+  //   };
+  //   result = flattenObj(targ, true);
+  //
+  //   checkEqual(
+  //               {
+  //                 a: 'ehi',
+  //                 c: 'there',
+  //                 d: 2,
+  //                 f: 2,
+  //                 g: null
+  //               }, result);
+  //
+  //    /* === deeply nested duplicate keys should cause exception where allowDuplicateKeyOverwrites - false (the default)  === */
+  //   expectDefect('Defect expected');
+  //   targ = {
+  //           a: 'hi',
+  //           b: {
+  //             c: 'there',
+  //             d: 1,
+  //             e: {
+  //                 f: 2,
+  //                 g: null,
+  //                 d: 2,
+  //                 a: 'ehi'
+  //             }
+  //           }
+  //   };
+  //   result = flattenObj(targ);
+  //
+  //
+  // }
+
+  it('', () => {
+
+  });
+
+});
+
+describe('hostName', () => {
 
   it('does not blow up returns a string', () => {
     let actual = hostName();
@@ -49,7 +142,7 @@ describe.only('hostName', () => {
 
 });
 
-describe.only('setparts', () => {
+describe('setparts', () => {
 
   it('numbers', () => {
     let expected = setParts([1,2,3,4], [2,4,6,8]);

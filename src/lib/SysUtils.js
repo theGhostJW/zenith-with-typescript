@@ -1,10 +1,24 @@
 // @flow
 
 import * as _ from 'lodash';
+import * as deep from 'lodash-deep';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText} from '../lib/StringUtils';
 import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
+
+export function flattenObj(obj: {[string|number]: any}, allowDuplicateKeyOverwrites: boolean = false): {[string|number]: any} {
+
+  var result: {[string|number]: any} = {}
+  function flattenKey(val: any, path: string): void {
+    let lastDot = path.lastIndexOf('.'),
+         key = path.slice(lastDot);
+    ensure(allowDuplicateKeyOverwrites || !hasValue(result[key]), 'the key: ' + key + ' would appear more than once in the flattened object');
+    result[key] = val;
+  }
+  deep.deepMapValues(obj, flattenKey);
+  return result;
+}
 
 export const hostName = () => os.hostname();
 
