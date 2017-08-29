@@ -34,15 +34,55 @@ import {
   setParts,
   hostName,
   flattenObj,
-  valueTracker
+  valueTracker,
+  deepReduceValues
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 
+describe('deepReduceValues', () => {
 
-describe.only('valueTracker', () => {
+  it('nested obj', () => {
+    let obj = {
+        name: 'Che',
+        last: 'Guevara',
+        dob: '14-06-1928',
+            children: {
+              aleida: {
+                        dob: 'November 24, 1960',
+                        residence: 'Havana, Cuba'
+                      },
+              ernesto: {
+                        dob: '1965'
+                       }
+            }
+      };
+
+    function addProp(accum, value, address){
+      accum[address] = value;
+      return accum;
+    };
+
+    let actual = deepReduceValues(obj, addProp, {});
+
+    const EXPECTED = {
+                    name: 'Che',
+                    last: 'Guevara',
+                    dob: '14-06-1928',
+                    'children.aleida.dob': 'November 24, 1960',
+                    'children.aleida.residence': 'Havana, Cuba',
+                    'children.ernesto.dob': '1965'
+                  };
+
+    chkEq(EXPECTED, actual);
+  });
+
+});
+
+
+describe('valueTracker', () => {
 
   let idStr = (s: string) : string => s;
 

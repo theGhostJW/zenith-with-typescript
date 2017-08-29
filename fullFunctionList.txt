@@ -211,8 +211,8 @@ TDate 					To Do			Done			Completion
 	DONE - cloneDeep; - depricate in favour of _.cloneDeep
 	DONE - depricate -  arrayDefs = arrayDefs - use case too complex usee _defaultDeep
   DONE - depricate - mapObjectRecursive = mapObjectRecursive - depricated in favour of deepMapValues
-	TODO: reduceObjectRecursive = reduceObjectRecursive;
-	TODO: eachObjectRecursive = eachObjectRecursive;
+	DONE - reduceObjectRecursive = reduceObjectRecursive - renamed - deepReduceValues ;
+	DONE - eachObjectRecursive = eachObjectRecursive - dEPROCATE JUST USE deepMapValues
 	TODO: logLink = logLink;
 	N/A:  TEST_SUMMARY_PREFIX = TEST_SUMMARY_PREFIX;
 	N/A:  ABORT_ITERATION_TOKEN = ABORT_ITERATION_TOKEN;

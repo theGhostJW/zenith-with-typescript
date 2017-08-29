@@ -35,6 +35,19 @@ export function valueTracker<T>(mapName: string, generatorFunction: (...args: an
          };
 }
 
+export const deepMapValues = deep.deepMapValues;
+
+export function deepReduceValues<T>(obj: {[string|number]: any}, func: (accum: T, val: any, propertyPath: string, baseObj: {[string|number]: any}) => T, accum: T): T{
+  // func(accum, value, propertyPath, baseObj)
+  let thisAccum = accum;
+  function executeFunc(value, propertyPath){
+    thisAccum = func(thisAccum, value, propertyPath, obj);
+  }
+
+  deepMapValues(obj, executeFunc);
+  return thisAccum;
+}
+
 export function flattenObj(obj: {[string|number]: any}, allowDuplicateKeyOverwrites: boolean = false): {[string|number]: any} {
 
   var result: {[string|number]: any} = {}
@@ -44,7 +57,7 @@ export function flattenObj(obj: {[string|number]: any}, allowDuplicateKeyOverwri
     ensure(allowDuplicateKeyOverwrites || !hasValue(result[key]), 'the key: ' + key + ' would appear more than once in the flattened object');
     result[key] = val;
   }
-  deep.deepMapValues(obj, flattenKey);
+  deepMapValues(obj, flattenKey);
   return result;
 }
 
