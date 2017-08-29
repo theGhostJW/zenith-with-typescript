@@ -2,10 +2,16 @@
 
 import * as _ from 'lodash';
 import * as deep from 'lodash-deep';
-import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText} from '../lib/StringUtils';
+import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
+      subStrBetween} from '../lib/StringUtils';
 import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
+
+export function functionNameFromFunction(func: mixed) : string {
+  var str = toString(func);
+  return subStrBetween(str, 'function', '(').trim();
+}
 
 export function valueTracker<T>(mapName: string, generatorFunction: (...args: any) => T){
   let hashMap : {[string]: T} = {};

@@ -35,12 +35,25 @@ import {
   hostName,
   flattenObj,
   valueTracker,
-  deepReduceValues
+  deepReduceValues,
+  functionNameFromFunction
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
+
+describe('functionNameFromFunction', () => {
+
+  it('named', () => {
+    chkEq('funcName', functionNameFromFunction(function funcName() {}))
+  });
+
+  it('anonymous function should return empty string', () => {
+    chkEq('', functionNameFromFunction(() => {}))
+  });
+
+});
 
 describe('deepReduceValues', () => {
 

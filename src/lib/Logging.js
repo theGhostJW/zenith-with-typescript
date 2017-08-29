@@ -28,9 +28,19 @@ type StrictLogAttributes = {
 export const log : LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.log(message, additionalInfo, attr);
 export const logWarning : LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.logWarning(message, additionalInfo, attr);
 export const logError: LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.logError(message, additionalInfo, attr);
+export const logLink = (message: string, link: string, additionalInfo: ?string, attrs: ?LogAttributes) => {
+  attrs = attrs == null ? {} : attrs;
+  attrs.link = link;
+  globaLoggingFunctions.log(message + ': ' + link, additionalInfo, attrs);
+}
+
+export const notImplementedWarning = (str: ?string) => logWarning(str == null ? 'NOT IMPLEMENTED' : 'NOT IMPLEMENTED: ' + str);
 
 const specialMessage = (subType: LogSubType): LogFunction => specialLog(subType, log);
 const specialError = (subType: LogSubType): LogFunction => specialLog(subType, logError);
+
+export const pushLogFolder = (folderLabel: string) => specialMessage('PushFolder')(folderLabel);
+export const popLogFolder = () => specialMessage('PushFolder')('Pop Folder');
 
 const BLUE : Color = new Color('#00008B');
 const WHITE  : Color = Color('#FFFFFF');
@@ -53,7 +63,9 @@ export type LogSubType = "Message" |
                           "StartDefect" |
                           "EndDefect" |
                           "CheckPass" |
-                          "CheckFail";
+                          "CheckFail" |
+                          "PushFolder" |
+                          "PopFolder";
 
 function specialLog(subType: LogSubType, baseFunction: LogFunction): LogFunction {
   return function logSpecial(message: string, additionalInfo: ?string, attr: ?LogAttributes) {
