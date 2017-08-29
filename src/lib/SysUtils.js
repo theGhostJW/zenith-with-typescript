@@ -7,6 +7,34 @@ import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
 
+export function valueTracker<T>(mapName: string, generatorFunction: (...args: any) => T){
+  let hashMap : {[string]: T} = {};
+
+  function newVal(key: string, ...args: any): T {
+    ensure(isUndefined(hashMap[key]), 'Name for key: ' + key + ' already created in ' + mapName);
+    var result = generatorFunction(...args);
+    hashMap[key] = result;
+    return result;
+  }
+
+  function getVal(key: string): T{
+    var result = hashMap[key];
+    ensure(hasValue(result), 'No instance of value for key: ' + key + ' in ' + mapName);
+    return result;
+  }
+
+  function getOrNew(key: string, ...args: Array<any>): T {
+    var result = hashMap[key];
+    return isUndefined(result) ? newVal(key, ...args) : result;
+  }
+
+  return {
+          getVal: getVal,
+          newVal: newVal,
+          getOrNew: getOrNew
+         };
+}
+
 export function flattenObj(obj: {[string|number]: any}, allowDuplicateKeyOverwrites: boolean = false): {[string|number]: any} {
 
   var result: {[string|number]: any} = {}
@@ -493,10 +521,6 @@ export function setInObj4(target : {}, specifier : MixedSpecifier, specifier1 : 
   return setInObjnPrivate(false, target, [specifier, specifier1, specifier2, specifier3], value);
 }
 
-// export function cast<T>(val: any){
-//   return ((val : any): T);
-// }
-
 function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : Array <MixedSpecifier>, value: mixed) : {} {
 
   let [spec, ...otherSpecs] = specifiers,
@@ -524,10 +548,6 @@ export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...oth
   let result = seekInObjNoCheckWithInfo(target, specifier, ...otherSpecifiers);
   return result == null ? undefined : result.value;
 }
-
-// export function seekManyInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array <mixed> {
-//   return getResultValues((seekManyInObjWithInfo(target, specifier, ...otherSpecifiers)));
-// }
 
 export const seekManyInObj = _.flowRight(getResultValues, seekManyInObjWithInfo);
 

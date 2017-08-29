@@ -201,15 +201,15 @@ TDate 					To Do			Done			Completion
 	DONE - setParts = setParts;
 	DONE - hostNameIs = hostNameIs;
 	DONE - flattenObj = flattenObj;
-	TODO: valueTracker = valueTracker;
+	DONE - valueTracker = valueTracker;
 	DONE - reorderProps;
 	DONE - seekInObj;
 	DONE - seekAllInObj;
 	DONE - setInObj = setInObj;
 	DONE - defaultDeep; - depricate in favour of _.defaultsDeep
 	DONE - cloneDeep; - depricate in favour of _.cloneDeep
-	TODO: arrayDefs = arrayDefs;
-	TODO: mapObjectRecursive = mapObjectRecursive;
+	DONE - depricate -  arrayDefs = arrayDefs - use case too complex usee _defaultDeep
+  DONE - depricate - mapObjectRecursive = mapObjectRecursive - depricated in favour of deepMapValues
 	TODO: reduceObjectRecursive = reduceObjectRecursive;
 	TODO: eachObjectRecursive = eachObjectRecursive;
 	TODO: logLink = logLink;

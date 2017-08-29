@@ -33,7 +33,8 @@ import {
   autoType,
   setParts,
   hostName,
-  flattenObj
+  flattenObj,
+  valueTracker
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
@@ -41,15 +42,49 @@ import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from 
 import * as _ from 'lodash';
 
 
-describe.only('flattenObj', () => {
+describe.only('valueTracker', () => {
+
+  let idStr = (s: string) : string => s;
+
+  it('simple set', () => {
+    let testTracker = valueTracker('strTracker', idStr);
+    chkEq('val1', testTracker.newVal('v1', 'val1'));
+  });
+
+  it('simple set / get', () => {
+    let testTracker = valueTracker('strTracker', idStr);
+    testTracker.newVal('v1', 'val1');
+    testTracker.newVal('v2', 'val2');
+    chkEq('val2', testTracker.getVal('v2'));
+  });
+
+  it('key not found error', () => {
+    let testTracker = valueTracker('strTracker', idStr);
+    testTracker.newVal('v1', 'val1');
+    chkExceptionText(() => testTracker.getVal('v2'), 'No instance of value for key: v2 in strTracker');
+  });
+
+  it('set key twice error', () => {
+    let testTracker = valueTracker('strTracker', idStr);
+    testTracker.newVal('v1', 'val1');
+    chkExceptionText(() => testTracker.newVal('v1', 'val1'), 'Name for key: v1 already created in strTracker');
+  });
+
+  it('getOrNew * 2', () => {
+    let testTracker = valueTracker('strTracker', idStr);
+    chkEq(testTracker.getOrNew('v1', 'val1'), 'val1');
+    chkEq(testTracker.getOrNew('v1', 'val2'), 'val1');
+  });
+
+});
+
+describe('flattenObj', () => {
 
   it('simple obj should return itself', () => {
     let targ = {a: 'hi'},
         actual = flattenObj(targ);
     chkEq(targ, actual);
   });
-
-
 
   it('nested returns simple values', () => {
     let targ = {
