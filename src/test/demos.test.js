@@ -1,7 +1,34 @@
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug } from '../lib/SysUtils';
+import child_process from 'child_process'
 
+
+describe.only('spawn', () => {
+
+  it('child_process', () => {
+
+  // let child = child_process.spwn('"C:\\Program Files\\Notepad++\\notepad++.exe"'); - does not work
+  let child = child_process.exec('"C:\\Program Files\\Notepad++\\notepad++.exe"');
+
+
+    child.stdout.on( 'data', data => {
+       console.log(`${data}`);
+    });
+
+
+    child.stderr.on( 'data', data => {
+       console.log( `${data}` );
+    });
+
+    child.on('exit', function (code, signal) {
+      console.log('child process exited with ' +
+               `code ${code} and signal ${signal}`);
+   });
+  });
+
+
+});
 
 describe('process', () => {
 
