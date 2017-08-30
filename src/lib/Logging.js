@@ -10,19 +10,19 @@ import { nowAsLogFormat, nowFileFormatted } from '../lib/DateTimeUtils';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export type LogAttributes = { [string]: any };
+export type FullLogAttributes = {
+                              additionalInfo: ?string,
+                              subType: LogSubType,
+                              link: ?string,
+                              callstack: any
+                            };
+
+export type LogAttributes = $Supertype<FullLogAttributes>
 
 function defAttributes(): LogAttributes {
-  return {};
-}
-
-type StrictLogAttributes = {
-  backColor: Color,
-  bold: boolean,
-  fontColor: Color,
-  italic: boolean,
-  strikeOut: boolean,
-  underline: boolean
+  return {
+    subType: 'Message'
+  };
 }
 
 export const log : LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.log(message, additionalInfo, attr);

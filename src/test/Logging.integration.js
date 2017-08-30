@@ -4,7 +4,7 @@ import {it, describe} from 'mocha'
 import { debug } from '../lib/SysUtils';
 import { log, logWarning, logError, logLink, pushLogFolder, popLogFolder, notImplementedWarning } from '../lib/Logging';
 
-describe.only('winston log', () => {
+describe('winston log', () => {
 
   it('error', () => {
     logError('Something bad happenned', 'Heres some info - error');
@@ -13,7 +13,7 @@ describe.only('winston log', () => {
   it('message', () => {
     log('Something happenned', 'Heres some info - info');
   });
-  
+
 
   it('warning', () => {
     logWarning('Something not so bad happenned', 'Heres some info - Warning');
@@ -36,5 +36,6 @@ describe.only('winston log', () => {
   it('not implemented with message', () => {
     notImplementedWarning('a meesage');
   });
+  
 
 });

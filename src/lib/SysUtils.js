@@ -8,6 +8,27 @@ import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
 
+// export function executeFile(filePath: string, params: string = '', waitTillTerminated: boolean = true){
+//   params = def(params, "");
+//   waitTillTerminated = def(waitTillTerminated, true);
+//
+//   var wscript = Sys.OleObject("WScript.Shell");
+//   var target = filePath + ' ' + params;
+//   log('Executing file: ' + target);
+//   var exe = wscript.Exec(target);
+//
+//   if (waitTillTerminated)
+//   {
+//     while (exe.Status === 0)
+//     {
+//       delay(1000, "Waiting for " + filePath & " to finish")
+//     }
+//   }
+//
+//   return exe;
+// }
+
+
 export function functionNameFromFunction(func: mixed) : string {
   var str = toString(func);
   return subStrBetween(str, 'function', '(').trim();
