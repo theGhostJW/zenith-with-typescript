@@ -2,15 +2,38 @@ import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug } from '../lib/SysUtils';
 import child_process from 'child_process'
+import ps_node from 'ps-node'
 
 
 describe.only('spawn', () => {
 
-  it('child_process', () => {
+  it('list processes', () => {
+    ps_node.lookup({
+    command: 'atom.'
+    }, function(err, resultList ) {
+    if (err) {
+        throw new Error( err );
+    }
+
+
+    resultList.forEach(function( process ){
+        if( process ){
+
+            console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
+        }
+    });
+});
+
+  });
+
+
+  it.skip('child_process', () => {
 
   // let child = child_process.spwn('"C:\\Program Files\\Notepad++\\notepad++.exe"'); - does not work
-  let child = child_process.exec('"C:\\Program Files\\Notepad++\\notepad++.exe"');
+  // let child = child_process.execFile('"C:\\Program Files\\Notepad++\\notepad++.exe"');  - does not work
 
+//  let child = child_process.exec('"C:\\Program Files\\Notepad++\\notepad++.exe"'); - works
+//  let child = child_process.execSync('"C:\\Program Files\\Notepad++\\notepad++.exe"'); - works waits
 
     child.stdout.on( 'data', data => {
        console.log(`${data}`);
