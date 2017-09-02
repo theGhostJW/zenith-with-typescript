@@ -9,26 +9,9 @@ import * as yaml from 'js-yaml';
 import moment from 'moment';
 import child_process from 'child_process';
 import { now } from '../lib/DateTimeUtils';
+import { log } from '../lib/Logging';
+import { runTimeFile, pathExists } from '../lib/FileUtils';
 
-// export function executeFile(filePath: string, params: string = '', waitTillTerminated: boolean = true){
-//   params = def(params, "");
-//   waitTillTerminated = def(waitTillTerminated, true);
-//
-//   var wscript = Sys.OleObject("WScript.Shell");
-//   var target = filePath + ' ' + params;
-//   log('Executing file: ' + target);
-//   var exe = wscript.Exec(target);
-//
-//   if (waitTillTerminated)
-//   {
-//     while (exe.Status === 0)
-//     {
-//       delay(1000, "Waiting for " + filePath & " to finish")
-//     }
-//   }
-//
-//   return exe;
-// }
 
 export type TaskListItem = {
   imageName: string,
@@ -38,36 +21,59 @@ export type TaskListItem = {
   memUsage: number
 }
 
-// export function killTask(): Array<TaskListItem> {
-//   let taskList = child_process.execSync('tasklist', {timeout: 30000}).toString();
-//   return _parseTaskList(taskList);
-// }
-//
-//
-
-function delay(ms) {
-  waitRetry(() => false,  ms,  () => {}, 0);
+// may need more work split asynch and handle stdIn / out and error
+export function executeFile(path: string, async: boolean = true) {
+  if (async) {
+    log(`executing ${path} async`);
+    child_process.exec(path);
+  } else {
+    log(`executing ${path} synch`);
+    child_process.execSync(path);
+  }
 }
 
-export function waitRetry(isCompleteFunction: () => boolean,  /* optional */ timeoutMs: number = 10000,  retryFuction: () => void = () => {},  retryPauseMs: number = 0){
-  //Super param KungFu
+export function executeRunTimeFile(fileNameNoPath: string, async: boolean = true) {
+  let target = runTimeFile(fileNameNoPath);
+  ensure(pathExists(target), 'file does not exist: ' + target);
+  executeFile(runTimeFile(fileNameNoPath), async);
+}
 
-  const startTime = now(),
-        endTime = now().add(timeoutMs, 'ms');
+export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 10000): boolean {
+  let taskTokill = listProcesses().find(pred),
+      result = false;
 
-  let complete = false,
-      finished = false,
-      elapsedTotal = 0;
-  do {
+  if (taskTokill != null) {
+    result = true;
+    log(`Killing task pid: ${toString(taskTokill)}`);
+    child_process.execSync(`taskkill /im ${taskTokill.pid} /t /f`, {timeout: timeoutMs})
+  }
+
+  if (result) {
+    killTask(pred, timeoutMs);
+  }
+  return result;
+}
+
+function delay(ms) {
+  if (ms != 0){
+    waitRetry(() => false,  ms,  () => {}, 0);
+  }
+}
+
+export function waitRetry(isCompleteFunction: () => boolean, timeoutMs: number = 10000, retryFuction: () => void = () => {}, retryPauseMs: number = 0){
+
+  let endTime = now().add(timeoutMs, 'ms'),
+      complete = false;
+
+  function done() {
     complete = isCompleteFunction();
-    finished = complete || now().isAfter(endTime);
-    if (!finished){
-      if (retryPauseMs > 0) {
-        delay(retryPauseMs);
-      }
-      retryFuction();
-    }
-  } while (!finished);
+    return complete;
+  }
+
+  while (!done() && now().isBefore(endTime)) {
+    delay(retryPauseMs);
+    retryFuction();
+  };
 
   return complete;
 }

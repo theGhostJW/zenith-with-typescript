@@ -234,7 +234,7 @@ TDate 					To Do			Done			Completion
 	DONE -  jsonToObject = depricated using YAML;
 	DEFER - hasProperty = hasProperty - UI;
 	DEFER - highlight = highlight - UI;
-	ToDo - waitRetry = waitRetry - UI;
+	DONE - waitRetry = waitRetry - UI;
 	DONE  projectScriptFileEncoding = Depricated; - Depricated
 	DONE -  terminateInternetExplorer = Depricated;
 	DONE -  notImplementedWarning = notImplementedWarning;
@@ -258,9 +258,9 @@ TDate 					To Do			Done			Completion
 	DONE - isNullEmptyOrUndefined;
 	DONE - hasValue;
 	DONE - exists;
-	TODO: terminateProcess = terminateProcess;
-	TODO: executeFile = executeFile;
-	TODO: processExists = processExists;
+	DONE: terminateProcess = terminateProcess; - killTask
+	DONE: executeFile = executeFile;
+	DONE: processExists = processExists; - depricate internal  not needed
 	TODO: expectDefect = expectDefect;
 	TODO: endDefect = endDefect;
 	DONE - def

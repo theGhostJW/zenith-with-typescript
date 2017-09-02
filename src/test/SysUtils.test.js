@@ -48,17 +48,11 @@ import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
 
 
-describe.only('waitRetry', () => {
+describe('waitRetry', () => {
 
   it('success', () => {
     let actual = waitRetry(() => true, 1000);
     chk(actual);
-  });
-
-  it('failure 2 secs 1 sec retry', function() {
-    this.timeout(30000);
-    let actual = waitRetry(() => false, 2000, () => {}, 1000);
-    chkFalse(actual);
   });
 
 });
