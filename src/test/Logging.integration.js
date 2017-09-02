@@ -7,7 +7,7 @@ import { log, logWarning, logError, logLink, pushLogFolder, popLogFolder, notImp
 
 describe('winston log', () => {
 
-  describe.only('expect / endDefect', () => {
+  describe('expect / endDefect', () => {
 
     it('expectDefect / endDefect', () => {
       expectDefect('failing');

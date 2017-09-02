@@ -378,6 +378,10 @@ export function tempFile(fileName :? string) : string {
   return subFile('temp', fileName);
 }
 
+export function testCaseFile(fileName :? string) : string {
+  return subFile('testCases', fileName);
+}
+
 export function mockFile(fileName :? string) : string {
   return subFile('mocks', fileName);
 }
@@ -396,7 +400,7 @@ export function logFile(fileName :? string) : string {
 }
 
 function subFile(subDir :string, fileName: ?string) : string {
-  return fileName == null
+  return fileName == null || fileName == ''
     ? projectSubDir(subDir)
     : combine(projectSubDir(subDir), fileName);
 }
