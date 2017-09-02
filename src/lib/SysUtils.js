@@ -3,10 +3,12 @@
 import * as _ from 'lodash';
 import * as deep from 'lodash-deep';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
-      subStrBetween} from '../lib/StringUtils';
+      subStrBetween, stringToArray, replace} from '../lib/StringUtils';
 import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
+import child_process from 'child_process';
+import { now } from '../lib/DateTimeUtils';
 
 // export function executeFile(filePath: string, params: string = '', waitTillTerminated: boolean = true){
 //   params = def(params, "");
@@ -28,6 +30,81 @@ import moment from 'moment';
 //   return exe;
 // }
 
+export type TaskListItem = {
+  imageName: string,
+  pid: number,
+  sessionName: string,
+  session: number,
+  memUsage: number
+}
+
+// export function killTask(): Array<TaskListItem> {
+//   let taskList = child_process.execSync('tasklist', {timeout: 30000}).toString();
+//   return _parseTaskList(taskList);
+// }
+//
+//
+
+function delay(ms) {
+  waitRetry(() => false,  ms,  () => {}, 0);
+}
+
+export function waitRetry(isCompleteFunction: () => boolean,  /* optional */ timeoutMs: number = 10000,  retryFuction: () => void = () => {},  retryPauseMs: number = 0){
+  //Super param KungFu
+
+  const startTime = now(),
+        endTime = now().add(timeoutMs, 'ms');
+
+  let complete = false,
+      finished = false,
+      elapsedTotal = 0;
+  do {
+    complete = isCompleteFunction();
+    finished = complete || now().isAfter(endTime);
+    if (!finished){
+      if (retryPauseMs > 0) {
+        delay(retryPauseMs);
+      }
+      retryFuction();
+    }
+  } while (!finished);
+
+  return complete;
+}
+
+export function listProcesses(): Array<TaskListItem> {
+  let taskList = child_process.execSync('tasklist', {timeout: 30000}).toString();
+  return _parseTaskList(taskList);
+}
+
+export function _parseTaskList(taskList: string): Array<TaskListItem>{
+  let lines = taskList.split('\n').filter((s) => s.trim() != ''),
+      headerLineIdx = lines.findIndex((s) => s.startsWith('=')),
+      headerLine = lines[headerLineIdx],
+      headerLineSegmentLens = (headerLine == null ? [] : headerLine.split(' ')).map((s) => s.length),
+      headerLineIdxs = headerLineSegmentLens.reduce((accum, len, idx) => {
+        let start = idx > 0 ? accum[idx - 1] : 0;
+        start = start + idx; // single space separators
+        accum.push(start + len);
+        return accum;
+      },
+      []
+    );
+
+  ensure(headerLineIdxs.length == 5, 'unexpected count of header lines');
+
+  let processLines = lines.slice(headerLineIdx + 1);
+  const convertLine = (s) => {
+    return {
+      imageName: s.slice(0, headerLineIdxs[0]).trim(),
+      pid: parseInt(s.slice(headerLineIdxs[0], headerLineIdxs[1])),
+      sessionName: s.slice(headerLineIdxs[1], headerLineIdxs[2]).trim(),
+      session: parseInt(s.slice(headerLineIdxs[2], headerLineIdxs[3])),
+      memUsage: parseInt(replace(s.slice(headerLineIdxs[3], headerLineIdxs[4]), ',', ''))
+    }
+  }
+  return processLines.map(convertLine);
+}
 
 export function functionNameFromFunction(func: mixed) : string {
   var str = toString(func);

@@ -1,55 +1,84 @@
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug } from '../lib/SysUtils';
+import { log } from '../lib/Logging';
+import { toTempString } from '../lib/FileUtils';
 import child_process from 'child_process'
 import ps_node from 'ps-node'
+import cp from 'current-processes'
+import util from  'util';
+import psn from 'psnode'
+import fkill from 'fkill'
+import async from 'async'
 
 
-describe.only('spawn', () => {
+describe('currrentprocesses', () => {
+
+  it('list', () => {
+    debug('Before');
+    cp.get(function(err, processes) {
+        debug('IN');
+    var sorted = _.sortBy(processes, 'cpu');
+    var top5  = sorted.reverse().splice(0, 5);
+
+    console.log(top5);
+  });
+
+  debug('After');
+  });
+
+});
+
+describe('spawn', () => {
+
+  it('fkill', () => {
+      fkill('firefox.exe').then(() => {
+        log('Killed process');
+      });
+  });
+
+  it('psn', () => {
+    psn.list((err, results) => {
+                          if (err)
+                            throw new Error( err );
+                          console.log(results); // [{pid: 2352, command: 'command'}, {...}]
+                      });
+    debug(prm);
+  });
 
   it('list processes', () => {
-    ps_node.lookup({
-    command: 'atom.'
-    }, function(err, resultList ) {
+    debug('start');
+    ps_node.lookup({command:  '.*'}, (err, resultList ) => {
+
+    debug(resultList, 'resultList');
     if (err) {
         throw new Error( err );
     }
 
-
-    resultList.forEach(function( process ){
+      resultList.forEach(( process ) => {
         if( process ){
-
-            console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
+            log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
         }
+      });
     });
-});
-
   });
 
-
-  it.skip('child_process', () => {
+  it('child_process', () => {
 
   // let child = child_process.spwn('"C:\\Program Files\\Notepad++\\notepad++.exe"'); - does not work
   // let child = child_process.execFile('"C:\\Program Files\\Notepad++\\notepad++.exe"');  - does not work
 
 //  let child = child_process.exec('"C:\\Program Files\\Notepad++\\notepad++.exe"'); - works
 //  let child = child_process.execSync('"C:\\Program Files\\Notepad++\\notepad++.exe"'); - works waits
+    //
+    // taskkill /im filename.exe /t
+    // taskkill /im filename.exe /t
 
-    child.stdout.on( 'data', data => {
-       console.log(`${data}`);
-    });
+  let processList = child_process.execSync('tasklist', {timeout: 30000}).toString();
+  log(processList);
+  toTempString(processList);
 
-
-    child.stderr.on( 'data', data => {
-       console.log( `${data}` );
-    });
-
-    child.on('exit', function (code, signal) {
-      console.log('child process exited with ' +
-               `code ${code} and signal ${signal}`);
-   });
-  });
-
+}).timeout(50000);
 
 });
 
@@ -129,5 +158,4 @@ describe.skip('cloneDeep', () => {
   it('number', () => {
     chkEq(null, _.cloneDeep(null));
   });
-
 });

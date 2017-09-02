@@ -234,7 +234,7 @@ TDate 					To Do			Done			Completion
 	DONE -  jsonToObject = depricated using YAML;
 	DEFER - hasProperty = hasProperty - UI;
 	DEFER - highlight = highlight - UI;
-	DEFER - waitRetry = waitRetry - UI;
+	ToDo - waitRetry = waitRetry - UI;
 	DONE  projectScriptFileEncoding = Depricated; - Depricated
 	DONE -  terminateInternetExplorer = Depricated;
 	DONE -  notImplementedWarning = notImplementedWarning;
