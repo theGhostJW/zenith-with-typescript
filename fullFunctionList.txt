@@ -1,20 +1,21 @@
 TDate 					To Do			Done			Completion
 ------------------------------------
-01-08-2017 		231				57				19.8 %
-06-08-2017 		225				65				22.4 %
-11-08-2017		209				74				26.1 %
-12-08-2017		162				96				37.2 %
-12-08-2017		161				97				37.6 %
-19-08-2017		150				108				41.9 %
-20-08-2017		141				115				44.9 %
-26-08-2017		129				127				49.6 %
-26-08-2017		123 		 	133 			52.0 %
-27-08-2017		120 		 	135 			52.9 %
-27-08-2017		116 		 	139 			54.5 %
-28-08-2017		107 		 	148 			58.0 %
-29-08-2017		100				155				60.8 %
-30-08-2017		87				166				65.6 %
-31-08-2017		83				168				66.9 %
+01-08-2017 			231				57				19.8 %
+06-08-2017 			225				65				22.4 %
+11-08-2017			209				74				26.1 %
+12-08-2017			162				96				37.2 %
+12-08-2017			161				97				37.6 %
+19-08-2017			150				108				41.9 %
+20-08-2017			141				115				44.9 %
+26-08-2017			129				127				49.6 %
+26-08-2017			123 		 	133 			52.0 %
+27-08-2017			120 		 	135 			52.9 %
+27-08-2017			116 		 	139 			54.5 %
+28-08-2017			107 		 	148 			58.0 %
+29-08-2017			100				155				60.8 %
+30-08-2017			87				166				65.6 %
+31-08-2017			83				168				66.9 %
+02-09-2017			75				177				70.2 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -261,14 +262,14 @@ TDate 					To Do			Done			Completion
 	DONE: terminateProcess = terminateProcess; - killTask
 	DONE: executeFile = executeFile;
 	DONE: processExists = processExists; - depricate internal  not needed
-	TODO: expectDefect = expectDefect;
-	TODO: endDefect = endDefect;
+	DONE: expectDefect = expectDefect;
+	DONE: endDefect = endDefect;
 	DONE - def
 	DONE - throwEx renamed to fail
 	DONE - ensure;
 	DONE - forceArray = forceArray;
 	N/A - globalAbortLevel = globalAbortLevel;
-	TODO: resetGlobalAbortLevel = resetGlobalAbortLevel;
+	DONE resetGlobalAbortLevel = resetGlobalAbortLevel; - depricated
 	DONE -  RED;	- Depricated
 	DONE -  GREEN; - Depricated
 	DONE -  YELLOW; - Depricated
@@ -276,8 +277,8 @@ TDate 					To Do			Done			Completion
 	DONE -  ENUM_WARNING; - Depricated
 	DONE -  ENUM_MESSAGE; - Depricated
 	DONE -  ENUM_PASS; - Depricated
-	TODO: fontColour = fontColour;
-	TODO: logColourAttributes = logColourAttributes;
+	DONE fontColour = fontColour; - depricated
+	DONE logColourAttributes = logColourAttributes; - depricated
 ===== TestCaseListUtils =====
 /****** Exports *****/
 	TODO: testListItems = testListItems;

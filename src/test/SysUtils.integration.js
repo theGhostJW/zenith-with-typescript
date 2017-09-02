@@ -11,7 +11,7 @@ import { log } from '../lib/Logging';
 import type { TaskListItem } from '../lib/SysUtils';
 
 
-describe.only('executeFileRunTimeFile', () => {
+describe('executeFileRunTimeFile', () => {
 
   it('non-existant', () => {
     chkExceptionText(() => executeRunTimeFile('Blahh'), 'does not exist');

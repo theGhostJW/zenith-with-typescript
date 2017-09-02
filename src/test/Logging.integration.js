@@ -2,9 +2,20 @@
 
 import {it, describe} from 'mocha'
 import { debug } from '../lib/SysUtils';
-import { log, logWarning, logError, logLink, pushLogFolder, popLogFolder, notImplementedWarning } from '../lib/Logging';
+import { log, logWarning, logError, logLink, pushLogFolder, popLogFolder, notImplementedWarning,
+          expectDefect, endDefect} from '../lib/Logging';
 
 describe('winston log', () => {
+
+  describe.only('expect / endDefect', () => {
+
+    it('expectDefect / endDefect', () => {
+      expectDefect('failing');
+      logError('Bad');
+      endDefect();
+    });
+
+  });
 
   it('error', () => {
     logError('Something bad happenned', 'Heres some info - error');
@@ -36,6 +47,6 @@ describe('winston log', () => {
   it('not implemented with message', () => {
     notImplementedWarning('a meesage');
   });
-  
+
 
 });

@@ -40,7 +40,9 @@ const specialMessage = (subType: LogSubType): LogFunction => specialLog(subType,
 const specialError = (subType: LogSubType): LogFunction => specialLog(subType, logError);
 
 export const pushLogFolder = (folderLabel: string) => specialMessage('PushFolder')(folderLabel);
-export const popLogFolder = () => specialMessage('PushFolder')('Pop Folder');
+export const popLogFolder = () => specialMessage('PopFolder')('Pop Folder');
+export const expectDefect = (defectInfo: string) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo));
+export const endDefect = () => specialMessage('EndDefect')('End Defect');
 
 const BLUE : Color = new Color('#00008B');
 const WHITE  : Color = Color('#FFFFFF');
