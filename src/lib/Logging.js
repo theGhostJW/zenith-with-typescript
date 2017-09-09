@@ -77,6 +77,7 @@ function specialLog(subType: LogSubType, baseFunction: LogFunction): LogFunction
   }
 }
 
+
 export const logCheckFailure: LogFunction = specialError('CheckFail');
 export const logCheckPassed: LogFunction = specialMessage('CheckPass');
 
