@@ -6,7 +6,7 @@ import moment from 'moment';
 
 const allCases: Array<any> = [];
 
-export const register = <R, T: PartilalTestConfig>(testCase: RegisteredCase<R, T>): void => {
+export function register<R: PartialRunConfig, T: BaseTestConfig>(testCase: RegisteredCase<R, T>): void {
   allCases.push(testCase);
 }
 
@@ -18,7 +18,7 @@ type MinRunConfig = {
   name: string
 }
 
-export type RegisteredCase<R, T> = {
+export type RegisteredCase<R: PartialRunConfig, T: BaseTestConfig> = {
   config: T,
   interactor: (runConfig: R, item: PartialItem) => {[string]: any},
   prepState: (apState: {[string]: any}) => {[string]: any},
@@ -27,13 +27,19 @@ export type RegisteredCase<R, T> = {
   testItems: (runConfig: R) => Array<PartialItem>
 }
 
-export type BaseCase<R,  T: PartilalTestConfig, I: PartialItem, S, V> = {
+export type BaseCase<R: PartialRunConfig,  T: BaseTestConfig, I: PartialItem, S, V> = {
   config: T,
   interactor: (item: I, runConfig: R) => S,
   prepState: (apState: S) => V,
   summarise: (runConfig: R, item: I, apState: S, valState: V) => string,
   mockFileName?: (item: I, runConfig: R) => string,
   testItems: (runConfig: R) => Array<I>
+}
+
+export type PartialRunConfig = $Subtype<RunConfigRequired>;
+
+export type RunConfigRequired = {
+  name: string
 }
 
 export type PartialItem = $Subtype<ItemRequired>;
@@ -45,7 +51,7 @@ export type ItemRequired = {
                     validators: Array<Validator<*, *, *>>
                   };
 
-export type PartilalTestConfig = $Subtype<TestConfigRequired>;
+export type BaseTestConfig = $Subtype<TestConfigRequired>;
 
 export type TestConfigRequired = {
                     id: number,

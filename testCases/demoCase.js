@@ -7,7 +7,7 @@ import { register } from '../src/lib/CaseRunner';
 import { log } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
 import child_process from 'child_process'
-import type { RunConfig, TestCase, TestConfig } from '../testCases/ProjectInfo';
+import type { RunConfig, TestCase, TestConfig } from '../testCases/ProjectConfig';
 import moment from 'moment';
 
 var config: TestConfig = {
@@ -37,12 +37,8 @@ function prepState(apState: ApState): ValState {
   return {}
 }
 
-function mockFilename(item: Item, runConfig: RunConfig) {
-  return '';
-}
-
 function interactor(item: Item, runConfig: RunConfig): ApState {
-
+  
   return {
     obs: 'blahh'
   }
@@ -50,6 +46,10 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
 
 function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string {
   return 'Summarry not implemented'
+}
+
+function mockFilename(item: Item, runConfig: RunConfig) {
+  return '';
 }
 
 function  testItems(runConfig: RunConfig): Array<Item> {
