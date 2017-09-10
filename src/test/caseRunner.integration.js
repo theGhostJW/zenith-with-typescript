@@ -1,6 +1,6 @@
 
 import {it, describe} from 'mocha'
-import { loadAll } from '../lib/CaseRunner';
+import { loadAll } from '../lib/TestRunner';
 
 
 describe.only('loadAll', () => {
@@ -9,7 +9,7 @@ describe.only('loadAll', () => {
     loadAll();
   });
 
-  
+
 
 
 });

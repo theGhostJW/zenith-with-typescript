@@ -203,7 +203,7 @@ export function setParts<T>(arLeftSet: Array<T>, arRightSet: Array<T>): [Array<T
 }
 
 
-export function forceArray(...args: Array<any>): Array<any> {
+export function forceArray<T>(...args: Array<T>): Array<T> {
 
   function forceArraySingleVal(val){
      return isUndefined(val) ? [] :

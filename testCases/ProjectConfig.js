@@ -1,12 +1,12 @@
 // @flow
 //
 
-import type { BaseCase, PartialItem, BaseTestConfig, BaseRunConfig } from '../src/lib/CaseRunner';
-import * as caseRunner from '../src/lib/CaseRunner';
+import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig, GenericValidator } from '../src/lib/TestRunner';
+import * as caseRunner from '../src/lib/TestRunner';
 
-type Environment = "TST" | "UAT" | "PVT";
-type Depth = "Connectivity" | "Regression" | "DeepRegression" | "Special";
-type Country = "Australia" | "New Zealand";
+export type Environment = "TST" | "UAT" | "PVT";
+export type Depth = "Connectivity" | "Regression" | "DeepRegression" | "Special";
+export type Country = "Australia" | "New Zealand";
 
 export type RunConfig = {
   name: string,
@@ -22,26 +22,31 @@ export type PartialRunConfig = {
   depth?: Depth
 }
 
-export type TestConfig = {
+export type TestConfig = {|
   id: number,
   when: string,
   then: string,
   owner: string,
+  enabled: boolean,
   countries?: (Country | Array<Country>),
   environments?: (Environment | Array<Environment>),
   depth?: Depth
-}
+|}
 
 export type FullTestConfig = {
   id: number,
   when: string,
   then: string,
   owner: string,
-  countries: (Country | Array<Country>),
-  environments: (Environment | Array<Environment>),
+  countries: Array<Country>,
+  environments: Array<Environment>,
   depth: Depth
 }
 
 export type TestCase<I, S, V> = BaseCase<RunConfig, TestConfig, I, S, V>
 
-//export const register = (testCase: RegisteredCase<RunConfig, TestConfig>) => caseRunner.register
+export type Validator<V, I: BaseItem> = GenericValidator<V, I, RunConfig>
+
+export type Validators<V, I: BaseItem> = Validator<V, I> | Array<Validator<V, I>>
+
+export const register = <I: BaseItem, S, V>(testCase: TestCase<I, S, V>): void => caseRunner.register(testCase)

@@ -10,9 +10,12 @@ import { nowAsLogFormat, nowFileFormatted } from '../lib/DateTimeUtils';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export type PopControl =   "PushFolder" | "PopFolder" | 'NoAction';
+
 export type FullLogAttributes = {
                               additionalInfo: ?string,
                               subType: LogSubType,
+                              popControl: PopControl,
                               link: ?string,
                               callstack: any
                             };
@@ -36,13 +39,39 @@ export const logLink = (message: string, link: string, additionalInfo: ?string, 
 
 export const notImplementedWarning = (str: ?string) => logWarning(str == null ? 'NOT IMPLEMENTED' : 'NOT IMPLEMENTED: ' + str);
 
-const specialMessage = (subType: LogSubType): LogFunction => specialLog(subType, log);
-const specialError = (subType: LogSubType): LogFunction => specialLog(subType, logError);
+const specialMessage = (subType: LogSubType, popControl: PopControl = 'NoAction'): LogFunction => specialLog(subType, log, popControl);
+const specialError = (subType: LogSubType, popControl: PopControl = 'NoAction'): LogFunction => specialLog(subType, logError, popControl);
 
-export const pushLogFolder = (folderLabel: string) => specialMessage('PushFolder')(folderLabel);
-export const popLogFolder = () => specialMessage('PopFolder')('Pop Folder');
+export const pushLogFolder = (folderLabel: string) => specialMessage('Message', 'PushFolder')(folderLabel);
+export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Folder');
 export const expectDefect = (defectInfo: string) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo));
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
+
+
+export const logStartRun = (runName: string, runConfig: mixed) => specialMessage('RunStart', 'PushFolder')(
+                                                                                                      `Test Run: ${runName}`,
+                                                                                                       objToYaml(runConfig));
+
+export const logEndRun = (runName: string) => specialMessage('RunEnd', 'PopFolder')(`End Run: ${runName}`);
+
+export const logStartTest = (id: number, testName: string, when: string, then: string, testConfig: mixed) => specialMessage('TestStart', 'PushFolder')(
+                                                                                                      `Test: ${id}: ${testName} - When ${when} then ${then}`,
+                                                                                                       objToYaml(testConfig));
+
+export const logEndTest = (id: number, testName: string) => specialMessage('TestEnd', 'PopFolder')(`End Test ${id} : ${testName}`, objToYaml({id: id, testName: testName}));
+
+export const logStartIteration = (id: number, testName: string, when: string, then: string) => specialMessage('IterationStart', 'PushFolder')(
+                                                                                                      `Iteration: ${id}: ${testName} - When ${when} then ${then}`,
+                                                                                                       objToYaml({
+                                                                                                                  id: id,
+                                                                                                                  testName: testName,
+                                                                                                                  when: when,
+                                                                                                                  then: then
+                                                                                                                }));
+
+export const logEndIteration = (id: number) => specialMessage('IterationEnd', 'PopFolder')(`End Iteration ${id}`, objToYaml({id: id}));
+
+
 
 const BLUE : Color = new Color('#00008B');
 const WHITE  : Color = Color('#FFFFFF');
@@ -65,14 +94,13 @@ export type LogSubType = "Message" |
                           "StartDefect" |
                           "EndDefect" |
                           "CheckPass" |
-                          "CheckFail" |
-                          "PushFolder" |
-                          "PopFolder";
+                          "CheckFail";
 
-function specialLog(subType: LogSubType, baseFunction: LogFunction): LogFunction {
+function specialLog(subType: LogSubType, baseFunction: LogFunction, popControl: PopControl = 'NoAction'): LogFunction {
   return function logSpecial(message: string, additionalInfo: ?string, attr: ?LogAttributes) {
     attr = attr == null ? {} : attr;
     attr.subType = subType;
+    attr.popControl = popControl;
     baseFunction(message, additionalInfo, attr);
   }
 }
