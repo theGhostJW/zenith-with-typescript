@@ -89,7 +89,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
 }
 
 const testCase: TestCase<Item, ApState, ValState>  = {
-  config: config,
+  testConfig: config,
   interactor: interactor,
   prepState: prepState,
   summarise: summarise,

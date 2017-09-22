@@ -3,13 +3,9 @@ import {it, describe} from 'mocha'
 import { loadAll } from '../lib/TestRunner';
 
 
-describe.only('loadAll', () => {
+describe('loadAll', () => {
 
   it('simple', () => {
     loadAll();
   });
-
-
-
-
 });

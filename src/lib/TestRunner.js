@@ -1,18 +1,21 @@
 // @flow
 
-import { eachFile, testCaseFile } from '../lib/FileUtils';
+import { eachFile, testCaseFile, fileOrFolderName } from '../lib/FileUtils';
 import { forceArray, functionNameFromFunction, objToYaml } from '../lib/SysUtils';
 import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
-          logEndIteration, logError, pushLogFolder, popLogFolder } from '../lib/Logging';
+          logEndIteration, logError, pushLogFolder, popLogFolder, log } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 
 
 const allCases: Array<any> = [];
 
+let lastLoadedFileName = '??';
 export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: BaseCase<R, T, I, S, V>): void {
-  allCases.push(testCase);
+  let namedCase: NamedCase<R, T, I, S, V> = ((testCase: any): NamedCase<R, T, I, S, V>);
+  namedCase.name = lastLoadedFileName;
+  allCases.push(namedCase);
 }
 
 export type GenericValidator<V, I : BaseItem, R> = (valState: V, item: I, runconfig: R, valTime: moment$Moment) => void
@@ -24,7 +27,7 @@ export type RunConfigRequired = {
 }
 
 export type BaseCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
-  config: T,
+  testConfig: T,
   interactor: (item: I, runConfig: R) => S,
   prepState: (apState: S) => V,
   summarise: (runConfig: R, item: I, apState: S, valState: V) => string,
@@ -50,7 +53,7 @@ export type TestConfigRequired = {
                     enabled: boolean
                   };
 
-type  NamedCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> =  NamedObj<BaseCase<R, T, I, S, V>>
+export type  NamedCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> =  NamedObj<BaseCase<R, T, I, S, V>>
 
 type NamedObj<T> = T & {
   name: string
@@ -62,23 +65,53 @@ export function loadAll<R, T>(){
     // Delete cache entry to make sure the file is re-read from disk.
     delete require.cache[pth];
     // Load function from file.
+    lastLoadedFileName = name;
     var func = require(pth);
   }
 
   eachFile(testCaseFile(''), loadFile);
-  allCases.forEach((c) => {console.log(toString(c.testItems()))});
+  allCases.forEach((c) => {
+    console.log('==== ' + c.name + ' ====');
+    console.log(toString(c.testItems()))
+  });
 }
 
-export type RunParams<T: BaseTestConfig, R: BaseRunConfig> = {|
-  testList: Array<BaseTestConfig>,
+export type RunParams<R: BaseRunConfig, T: BaseTestConfig> = {|
+  testList: Array<NamedCase<R, T, *, *, *>>,
   runConfig: R,
   defaultTestConfig: $Subtype<BaseTestConfig>,
   defaultRunConfig: $Subtype<R>,
-  baseRunner: BaseTestRunner<T, R>,
-  baseItemRunner: BaseItemRunner<T, R>
+  itemRunner: ItemRunner<R, T>,
+  testRunner: TestRunner<R, T>
 |}
 
-function runTestItem<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, item: I, runConfig: BaseRunConfig) {
+function executeValidator<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validator: GenericValidator<V, I, R>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
+  pushLogFolder(functionNameFromFunction(validator));
+  try {
+    validator(valState, item, runConfig, valTime);
+  } finally {
+    popLogFolder();
+  }
+}
+
+function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validators: GenericValidator<V, I, R> | Array<GenericValidator<V, I, R>>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
+  validators = forceArray(validators);
+  const validate = (validator) => {
+    let currentValidator = functionNameFromFunction(validator);
+    pushLogFolder(currentValidator);
+    try {
+      executeValidator(validator, valState, item, runConfig, valTime);
+    } catch (e) {
+      logError('Exception thrown in validator: ' + currentValidator, objToYaml(e));
+      throw(e);
+    } finally {
+      popLogFolder();
+    }
+  }
+  validators.forEach(validate);
+}
+
+export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: BaseRunConfig, item: I) {
 
   logStartIteration(item.id, baseCase.name, item.when, item.then);
   let stage = 'Executing Interactor';
@@ -89,18 +122,7 @@ function runTestItem<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, S, V>(bas
     let valState = baseCase.prepState(apState);
 
     stage = 'Executing Validators';
-    let validators = forceArray(item.validators);
-
-    function executeValidator(validator: GenericValidator<V, I, R>) {
-
-      pushLogFolder(functionNameFromFunction(validator));
-      try {
-        validator(valState, item, runConfig, now())
-      } finally {
-        popLogFolder();
-      }
-    }
-    validators.forEach(executeValidator)
+    runValidators(item.validators, valState, item, runConfig, now());
   }
   catch (e) {
     logError(`Exception Thrown ${stage}`, objToYaml(e));
@@ -111,15 +133,48 @@ function runTestItem<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, S, V>(bas
 }
 
 
-export function testRun<T: BaseTestConfig, R: BaseRunConfig> (params: RunParams<T, R>) {
+function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
+  log('Loading Test Items');
+  let itemList = testCase.testItems(runConfig);
+  itemList.forEach((item) => itemRunner(testCase, runConfig, item));
+}
+
+
+export function testRun<T: BaseTestConfig, R: BaseRunConfig> (params: RunParams<T, R>): void {
+
+  let runConfig = params.runConfig,
+      runName = runConfig.name;
+
+  logStartRun(runName, runConfig);
+  try {
+    let {itemRunner, testRunner, testList} = params;
+
+    function runTestInstance(testCase) {
+      let {
+            testItems,
+            testConfig,
+            name
+           } = testCase,
+           id = testConfig.id
+      logStartTest(id, name, testConfig.when, testConfig.then, testConfig);
+      testRunner(testCase, runConfig, itemRunner);
+      logEndTest(id, name);
+    }
+    testList.forEach(runTestInstance);
+
+  } catch (e) {
+    logError('Exception logged in a test run', objToYaml(e));
+  } finally {
+    logEndRun(runName);
+  }
 
 }
 
-export type BaseTestRunner<T: BaseTestConfig, R: BaseRunConfig> =
-      <T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, S, V>(BaseCase<R, T, I, S, V>) => void
+export type TestRunner<R: BaseRunConfig, T: BaseTestConfig> =
+      <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) => void
 
-export type BaseItemRunner<I: BaseItem, R: BaseRunConfig> =
-      <T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, S, V>(BaseCase<R, T, I, S, V>, item: I) => void
+export type ItemRunner<R: BaseRunConfig, I: BaseItem> =
+      <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) => void
 
 // function runTests(configFileNoDirOrConfigObj, defaultRunConfigInfo, defaultTestConfigInfo, testFilters, simpleLogProcessingMethod, testOverrideFunc, preTestRunFunction){
 //   // TC Logging Defaults
