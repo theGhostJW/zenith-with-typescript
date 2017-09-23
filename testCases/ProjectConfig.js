@@ -1,8 +1,8 @@
 // @flow
 //
 
-import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig, GenericValidator, RunParams } from '../src/lib/TestRunner';
-import { runTestItem,  } from '../src/lib/TestRunner';
+import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig, GenericValidator, RunParams, NamedCase} from '../src/lib/TestRunner';
+import { runTestItem, runTest, testRun } from '../src/lib/TestRunner';
 import { forceArray } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import * as _ from 'lodash';
@@ -11,42 +11,32 @@ export type Environment = "TST" | "UAT" | "PVT";
 export type Depth = "Connectivity" | "Regression" | "DeepRegression" | "Special";
 export type Country = "Australia" | "New Zealand";
 
-export type RequiredRunConfig = {
-  name: string
-}
-
-export type OptionalRunConfig = {
+export type RunConfig = {
+  name: string,
   country?: Country,
   environment?: Environment,
   testCases?: Array<number|string> | number | string,
   depth?: Depth
 }
 
-export type PartialRunConfig = RequiredRunConfig & OptionalRunConfig;
-
-export type RunConfig = {|
+export type FullRunConfig = {|
   name: string,
   country: Country,
   environment: Environment,
-  testCases: Array<number|string> | number | string | null,
+  testCases?: Array<number|string>,
   depth: Depth
 |}
 
-export type RequiredTestConfig = {
+export type TestConfig = {
   id: number,
   when: string,
   then: string,
   owner: string,
-  enabled: boolean
-}
-
-export type OptionalTestConfig = {
+  enabled: boolean,
   countries?: Array<Country> | Country,
   environments?: Array<Environment> | Environment,
   depth?: Depth
-}
-
-export type TestConfig = RequiredTestConfig & OptionalTestConfig;
+};
 
 export type FullTestConfig = {|
   id: number,
@@ -59,7 +49,7 @@ export type FullTestConfig = {|
   depth: Depth
 |}
 
-export type TestCase<I, S, V> = BaseCase<RunConfig, RequiredTestConfig, I, S, V>
+export type TestCase<I: BaseItem, S, V> = BaseCase<RunConfig, TestConfig, I, S, V>
 
 export type Validator<V, I: BaseItem> = GenericValidator<V, I, RunConfig>
 
@@ -79,42 +69,23 @@ function setTestConfigDefaults(partialTestConfig: TestConfig): FullTestConfig {
   return result;
 }
 
-function setRunConfigDefaults(partialRunConfig: PartialRunConfig): RunConfig {
+function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   let defaultprops =  {
     country: 'Australia',
     environment: 'TST',
     testCases: null,
     depth: 'Regression'
-  };
-
+  }
   return _.defaults(partialRunConfig, defaultprops);
 }
 
-// export const DEFAULT_RUN_CONFIG: RunConfig = {
-//   name: 'Default Config',
-//   country: 'Australia',
-//   environment: 'TST',
-//   depth: 'Regression'
-// }
-
-// export const DEFAULT_TEST_CONFIG: TestConfig = {
-//   id: -1,
-//   when: '',
-//   then: '',
-//   owner: string,
-//   enabled: boolean,
-//   countries: Array<Country>,
-//   environments: Array<Environment>,
-//   depth: Depth
-// }
-//
-// export function runParams(testList: Array<PartialTestConfig>, runConfig: PartialRunConfig): RunParams<PartialTestConfig, PartialRunConfig> {
-//   return {
-//     testList: testList,
-//     runConfig: runConfig,
-//     defaultTestConfig: $Subtype<T>,
-//     defaultRunConfig: DEFAULT_RUN_CONFIG,
-//     itemRunner: ItemRunner<R, T>,
-//     testRunner: TestRunner<R, T>
-//   }
-// }
+function setRunparamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>>): RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  {
+  return {
+    runConfig: runConfig,
+    testList: testList,
+    runConfigDefaulter: setRunConfigDefaults,
+    testConfigDefaulter: setTestConfigDefaults,
+    testRunner: runTest,
+    itemRunner: runTestItem
+  }
+}

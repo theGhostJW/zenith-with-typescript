@@ -12,6 +12,18 @@ import * as _ from 'lodash';
 
 const allCases: Array<any> = [];
 
+export type BaseRunConfig = $Subtype<RunConfigRequired>
+
+export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
+  testList: Array<NamedCase<R, T, *, *, *>>,
+  runConfig: R,
+  testConfigDefaulter: T => FT,
+  runConfigDefaulter: R => FR,
+  itemRunner: ItemRunner<FR, *>,
+  testRunner: TestRunner<FR, FT>
+|}
+
+
 let lastLoadedFileName = '??';
 export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: BaseCase<R, T, I, S, V>): void {
   let namedCase: NamedCase<R, T, I, S, V> = ((testCase: any): NamedCase<R, T, I, S, V>);
@@ -20,8 +32,6 @@ export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>
 }
 
 export type GenericValidator<V, I : BaseItem, R> = (valState: V, item: I, runconfig: R, valTime: moment$Moment) => void
-
-export type BaseRunConfig = $Subtype<RunConfigRequired>
 
 export type RunConfigRequired = {
   name: string
@@ -77,15 +87,6 @@ export function loadAll<R, T>(){
   });
 }
 
-export type RunParams<R: BaseRunConfig, T: BaseTestConfig> = {|
-  testList: Array<NamedCase<R, T, *, *, *>>,
-  runConfig: R,
-  defaultTestConfig: $Subtype<T>,
-  defaultRunConfig: $Subtype<R>,
-  itemRunner: ItemRunner<R, T>,
-  testRunner: TestRunner<R, T>
-|}
-
 function executeValidator<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validator: GenericValidator<V, I, R>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
   pushLogFolder(functionNameFromFunction(validator));
   try {
@@ -112,7 +113,7 @@ function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(vali
   validators.forEach(validate);
 }
 
-export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: BaseRunConfig, item: I) {
+export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) {
 
   logStartIteration(item.id, baseCase.name, item.when, item.then);
   let stage = 'Executing Interactor';
@@ -134,23 +135,22 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
   } finally {
     logEndIteration(item.id)
   }
-
 }
 
 
-function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
+export function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
   log('Loading Test Items');
   let itemList = testCase.testItems(runConfig);
   itemList.forEach((item) => itemRunner(testCase, runConfig, item));
 }
 
 
-export function testRun<R: BaseRunConfig, T: BaseTestConfig> (params: RunParams<R, T>): void {
+export function testRun<R: BaseRunConfig, FR: $Subtype<R>, T: BaseTestConfig, FT: $Subtype<T>> (params: RunParams<R, FR, T, FT>): void {
 
-  let {itemRunner, testRunner, testList, runConfig, defaultRunConfig, defaultTestConfig} = params,
+  let { itemRunner, testRunner, testList, runConfig, runConfigDefaulter, testConfigDefaulter} = params,
       runName = runConfig.name;
 
-  runConfig = _.defaults(runConfig, defaultRunConfig);
+  runConfig = runConfigDefaulter(runConfig);
 
   logStartRun(runName, runConfig);
   try {
@@ -164,7 +164,7 @@ export function testRun<R: BaseRunConfig, T: BaseTestConfig> (params: RunParams<
            id = testConfig.id;
 
       // ensure the testConfig is fully populated
-      testConfig = _.defaults(testConfig, defaultTestConfig);
+      testConfig = testConfigDefaulter(testConfig);
       testCase.testConfig = ((testConfig: any): T);
 
       logStartTest(id, name, testConfig.when, testConfig.then, testConfig);
@@ -185,5 +185,5 @@ export function testRun<R: BaseRunConfig, T: BaseTestConfig> (params: RunParams<
 export type TestRunner<R: BaseRunConfig, T: BaseTestConfig> =
       <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) => void
 
-export type ItemRunner<R: BaseRunConfig, I: BaseItem> =
+export type ItemRunner<R: BaseRunConfig, T: BaseTestConfig> =
       <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) => void
