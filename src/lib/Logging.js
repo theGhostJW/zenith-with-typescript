@@ -46,6 +46,7 @@ export const pushLogFolder = (folderLabel: string) => specialMessage('Message', 
 export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Folder');
 export const expectDefect = (defectInfo: string) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo));
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
+export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
 
 
 export const logStartRun = (runName: string, runConfig: mixed) => specialMessage('RunStart', 'PushFolder')(
@@ -90,6 +91,7 @@ export type LogSubType = "Message" |
                           "IterationStart" |
                           "IterationEnd" |
                           "TestEnd" |
+                          "Summary" |
                           "RunEnd" |
                           "StartDefect" |
                           "EndDefect" |

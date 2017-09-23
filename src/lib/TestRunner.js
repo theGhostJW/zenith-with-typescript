@@ -4,9 +4,10 @@ import { eachFile, testCaseFile, fileOrFolderName } from '../lib/FileUtils';
 import { forceArray, functionNameFromFunction, objToYaml } from '../lib/SysUtils';
 import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
-          logEndIteration, logError, pushLogFolder, popLogFolder, log } from '../lib/Logging';
+          logEndIteration, logError, pushLogFolder, popLogFolder, log, logIterationSummary } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
+import * as _ from 'lodash';
 
 
 const allCases: Array<any> = [];
@@ -79,7 +80,7 @@ export function loadAll<R, T>(){
 export type RunParams<R: BaseRunConfig, T: BaseTestConfig> = {|
   testList: Array<NamedCase<R, T, *, *, *>>,
   runConfig: R,
-  defaultTestConfig: $Subtype<BaseTestConfig>,
+  defaultTestConfig: $Subtype<T>,
   defaultRunConfig: $Subtype<R>,
   itemRunner: ItemRunner<R, T>,
   testRunner: TestRunner<R, T>
@@ -123,6 +124,10 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
 
     stage = 'Executing Validators';
     runValidators(item.validators, valState, item, runConfig, now());
+
+    stage = 'Generating Summary';
+    let summary = baseCase.summarise(runConfig, item, apState, valState);
+    logIterationSummary(summary);
   }
   catch (e) {
     logError(`Exception Thrown ${stage}`, objToYaml(e));
@@ -140,14 +145,15 @@ function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCas
 }
 
 
-export function testRun<T: BaseTestConfig, R: BaseRunConfig> (params: RunParams<T, R>): void {
+export function testRun<R: BaseRunConfig, T: BaseTestConfig> (params: RunParams<R, T>): void {
 
-  let runConfig = params.runConfig,
+  let {itemRunner, testRunner, testList, runConfig, defaultRunConfig, defaultTestConfig} = params,
       runName = runConfig.name;
+
+  runConfig = _.defaults(runConfig, defaultRunConfig);
 
   logStartRun(runName, runConfig);
   try {
-    let {itemRunner, testRunner, testList} = params;
 
     function runTestInstance(testCase) {
       let {
@@ -155,11 +161,17 @@ export function testRun<T: BaseTestConfig, R: BaseRunConfig> (params: RunParams<
             testConfig,
             name
            } = testCase,
-           id = testConfig.id
+           id = testConfig.id;
+
+      // ensure the testConfig is fully populated
+      testConfig = _.defaults(testConfig, defaultTestConfig);
+      testCase.testConfig = ((testConfig: any): T);
+
       logStartTest(id, name, testConfig.when, testConfig.then, testConfig);
       testRunner(testCase, runConfig, itemRunner);
       logEndTest(id, name);
     }
+
     testList.forEach(runTestInstance);
 
   } catch (e) {
@@ -175,18 +187,3 @@ export type TestRunner<R: BaseRunConfig, T: BaseTestConfig> =
 
 export type ItemRunner<R: BaseRunConfig, I: BaseItem> =
       <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) => void
-
-// function runTests(configFileNoDirOrConfigObj, defaultRunConfigInfo, defaultTestConfigInfo, testFilters, simpleLogProcessingMethod, testOverrideFunc, preTestRunFunction){
-//   // TC Logging Defaults
-//   fullyEnableCallStack();
-//
-//   // allow for multiple calls to run tests from one function call
-//   if (simplifiedLog.length > 0){
-//     simplifiedLogsForPreviousRuns.push(simplifiedLog);
-//     simplifiedLog = [];
-//   }
-//
-//   ensure(hasValue(configFileNoDirOrConfigObj), 'configFileNoDirOrConfigObj - is null');
-//   var runConfig = _.isString(configFileNoDirOrConfigObj) ? getLastRunConfig() : configFileNoDirOrConfigObj;
-//   runFromConfig(configFileNoDirOrConfigObj, defaultRunConfigInfo, defaultTestConfigInfo, testFilters, simpleLogProcessingMethod,  testOverrideFunc, preTestRunFunction);
-// }
