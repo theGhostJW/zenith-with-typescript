@@ -17,7 +17,7 @@ var config: TestConfig = {
   then: '',
   owner: 'JW',
   enabled: true,
-  countries: 'New Zealand'
+  countries: ['New Zealand', 'Australia']
 }
 
 function interactor(item: Item, runConfig: RunConfig): ApState {
@@ -39,7 +39,7 @@ type ValState = {|
 
 function prepState(apState: ApState): ValState {
   return {
-    id: 1
+    id: apState.id
   }
 }
 
@@ -58,12 +58,12 @@ type Item = {|
   validators: Validators<ValState, Item>
 |}
 
-function check_something(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
-
+function check_less_than_2(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+  check(valState.id < 2, 'expect less than 2')
 }
 
-function check_something_else(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
-
+function check_less_than_3(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+  check(valState.id < 3, 'expect less than 2')
 }
 
 function  testItems(runConfig: RunConfig): Array<Item> {
@@ -72,7 +72,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       id: 1,
       when: 'I run a test',
       then: 'i get the result',
-      validators: check_something
+      validators: check_less_than_2
     },
 
     {
@@ -80,8 +80,8 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       when: 'I run another test',
       then: 'i get another result',
       validators: [
-        check_something,
-        check_something_else
+        check_less_than_2,
+        check_less_than_3
       ]
     }
 

@@ -3,12 +3,12 @@
 import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug } from '../src/lib/SysUtils';
+import { hasText } from '../src/lib/StringUtils';
 import { log } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
-import child_process from 'child_process'
 import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
 import { register } from '../testCases/ProjectConfig';
-import { check } from '../src/lib/CheckUtils';
+import { check, checkTextContains } from '../src/lib/CheckUtils';
 import moment from 'moment';
 
 var config: TestConfig = {
@@ -23,24 +23,23 @@ var config: TestConfig = {
 function interactor(item: Item, runConfig: RunConfig): ApState {
 
   return {
-    id: item.id,
+    theWhen: item.when,
     obs: 'blahh'
   }
 }
 
 type ApState = {|
-  id: number,
-  id: number,
+  theWhen: string,
   obs: string
 |}
 
 type ValState = {|
-  id: number
+  when: string
 |}
 
 function prepState(apState: ApState): ValState {
   return {
-    id: 1
+    when: apState.theWhen
   }
 }
 
@@ -59,12 +58,8 @@ type Item = {|
   validators: Validators<ValState, Item>
 |}
 
-function check_something(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
-
-}
-
-function check_something_else(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
-
+function check_has_another(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+  checkTextContains(valState.when, 'another')
 }
 
 function  testItems(runConfig: RunConfig): Array<Item> {
@@ -73,7 +68,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       id: 1,
       when: 'I run a test',
       then: 'i get the result',
-      validators: check_something
+      validators: check_has_another
     },
 
     {
@@ -81,8 +76,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       when: 'I run another test',
       then: 'i get another result',
       validators: [
-        check_something,
-        check_something_else
+          check_has_another
       ]
     }
 
