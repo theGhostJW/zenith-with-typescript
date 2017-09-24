@@ -79,13 +79,22 @@ function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   return _.defaults(partialRunConfig, defaultprops);
 }
 
-function setRunparamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>>): RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  {
+function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>>): RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  {
   return {
     runConfig: runConfig,
     testList: testList,
     runConfigDefaulter: setRunConfigDefaults,
     testConfigDefaulter: setTestConfigDefaults,
     testRunner: runTest,
-    itemRunner: runTestItem
+    itemRunner: runTestItem,
+    testFilters: [],
+    itemFilter: undefined
   }
+}
+
+function run(runConfig: RunConfig) {
+  // filter
+  // run
+  // processLogFiles
+
 }

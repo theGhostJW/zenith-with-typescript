@@ -12,15 +12,19 @@ import * as _ from 'lodash';
 
 const allCases: Array<any> = [];
 
-export type BaseRunConfig = $Subtype<RunConfigRequired>
+export type BaseRunConfig = {
+  name: string
+}
 
 export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
   testList: Array<NamedCase<R, T, *, *, *>>,
   runConfig: R,
   testConfigDefaulter: T => FT,
   runConfigDefaulter: R => FR,
+  testRunner: TestRunner<FR, FT>,
   itemRunner: ItemRunner<FR, *>,
-  testRunner: TestRunner<FR, FT>
+  testFilters: Array<(FR, FT) => boolean>,
+  itemFilter?: (FR, any) => boolean
 |}
 
 
@@ -32,10 +36,6 @@ export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>
 }
 
 export type GenericValidator<V, I : BaseItem, R> = (valState: V, item: I, runconfig: R, valTime: moment$Moment) => void
-
-export type RunConfigRequired = {
-  name: string
-}
 
 export type BaseCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
   testConfig: T,
@@ -55,9 +55,7 @@ export type ItemRequired = {
                     validators: GenericValidator<*, *, *> | Array<GenericValidator<*, *, *>>
                   };
 
-export type BaseTestConfig = $Subtype<TestConfigRequired>;
-
-export type TestConfigRequired = {
+export type BaseTestConfig = {
                     id: number,
                     when: string,
                     then: string,
@@ -142,6 +140,10 @@ export function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(
   log('Loading Test Items');
   let itemList = testCase.testItems(runConfig);
   itemList.forEach((item) => itemRunner(testCase, runConfig, item));
+}
+
+export function filterTestItems() {
+
 }
 
 
