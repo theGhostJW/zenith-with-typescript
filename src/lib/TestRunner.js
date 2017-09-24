@@ -13,9 +13,7 @@ import * as _ from 'lodash';
 
 const allCases: Array<any> = [];
 
-export type BaseRunConfig = {
-  name: string
-}
+export type BaseRunConfig = {name: string}
 
 export type TestFilter<FR, FT> = (string, FT, FR) => boolean;
 
@@ -65,14 +63,13 @@ export type BaseTestConfig = {
                     enabled: boolean
                   };
 
-
-export type  NamedCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> =  NamedObj<BaseCase<R, T, I, S, V>>
+export type NamedCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> =  NamedObj<BaseCase<R, T, I, S, V>>
 
 type NamedObj<T> = T & {
   name: string
 }
 
-export function loadAll<R, T>(){
+export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<R, T, *, *, *>> {
 
   function loadFile(name, pth) {
     // Delete cache entry to make sure the file is re-read from disk.
@@ -82,11 +79,9 @@ export function loadAll<R, T>(){
     var func = require(pth);
   }
 
-  eachFile(testCaseFile(''), loadFile);
-  allCases.forEach((c) => {
-    console.log('==== ' + c.name + ' ====');
-    console.log(toString(c.testItems()))
-  });
+  let testCaseDir = testCaseFile('');
+  eachFile(testCaseDir, loadFile);
+  return ((allCases: any): Array<NamedCase<R, T, *, *, *>>);
 }
 
 function executeValidator<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validator: GenericValidator<V, I, R>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
@@ -139,7 +134,6 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
   }
 }
 
-
 export function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
   log('Loading Test Items');
   let itemList = testCase.testItems(runConfig);
@@ -178,7 +172,7 @@ export function filterTestItems<T, TC, R>(testCases: Array<NamedObj<T>>, configE
   return result;
 }
 
-export function testRun<R: BaseRunConfig, FR: $Subtype<R>, T: BaseTestConfig, FT: $Subtype<T>> (params: RunParams<R, FR, T, FT>): void {
+export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
 
   let { itemRunner, testRunner, testList, runConfig, runConfigDefaulter, testConfigDefaulter, testFilters} = params,
       runName = runConfig.name;
@@ -186,8 +180,8 @@ export function testRun<R: BaseRunConfig, FR: $Subtype<R>, T: BaseTestConfig, FT
   runConfig = runConfigDefaulter(runConfig);
 
   let filterResult = filterTestItems(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
-  logFilterLog(filterResult.log);
-  testList = filterResult.items;
+  //logFilterLog(filterResult.log);
+  testList = ((filterResult.items: any): Array<NamedCase<R, T, *, *, *>>);
 
   logStartRun(runName, runConfig);
   try {

@@ -7,7 +7,7 @@ import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from 
 import  type { Environment, Country, Depth } from '../../testCases/ProjectConfig';
 import { debug } from '../lib/SysUtils';
 
-describe.only('filters', () => {
+describe('filters', () => {
 
   const baseCase = () => {
     return {

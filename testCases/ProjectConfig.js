@@ -1,7 +1,9 @@
 // @flow
 
-import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig, GenericValidator, RunParams, NamedCase, TestFilter} from '../src/lib/TestRunner';
-import { runTestItem, runTest, testRun } from '../src/lib/TestRunner';
+import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
+              GenericValidator, RunParams, NamedCase, TestFilter
+            } from '../src/lib/TestRunner';
+import { runTestItem, runTest, testRun, loadAll} from '../src/lib/TestRunner';
 import { forceArray, xOr, debug } from '../src/lib/SysUtils';
 import { wildCardMatch } from '../src/lib/StringUtils';
 import * as caseRunner from '../src/lib/TestRunner';
@@ -99,11 +101,11 @@ function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<Ru
   }
 }
 
-function run(runConfig: RunConfig) {
-  // filter
-  // run
-  // processLogFiles
+export function run(runConfig: RunConfig) {
+  let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
+  let runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  = setRunParamsDefaults(runConfig, testCases);
 
+  testRun(runParams);
 }
 
 /* Test Filtering */
