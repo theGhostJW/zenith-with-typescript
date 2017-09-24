@@ -1,7 +1,7 @@
 // @flow
 
 import { eachFile, testCaseFile, fileOrFolderName } from '../lib/FileUtils';
-import { forceArray, functionNameFromFunction, objToYaml } from '../lib/SysUtils';
+import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug } from '../lib/SysUtils';
 import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log, logIterationSummary } from '../lib/Logging';
@@ -61,6 +61,7 @@ export type BaseTestConfig = {
                     then: string,
                     enabled: boolean
                   };
+
 
 export type  NamedCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> =  NamedObj<BaseCase<R, T, I, S, V>>
 
@@ -142,10 +143,37 @@ export function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(
   itemList.forEach((item) => itemRunner(testCase, runConfig, item));
 }
 
-export function filterTestItems() {
-
+export type FilterResult<C> = {
+  items: Array<C>,
+  log: {[string]: string}
 }
 
+export function filterTestItems<T, TC, R>(testCases: Array<NamedObj<T>>, configExtractor: T => TC, predicates: Array<(string, TC, R) => boolean>, runConfig: R): FilterResult<T> {
+
+  let predicateNames = predicates.map(functionNameFromFunction);
+
+  function pushLog(accum, testCase: NamedObj<T>) {
+    let caseName = testCase.name,
+        failIdx = predicates.findIndex(p => !p(caseName, configExtractor(testCase), runConfig)),
+        accepted = failIdx < 0;
+
+    if (accepted) {
+      accum.items.push(testCase);
+    }
+
+    accum.log[caseName] = accepted ? 'Accepted' : predicateNames[failIdx];
+    return accum;
+  }
+
+  let result = testCases.reduce(pushLog, {
+                                items: [],
+                                log: {}
+                              }),
+      logKeys = _.keys(result.log).sort();
+
+  result.log = reorderProps(result.log, ...logKeys)
+  return result;
+}
 
 export function testRun<R: BaseRunConfig, FR: $Subtype<R>, T: BaseTestConfig, FT: $Subtype<T>> (params: RunParams<R, FR, T, FT>): void {
 
