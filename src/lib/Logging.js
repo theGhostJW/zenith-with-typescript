@@ -48,7 +48,7 @@ export const expectDefect = (defectInfo: string) => specialMessage('StartDefect'
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
 
-
+export const logFilterLog = (filterLog: {[string]: string}) => specialMessage('FilterLog')('Filter Log', objToYaml(filterLog));
 export const logStartRun = (runName: string, runConfig: mixed) => specialMessage('RunStart', 'PushFolder')(
                                                                                                       `Test Run: ${runName}`,
                                                                                                        objToYaml(runConfig));
@@ -70,12 +70,7 @@ export const logStartIteration = (id: number, testName: string, when: string, th
                                                                                                                   then: then
                                                                                                                 }));
 
-export const logEndIteration = (id: number) => specialMessage('IterationEnd', 'PopFolder')(`End Iteration ${id}`, objToYaml({id: id}));
-
-
-
-const BLUE : Color = new Color('#00008B');
-const WHITE  : Color = Color('#FFFFFF');
+export const logEndIteration = (id: number) => specialMessage('IterationEnd', 'PopFolder')(`End Iteration ${id}`, objToYaml({id: id}))
 
 export type LogFunction = (message: string, additionalInfo: ?string, attrs: ?LogAttributes) => void
 
@@ -86,6 +81,7 @@ export type LoggingFunctions = {
 }
 
 export type LogSubType = "Message" |
+                          "FilterLog" |
                           "RunStart" |
                           "TestStart" |
                           "IterationStart" |

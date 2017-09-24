@@ -4,7 +4,8 @@ import { eachFile, testCaseFile, fileOrFolderName } from '../lib/FileUtils';
 import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug } from '../lib/SysUtils';
 import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
-          logEndIteration, logError, pushLogFolder, popLogFolder, log, logIterationSummary } from '../lib/Logging';
+          logEndIteration, logError, pushLogFolder, popLogFolder, log,
+          logIterationSummary, logFilterLog } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
@@ -16,6 +17,8 @@ export type BaseRunConfig = {
   name: string
 }
 
+export type TestFilter<FR, FT> = (string, FT, FR) => boolean;
+
 export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
   testList: Array<NamedCase<R, T, *, *, *>>,
   runConfig: R,
@@ -23,8 +26,8 @@ export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
   runConfigDefaulter: R => FR,
   testRunner: TestRunner<FR, FT>,
   itemRunner: ItemRunner<FR, *>,
-  testFilters: Array<(FR, FT) => boolean>,
-  itemFilter?: (FR, any) => boolean
+  testFilters: Array<TestFilter<FR, FT>>,
+  itemFilter?: (FR, testItem: any) => boolean
 |}
 
 
@@ -177,10 +180,14 @@ export function filterTestItems<T, TC, R>(testCases: Array<NamedObj<T>>, configE
 
 export function testRun<R: BaseRunConfig, FR: $Subtype<R>, T: BaseTestConfig, FT: $Subtype<T>> (params: RunParams<R, FR, T, FT>): void {
 
-  let { itemRunner, testRunner, testList, runConfig, runConfigDefaulter, testConfigDefaulter} = params,
+  let { itemRunner, testRunner, testList, runConfig, runConfigDefaulter, testConfigDefaulter, testFilters} = params,
       runName = runConfig.name;
 
   runConfig = runConfigDefaulter(runConfig);
+
+  let filterResult = filterTestItems(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
+  logFilterLog(filterResult.log);
+  testList = filterResult.items;
 
   logStartRun(runName, runConfig);
   try {

@@ -1,14 +1,21 @@
 // @flow
-//
 
-import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig, GenericValidator, RunParams, NamedCase} from '../src/lib/TestRunner';
+import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig, GenericValidator, RunParams, NamedCase, TestFilter} from '../src/lib/TestRunner';
 import { runTestItem, runTest, testRun } from '../src/lib/TestRunner';
-import { forceArray } from '../src/lib/SysUtils';
+import { forceArray, xOr, debug } from '../src/lib/SysUtils';
+import { wildCardMatch } from '../src/lib/StringUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import * as _ from 'lodash';
 
+const depthMap = {
+  Connectivity: 0,
+  Regression: 100,
+  DeepRegression: 200,
+  Special: -999
+};
+
 export type Environment = "TST" | "UAT" | "PVT";
-export type Depth = "Connectivity" | "Regression" | "DeepRegression" | "Special";
+export type Depth = $Keys<typeof depthMap>;
 export type Country = "Australia" | "New Zealand";
 
 export type RunConfig = {
@@ -23,7 +30,7 @@ export type FullRunConfig = {|
   name: string,
   country: Country,
   environment: Environment,
-  testCases?: Array<number|string>,
+  testCases: Array<number|string>,
   depth: Depth
 |}
 
@@ -73,7 +80,7 @@ function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   let defaultprops =  {
     country: 'Australia',
     environment: 'TST',
-    testCases: null,
+    testCases: [],
     depth: 'Regression'
   }
   return _.defaults(partialRunConfig, defaultprops);
@@ -87,7 +94,7 @@ function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<Ru
     testConfigDefaulter: setTestConfigDefaults,
     testRunner: runTest,
     itemRunner: runTestItem,
-    testFilters: [],
+    testFilters: filters,
     itemFilter: undefined
   }
 }
@@ -97,4 +104,41 @@ function run(runConfig: RunConfig) {
   // run
   // processLogFiles
 
+}
+
+/* Test Filtering */
+export type TestCaseFilter = TestFilter<FullRunConfig, FullTestConfig>;
+
+const filters: Array<TestCaseFilter> = [
+    is_enabled,
+    in_list,
+    test_depth,
+    environment_match,
+    country_match
+]
+
+export function is_enabled(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig): boolean {
+  return testConfig.enabled;
+}
+
+export function in_list(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig): boolean {
+  let testCases = runConfig.testCases;
+  return testCases.length == 0 ||
+        testCases.find(s => typeof s == 'string' && wildCardMatch(name, s)) != null ||
+        testCases.find(n => typeof n == 'number' && n === testConfig.id) != null;
+}
+
+export function test_depth(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig) {
+  let testDepth = testConfig.depth,
+      runDepth = runConfig.depth;
+
+  return !xOr(testDepth == 'Special', runDepth == 'Special') && depthMap[runDepth] >= depthMap[testDepth];
+}
+
+export function environment_match(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig): boolean {
+  return testConfig.environments.includes(runConfig.environment);
+}
+
+export function country_match(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig) {
+  return testConfig.countries.includes(runConfig.country);
 }

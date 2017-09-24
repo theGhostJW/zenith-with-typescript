@@ -5,7 +5,7 @@ import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from 
 import { debug } from '../lib/Sysutils';
 
 
-describe.only('filterTestItems', () => {
+describe('filterTestItems', () => {
 
   const testCases = [
       {name: 'test1', cfg: {env: 'TST', enabled: true, size: 5}},
