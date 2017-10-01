@@ -8,7 +8,7 @@ import  type { Environment, Country, Depth } from '../../testCases/ProjectConfig
 import { log } from '../lib/Logging';
 import { debug } from '../lib/SysUtils';
 
-describe.only('run', () => {
+describe('run', () => {
 
   const runConfig = {
     name: 'Test Test Run',

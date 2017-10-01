@@ -1,0 +1,168 @@
+//@flow
+
+import {debug, areEqual, yamlToObj } from '../lib/SysUtils';
+import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
+import { RECORD_DIVIDER } from '../lib/Logging';
+import { newLine, toString } from '../lib/StringUtils';
+import readline from 'readline';
+import * as fs from 'fs';
+
+/*
+timestamp: '2017-10-01 13:46:27'
+level: info
+subType: RunStart
+popControl: PushFolder
+message: 'Test Run: Test Test Run',
+link: ?string,
+callstack: any
+additionalInfo: |
+  name: Test Test Run
+  country: Australia
+  environment: TST
+  testCases: []
+  depth: Regression
+ */
+
+
+type State = {
+  filterLog?: Array<{[string]: string}>
+}
+
+const initalState: State = {
+}
+
+function makeStep<S>(onEntry:(S, LogEntry) => S, endIteration: (S, LogEntry) => S, endTest: (S, LogEntry) => S, endRun: (S, LogEntry) => S): (S, LogEntry) => S {
+
+  return function step(state, entry) {
+    let newState: S = onEntry(state, entry);
+    switch (entry.subType) {
+      case 'IterationEnd':
+        newState = endIteration(newState, entry);
+        break;
+
+      case 'TestEnd':
+          newState = endTest(newState, entry);
+          break;
+
+      case 'RunEnd':
+          newState = endRun(newState, entry);
+          break;
+
+      default:
+        break;
+    }
+    return newState;
+  }
+}
+
+
+export function stateStep(state: State, entry: LogEntry): State {
+
+  switch (entry.subType) {
+    case 'FilterLog':
+      state.filterLog = filterLog(entry.additionalInfo == null ? '' : entry.additionalInfo);
+      console.log('MY FIRST STATE' + toString(state.filterLog));
+      break;
+
+
+    case 'RunEnd':
+        onEnd();
+        console.log('MY FIRST STATE' + toString(state.filterLog));
+        break;
+
+
+    default:
+
+  }
+
+  return state;
+}
+
+
+function filterLog(str: string) {
+  return yamlToObj(str);
+}
+
+export const parseLogDefault = <S>(fullPath: string) => parseLog(fullPath, stateStep, initalState);
+
+export const parseLog = <S>(fullPath: string, step: (S, LogEntry) => S, initState: S) => logSplitter(fullPath, parser(step, initState) );
+
+function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => void {
+
+  let remainingLines = [],
+      currentState = initialState;
+
+  function accumLine(line) {
+    if (line == RECORD_DIVIDER){
+      let entry = entryFromLines(remainingLines.join(newLine()));
+      currentState = step(currentState, entry);
+      console.log('!!!!!!!!!!!!! NEW ENTRY !!!!!!!!');
+      remainingLines = [];
+    }
+    else {
+      console.log(`!!!!!!!!!!!!! NEW LINE !!!!!!!! ${line}`);
+      remainingLines.push(line);
+    }
+  }
+
+  return function parseChunk(str: string): void {
+    let lines = str.split(newLine());
+    lines.forEach(accumLine);
+  }
+
+}
+
+export function entryFromLines(str: string): LogEntry  {
+  return yamlToObj(str);
+}
+
+export function logSplitter(fullPath: string, itemParser: string => void ): void {
+
+  let inputFile = fs.createReadStream(fullPath, { encoding: 'utf8',  autoClose: true });
+
+  inputFile.on('data', (chunk) => {
+    itemParser(chunk);
+  }).on('end', () => {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!! There will be no more data !!!!!!!!!!!!!!!!!!!!!!');
+  }).on('error', () => {
+    console.log('There was an error');
+  }
+
+  );
+
+
+
+
+
+//
+//   let lineReader = readline.createInterface({
+//     input: inputFile,
+//     output: process.stdout
+//   });
+//
+//    console.log('HERE');
+//
+//   let activeEntry = [];
+//
+//   lineReader.on('line', function (line) {
+//     console.log(line);
+//     if (line == RECORD_DIVIDER){
+//       console.log(line);
+//       let thisEntry = entryFromLines(activeEntry.join('\n'));
+//       itemParser(thisEntry);
+//       activeEntry = [];
+//     }
+//     else {
+//       console.log(line);
+//       activeEntry.push(line);
+//     }
+//   });
+//
+//
+//
+//  lineReader.on('close', () => {
+//    console.log('file closed');
+// });
+
+
+}

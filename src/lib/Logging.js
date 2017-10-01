@@ -134,6 +134,17 @@ export const PLAIN_CONSOLE_LOGGING_FUNCTIONS: LoggingFunctions = {
    logError: consoleLog('error')
 }
 
+export type LogEntry = {
+  timestamp?: string,
+  level: LogLevel,
+  subType: LogSubType,
+  popControl: PopControl,
+  message: ?string,
+  link: ?string,
+  callstack: ?string,
+  additionalInfo: ?string
+}
+
 /*===================  Winston Logging  ========================*/
 
 
@@ -285,7 +296,7 @@ function formatFileLog(options) {
     link: meta.link,
     callstack: meta.callstack == null ?  meta.callstack : subStrAfter(meta.callstack, 'Error\n')
   }
-  return objToYaml(logItem) + '-------------------------------';
+  return objToYaml(logItem) + RECORD_DIVIDER;
 }
 
 function formatConsoleLog(options) {
@@ -295,6 +306,8 @@ function formatConsoleLog(options) {
   return winston.config.colorize(options.level, appendDelim(header , newLine(), def(options.meta, {}).additionalInfo));
 }
 
+export const RECORD_DIVIDER = '-------------------------------';
+
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
 const LOG_LEVELS = {
   error: 0,
@@ -302,7 +315,7 @@ const LOG_LEVELS = {
   info: 2
 };
 
-type LogLevel = $Keys<typeof LOG_LEVELS>;
+export type LogLevel = $Keys<typeof LOG_LEVELS>;
 
 type WinstonLogFunc = (LogLevel, string, {}) => void;
 
