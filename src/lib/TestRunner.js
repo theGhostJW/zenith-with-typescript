@@ -5,7 +5,7 @@ import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug } 
 import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
-          logIterationSummary, logFilterLog } from '../lib/Logging';
+          logIterationSummary, logFilterLog, logException } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
@@ -101,7 +101,7 @@ function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(vali
     try {
       executeValidator(validator, valState, item, runConfig, valTime);
     } catch (e) {
-      logError('Exception thrown in validator: ' + currentValidator, objToYaml(e));
+      logException('Exception thrown in validator: ' + currentValidator, e);
       throw(e);
     } finally {
       popLogFolder();
@@ -128,7 +128,7 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
     logIterationSummary(summary);
   }
   catch (e) {
-    logError(`Exception Thrown ${stage}`, objToYaml(e));
+    logException(`Exception Thrown ${stage}`, e);
   } finally {
     logEndIteration(item.id)
   }
@@ -206,7 +206,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
     testList.forEach(runTestInstance);
 
   } catch (e) {
-    logError('Exception logged in a test run', objToYaml(e));
+    logException(`Exception thrown in test run`, e);
   } finally {
     logEndRun(runName);
   }

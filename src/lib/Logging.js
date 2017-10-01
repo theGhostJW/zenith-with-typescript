@@ -4,7 +4,7 @@ import Color from "color";
 import * as _ from 'lodash';
 import * as winston from 'winston';
 import * as util from 'util'
-import {appendDelim, newLine, capFirst, subStrAfter } from '../lib/StringUtils';
+import {appendDelim, newLine, capFirst, subStrAfter, toString } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
 import { nowAsLogFormat, nowFileFormatted } from '../lib/DateTimeUtils';
 // force loading of module
@@ -48,6 +48,16 @@ export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Fo
 export const expectDefect = (defectInfo: string) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo));
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
+export const logException = (message: string, exceptionObj: any) =>
+                                                                  logError(message,
+                                                                      toString(exceptionObj),
+                                                                      {
+                                                                       additionalInfo: toString(exceptionObj),
+                                                                       subType: 'Exception',
+                                                                       popControl: 'NoAction',
+                                                                       callstack: exceptionObj.stack
+                                                                     }
+                                                                    );
 
 export const logFilterLog = (filterLog: {[string]: string}) => specialMessage('FilterLog')('Filter Log', objToYaml(filterLog));
 export const logStartRun = (runName: string, runConfig: mixed) => specialMessage('RunStart', 'PushFolder')(
@@ -92,6 +102,7 @@ export type LogSubType = "Message" |
                           "RunEnd" |
                           "StartDefect" |
                           "EndDefect" |
+                          "Exception" |
                           "CheckPass" |
                           "CheckFail";
 
@@ -274,7 +285,7 @@ function formatFileLog(options) {
     link: meta.link,
     callstack: meta.callstack == null ?  meta.callstack : subStrAfter(meta.callstack, 'Error\n')
   }
-  return objToYaml(logItem) + newLine() + '#########' + newLine();
+  return objToYaml(logItem) + '-------------------------------';
 }
 
 function formatConsoleLog(options) {

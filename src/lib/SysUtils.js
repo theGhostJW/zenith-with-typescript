@@ -9,7 +9,7 @@ import * as yaml from 'js-yaml';
 import moment from 'moment';
 import child_process from 'child_process';
 import { now } from '../lib/DateTimeUtils';
-import { log } from '../lib/Logging';
+import { log, logException } from '../lib/Logging';
 import { runTimeFile, pathExists } from '../lib/FileUtils';
 
 
@@ -410,7 +410,9 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
 
 // a fudge to keep the type checker happy
 export function fail<T>(description: string): T {
-  throw new Error(description);
+  let err = new Error(description);
+  logException(description, err);
+  throw err;
 }
 
 export function ensureReturn<T>(condition : boolean, successVal: T, failMsg : string = '') : T {

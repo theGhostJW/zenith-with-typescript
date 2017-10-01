@@ -2,8 +2,8 @@
 
 import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
-import { debug } from '../src/lib/SysUtils';
-import { log } from '../src/lib/Logging';
+import { debug, fail } from '../src/lib/SysUtils';
+import { log, expectDefect, endDefect, logException } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
 import child_process from 'child_process'
 import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
@@ -21,6 +21,10 @@ var config: TestConfig = {
 }
 
 function interactor(item: Item, runConfig: RunConfig): ApState {
+
+  if (item.id == 4){
+    fail('I do not like 4');
+  }
 
   return {
     id: item.id,
@@ -59,11 +63,17 @@ type Item = {|
 |}
 
 function check_less_than_2(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
-  check(valState.id < 2, 'expect less than 2')
+  expectDefect('should fail');
+  check(valState.id < 2, 'expect less than 2');
+  endDefect();
 }
 
 function check_less_than_3(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
   check(valState.id < 3, 'expect less than 2')
+}
+
+function check_bad_validator(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+  throw('ARGGGHHHHHH!!!')
 }
 
 function  testItems(runConfig: RunConfig): Array<Item> {
@@ -82,6 +92,24 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       validators: [
         check_less_than_2,
         check_less_than_3
+      ]
+    },
+
+    {
+      id: 3,
+      when: 'I run another test',
+      then: 'i get another result',
+      validators: [
+        check_bad_validator
+      ]
+    },
+
+    {
+      id: 4,
+      when: 'I run another test',
+      then: 'i get another result',
+      validators: [
+        check_bad_validator
       ]
     }
 
