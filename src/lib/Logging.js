@@ -3,6 +3,7 @@
 import Color from "color";
 import * as _ from 'lodash';
 import * as winston from 'winston';
+import * as util from 'util'
 import {appendDelim, newLine, capFirst, subStrAfter } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
 import { nowAsLogFormat, nowFileFormatted } from '../lib/DateTimeUtils';
@@ -124,6 +125,46 @@ export const PLAIN_CONSOLE_LOGGING_FUNCTIONS: LoggingFunctions = {
 
 /*===================  Winston Logging  ========================*/
 
+
+
+ var CustomLogger = winston.transports.CustomLogger = function (options: {}) {
+   //
+   // Name this logger
+   //
+   this.name = 'File Logger';
+
+   //
+   // Set the level from your options
+   //
+   this.level = options.level || 'info';
+
+   this.fd = fs.openSync(logFile('latest.yaml'), 'w+');
+
+   //
+   // Configure your storage backing as you see fit
+   //
+ };
+
+ //
+ // Inherit from `winston.Transport` so you can take advantage
+ // of the base functionality and `.handleExceptions()`.
+ //
+ util.inherits(CustomLogger, winston.Transport);
+
+ CustomLogger.prototype.log = function (level, msg, meta, callback) {
+   //
+   // Store this message and metadata, maybe use some custom logic
+   // then callback indicating success.
+
+   //$FlowFixMe
+   fs.write(this.fd, msg + newLine(), (err, fd) => {
+    // => [Error: EISDIR: illegal operation on a directory, open <directory>]
+   });
+
+   callback(null, true);
+ };
+
+
 export const logger = newWinstton();
 
 
@@ -135,8 +176,9 @@ function newWinstton() {
   return new (winston.Logger)({
     transports: [
       consoleLogger(),
-      fileLogger('latest.yaml'),
-      fileLogger(`log ${nowFileFormatted()}.yaml`),
+      new (winston.transports.CustomLogger)({}),
+    //  fileLogger('latest.yaml'),
+    //  fileLogger(`log ${nowFileFormatted()}.yaml`),
     ]
   });
 }
