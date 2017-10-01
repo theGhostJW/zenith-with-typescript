@@ -180,7 +180,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
   runConfig = runConfigDefaulter(runConfig);
 
   let filterResult = filterTestItems(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
-  //logFilterLog(filterResult.log);
+  logFilterLog(filterResult.log);
   testList = ((filterResult.items: any): Array<NamedCase<R, T, *, *, *>>);
 
   logStartRun(runName, runConfig);

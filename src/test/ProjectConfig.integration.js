@@ -19,8 +19,6 @@ describe.only('run', () => {
   };
 
   it('demo Test Run', () => {
-    log('in test');
-    log('in test 2');
     run(runConfig);
   });
 

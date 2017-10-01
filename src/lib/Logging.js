@@ -130,15 +130,18 @@ export const PLAIN_CONSOLE_LOGGING_FUNCTIONS: LoggingFunctions = {
  var CustomLogger = winston.transports.CustomLogger = function (options: {}) {
    //
    // Name this logger
-   //
-   this.name = 'File Logger';
+
+   //$FlowFixMe
+   this.name = options.name;
 
    //
    // Set the level from your options
    //
    this.level = options.level || 'info';
+   this.timestamp = options.timestamp || nowAsLogFormat;
 
-   this.fd = fs.openSync(logFile('latest.yaml'), 'w+');
+   //$FlowFixMe
+   this.fd = fs.openSync(options.filename, 'w+');
 
    //
    // Configure your storage backing as you see fit
@@ -156,8 +159,15 @@ export const PLAIN_CONSOLE_LOGGING_FUNCTIONS: LoggingFunctions = {
    // Store this message and metadata, maybe use some custom logic
    // then callback indicating success.
 
+   let logMessage = formatFileLog({
+     timestamp: this.timestamp,
+     level: level,
+     message: msg,
+     meta: meta
+   });
+
    //$FlowFixMe
-   fs.write(this.fd, msg + newLine(), (err, fd) => {
+   fs.write(this.fd, logMessage + newLine(), (err, fd) => {
     // => [Error: EISDIR: illegal operation on a directory, open <directory>]
    });
 
@@ -176,9 +186,8 @@ function newWinstton() {
   return new (winston.Logger)({
     transports: [
       consoleLogger(),
-      new (winston.transports.CustomLogger)({}),
-    //  fileLogger('latest.yaml'),
-    //  fileLogger(`log ${nowFileFormatted()}.yaml`),
+      fileLogger('latest.raw.yaml'),
+      fileLogger(`log ${nowFileFormatted()}.raw.yaml`)
     ]
   });
 }
@@ -203,8 +212,7 @@ export function consoleLogger() {
 
 export function fileLogger(fileNameNoPath: string) {
   let filePath = logFile(fileNameNoPath);
-  deleteRecreateFile(filePath);
-  return new (winston.transports.File)({
+  return new (winston.transports.CustomLogger)({
       name: fileNameNoPath,
       timestamp: nowAsLogFormat,
       filename: filePath,
@@ -215,6 +223,8 @@ export function fileLogger(fileNameNoPath: string) {
       formatter: formatFileLog
     });
 }
+
+
 
 // don't know how to call directly as modules aren't loaded if call in FileUtils
 // when winston is loading
@@ -256,12 +266,15 @@ function formatFileLog(options) {
   let meta = options.meta;
   let logItem = {
     timestamp: options.timestamp(),
-    [options.level]: options.message,
+    level: options.level,
+    subType: meta.subType,
+    popControl: meta.popControl,
+    message: options.message,
     additionalInfo: meta.additionalInfo,
     link: meta.link,
     callstack: meta.callstack == null ?  meta.callstack : subStrAfter(meta.callstack, 'Error\n')
   }
-  return objToYaml(logItem) + '--------';
+  return objToYaml(logItem) + newLine() + '#########' + newLine();
 }
 
 function formatConsoleLog(options) {
