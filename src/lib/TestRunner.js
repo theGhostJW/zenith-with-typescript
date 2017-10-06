@@ -165,10 +165,7 @@ export function filterTestItems<T, TC, R>(testCases: Array<NamedObj<T>>, configE
   let result = testCases.reduce(pushLog, {
                                 items: [],
                                 log: {}
-                              }),
-      logKeys = _.keys(result.log).sort();
-
-  result.log = reorderProps(result.log, ...logKeys)
+                              });
   return result;
 }
 

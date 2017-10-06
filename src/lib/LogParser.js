@@ -1,10 +1,11 @@
 //@flow
 
-import {debug, areEqual, yamlToObj } from '../lib/SysUtils';
+import {debug, areEqual, yamlToObj, reorderProps } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER } from '../lib/Logging';
-import { newLine, toString } from '../lib/StringUtils';
+import { newLine, toString, subStrBefore } from '../lib/StringUtils';
 import readline from 'readline';
+import * as _ from 'lodash';
 import * as fs from 'fs';
 
 /*
@@ -24,55 +25,56 @@ additionalInfo: |
  */
 
 
-type State = {
-  filterLog?: Array<{[string]: string}>
+export type State = {
+  filterLog: {[string]: string}
 }
 
-const initalState: State = {
+export const initalState: State = {
+  filterLog: {}
 }
 
-function makeStep<S>(onEntry:(S, LogEntry) => S, endIteration: (S, LogEntry) => S, endTest: (S, LogEntry) => S, endRun: (S, LogEntry) => S): (S, LogEntry) => S {
+
+function makeStep<S>(onEntry:(S, LogEntry) => S, endIteration: S => void, endTest: S => void, endRun: S => void): (S, LogEntry) => S {
 
   return function step(state, entry) {
     let newState: S = onEntry(state, entry);
     switch (entry.subType) {
       case 'IterationEnd':
-        newState = endIteration(newState, entry);
+        endIteration(newState);
         break;
 
       case 'TestEnd':
-          newState = endTest(newState, entry);
-          break;
+        endTest(newState);
+        break;
 
       case 'RunEnd':
-          newState = endRun(newState, entry);
-          break;
+        endRun(newState);
+        break;
 
       default:
         break;
     }
+
     return newState;
   }
 }
 
 
-export function stateStep(state: State, entry: LogEntry): State {
+export function entryStep(state: State, entry: LogEntry): State {
 
   switch (entry.subType) {
     case 'FilterLog':
       state.filterLog = filterLog(entry.additionalInfo == null ? '' : entry.additionalInfo);
-      console.log('MY FIRST STATE' + toString(state.filterLog));
       break;
 
 
     case 'RunEnd':
-        onEnd();
         console.log('MY FIRST STATE' + toString(state.filterLog));
         break;
 
 
     default:
-
+      break;
   }
 
   return state;
@@ -80,10 +82,20 @@ export function stateStep(state: State, entry: LogEntry): State {
 
 
 function filterLog(str: string) {
-  return yamlToObj(str);
+
+  function cleanUpKey(acc, val, key) {
+    acc[subStrBefore(key, '.js')] = val;
+    return acc;
+  }
+
+  let filterLog = yamlToObj(str),
+      result = _.reduce(filterLog, cleanUpKey, {}),
+      logKeys = _.keys(result).sort();
+
+   return reorderProps(result, ...logKeys);
 }
 
-export const parseLogDefault = <S>(fullPath: string) => parseLog(fullPath, stateStep, initalState);
+export const parseLogDefault = <S>(fullPath: string) => parseLog(fullPath, entryStep, initalState);
 
 export const parseLog = <S>(fullPath: string, step: (S, LogEntry) => S, initState: S) => logSplitter(fullPath, parser(step, initState) );
 
