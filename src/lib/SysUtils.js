@@ -3,7 +3,7 @@
 import * as _ from 'lodash';
 import * as deep from 'lodash-deep';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
-      subStrBetween, stringToArray, replace} from '../lib/StringUtils';
+      subStrBetween, stringToArray, replace, newLine} from '../lib/StringUtils';
 import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
@@ -388,7 +388,42 @@ export function objToYaml(obj: mixed) : string {
   return ((yaml.safeDump(obj, {skipInvalid: true}): any): string) ;
 }
 
-export function yamlToObj<T>(yamlStr: string): T {
+function trimLine1Leading(str: string): string {
+  let lines = str.split(newLine()),
+      line0 = lines.find(s => s.trim() !== '');
+
+  if (line0 != null){
+    let len = line0.length,
+        n = 0;
+
+    while (n < len && line0[n] == ' ') {
+      n++;
+    }
+
+    if (n == 0){
+      return str;
+    }
+    else {
+      let prefix = _.repeat(' ', n);
+
+      function ensureEmpty(str, idx) {
+        ensure(str.trim() == '', `Bad padding line ${idx}: stars with less spaces than leading line [${str}]`);
+        return str;
+      }
+
+      function trimLine(line, idx) {
+        return line.startsWith(prefix) ? line.slice(n) : ensureEmpty(line, idx);
+      }
+      return lines.map(trimLine).join(newLine());
+    }
+  }
+  else {
+    return str;
+  }
+}
+
+export function yamlToObj<T>(yamlStr: string, trimLeadingSpaceBaseOnFirstLine: boolean = false): T {
+  yamlStr = trimLeadingSpaceBaseOnFirstLine ? trimLine1Leading(yamlStr): yamlStr;
   let untypedVal: any = yaml.safeLoad(yamlStr);
 	return (untypedVal: T);
 }

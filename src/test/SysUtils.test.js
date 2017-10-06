@@ -458,7 +458,7 @@ describe('forceArray', () => {
 
 });
 
-describe('objToYaml / YamlToObj', () => {
+describe.only('objToYaml / YamlToObj', () => {
 
   it('basic round trip', () => {
     let obj = {
@@ -475,6 +475,22 @@ describe('objToYaml / YamlToObj', () => {
     let actual = yamlToObj(objToYaml(obj));
     chkEq(obj, actual);
   });
+
+  it('will handle trimming correctly', () => {
+    let yaml =  `
+                  timestamp: '2017-10-01 13:46:27'
+                  level: info
+                  subType: FilterLog
+                  popControl: NoAction
+                  message: Filter Log
+                  additionalInfo: |
+                    Demo_Case.js: Accepted
+                    Another_Demo_Case.js: Accepted
+                `;
+    let actual = yamlToObj(yaml, true);
+    chkEq('info', actual.level);
+  });
+
 
 });
 
