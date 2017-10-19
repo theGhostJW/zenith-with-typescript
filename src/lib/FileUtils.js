@@ -22,6 +22,7 @@ import * as fsEx from 'file-system';
 import * as _ from 'lodash';
 import nodeZip from 'node-zip';
 import { toMoment } from '../lib/DateTimeUtils'
+import lineByLine from 'n-readlines';
 
 export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
 
@@ -29,7 +30,17 @@ const TEMP_STR_FILES : {
   [string] : boolean
 } = {};
 
-
+export function eachLine(fullPath: string, func: (string) => void, singleByteNLChar: string = '\n', readChunk: number = 1024){
+  let ops = {
+              readChunk: readChunk,
+              newLineCharacter: singleByteNLChar
+            },
+      liner = new lineByLine(fullPath, ops),
+      line = '';
+  while (line = liner.next()) {
+    func(line);
+  }
+}
 
 export function fileLastModified(fullFilePath: string ): moment$Moment  {
   ensure(pathExists(fullFilePath), 'Source file does not exist ${fullFilePath}');

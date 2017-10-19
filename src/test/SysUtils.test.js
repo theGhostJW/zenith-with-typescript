@@ -458,7 +458,7 @@ describe('forceArray', () => {
 
 });
 
-describe.only('objToYaml / YamlToObj', () => {
+describe('objToYaml / YamlToObj', () => {
 
   it('basic round trip', () => {
     let obj = {

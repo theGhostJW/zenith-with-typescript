@@ -22,8 +22,10 @@ describe('filters', () => {
             };
   }
 
-  const baseConfig = () => { return {
+  const baseConfig = () => {
+    return {
     name: 'Test Run',
+    mocked: false,
     country: 'Australia',
     environment: 'TST',
     testCases: [],

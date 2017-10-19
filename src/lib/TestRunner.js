@@ -5,7 +5,8 @@ import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug } 
 import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
-          logIterationSummary, logFilterLog, logException } from '../lib/Logging';
+          logIterationSummary, logFilterLog, logException, logValidationStart,
+          logStartInteraction } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
@@ -13,7 +14,10 @@ import * as _ from 'lodash';
 
 const allCases: Array<any> = [];
 
-export type BaseRunConfig = {name: string}
+export type BaseRunConfig = {
+  name: string,
+  mocked: boolean
+}
 
 export type TestFilter<FR, FT> = (string, FT, FR) => boolean;
 
@@ -84,22 +88,13 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
   return ((allCases: any): Array<NamedCase<R, T, *, *, *>>);
 }
 
-function executeValidator<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validator: GenericValidator<V, I, R>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
-  pushLogFolder(functionNameFromFunction(validator));
-  try {
-    validator(valState, item, runConfig, valTime);
-  } finally {
-    popLogFolder();
-  }
-}
-
 function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validators: GenericValidator<V, I, R> | Array<GenericValidator<V, I, R>>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
   validators = forceArray(validators);
   const validate = (validator) => {
     let currentValidator = functionNameFromFunction(validator);
     pushLogFolder(currentValidator);
     try {
-      executeValidator(validator, valState, item, runConfig, valTime);
+      validator(valState, item, runConfig, valTime);
     } catch (e) {
       logException('Exception thrown in validator: ' + currentValidator, e);
       throw(e);
@@ -107,7 +102,14 @@ function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(vali
       popLogFolder();
     }
   }
-  validators.forEach(validate);
+
+  logValidationStart(valTime, valState);
+  try {
+    validators.forEach(validate);
+  }  finally {
+    popLogFolder();
+  }
+
 }
 
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) {
@@ -115,7 +117,14 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
   logStartIteration(item.id, baseCase.name, item.when, item.then);
   let stage = 'Executing Interactor';
   try {
-    let apState: S = baseCase.interactor(item, runConfig);
+
+    logStartInteraction();
+    var apState: S;
+    try {
+      apState = baseCase.interactor(item, runConfig);
+    } finally {
+      popLogFolder();
+    }
 
     stage = 'Executing Prepstate - Transforming Apstate to ValState';
     let valState = baseCase.prepState(apState);

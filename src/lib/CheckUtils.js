@@ -7,8 +7,8 @@ import { logCheckFailure, logCheckPassed } from '../lib/Logging';
 import { tempFile, stringToLogFile } from '../lib/FileUtils';
 import * as _ from 'lodash';
 
-export const check = (condition: boolean, message: string, additionalInfo: ?string) => genericCheck('Check', condition, message, additionalInfo);
-export const checkFalse = (condition: boolean, message: string, additionalInfo: ?string) => genericCheck('Check False', !condition, message, additionalInfo);
+export const check = (condition: boolean, message: string, additionalInfo?: string) => genericCheck('Check', condition, message, additionalInfo);
+export const checkFalse = (condition: boolean, message: string, additionalInfo?: string) => genericCheck('Check False', !condition, message, additionalInfo);
 
 export const checkEqual = (expected: any, actual: any, message: string, additionalInfo: ?string) => {
   let result = areEqual(expected, actual),
@@ -61,7 +61,7 @@ function successMessage(expected, infoMessage){
   return appendDelim(infoMessage, ' - ' , result);
 }
 
-export function checkText(expected: string, actual: string, message: string, additionalInfo: ?string): boolean {
+export function checkText(expected: string, actual: string, message: string, additionalInfo?: string): boolean {
   let result = areEqual(expected, actual),
       prefix = 'Check Text';
 
@@ -84,7 +84,7 @@ export function checkText(expected: string, actual: string, message: string, add
 }
 
 
-function genericCheck(prefix: string, condition: boolean, message: string, additionalInfo: ?string) {
+function genericCheck(prefix: string, condition: boolean, message: string, additionalInfo?: string) {
   message = appendDelim(prefix, ': ', message);
   let logger = condition ? logCheckPassed : logCheckFailure;
   logger(message, additionalInfo);

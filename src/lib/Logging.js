@@ -6,12 +6,19 @@ import * as winston from 'winston';
 import * as util from 'util'
 import {appendDelim, newLine, capFirst, subStrAfter, toString } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
-import { nowAsLogFormat, nowFileFormatted } from '../lib/DateTimeUtils';
+import { nowAsLogFormat, nowFileFormatted, timeToFormattedms} from '../lib/DateTimeUtils';
 // force loading of module
 import * as fs from 'fs';
 import * as path from 'path';
 
-export type PopControl =   "PushFolder" | "PopFolder" | 'NoAction';
+// error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
+export const FOLDER_NESTING = {
+  NoAction: 0,
+  PushFolder: 1,
+  PopFolder: -1
+};
+
+export type PopControl =  $Keys<typeof FOLDER_NESTING>;
 
 export type FullLogAttributes = {
                               additionalInfo: ?string,
@@ -29,10 +36,10 @@ function defAttributes(): LogAttributes {
   };
 }
 
-export const log : LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.log(message, additionalInfo, attr);
-export const logWarning : LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.logWarning(message, additionalInfo, attr);
-export const logError: LogFunction = (message: string, additionalInfo: ?string, attr: ?LogAttributes) => globaLoggingFunctions.logError(message, additionalInfo, attr);
-export const logLink = (message: string, link: string, additionalInfo: ?string, attrs: ?LogAttributes) => {
+export const log : LogFunction = (message, additionalInfo, attr) => globaLoggingFunctions.log(message, additionalInfo, attr);
+export const logWarning : LogFunction = (message, additionalInfo, attr) => globaLoggingFunctions.logWarning(message, additionalInfo, attr);
+export const logError: LogFunction = (message, additionalInfo, attr) => globaLoggingFunctions.logError(message, additionalInfo, attr);
+export const logLink = (message: string, link: string, additionalInfo?: string, attrs?: LogAttributes) => {
   attrs = attrs == null ? {} : attrs;
   attrs.link = link;
   globaLoggingFunctions.log(message + ': ' + link, additionalInfo, attrs);
@@ -47,7 +54,12 @@ export const pushLogFolder = (folderLabel: string) => specialMessage('Message', 
 export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Folder');
 export const expectDefect = (defectInfo: string) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo));
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
+export const logStartInteraction = () => specialMessage('InteractorStart', 'PushFolder')('Start Interaction');
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
+export const logValidationStart = (valTime: moment$Moment, valState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
+                                                                                                                                    valTime: timeToFormattedms(valTime),
+                                                                                                                                    valState: valState
+                                                                                                                                  });
 export const logException = (message: string, exceptionObj: any) =>
                                                                   logError(message,
                                                                       toString(exceptionObj),
@@ -83,7 +95,7 @@ export const logStartIteration = (id: number, testName: string, when: string, th
 
 export const logEndIteration = (id: number) => specialMessage('IterationEnd', 'PopFolder')(`End Iteration ${id}`, objToYaml({id: id}))
 
-export type LogFunction = (message: string, additionalInfo: ?string, attrs: ?LogAttributes) => void
+export type LogFunction = (message?: string, additionalInfo?: string | {}, attrs?: LogAttributes) => void
 
 export type LoggingFunctions = {
    log: LogFunction,
@@ -103,18 +115,19 @@ export type LogSubType = "Message" |
                           "StartDefect" |
                           "EndDefect" |
                           "Exception" |
+                          "InteractorStart" |
+                          "ValidationStart" |
                           "CheckPass" |
                           "CheckFail";
 
 function specialLog(subType: LogSubType, baseFunction: LogFunction, popControl: PopControl = 'NoAction'): LogFunction {
-  return function logSpecial(message: string, additionalInfo: ?string, attr: ?LogAttributes) {
+  return function logSpecial(message?: string, additionalInfo?: string | {}, attr?: LogAttributes) {
     attr = attr == null ? {} : attr;
     attr.subType = subType;
     attr.popControl = popControl;
-    baseFunction(message, additionalInfo, attr);
+    baseFunction(toString(message), additionalInfo == null ? additionalInfo: toString(additionalInfo), attr);
   }
 }
-
 
 export const logCheckFailure: LogFunction = specialError('CheckFail');
 export const logCheckPassed: LogFunction = specialMessage('CheckPass');
@@ -122,9 +135,9 @@ export const logCheckPassed: LogFunction = specialMessage('CheckPass');
 const isCheckPointSubType = (subType: ?LogSubType) =>  subType != null && ['CheckFail', 'CheckPass'].includes(subType);
 
 function consoleLog(label: string) : LogFunction {
-  return function logWithlabel (message: string, additionalInfo: ?string, attr: ?LogAttributes) : void {
+  return function logWithlabel (message: string = '', additionalInfo?: string | {}, attr?: LogAttributes) : void {
     let fullMessage = _.toUpper(label) + ': ' + message;
-    console.log(appendDelim(fullMessage, newLine(), additionalInfo));
+    console.log(appendDelim(fullMessage, newLine(), additionalInfo == null ? additionalInfo : toString(additionalInfo)));
   }
 }
 
@@ -309,7 +322,7 @@ function formatConsoleLog(options) {
 export const RECORD_DIVIDER = '-------------------------------';
 
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
-const LOG_LEVELS = {
+export const LOG_LEVELS = {
   error: 0,
   warn: 1,
   info: 2
@@ -333,10 +346,10 @@ let winstonLogFuncs = {
 
 function logFunction(level: LogLevel, callStack: boolean) : LogFunction {
 
-  return function logWithlabel (message: string, additionalInfo: ?string, attrs: ?LogAttributes) : void {
+  return function logWithlabel (message?: string, additionalInfo?: string | {}, attrs?: LogAttributes) : void {
     attrs = attrs == null ? defAttributes() : attrs;
     let meta: LogAttributes = _.clone(attrs);
-    meta.additionalInfo = additionalInfo;
+    meta.additionalInfo = additionalInfo == null ? additionalInfo: toString(additionalInfo) ;
     if (callStack) {
       meta.callstack = new Error().stack;
     }

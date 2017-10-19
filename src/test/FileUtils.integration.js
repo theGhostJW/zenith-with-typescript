@@ -480,7 +480,7 @@ describe('from / to tempString', () => {
 
 
   let msg = '';
-  function logWarning(message: string, additionalInfo: ?string, attr: ?LogAttributes): void {
+  function logWarning(message?: string, additionalInfo?: string | {}, attr?: LogAttributes): void {
     msg = message;
   }
 

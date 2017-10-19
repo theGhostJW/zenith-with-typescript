@@ -21,6 +21,7 @@
     "mkdirp": "^0.5.1",
     "mocha": "^3.4.2",
     "moment": "^2.18.1",
+    "n-readlines": "^0.2.8",
     "node-zip": "^1.1.1",
     "psnode": "^0.0.1",
     "string": "^3.3.3",

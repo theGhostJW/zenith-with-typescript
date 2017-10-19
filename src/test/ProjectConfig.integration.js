@@ -12,6 +12,7 @@ describe('run', () => {
 
   const runConfig = {
     name: 'Test Test Run',
+    mocked: false,
     country: 'Australia',
     environment: 'TST',
     testCases: [],

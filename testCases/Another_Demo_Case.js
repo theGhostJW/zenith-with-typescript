@@ -44,7 +44,7 @@ function prepState(apState: ApState): ValState {
 }
 
 function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string {
-  return 'Summarry not implemented'
+  return 'Summary not implemented'
 }
 
 function mockFilename(item: Item, runConfig: RunConfig) {

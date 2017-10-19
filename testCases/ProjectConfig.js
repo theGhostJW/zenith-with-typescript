@@ -22,6 +22,7 @@ export type Country = "Australia" | "New Zealand";
 
 export type RunConfig = {
   name: string,
+  mocked: boolean,
   country?: Country,
   environment?: Environment,
   testCases?: Array<number|string> | number | string,
@@ -30,6 +31,7 @@ export type RunConfig = {
 
 export type FullRunConfig = {|
   name: string,
+  mocked: boolean,
   country: Country,
   environment: Environment,
   testCases: Array<number|string>,
@@ -81,6 +83,7 @@ function setTestConfigDefaults(partialTestConfig: TestConfig): FullTestConfig {
 function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   let defaultprops =  {
     country: 'Australia',
+    mocked: false,
     environment: 'TST',
     testCases: [],
     depth: 'Regression'

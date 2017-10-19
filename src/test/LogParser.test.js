@@ -2,22 +2,22 @@
 
 import {test, describe} from 'mocha'
 import { debug, yamlToObj } from '../lib/SysUtils';
-import { entryFromLines, initalState, entryStep } from '../lib/LogParser';
+import { initalState } from '../lib/LogParser';
 import type { State } from '../lib/LogParser';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
 describe('string parsing', () => {
 
-  it('entryFromLines', () => {
-    let actual = entryFromLines(DEMO_ENTRY);
-    chkEq('info', actual.level);
-  });
+  // it('entryFromLines', () => {
+  //   let actual = entryFromLines(DEMO_ENTRY);
+  //   chkEq('info', actual.level);
+  // });
 
 
 });
 
-describe.only('entry state', () => {
+describe('entry state', () => {
 
   const entry =
                 `
@@ -31,16 +31,16 @@ describe.only('entry state', () => {
                   Another_Demo_Case.js: Accepted`
 
 
-  it('filter log', () => {
-    let actual = entryStep(initalState, yamlToObj(entry)),
-        expected = {
-          filterLog: {
-          Another_Demo_Case: 'Accepted',
-          Demo_Case: 'Accepted'
-        }
-      };
-    chkEq(expected, actual);
-  });
+  // it('filter log', () => {
+  //   let actual = entryStep(initalState(), yamlToObj(entry)),
+  //       expected = {
+  //         filterLog: {
+  //         Another_Demo_Case: 'Accepted',
+  //         Demo_Case: 'Accepted'
+  //       }
+  //     };
+  //   chkEq(expected, actual);
+  // });
 
 
 });
