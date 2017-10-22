@@ -13,8 +13,8 @@ import moment from 'moment';
 
 var config: TestConfig = {
   id: 1,
-  when: '',
-  then: '',
+  when: 'I cannot think of anything',
+  then: 'I just write something',
   owner: 'JW',
   enabled: true,
   countries: ['New Zealand', 'Australia']

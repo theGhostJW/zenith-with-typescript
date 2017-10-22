@@ -1,9 +1,9 @@
 //@flow
 
-import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure} from '../lib/SysUtils';
+import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING } from '../lib/Logging';
-import { newLine, toString, subStrBefore, replace, hasText } from '../lib/StringUtils';
+import { newLine, toString, subStrBefore, replace, hasText} from '../lib/StringUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { combine, logFile, fileOrFolderName, eachLine } from '../lib/FileUtils';
@@ -45,6 +45,7 @@ export type Stats = {|
   outOfTestWarnings: number,
 
   expectedErrors: number,
+  type2Errors: number,
   warnings: number
 |}
 
@@ -71,8 +72,38 @@ const nullStats = () => {
     outOfTestWarnings: 0,
 
     expectedErrors: 0,
+    type2Errors: 0,
     warnings: 0
   };
+}
+
+export type LogTestConfig = {
+  id: number,
+  when: string,
+  then: string,
+  script: string,
+}
+
+export type LogIterationConfig = {
+  id: number,
+  when: string,
+  then: string
+}
+
+export type VaidatorInfo = {
+  name: string,
+  warnings: Array<LogEntry>,
+  errors: Array<LogEntry>,
+  type2Errors: Array<LogEntry>
+}
+
+function emptyValidatorInfo(name: ?string): VaidatorInfo {
+  return {
+    name: def(name, 'Unamed Validator'),
+    warnings: [],
+    errors: [],
+    type2Errors: []
+  }
 }
 
 export type State = {|
@@ -80,6 +111,7 @@ export type State = {|
   filterLog: {[string]: string},
   runName: string,
   runConfig: {},
+  timestamp: string,
   inRun: boolean,
 
   inTest: boolean,
@@ -88,18 +120,17 @@ export type State = {|
   testKnownDefect: boolean,
 
   inIteration: boolean,
-  inInteractor: boolean,
   inValidation: boolean,
 
   iterationSummary: string,
   indent: number,
-  testConfig: {},
-  iterationConfig: {},
+  testConfig: LogTestConfig,
+  iterationConfig: LogIterationConfig,
 
-  expectError: boolean,
-  errorExpectation: string,
+  errorExpectation: ?LogEntry,
   expectedErrorEncoutered: false,
 
+  iterationIndex: number,
   iterationSummary: string,
   apstate: {},
   validationInfo: {},
@@ -109,47 +140,104 @@ export type State = {|
   warnings: Array<LogEntry>,
   expectedErrors: Array<LogEntry>,
   type2Errors: Array<LogEntry>,
-  logItems: Array<LogEntry>
+  logItems: Array<LogEntry>,
+
+  validatorItems: Array<VaidatorInfo>,
+
+  activeValidator: ?VaidatorInfo,
+  activeInteractor: ?VaidatorInfo,
+  outOfTest: ?VaidatorInfo,
+  activeErrorInfo: ?VaidatorInfo
 |};
 
-export const initalState: () => State = () => {
+
+function emptyTestConfig() {
   return {
-    runStats: nullStats(),
-    filterLog: {},
-    runName: '',
-    runConfig: {},
+           id: -99999,
+           when: '',
+           then: '',
+           script: ''
+         };
+}
 
-    inRun: false,
+function emptyIterationConfig() {
+  return {
+           id: -99999,
+           when: '',
+           then: '',
+         };
+}
 
-    inTest: false,
-    testWarning: false,
-    testError: false,
-    testKnownDefect: false,
+export const initalState: () => State = () => {
+  let result = {
+                runStats: nullStats(),
+                filterLog: {},
+                runName: '',
+                runConfig: {},
+                timestamp: '',
 
-    inIteration: false,
-    inInteractor: false,
-    inValidation: false,
+                inRun: false,
 
-    iterationSummary: '',
+                inTest: false,
+                testWarning: false,
+                testError: false,
+                testKnownDefect: false,
 
-    indent: 0,
-    testConfig: {},
-    iterationConfig: {},
+                inIteration: false,
+                inValidation: false,
 
-    expectError: false,
-    errorExpectation: '',
-    expectedErrorEncoutered: false,
+                iterationSummary: '',
 
-    iterationSummary: '',
-    apstate: {},
-    validationInfo: {},
+                indent: 0,
+                testConfig: emptyTestConfig(),
 
-    errors: [],
-    warnings: [],
-    expectedErrors: [],
-    type2Errors: [],
-    logItems: []
-  };
+                iterationConfig: emptyIterationConfig(),
+
+                errorExpectation: null,
+                expectedErrorEncoutered: false,
+
+                iterationIndex: 0,
+                apstate: {},
+                validationInfo: {},
+
+                errors: [],
+                warnings: [],
+                expectedErrors: [],
+                type2Errors: [],
+
+                logItems: [],
+                validatorItems: [],
+
+                //this are flipped depending on what state we are in
+                activeValidator: null,
+                activeInteractor: null,
+                outOfTest: null,
+                activeErrorInfo: null
+              };
+
+  switchErrorInfoStage(result, 'outOfTest', 'out of test');
+  return result;
+}
+
+type StateStage = 'activeValidator' | 'activeInteractor' | 'outOfTest';
+
+function switchErrorInfoStage(state: State, stage: StateStage, name: string): void {
+  state.activeValidator = null;
+  state.activeInteractor = null;
+  state.outOfTest = null;
+
+  let newStageRec = emptyValidatorInfo(name);
+  state[stage] = newStageRec;
+  state.activeErrorInfo = newStageRec;
+  if (stage === 'activeValidator'){
+    state.validatorItems.push(newStageRec);
+  }
+}
+
+function clearErrorInfo(state: State): void {
+  state.activeValidator = null;
+  state.activeInteractor = null;
+  state.outOfTest = null;
 }
 
 
@@ -160,61 +248,117 @@ export const initalState: () => State = () => {
 
 
 // this is were things get concrete
-export function defaultStep(rawPath: string, destDir?: string): (State, LogEntry) => State {
+export function logGenerationStep(rawPath: string, destDir?: string): (State, LogEntry) => State {
 
   const RAW_FRAG = '.raw.';
-  const subSteam = (s) => {
-    let resultPath = replace(rawPath, RAW_FRAG, '.' + s + '.'),
+  function fileWriter(filePart){
+    let resultPath = replace(rawPath, RAW_FRAG, '.' + filePart + '.'),
         fileName = fileOrFolderName(resultPath);
 
     resultPath = combine(def(destDir, logFile()), fileName);
-    console.log(`log path- ${resultPath}`)
-    let result =  fs.createWriteStream(resultPath);
-    return result;
+    let fd = fs.openSync(resultPath, 'w');
+
+    return function writer(data, indent: number, prefix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
+      let str = toString(data);
+
+      if (indent > 0){
+        let iStr = '  '.repeat(indent),
+            nStr = iStr;
+
+        if (inArray) {
+          iStr = (arrayLineSeparator ? newLine() : '') + iStr + '- ';
+          nStr = nStr + '  ';
+        }
+        str = _.map(str.split(newLine()), (s, i) => (i === 0 ? iStr : nStr) + s).join(newLine());
+      }
+      //$FlowFixMe
+      fs.writeSync(fd, prefix + str);
+    }
   }
 
+  let writeFull = fileWriter('full'),
+      headerWritten = false;
 
   ensure(hasText(rawPath, RAW_FRAG, true), `rawPath does not conform to naming conventions (should contain ${RAW_FRAG}) ${rawPath}`)
 
-  let fullStream = subSteam('full');
+  function startRun(state: State) {
+    let {logItems, runConfig, errors, warnings} = state,
+        timestamp: string = state.timestamp,
+        entry = {
+          'run configuration': runConfig,
+          preRunErrors: errors.length > 0 ? errors : undefined,
+          preRunWarnings: warnings.length > 0 ? warnings:  undefined
+        },
+        str = `start time: ${timestamp}` + newLine(2) +
+              objToYaml(entry) + newLine() +
+              'tests:';
 
-  function writeFull(data) {
-    let str = toString(data);
-    fullStream.write(str + newLine());
+        writeFull(str, state.indent, '', false);
+   }
+
+   function makeErrorWriter(prefix: string, indent: number, addSeparatorLine: boolean): (string, Array<LogEntry>) => boolean {
+      return function writeError(tag: string, logItems: Array<LogEntry>) {
+        let hasItems = logItems.length > 0;
+        if (hasItems){
+          let info = {},
+              lineCount = addSeparatorLine ? 1 : 2;
+          info[`${prefix} ${tag}`] = logItems;
+          writeFull(info, indent, newLine(lineCount), true)
+        }
+        return hasItems;
+      }
+   }
+
+   function writeOutOfTestErrorsWarnings(state: State, addSeparatorLine: boolean): boolean {
+     let {type2Errors, errors, warnings, indent} = state,
+         errorWriter = makeErrorWriter('out of test', indent, addSeparatorLine);
+
+     return errorWriter('errors', errors) ||
+            errorWriter('type2Errors', type2Errors) ||
+            errorWriter('warnings', warnings);
+   }
+
+  function startTest(state: State) {
+    let {id, when, then, script} = state.testConfig,
+        hasOutOfTestInfo = writeOutOfTestErrorsWarnings(state, false),
+        info = `test: ${id} - ${script} - When ${when} then ${then}` + newLine() +
+                `timestamp: ${state.timestamp}` + newLine() +
+                'iterations:'
+
+    writeFull(info, state.indent, newLine(), true, state.runStats.testCases > 0 || hasOutOfTestInfo);
   }
 
-  const startRun = (state: State) => {
-    debug(state);
-    let config = _.cloneDeep(state.runConfig);
-    config.runItems = [];
-    writeFull(config);
-    console.log('Item written');
+  function iterationInfo(state: State){
+
+    let testConfig = state.testConfig,
+        iterationConfig = state.iterationConfig,
+        when = def(iterationConfig.when, testConfig.when),
+        then = def(iterationConfig.then, testConfig.then),
+        data =
+          `iteration: ${testConfig.id} / ${iterationConfig.id} - When ${when} then ${then}` + newLine() +
+          `validations: ${toString(state)}`;
+    return data;
   }
 
-  const startTest = (state: State) => {
+  function startIteration(state: State) {
+    writeOutOfTestErrorsWarnings(state, true);
+  }
+
+  function endIteration(state: State) {
+    writeFull(iterationInfo(state), state.indent + 1, newLine(), true, state.iterationIndex > 0);
+  }
+
+  function endTest(state: State) {
 
   }
 
-  const startIteration = (state: State) => {
-
+  function endRun(state: State) {
+    writeFull({
+                'filter log': state.filterLog
+              }, 0, newLine(2));
   }
 
-  const endIteration = (state: State) => {
-
-  }
-
-
-  const endTest = (state: State) => {
-
-  }
-
-  const endRun = (state: State) => {
-    console.log('before end');
-    fullStream.end('run Complete');
-    console.log('end');
-  }
-
-  return makeStep(processEntry,
+  return makeStep(stateChangeStep,
                   reset,
                   startRun,
                   startTest,
@@ -225,15 +369,17 @@ export function defaultStep(rawPath: string, destDir?: string): (State, LogEntry
 }
 
 // update the state without resetting anything
-function processEntry(state: State, entry: LogEntry): State {
+function stateChangeStep(state: State, entry: LogEntry): State {
 
   let stats = state.runStats;
-  state.indent = state.indent + FOLDER_NESTING[entry.popControl];
+  state.timestamp = def(entry.timestamp, state.timestamp);
+
+  state.indent = entry.popControl === 'PopFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
   state.logItems.push(entry);
 
   switch (entry.level) {
     case 'error':
-      if (state.expectError) {
+      if (state.errorExpectation != null) {
         state.expectedErrors.push(entry);
         stats.expectedErrors++;
       }
@@ -246,6 +392,7 @@ function processEntry(state: State, entry: LogEntry): State {
           stats.outOfTestErrors++;
         }
       }
+
       break;
 
     case 'warn':
@@ -261,55 +408,97 @@ function processEntry(state: State, entry: LogEntry): State {
     return entry.additionalInfo == null ? {} : yamlToObj(entry.additionalInfo);
   }
 
-  function configObj(ent: LogEntry) {
-    return entry.additionalInfo == null ? {} : yamlToObj(entry.additionalInfo);
+  function pushInTestErrorWarning(state: State, entry: LogEntry, isType2: boolean = false): void {
+    let level = entry.level,
+        errorSink = state.activeErrorInfo;
+
+    if(errorSink == null){
+      fail( `parser error - no active error / wanring sink at entry: ${toString(entry)}`);
+    }
+    else {
+      let {warnings, errors, type2Errors} = errorSink,
+          errArrray = isType2 ? type2Errors :
+                        level === 'error' ? errors :
+                        level === 'warn' ? warnings : null;
+
+      if (errArrray == null){
+        fail('pushInTestErrorWarning - not an not in valid state: ' + toString(entry))
+      }
+      else {
+        errArrray.push(entry);
+      }
+    }
   }
 
+  function resetDefectExpectation() {
+    if (state.errorExpectation != null && !state.expectedErrorEncoutered){
+      stats.type2Errors++;
+      state.type2Errors.push(state.errorExpectation);
+      pushInTestErrorWarning(state, entry, true);
+    }
+    state.errorExpectation = null;
+  }
+
+  let additionalInfo = entry.additionalInfo == null ? '' : entry.additionalInfo;
+  const infoObj = () => yamlToObj(additionalInfo);
   switch (entry.subType) {
     case 'FilterLog':
-      state.filterLog = filterLog(entry.additionalInfo == null ? '' : entry.additionalInfo);
+      state.filterLog = filterLog(additionalInfo);
       break;
 
     case 'RunStart':
       // other state changes handled in reseter
+      resetDefectExpectation();
       state.runConfig = configObj(entry);
       state.runName = state.runConfig.name;
       break;
 
     case 'TestStart':
       // other state changes handled in reseter
-      state.testConfig = configObj(entry);
+      resetDefectExpectation();
+      const defEmpty = (s?: string) => def(s, '');
+      let testConfig = _.pick(infoObj(), ['id', 'when', 'then','script']);
+      state.testConfig = testConfig;
+      state.iterationIndex = -1;
       break;
 
     case 'IterationStart':
       // other state changes handled in reseter
-      state.iterationConfig = configObj(entry);
+      resetDefectExpectation();
+      state.iterationConfig = _.pick(infoObj(), ['id', 'when', 'then']);
+      state.iterationIndex++;
       break;
 
-    case 'IterationStart':
-        // other state changes handled in reseter
-        state.iterationConfig = configObj(entry);
-        break;
-
     case 'Summary':
-        // other state changes handled in reseter
-        state.inValidation = false;
-        state.iterationSummary = def(entry.message, '');
-        break;
+      // other state changes handled in reseter
+      state.inValidation = false;
+      state.iterationSummary = def(entry.message, '');
+      break;
 
     case 'InteractorStart':
-        state.inInteractor = true;
-        break;
+      state.activeInteractor = emptyValidatorInfo('Interactor');
+      break;
 
     case 'ValidationStart':
-        state.inValidation = true;
-        state.inInteractor = false;
-        state.validationInfo = configObj(entry);
-        break;
+      state.inValidation = true;
+      state.validationInfo = configObj(entry);
+      break;
+
+    case 'ValidationEnd':
+      state.inValidation = false;
+      break;
 
     case 'IterationEnd':
+      stats.iterations++;
+      break;
+
     case 'TestEnd':
+      stats.testCases++;
+      break;
+
     case 'RunEnd':
+      resetDefectExpectation();
+
     case 'Message':
     case 'CheckPass':
     case 'CheckFail':
@@ -317,14 +506,23 @@ function processEntry(state: State, entry: LogEntry): State {
       // actions handled in reset / message handled by earlier code
       break;
 
+    case 'ValidatorStart':
+      state.validatorItems = def(state.validatorItems, []);
+      let valItem = emptyValidatorInfo(entry.message)
+      state.activeValidator = valItem;
+      state.validatorItems.push(valItem);
+      break;
+
+    case 'ValidatorEnd':
+      state.activeValidator = null;
+      break;
+
     case "StartDefect":
-      state.expectError = true;
-      state.errorExpectation = def(entry.message, '');
+      state.errorExpectation = entry;
       break;
 
     case "EndDefect":
-      state.expectError = false;
-      state.errorExpectation = '';
+      resetDefectExpectation();
       break;
 
     default:
@@ -337,9 +535,10 @@ function processEntry(state: State, entry: LogEntry): State {
 
 function reset(state: State, entry: LogEntry): State {
 
+  state.indent = entry.popControl === 'PushFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
+
   function errorCommonReset() {
-    state.expectError = false;
-    state.errorExpectation = '';
+    state.errorExpectation = null;
     state.expectedErrorEncoutered = false;
     state.errors = [];
     state.warnings = [];
@@ -347,15 +546,19 @@ function reset(state: State, entry: LogEntry): State {
     state.type2Errors = [];
   }
 
+  function validationReset() {
+    state.validatorItems = [];
+  }
+
   function iterationCommonReset() {
     state.apstate = {};
     state.validationInfo = {};
     state.iterationSummary = '';
     state.logItems = [];
-    state.iterationConfig = {};
     state.expectedErrorEncoutered = false;
     state.inValidation = false;
-    state.inInteractor = false;
+    state.activeInteractor = null;
+    validationReset();
     errorCommonReset();
   }
 
@@ -365,12 +568,14 @@ function reset(state: State, entry: LogEntry): State {
     state.testWarning = false;
     state.testError = false;
     state.testKnownDefect = false;
+    state.validatorItems = [];
+    validationReset();
     errorCommonReset();
   }
 
   switch (entry.subType) {
     case 'RunStart':
-      state.indent = 0;
+      state.indent = 1;
       state.inRun = true;
       break;
 
@@ -380,28 +585,30 @@ function reset(state: State, entry: LogEntry): State {
       break;
 
     case 'TestStart':
-      state.indent = 1;
+      state.indent = 3;
       state.inTest = true;
       testCommonReset();
       break;
 
     case 'TestEnd':
-      state.indent = 0;
+      state.indent = 1;
       state.inTest = false;
-      state.testConfig = {};
+      state.testConfig = emptyTestConfig();
       testCommonReset();
       break;
 
     case 'IterationStart':
-      state.indent = 2;
+      state.indent = 3;
       state.inIteration = true;
-      iterationCommonReset();
       break;
 
     case 'IterationEnd':
-      state.indent = 1;
+      state.indent = 2;
       state.inIteration = false;
+      state.iterationConfig = emptyIterationConfig();
       iterationCommonReset();
+      clearErrorInfo(state);
+      switchErrorInfoStage(state, 'outOfTest', 'out of test');
       break;
 
     default:
@@ -423,6 +630,9 @@ function makeStep<S>(onEntry:(S, LogEntry) => S,
 
   return function step(state, entry) {
 
+    let newState: S = onEntry(state, entry);
+
+
     switch (entry.subType) {
       case 'IterationStart':
         startIteration(state);
@@ -436,13 +646,6 @@ function makeStep<S>(onEntry:(S, LogEntry) => S,
         startRun(state);
         break;
 
-      default:
-        break;
-    }
-
-    let newState: S = onEntry(state, entry);
-
-    switch (entry.subType) {
       case 'IterationEnd':
         endIteration(newState);
         break;
@@ -478,8 +681,7 @@ function filterLog(str: string) {
 }
 
 
-
-export const parseLogDefault = (fullPath: string) => parseLog(fullPath, defaultStep(fullPath), initalState());
+export const parseLogDefault = (fullPath: string) => parseLog(fullPath, logGenerationStep(fullPath), initalState());
 
 export const parseLog = <S>(fullPath: string, step: (S, LogEntry) => S, initState: S) => logSplitter(fullPath, parser(step, initState) );
 
@@ -487,11 +689,16 @@ function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => 
   let currentState = initialState;
 
   return (str: string) => {
+
+    let yml = false;
     try {
       let entry = yamlToObj(str);
+
+      yml = true;
       currentState = step(currentState, entry);
+
     } catch (e) {
-      fail('Log parser failure - could not process: '
+      fail(`Log parser failure - could not process log item - ${yml ? 'Failed processing step' : 'failed parsing YAML'}: `
               +  newLine()
               + str + newLine(2)
               + 'Exception was:' + newLine()
@@ -502,8 +709,7 @@ function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => 
 }
 
 export function logSplitter(fullPath: string, itemParser: string => void ): void {
-  var lineNumber = 0,
-      buffer = [];
+  let buffer = [];
 
   function processBuffer() {
     let entry = buffer.join(newLine());

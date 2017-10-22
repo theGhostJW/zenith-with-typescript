@@ -7,6 +7,7 @@ import * as util from 'util'
 import {appendDelim, newLine, capFirst, subStrAfter, toString } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
 import { nowAsLogFormat, nowFileFormatted, timeToFormattedms} from '../lib/DateTimeUtils';
+import { changeExtension } from '../lib/FileUtils';
 // force loading of module
 import * as fs from 'fs';
 import * as path from 'path';
@@ -60,6 +61,12 @@ export const logValidationStart = (valTime: moment$Moment, valState: any) => spe
                                                                                                                                     valTime: timeToFormattedms(valTime),
                                                                                                                                     valState: valState
                                                                                                                                   });
+
+export const logValidationEnd = () => specialMessage('ValidationEnd', 'PopFolder')('End Validation');
+
+export const logStartValidator = (name: string) => specialMessage('ValidatorStart', 'PushFolder')(name);
+export const logEndValidator = (name: string) => specialMessage('ValidatorEnd', 'PopFolder')(name);
+
 export const logException = (message: string, exceptionObj: any) =>
                                                                   logError(message,
                                                                       toString(exceptionObj),
@@ -73,14 +80,23 @@ export const logException = (message: string, exceptionObj: any) =>
 
 export const logFilterLog = (filterLog: {[string]: string}) => specialMessage('FilterLog')('Filter Log', objToYaml(filterLog));
 export const logStartRun = (runName: string, runConfig: mixed) => specialMessage('RunStart', 'PushFolder')(
-                                                                                                      `Test Run: ${runName}`,
-                                                                                                       objToYaml(runConfig));
+                                                                                            `Test Run: ${runName}`,
+                                                                                             objToYaml(runConfig));
 
 export const logEndRun = (runName: string) => specialMessage('RunEnd', 'PopFolder')(`End Run: ${runName}`);
 
-export const logStartTest = (id: number, testName: string, when: string, then: string, testConfig: mixed) => specialMessage('TestStart', 'PushFolder')(
-                                                                                                      `Test: ${id}: ${testName} - When ${when} then ${then}`,
-                                                                                                       objToYaml(testConfig));
+export const logStartTest = (id: number, testName: string, when: string, then: string, testConfig: {}) =>
+                                                                                                    {
+                                                                                                      let plainName = changeExtension(testName, ''),
+                                                                                                          addInfo = _.defaults(
+                                                                                                                                {script: plainName},
+                                                                                                                                testConfig
+                                                                                                                              );
+
+                                                                                                      return specialMessage('TestStart', 'PushFolder')(
+                                                                                                      `Test: ${id}: ${plainName} - When ${when} then ${then}`,
+                                                                                                       objToYaml(addInfo));
+                                                                                                     }
 
 export const logEndTest = (id: number, testName: string) => specialMessage('TestEnd', 'PopFolder')(`End Test ${id} : ${testName}`, objToYaml({id: id, testName: testName}));
 
@@ -117,6 +133,9 @@ export type LogSubType = "Message" |
                           "Exception" |
                           "InteractorStart" |
                           "ValidationStart" |
+                          "ValidationEnd" |
+                          "ValidatorStart" |
+                          "ValidatorEnd" |
                           "CheckPass" |
                           "CheckFail";
 

@@ -6,7 +6,7 @@ import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
           logIterationSummary, logFilterLog, logException, logValidationStart,
-          logStartInteraction } from '../lib/Logging';
+          logStartInteraction, logStartValidator, logEndValidator, logValidationEnd } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
@@ -92,14 +92,14 @@ function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(vali
   validators = forceArray(validators);
   const validate = (validator) => {
     let currentValidator = functionNameFromFunction(validator);
-    pushLogFolder(currentValidator);
+    logStartValidator(currentValidator);
     try {
       validator(valState, item, runConfig, valTime);
     } catch (e) {
       logException('Exception thrown in validator: ' + currentValidator, e);
       throw(e);
     } finally {
-      popLogFolder();
+      logEndValidator(currentValidator);
     }
   }
 
@@ -107,7 +107,7 @@ function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(vali
   try {
     validators.forEach(validate);
   }  finally {
-    popLogFolder();
+    logValidationEnd();
   }
 
 }
