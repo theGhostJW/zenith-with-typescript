@@ -42,9 +42,9 @@ additionalInfo: |
    elementType: 0,
    rawLog: string,
    runConfig: {},
-   startTime: moment$Moment,
-   endTime:  moment$Moment,
-   duration: moment$Moment,
+   startTime: string,
+   endTime:  string,
+   duration: string,
    filterLog: {[string]: string},
    stats: RunStats
  |}
@@ -53,9 +53,9 @@ additionalInfo: |
    file: string,
    elementType: 1,
    testConfig: {},
-   startTime: moment$Moment,
-   endTime:  moment$Moment,
-   duration: moment$Moment,
+   startTime: string,
+   endTime:  string,
+   duration: string,
    stats: TestStats
  |}
 
@@ -98,7 +98,43 @@ additionalInfo: |
    issues: IssuesList
  };
 
- export type RunElement = RunSummary | TestSummary | Iteration | OutOfTestIssues;
+export type RunElement = RunSummary | TestSummary | Iteration | OutOfTestIssues;
+
+export type FullSummaryInfo = {
+  testSummaries: {[string]: TestSummary},
+  runSummary: ?RunSummary
+}
+
+// create a log file of run elements and a summary object
+// for second pass
+function firstPassElementHandler(destPath: string): (e: RunElement) => FullSummaryInfo {
+
+   let result: FullSummaryInfo = {
+                                   testSummaries: {},
+                                   runSummary: null
+                                };
+
+   let writer = fileWriter(destPath),
+       write = (data) => writer(data, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
+
+   return function nextElement(element: RunElement): FullSummaryInfo {
+
+     switch (element.elementType) {
+      case 0: // RunSummary
+         result.runSummary = element;
+      break;
+
+      case 1: // TestSummary ;
+         result.testSummaries[element.file] = element;
+      break;
+
+      default: // Iteration | OutOfTestIssues;
+        write(element);
+     }
+     
+     return result;
+   }
+}
 
 export type TestStats = {|
   iterations: number,
@@ -416,40 +452,46 @@ let done = false;
   //   return data;
   // }
 
+function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
+  sourceFilePart = '.' + sourceFilePart + '.';
+
+  ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
+
+  let resultPath = replace(rawPath, sourceFilePart, '.' + destFilePart + '.'),
+      fileName = fileOrFolderName(resultPath);
+
+  return combine(def(destDir, logFile()), fileName);
+}
+
+function fileWriter(destPath: string){
+   let fd = fs.openSync(destPath, 'w');
+
+   return function writer(data, indent: number, prefix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
+     let str = toString(data);
+
+     // depricate this ??
+     if (indent > 0){
+       let iStr = '  '.repeat(indent),
+           nStr = iStr;
+
+       if (inArray) {
+         iStr = (arrayLineSeparator ? newLine() : '') + iStr + '- ';
+         nStr = nStr + '  ';
+       }
+       str = _.map(str.split(newLine()), (s, i) => (i === 0 ? iStr : nStr) + s).join(newLine());
+     }
+
+     //$FlowFixMe
+     fs.writeSync(fd, prefix + str);
+   }
+}
 
 // this is were things get concrete
 export function logGenerationStep(rawPath: string, destDir?: string): (RunState, LogEntry) => RunState {
 
-  const RAW_FRAG = '.raw.';
-  function fileWriter(filePart){
-    let resultPath = replace(rawPath, RAW_FRAG, '.' + filePart + '.'),
-        fileName = fileOrFolderName(resultPath);
-
-    resultPath = combine(def(destDir, logFile()), fileName);
-    let fd = fs.openSync(resultPath, 'w');
-
-    return function writer(data, indent: number, prefix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
-      let str = toString(data);
-
-      if (indent > 0){
-        let iStr = '  '.repeat(indent),
-            nStr = iStr;
-
-        if (inArray) {
-          iStr = (arrayLineSeparator ? newLine() : '') + iStr + '- ';
-          nStr = nStr + '  ';
-        }
-        str = _.map(str.split(newLine()), (s, i) => (i === 0 ? iStr : nStr) + s).join(newLine());
-      }
-      //$FlowFixMe
-      fs.writeSync(fd, prefix + str);
-    }
-  }
-
-  let writeFull = fileWriter('full'),
+  let rsltPath = destPath(rawPath, 'raw', 'full', destDir),
+      writeFull = fileWriter(rsltPath),
       headerWritten = false;
-
-  ensure(hasText(rawPath, RAW_FRAG, true), `rawPath does not conform to naming conventions (should contain ${RAW_FRAG}) ${rawPath}`)
 
   function startRun(state: RunState) {
     let {logItems, runConfig, errors, warnings} = state,
