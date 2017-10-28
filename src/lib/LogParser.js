@@ -26,8 +26,20 @@ additionalInfo: |
   depth: Regression
  */
 
+// Need this info to pattern match
+// - after type erasure
+ const RUN_ELEMENT_TYPE = {
+   RunSummary: 0,
+   TestSummary: 1,
+   Iteration: 2,
+   OutOfTestIssues: 3
+ };
+
+ type RunElementType = $Keys<typeof RUN_ELEMENT_TYPE>
+
  export type RunSummary = {|
    name: string,
+   elementType: 0,
    rawLog: string,
    runConfig: {},
    startTime: moment$Moment,
@@ -39,13 +51,13 @@ additionalInfo: |
 
  export type TestSummary = {|
    file: string,
+   elementType: 1,
    testConfig: {},
    startTime: moment$Moment,
    endTime:  moment$Moment,
    duration: moment$Moment,
    stats: TestStats
  |}
-
 
  const STATE_STAGE = {
    Validation: 'validation',
@@ -70,17 +82,23 @@ additionalInfo: |
    startTime: moment$Moment,
    endTime:  moment$Moment,
    duration: moment$Moment,
+   elementType: 2,
    testFile: string,
    testConfig: {},
    item: {},
    summary: string,
    apState: {},
-
+   issues: IssuesList,
 
    stats: TestStats
  |}
 
+ export type OutOfTestIssues = {
+   elementType: 3,
+   issues: IssuesList
+ };
 
+ export type RunElement = RunSummary | TestSummary | Iteration | OutOfTestIssues;
 
 export type TestStats = {|
   iterations: number,
