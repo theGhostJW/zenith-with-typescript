@@ -1,4 +1,4 @@
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: FilterLog
 popControl: NoAction
@@ -7,7 +7,7 @@ additionalInfo: |
   Another_Demo_Case.js: Accepted
   Demo_Case.js: Accepted
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: RunStart
 popControl: PushFolder
@@ -20,40 +20,7 @@ additionalInfo: |
   testCases: []
   depth: Regression
 -------------------------------
-timestamp: '2017-10-22 00:00:48'
-level: error
-subType: Exception
-popControl: NoAction
-message: Fudges out of test error (test)
-additionalInfo: ''
-callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
-      at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logException (C:/ZWTF/src/lib/Logging.js:69:67)
-      at fail (C:/ZWTF/src/lib/SysUtils.js:449:3)
-      at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:124:26)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
-      at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
-      at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
-      at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-      at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-      at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-      at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-      at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-      at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-      at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-      at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-      at runCallback (timers.js:800:20)
-      at tryOnImmediate (timers.js:762:5)
-      at processImmediate [as _immediateCallback] (timers.js:733:5)
--------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: TestStart
 popControl: PushFolder
@@ -71,12 +38,12 @@ additionalInfo: |
     - TST
   depth: Regression
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 message: Loading Test Items
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationStart
 popControl: PushFolder
@@ -87,35 +54,41 @@ additionalInfo: |
   when: I run a test
   then: i get the result
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 popControl: PopFolder
 message: Pop Folder
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: PrepValidationInfo
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-22 08-00-48-766
+  valTime: 2017-10-23 07-42-25-738
   valState:
     when: I run a test
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorStart
 popControl: PushFolder
 message: check_has_another
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: error
 subType: CheckFail
 popControl: NoAction
@@ -125,22 +98,22 @@ additionalInfo: |-
    in
   I run a test
 callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
+      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:378:24)
       at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logSpecial (C:/ZWTF/src/lib/Logging.js:144:5)
+      at logSpecial (C:/ZWTF/src/lib/Logging.js:152:5)
       at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
       at checkTextContains (C:/ZWTF/src/lib/CheckUtils.js:48:10)
       at check_has_another (C:/ZWTF/testCases/Another_Demo_Case.js:62:3)
-      at validate (C:/ZWTF/src/lib/TestRunner.js:97:7)
+      at validate (C:/ZWTF/src/lib/TestRunner.js:98:7)
       at Array.forEach (native)
-      at runValidators (C:/ZWTF/src/lib/TestRunner.js:108:16)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:133:5)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
+      at runValidators (C:/ZWTF/src/lib/TestRunner.js:109:16)
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:135:5)
+      at C:/ZWTF/src/lib/TestRunner.js:152:30
       at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:152:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:211:7)
       at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:215:14)
       at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
       at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
       at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
@@ -155,25 +128,31 @@ callstack: |2-
       at tryOnImmediate (timers.js:762:5)
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_has_another
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
-subType: Message
+subType: ValidationEnd
 popControl: PopFolder
-message: Pop Folder
+message: End Validation
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: StartSummary
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Summary
 popControl: NoAction
 message: Summary not implemented
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationEnd
 popControl: PopFolder
@@ -181,7 +160,7 @@ message: End Iteration 1
 additionalInfo: |
   id: 1
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationStart
 popControl: PushFolder
@@ -194,35 +173,41 @@ additionalInfo: |
   when: I run another test
   then: i get another result
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 popControl: PopFolder
 message: Pop Folder
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: PrepValidationInfo
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-22 08-00-48-800
+  valTime: 2017-10-23 07-42-25-797
   valState:
     when: I run another test
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorStart
 popControl: PushFolder
 message: check_has_another
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: CheckPass
 popControl: NoAction
@@ -232,25 +217,31 @@ additionalInfo: |-
    in
   I run another test
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_has_another
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
-subType: Message
+subType: ValidationEnd
 popControl: PopFolder
-message: Pop Folder
+message: End Validation
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: StartSummary
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Summary
 popControl: NoAction
 message: Summary not implemented
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationEnd
 popControl: PopFolder
@@ -258,7 +249,7 @@ message: End Iteration 2
 additionalInfo: |
   id: 2
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: TestEnd
 popControl: PopFolder
@@ -267,7 +258,7 @@ additionalInfo: |
   id: 2
   testName: Another_Demo_Case.js
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: TestStart
 popControl: PushFolder
@@ -288,12 +279,12 @@ additionalInfo: |
     - TST
   depth: Regression
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 message: Loading Test Items
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationStart
 popControl: PushFolder
@@ -304,71 +295,83 @@ additionalInfo: |
   when: I run a test
   then: i get the result
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 popControl: PopFolder
 message: Pop Folder
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: PrepValidationInfo
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-22 08-00-48-813
+  valTime: 2017-10-23 07-42-25-802
   valState:
     id: 1
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorStart
 popControl: PushFolder
 message: check_less_than_2
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: StartDefect
 popControl: NoAction
 message: 'Defect Expected: should fail'
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: CheckPass
 popControl: NoAction
 message: 'Check: expect less than 2'
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: EndDefect
 popControl: NoAction
 message: End Defect
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_less_than_2
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
-subType: Message
+subType: ValidationEnd
 popControl: PopFolder
-message: Pop Folder
+message: End Validation
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: StartSummary
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Summary
 popControl: NoAction
 message: Summary not implemented
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationEnd
 popControl: PopFolder
@@ -376,7 +379,7 @@ message: End Iteration 1
 additionalInfo: |
   id: 1
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationStart
 popControl: PushFolder
@@ -387,62 +390,68 @@ additionalInfo: |
   when: I run another test
   then: i get another result
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 popControl: PopFolder
 message: Pop Folder
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: PrepValidationInfo
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-22 08-00-48-822
+  valTime: 2017-10-23 07-42-25-814
   valState:
     id: 2
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorStart
 popControl: PushFolder
 message: check_less_than_2
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: StartDefect
 popControl: NoAction
 message: 'Defect Expected: should fail'
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: error
 subType: CheckFail
 popControl: NoAction
 message: 'Check: expect less than 2'
 callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
+      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:378:24)
       at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logSpecial (C:/ZWTF/src/lib/Logging.js:144:5)
+      at logSpecial (C:/ZWTF/src/lib/Logging.js:152:5)
       at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
       at check (C:/ZWTF/src/lib/CheckUtils.js:10:88)
       at check_less_than_2 (C:/ZWTF/testCases/Demo_Case.js:67:3)
-      at validate (C:/ZWTF/src/lib/TestRunner.js:97:7)
+      at validate (C:/ZWTF/src/lib/TestRunner.js:98:7)
       at Array.forEach (native)
-      at runValidators (C:/ZWTF/src/lib/TestRunner.js:108:16)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:133:5)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
+      at runValidators (C:/ZWTF/src/lib/TestRunner.js:109:16)
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:135:5)
+      at C:/ZWTF/src/lib/TestRunner.js:152:30
       at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:152:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:211:7)
       at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:215:14)
       at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
       at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
       at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
@@ -457,49 +466,55 @@ callstack: |2-
       at tryOnImmediate (timers.js:762:5)
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: EndDefect
 popControl: NoAction
 message: End Defect
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_less_than_2
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorStart
 popControl: PushFolder
 message: check_less_than_3
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: CheckPass
 popControl: NoAction
 message: 'Check: expect less than 2'
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_less_than_3
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
-subType: Message
+subType: ValidationEnd
 popControl: PopFolder
-message: Pop Folder
+message: End Validation
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: StartSummary
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Summary
 popControl: NoAction
 message: Summary not implemented
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationEnd
 popControl: PopFolder
@@ -507,7 +522,7 @@ message: End Iteration 2
 additionalInfo: |
   id: 2
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationStart
 popControl: PushFolder
@@ -518,54 +533,60 @@ additionalInfo: |
   when: I run another test
   then: i get another result
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 popControl: PopFolder
 message: Pop Folder
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
+level: info
+subType: PrepValidationInfo
+popControl: NoAction
+message: undefined
+-------------------------------
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-22 08-00-48-838
+  valTime: 2017-10-23 07-42-25-830
   valState:
     id: 3
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorStart
 popControl: PushFolder
 message: check_bad_validator
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: error
 subType: Exception
 popControl: NoAction
 message: 'Exception thrown in validator: check_bad_validator'
 additionalInfo: ARGGGHHHHHH!!!
 callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
+      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:378:24)
       at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logException (C:/ZWTF/src/lib/Logging.js:69:67)
-      at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
+      at logException (C:/ZWTF/src/lib/Logging.js:74:67)
+      at validate (C:/ZWTF/src/lib/TestRunner.js:100:7)
       at Array.forEach (native)
-      at runValidators (C:/ZWTF/src/lib/TestRunner.js:108:16)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:133:5)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
+      at runValidators (C:/ZWTF/src/lib/TestRunner.js:109:16)
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:135:5)
+      at C:/ZWTF/src/lib/TestRunner.js:152:30
       at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:152:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:211:7)
       at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:215:14)
       at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
       at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
       at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
@@ -580,35 +601,35 @@ callstack: |2-
       at tryOnImmediate (timers.js:762:5)
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_bad_validator
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
-subType: Message
+subType: ValidationEnd
 popControl: PopFolder
-message: Pop Folder
+message: End Validation
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: error
 subType: Exception
 popControl: NoAction
 message: Exception Thrown Executing Validators
 additionalInfo: ARGGGHHHHHH!!!
 callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
+      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:378:24)
       at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logException (C:/ZWTF/src/lib/Logging.js:69:67)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:140:5)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
+      at logException (C:/ZWTF/src/lib/Logging.js:74:67)
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:143:5)
+      at C:/ZWTF/src/lib/TestRunner.js:152:30
       at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:152:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:211:7)
       at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:215:14)
       at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
       at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
       at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
@@ -623,7 +644,7 @@ callstack: |2-
       at tryOnImmediate (timers.js:762:5)
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationEnd
 popControl: PopFolder
@@ -631,40 +652,7 @@ message: End Iteration 3
 additionalInfo: |
   id: 3
 -------------------------------
-timestamp: '2017-10-22 00:00:48'
-level: warn
-subType: Exception
-popControl: NoAction
-message: Fudged Out of test - warning (iteration)
-additionalInfo: ''
-callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
-      at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logException (C:/ZWTF/src/lib/Logging.js:69:67)
-      at fail (C:/ZWTF/src/lib/SysUtils.js:449:3)
-      at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:124:26)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
-      at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
-      at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
-      at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-      at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-      at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-      at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-      at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-      at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-      at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-      at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-      at runCallback (timers.js:800:20)
-      at tryOnImmediate (timers.js:762:5)
-      at processImmediate [as _immediateCallback] (timers.js:733:5)
--------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationStart
 popControl: PushFolder
@@ -675,31 +663,31 @@ additionalInfo: |
   when: I run another test
   then: i get another result
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: error
 subType: Exception
 popControl: NoAction
 message: I do not like 4
 additionalInfo: ''
 callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
+      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:378:24)
       at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logException (C:/ZWTF/src/lib/Logging.js:69:67)
+      at logException (C:/ZWTF/src/lib/Logging.js:74:67)
       at fail (C:/ZWTF/src/lib/SysUtils.js:449:3)
       at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:124:26)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:125:26)
+      at C:/ZWTF/src/lib/TestRunner.js:152:30
       at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:152:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:211:7)
       at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:215:14)
       at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
       at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
       at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
@@ -714,29 +702,29 @@ callstack: |2-
       at tryOnImmediate (timers.js:762:5)
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: Message
 popControl: PopFolder
 message: Pop Folder
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: error
 subType: Exception
 popControl: NoAction
 message: Exception Thrown Executing Interactor
 additionalInfo: ''
 callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:370:24)
+      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:378:24)
       at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logException (C:/ZWTF/src/lib/Logging.js:69:67)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:140:5)
-      at C:/ZWTF/src/lib/TestRunner.js:149:30
+      at logException (C:/ZWTF/src/lib/Logging.js:74:67)
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:143:5)
+      at C:/ZWTF/src/lib/TestRunner.js:152:30
       at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:149:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:208:7)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:152:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:211:7)
       at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:212:14)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:215:14)
       at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
       at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
       at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
@@ -751,7 +739,7 @@ callstack: |2-
       at tryOnImmediate (timers.js:762:5)
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: IterationEnd
 popControl: PopFolder
@@ -759,7 +747,7 @@ message: End Iteration 4
 additionalInfo: |
   id: 4
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: TestEnd
 popControl: PopFolder
@@ -768,7 +756,7 @@ additionalInfo: |
   id: 1
   testName: Demo_Case.js
 -------------------------------
-timestamp: '2017-10-22 08:00:48'
+timestamp: '2017-10-23 07:42:25'
 level: info
 subType: RunEnd
 popControl: PopFolder

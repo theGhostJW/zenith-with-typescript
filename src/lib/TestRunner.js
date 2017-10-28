@@ -6,7 +6,8 @@ import { toString } from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
           logIterationSummary, logFilterLog, logException, logValidationStart,
-          logStartInteraction, logStartValidator, logEndValidator, logValidationEnd } from '../lib/Logging';
+          logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
+          logStartIterationSummary, logMapValidationInfo } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
@@ -118,8 +119,8 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
   let stage = 'Executing Interactor';
   try {
 
-    logStartInteraction();
     var apState: S;
+    logStartInteraction();
     try {
       apState = baseCase.interactor(item, runConfig);
     } finally {
@@ -127,12 +128,14 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
     }
 
     stage = 'Executing Prepstate - Transforming Apstate to ValState';
+    logMapValidationInfo();
     let valState = baseCase.prepState(apState);
 
     stage = 'Executing Validators';
     runValidators(item.validators, valState, item, runConfig, now());
 
     stage = 'Generating Summary';
+    logStartIterationSummary();
     let summary = baseCase.summarise(runConfig, item, apState, valState);
     logIterationSummary(summary);
   }

@@ -3,7 +3,7 @@
 import {test, describe} from 'mocha'
 import { debug, yamlToObj } from '../lib/SysUtils';
 import { initalState } from '../lib/LogParser';
-import type { State } from '../lib/LogParser';
+import type { RunState } from '../lib/LogParser';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 

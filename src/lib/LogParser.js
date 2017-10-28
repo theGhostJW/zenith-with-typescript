@@ -3,10 +3,12 @@
 import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING } from '../lib/Logging';
-import { newLine, toString, subStrBefore, replace, hasText} from '../lib/StringUtils';
+import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
-import { combine, logFile, fileOrFolderName, eachLine } from '../lib/FileUtils';
+import { combine, logFile, fileOrFolderName, eachLine, toTemp } from '../lib/FileUtils';
+import * as DateTime from '../lib/DateTimeUtils';
+import moment from 'moment';
 
 /*
 timestamp: '2017-10-01 13:46:27'
@@ -24,7 +26,71 @@ additionalInfo: |
   depth: Regression
  */
 
-export type Stats = {|
+ export type RunSummary = {|
+   name: string,
+   rawLog: string,
+   runConfig: {},
+   startTime: moment$Moment,
+   endTime:  moment$Moment,
+   duration: moment$Moment,
+   filterLog: {[string]: string},
+   stats: RunStats
+ |}
+
+ export type TestSummary = {|
+   file: string,
+   testConfig: {},
+   startTime: moment$Moment,
+   endTime:  moment$Moment,
+   duration: moment$Moment,
+   stats: TestStats
+ |}
+
+
+ const STATE_STAGE = {
+   Validation: 'validation',
+   InTest: 'in test',
+   OutOfTest: 'out of test'
+ };
+
+ type StateStage = $Keys<typeof STATE_STAGE>;
+
+ export type ErrorsWarningsDefects = {
+   name: string,
+   infoType: StateStage,
+   warnings: Array<LogEntry>,
+   errors: Array<LogEntry>,
+   type2Errors: Array<LogEntry>,
+   knownDefects: Array<LogEntry>
+ }
+
+ export type IssuesList = Array<ErrorsWarningsDefects>;
+
+ export type Iteration = {|
+   startTime: moment$Moment,
+   endTime:  moment$Moment,
+   duration: moment$Moment,
+   testFile: string,
+   testConfig: {},
+   item: {},
+   summary: string,
+   apState: {},
+
+
+   stats: TestStats
+ |}
+
+
+
+export type TestStats = {|
+  iterations: number,
+  passedIterations: number,
+  failedIterations: number,
+  iterationsWithWarning: number,
+  iterationsWithKnownDefects: number
+|};
+
+type RunStats =  {|
   testCases: number,
   passedTests: number,
   failedTests: number,
@@ -39,17 +105,14 @@ export type Stats = {|
 
   inTestErrors: number,
   inTestWarnings: number,
-  knownDefects: number,
-
   outOfTestErrors: number,
   outOfTestWarnings: number,
 
-  expectedErrors: number,
-  type2Errors: number,
-  warnings: number
-|}
+  knownDefects: number,
+  type2Errors: number
+|};
 
-const nullStats = () => {
+const nullStats: () => RunStats = () => {
 
   return {
     testCases: 0,
@@ -66,14 +129,12 @@ const nullStats = () => {
 
     inTestErrors: 0,
     inTestWarnings: 0,
-    knownDefects: 0,
 
     outOfTestErrors: 0,
     outOfTestWarnings: 0,
 
-    expectedErrors: 0,
-    type2Errors: 0,
-    warnings: 0
+    knownDefects: 0,
+    type2Errors: 0
   };
 }
 
@@ -90,24 +151,26 @@ export type LogIterationConfig = {
   then: string
 }
 
-export type VaidatorInfo = {
-  name: string,
-  warnings: Array<LogEntry>,
-  errors: Array<LogEntry>,
-  type2Errors: Array<LogEntry>
-}
-
-function emptyValidatorInfo(name: ?string): VaidatorInfo {
+function emptyValidatorInfo(infoType: StateStage, name: string): ErrorsWarningsDefects {
   return {
-    name: def(name, 'Unamed Validator'),
+    name: name,
+    infoType: infoType,
     warnings: [],
     errors: [],
-    type2Errors: []
+    type2Errors: [],
+    knownDefects: []
   }
 }
 
-export type State = {|
-  runStats: Stats,
+function hasIssues(val: ErrorsWarningsDefects, includeKnownDefects: boolean = true) {
+  return  val.errors.length > 0 ||
+          val.warnings.length > 0 ||
+          val.type2Errors.length > 0 ||
+          (includeKnownDefects && val.knownDefects.length > 0);
+}
+
+export type RunState = {|
+  runStats: RunStats,
   filterLog: {[string]: string},
   runName: string,
   runConfig: {},
@@ -142,12 +205,11 @@ export type State = {|
   type2Errors: Array<LogEntry>,
   logItems: Array<LogEntry>,
 
-  validatorItems: Array<VaidatorInfo>,
+  validatorIssues: Array<ErrorsWarningsDefects>,
+  inTestIssues: Array<ErrorsWarningsDefects>,
+  outOfTestIssues: Array<ErrorsWarningsDefects>,
 
-  activeValidator: ?VaidatorInfo,
-  activeInteractor: ?VaidatorInfo,
-  outOfTest: ?VaidatorInfo,
-  activeErrorInfo: ?VaidatorInfo
+  activeIssues: ?ErrorsWarningsDefects
 |};
 
 
@@ -168,8 +230,8 @@ function emptyIterationConfig() {
          };
 }
 
-export const initalState: () => State = () => {
-  let result = {
+export const initalState: () => RunState = () => {
+  let result: RunState = {
                 runStats: nullStats(),
                 filterLog: {},
                 runName: '',
@@ -206,38 +268,36 @@ export const initalState: () => State = () => {
                 type2Errors: [],
 
                 logItems: [],
-                validatorItems: [],
+                validatorIssues: [],
+                inTestIssues: [],
+                outOfTestIssues: [],
 
                 //this are flipped depending on what state we are in
-                activeValidator: null,
-                activeInteractor: null,
-                outOfTest: null,
-                activeErrorInfo: null
+                activeIssues: null
+
               };
 
-  switchErrorInfoStage(result, 'outOfTest', 'out of test');
+  switchErrorInfoStage(result, 'OutOfTest', 'out of test');
   return result;
 }
 
-type StateStage = 'activeValidator' | 'activeInteractor' | 'outOfTest';
+function switchErrorInfoStage(state: RunState, stage: StateStage, name: string): void {
 
-function switchErrorInfoStage(state: State, stage: StateStage, name: string): void {
-  state.activeValidator = null;
-  state.activeInteractor = null;
-  state.outOfTest = null;
-
-  let newStageRec = emptyValidatorInfo(name);
-  state[stage] = newStageRec;
-  state.activeErrorInfo = newStageRec;
-  if (stage === 'activeValidator'){
-    state.validatorItems.push(newStageRec);
-  }
+  let newStageRec = emptyValidatorInfo(stage, name),
+      propMap = {
+        Validation: state.validatorIssues,
+        InTest: state.inTestIssues,
+        OutOfTest: state.outOfTestIssues
+      };
+  state.activeIssues = newStageRec;
+  propMap[stage].push(newStageRec);
 }
 
-function clearErrorInfo(state: State): void {
-  state.activeValidator = null;
-  state.activeInteractor = null;
-  state.outOfTest = null;
+function clearErrorInfo(state: RunState): void {
+  state.validatorIssues = [];
+  state.inTestIssues = [];
+  state.outOfTestIssues = [];
+  state.activeIssues = null;
 }
 
 
@@ -245,10 +305,102 @@ function clearErrorInfo(state: State): void {
 //todo: rewrite with summary
 //todo: issues
 //todo: summary
+//
+
+
+function valToStr(val: ?ErrorsWarningsDefects): ?string {
+  if (val == null) {
+    return null;
+  }
+
+  let {
+        errors,
+        type2Errors,
+        warnings,
+        knownDefects
+      } = val,
+      result = {
+        errors: errors,
+        'type 2 errors': type2Errors,
+        warnings: warnings,
+        knownDefects: knownDefects
+      },
+      pairs = _.chain(result)
+                    .toPairs()
+                    .filter(p => p[1].length > 0)
+                    .value();
+
+    if ( pairs.length == 0 ) {
+      return null;
+    }
+    else {
+      let nonNull = _.pick(result, _.map(pairs, p => p[0]));
+      debug(JSON.stringify(pairs), 'Pairs');
+      debug(JSON.stringify(nonNull), 'NonNull');
+
+      return objToYaml(
+       val.name == null ? nonNull : {
+        [val.name]: nonNull
+      });
+    }
+}
+
+
+let done = false;
+
+// function validationText(state: RunState): string {
+//
+//   if (!done)
+//     toTemp(state);
+//
+//   let {
+//       validatorIssues,
+//       inTestIssues,
+//
+//       activeInteractor,
+//       outOfTestIssues
+//     } = state,
+//     resultObj = {};
+//
+//   function addItemsToResult(items, propName) {
+//     let strs = _.compact(items.map(valToStr));
+//     if (strs.length > 0){
+//       resultObj[propName] = strs;
+//     }
+//   }
+//
+//   function addSingleValToResult(item, propName) {
+//     let str = valToStr(item);
+//     if (str != null){
+//       resultObj[propName] = str;
+//     }
+//   }
+//
+//   addSingleValToResult(activeInteractor, 'interactor issues');
+//   addItemsToResult(validatorIssues, 'validators');
+//   debug(resultObj, 'validators');
+//   addItemsToResult(inTestIssues, 'other test errors');
+//   addSingleValToResult(outOfTest, 'out of test errors');
+//
+//   done = true;
+//   return objToYaml(resultObj);
+// }
+//
+//   function iterationInfo(state: RunState){
+  //
+  //   let testConfig = state.testConfig,
+  //       iterationConfig = state.iterationConfig,
+  //       when = def(iterationConfig.when, testConfig.when),
+  //       then = def(iterationConfig.then, testConfig.then),
+  //       data =
+  //         `iteration: ${testConfig.id} / ${iterationConfig.id} - When ${when} then ${then}` + newLine() +
+  //         `validations: \n\t ${validationText(state)}`;
+  //   return data;
+  // }
 
 
 // this is were things get concrete
-export function logGenerationStep(rawPath: string, destDir?: string): (State, LogEntry) => State {
+export function logGenerationStep(rawPath: string, destDir?: string): (RunState, LogEntry) => RunState {
 
   const RAW_FRAG = '.raw.';
   function fileWriter(filePart){
@@ -281,7 +433,7 @@ export function logGenerationStep(rawPath: string, destDir?: string): (State, Lo
 
   ensure(hasText(rawPath, RAW_FRAG, true), `rawPath does not conform to naming conventions (should contain ${RAW_FRAG}) ${rawPath}`)
 
-  function startRun(state: State) {
+  function startRun(state: RunState) {
     let {logItems, runConfig, errors, warnings} = state,
         timestamp: string = state.timestamp,
         entry = {
@@ -309,7 +461,7 @@ export function logGenerationStep(rawPath: string, destDir?: string): (State, Lo
       }
    }
 
-   function writeOutOfTestErrorsWarnings(state: State, addSeparatorLine: boolean): boolean {
+   function writeOutOfTestErrorsWarnings(state: RunState, addSeparatorLine: boolean): boolean {
      let {type2Errors, errors, warnings, indent} = state,
          errorWriter = makeErrorWriter('out of test', indent, addSeparatorLine);
 
@@ -318,7 +470,7 @@ export function logGenerationStep(rawPath: string, destDir?: string): (State, Lo
             errorWriter('warnings', warnings);
    }
 
-  function startTest(state: State) {
+  function startTest(state: RunState) {
     let {id, when, then, script} = state.testConfig,
         hasOutOfTestInfo = writeOutOfTestErrorsWarnings(state, false),
         info = `test: ${id} - ${script} - When ${when} then ${then}` + newLine() +
@@ -328,31 +480,20 @@ export function logGenerationStep(rawPath: string, destDir?: string): (State, Lo
     writeFull(info, state.indent, newLine(), true, state.runStats.testCases > 0 || hasOutOfTestInfo);
   }
 
-  function iterationInfo(state: State){
 
-    let testConfig = state.testConfig,
-        iterationConfig = state.iterationConfig,
-        when = def(iterationConfig.when, testConfig.when),
-        then = def(iterationConfig.then, testConfig.then),
-        data =
-          `iteration: ${testConfig.id} / ${iterationConfig.id} - When ${when} then ${then}` + newLine() +
-          `validations: ${toString(state)}`;
-    return data;
-  }
-
-  function startIteration(state: State) {
+  function startIteration(state: RunState) {
     writeOutOfTestErrorsWarnings(state, true);
   }
 
-  function endIteration(state: State) {
-    writeFull(iterationInfo(state), state.indent + 1, newLine(), true, state.iterationIndex > 0);
+  function endIteration(state: RunState) {
+    //writeFull(iterationInfo(state), state.indent + 1, newLine(), true, state.iterationIndex > 0);
   }
 
-  function endTest(state: State) {
+  function endTest(state: RunState) {
 
   }
 
-  function endRun(state: State) {
+  function endRun(state: RunState) {
     writeFull({
                 'filter log': state.filterLog
               }, 0, newLine(2));
@@ -368,8 +509,59 @@ export function logGenerationStep(rawPath: string, destDir?: string): (State, Lo
                   endRun);
 }
 
+
+function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean = false): void {
+  let level = entry.level,
+      errorSink = state.activeIssues,
+      stats = state.runStats;
+
+  if(errorSink == null){
+    fail( `parser error - no active error / wanring sink at entry: ${toString(entry)}`);
+  }
+  else {
+
+    let {warnings, errors, type2Errors, knownDefects} = errorSink,
+        errArrray = [],
+        stage = errorSink.infoType,
+        inTest = stage !== 'outOfTest';
+
+    if (isType2) {
+      stats.type2Errors++;
+      errArrray = type2Errors;
+    }
+    else if (level === 'error' && state.errorExpectation != null){
+      //toDo: include errorExpectation
+      stats.knownDefects++;
+      errArrray = knownDefects;
+    }
+    else if (level === 'error'){
+      if (inTest){
+        stats.inTestErrors++;
+      }
+      else {
+        stats.outOfTestErrors++;
+      }
+      errArrray = errors;
+    }
+    else if (level === 'warn'){
+      if (inTest){
+        stats.inTestWarnings++;
+      }
+      else {
+        stats.outOfTestWarnings++;
+      }
+      errArrray = warnings;
+    }
+    else {
+      fail('pushTestErrorWarning - not an not in valid state: ' + toString(entry));
+    }
+
+    errArrray.push(entry);
+  }
+}
+
 // update the state without resetting anything
-function stateChangeStep(state: State, entry: LogEntry): State {
+function stateChangeStep(state: RunState, entry: LogEntry): RunState {
 
   let stats = state.runStats;
   state.timestamp = def(entry.timestamp, state.timestamp);
@@ -379,25 +571,8 @@ function stateChangeStep(state: State, entry: LogEntry): State {
 
   switch (entry.level) {
     case 'error':
-      if (state.errorExpectation != null) {
-        state.expectedErrors.push(entry);
-        stats.expectedErrors++;
-      }
-      else {
-        state.errors.push(entry);
-        if (state.inTest){
-          stats.inTestErrors++;
-        }
-        else {
-          stats.outOfTestErrors++;
-        }
-      }
-
-      break;
-
     case 'warn':
-      state.warnings.push(entry);
-      stats.warnings++;
+      pushTestErrorWarning(state, entry);
       break;
 
     default:
@@ -408,33 +583,11 @@ function stateChangeStep(state: State, entry: LogEntry): State {
     return entry.additionalInfo == null ? {} : yamlToObj(entry.additionalInfo);
   }
 
-  function pushInTestErrorWarning(state: State, entry: LogEntry, isType2: boolean = false): void {
-    let level = entry.level,
-        errorSink = state.activeErrorInfo;
-
-    if(errorSink == null){
-      fail( `parser error - no active error / wanring sink at entry: ${toString(entry)}`);
-    }
-    else {
-      let {warnings, errors, type2Errors} = errorSink,
-          errArrray = isType2 ? type2Errors :
-                        level === 'error' ? errors :
-                        level === 'warn' ? warnings : null;
-
-      if (errArrray == null){
-        fail('pushInTestErrorWarning - not an not in valid state: ' + toString(entry))
-      }
-      else {
-        errArrray.push(entry);
-      }
-    }
-  }
-
   function resetDefectExpectation() {
     if (state.errorExpectation != null && !state.expectedErrorEncoutered){
       stats.type2Errors++;
       state.type2Errors.push(state.errorExpectation);
-      pushInTestErrorWarning(state, entry, true);
+      pushTestErrorWarning(state, entry, true);
     }
     state.errorExpectation = null;
   }
@@ -469,26 +622,43 @@ function stateChangeStep(state: State, entry: LogEntry): State {
       state.iterationIndex++;
       break;
 
-    case 'Summary':
-      // other state changes handled in reseter
-      state.inValidation = false;
-      state.iterationSummary = def(entry.message, '');
+    case 'InteractorStart':
+      switchErrorInfoStage(state, 'InTest', 'Executing Interactor');
       break;
 
-    case 'InteractorStart':
-      state.activeInteractor = emptyValidatorInfo('Interactor');
+    case 'PrepValidationInfo':
+      switchErrorInfoStage(state, 'InTest', 'Preparing Validator State');
       break;
 
     case 'ValidationStart':
+      switchErrorInfoStage(state, 'OutOfTest', 'Before Validator');
       state.inValidation = true;
       state.validationInfo = configObj(entry);
+      break;
+
+    case 'ValidatorStart':
+      switchErrorInfoStage(state, 'Validation', def(entry.message, 'unnamed validator'));
+      break;
+
+    case 'ValidatorEnd':
+      switchErrorInfoStage(state, 'OutOfTest', 'After Validator');
       break;
 
     case 'ValidationEnd':
       state.inValidation = false;
       break;
 
+    case 'StartSummary':
+      // other state changes handled in reseter
+      switchErrorInfoStage(state, 'InTest', 'Generating Summary');
+      state.inValidation = false;
+
+    case 'Summary':
+      state.iterationSummary = def(entry.message, '');
+      break;
+
     case 'IterationEnd':
+      switchErrorInfoStage(state, 'OutOfTest', 'After Iteration');
       stats.iterations++;
       break;
 
@@ -504,17 +674,6 @@ function stateChangeStep(state: State, entry: LogEntry): State {
     case 'CheckFail':
     case 'Exception':
       // actions handled in reset / message handled by earlier code
-      break;
-
-    case 'ValidatorStart':
-      state.validatorItems = def(state.validatorItems, []);
-      let valItem = emptyValidatorInfo(entry.message)
-      state.activeValidator = valItem;
-      state.validatorItems.push(valItem);
-      break;
-
-    case 'ValidatorEnd':
-      state.activeValidator = null;
       break;
 
     case "StartDefect":
@@ -533,7 +692,7 @@ function stateChangeStep(state: State, entry: LogEntry): State {
   return state;
 }
 
-function reset(state: State, entry: LogEntry): State {
+function reset(state: RunState, entry: LogEntry): RunState {
 
   state.indent = entry.popControl === 'PushFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
 
@@ -547,7 +706,7 @@ function reset(state: State, entry: LogEntry): State {
   }
 
   function validationReset() {
-    state.validatorItems = [];
+    state.validatorIssues = [];
   }
 
   function iterationCommonReset() {
@@ -557,7 +716,6 @@ function reset(state: State, entry: LogEntry): State {
     state.logItems = [];
     state.expectedErrorEncoutered = false;
     state.inValidation = false;
-    state.activeInteractor = null;
     validationReset();
     errorCommonReset();
   }
@@ -568,7 +726,7 @@ function reset(state: State, entry: LogEntry): State {
     state.testWarning = false;
     state.testError = false;
     state.testKnownDefect = false;
-    state.validatorItems = [];
+    state.validatorIssues = [];
     validationReset();
     errorCommonReset();
   }
@@ -608,7 +766,7 @@ function reset(state: State, entry: LogEntry): State {
       state.iterationConfig = emptyIterationConfig();
       iterationCommonReset();
       clearErrorInfo(state);
-      switchErrorInfoStage(state, 'outOfTest', 'out of test');
+      switchErrorInfoStage(state, 'OutOfTest', 'out of test');
       break;
 
     default:

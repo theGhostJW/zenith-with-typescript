@@ -2,7 +2,7 @@
 import {it, describe} from 'mocha'
 import { filterTestItems } from '../lib/TestRunner';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import { debug } from '../lib/Sysutils';
+import { debug } from '../lib/SysUtils';
 
 
 describe('filterTestItems', () => {
