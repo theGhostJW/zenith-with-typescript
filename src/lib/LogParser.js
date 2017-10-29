@@ -26,6 +26,77 @@ additionalInfo: |
   depth: Regression
  */
 
+ function summariseLog(fullPath: string):  (RunState, LogEntry) => RunState {
+
+   let elementHandler = firstPassElementHandler(fullPath),
+       fullSummary: ?FullSummaryInfo = null,
+       callHandler = (re: RunElement) => {fullSummary = elementHandler(re)}
+
+   function logOutOfTestErrors(state: RunState) {
+      if (listHasIssues(state.outOfTestIssues)){
+
+         callHandler({
+           elementType: 3,
+           issues: state.outOfTestIssues
+         })
+      }
+   }
+
+   return function step(state: RunState, entry: LogEntry): RunState {
+
+     switch (entry.subType) {
+       case 'IterationEnd':
+
+         break;
+
+       case 'TestEnd':
+
+          break;
+
+       case 'RunEnd':
+
+          break;
+
+       default:
+
+     }
+
+     stateChangeStep(state, entry)
+     return state;
+   }
+ }
+
+ // create a log file of run elements and a summary object
+ // for second pass
+ function firstPassElementHandler(destPath: string): (e: RunElement) => FullSummaryInfo {
+
+    let result: FullSummaryInfo = {
+                                    testSummaries: {},
+                                    runSummary: null
+                                 };
+
+    let writer = fileWriter(destPath),
+        write = (data) => writer(data, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
+
+    return function nextElement(element: RunElement): FullSummaryInfo {
+
+      switch (element.elementType) {
+       case 0: // RunSummary
+          result.runSummary = element;
+       break;
+
+       case 1: // TestSummary ;
+          result.testSummaries[element.file] = element;
+       break;
+
+       default: // Iteration | OutOfTestIssues;
+         write(element);
+      }
+
+      return result;
+    }
+ }
+
 // Need this info to pattern match
 // - after type erasure
  const RUN_ELEMENT_TYPE = {
@@ -78,6 +149,11 @@ additionalInfo: |
 
  export type IssuesList = Array<ErrorsWarningsDefects>;
 
+function listHasIssues(issuesList: IssuesList, includeKnownDefects: boolean = true): boolean {
+   let issueExists : ErrorsWarningsDefects => boolean  = (i: ErrorsWarningsDefects) => hasIssues(i, includeKnownDefects);
+   return issuesList.some(issueExists);
+}
+
  export type Iteration = {|
    startTime: moment$Moment,
    endTime:  moment$Moment,
@@ -103,37 +179,6 @@ export type RunElement = RunSummary | TestSummary | Iteration | OutOfTestIssues;
 export type FullSummaryInfo = {
   testSummaries: {[string]: TestSummary},
   runSummary: ?RunSummary
-}
-
-// create a log file of run elements and a summary object
-// for second pass
-function firstPassElementHandler(destPath: string): (e: RunElement) => FullSummaryInfo {
-
-   let result: FullSummaryInfo = {
-                                   testSummaries: {},
-                                   runSummary: null
-                                };
-
-   let writer = fileWriter(destPath),
-       write = (data) => writer(data, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
-
-   return function nextElement(element: RunElement): FullSummaryInfo {
-
-     switch (element.elementType) {
-      case 0: // RunSummary
-         result.runSummary = element;
-      break;
-
-      case 1: // TestSummary ;
-         result.testSummaries[element.file] = element;
-      break;
-
-      default: // Iteration | OutOfTestIssues;
-        write(element);
-     }
-     
-     return result;
-   }
 }
 
 export type TestStats = {|
@@ -229,15 +274,6 @@ export type RunState = {|
   runName: string,
   runConfig: {},
   timestamp: string,
-  inRun: boolean,
-
-  inTest: boolean,
-  testWarning: boolean,
-  testError: boolean,
-  testKnownDefect: boolean,
-
-  inIteration: boolean,
-  inValidation: boolean,
 
   iterationSummary: string,
   indent: number,
@@ -291,17 +327,6 @@ export const initalState: () => RunState = () => {
                 runName: '',
                 runConfig: {},
                 timestamp: '',
-
-                inRun: false,
-
-                inTest: false,
-                testWarning: false,
-                testError: false,
-                testKnownDefect: false,
-
-                inIteration: false,
-                inValidation: false,
-
                 iterationSummary: '',
 
                 indent: 0,
@@ -399,9 +424,6 @@ function valToStr(val: ?ErrorsWarningsDefects): ?string {
     }
 }
 
-
-let done = false;
-
 // function validationText(state: RunState): string {
 //
 //   if (!done)
@@ -486,88 +508,88 @@ function fileWriter(destPath: string){
    }
 }
 
-// this is were things get concrete
-export function logGenerationStep(rawPath: string, destDir?: string): (RunState, LogEntry) => RunState {
-
-  let rsltPath = destPath(rawPath, 'raw', 'full', destDir),
-      writeFull = fileWriter(rsltPath),
-      headerWritten = false;
-
-  function startRun(state: RunState) {
-    let {logItems, runConfig, errors, warnings} = state,
-        timestamp: string = state.timestamp,
-        entry = {
-          'run configuration': runConfig,
-          preRunErrors: errors.length > 0 ? errors : undefined,
-          preRunWarnings: warnings.length > 0 ? warnings:  undefined
-        },
-        str = `start time: ${timestamp}` + newLine(2) +
-              objToYaml(entry) + newLine() +
-              'tests:';
-
-        writeFull(str, state.indent, '', false);
-   }
-
-   function makeErrorWriter(prefix: string, indent: number, addSeparatorLine: boolean): (string, Array<LogEntry>) => boolean {
-      return function writeError(tag: string, logItems: Array<LogEntry>) {
-        let hasItems = logItems.length > 0;
-        if (hasItems){
-          let info = {},
-              lineCount = addSeparatorLine ? 1 : 2;
-          info[`${prefix} ${tag}`] = logItems;
-          writeFull(info, indent, newLine(lineCount), true)
-        }
-        return hasItems;
-      }
-   }
-
-   function writeOutOfTestErrorsWarnings(state: RunState, addSeparatorLine: boolean): boolean {
-     let {type2Errors, errors, warnings, indent} = state,
-         errorWriter = makeErrorWriter('out of test', indent, addSeparatorLine);
-
-     return errorWriter('errors', errors) ||
-            errorWriter('type2Errors', type2Errors) ||
-            errorWriter('warnings', warnings);
-   }
-
-  function startTest(state: RunState) {
-    let {id, when, then, script} = state.testConfig,
-        hasOutOfTestInfo = writeOutOfTestErrorsWarnings(state, false),
-        info = `test: ${id} - ${script} - When ${when} then ${then}` + newLine() +
-                `timestamp: ${state.timestamp}` + newLine() +
-                'iterations:'
-
-    writeFull(info, state.indent, newLine(), true, state.runStats.testCases > 0 || hasOutOfTestInfo);
-  }
-
-
-  function startIteration(state: RunState) {
-    writeOutOfTestErrorsWarnings(state, true);
-  }
-
-  function endIteration(state: RunState) {
-    //writeFull(iterationInfo(state), state.indent + 1, newLine(), true, state.iterationIndex > 0);
-  }
-
-  function endTest(state: RunState) {
-
-  }
-
-  function endRun(state: RunState) {
-    writeFull({
-                'filter log': state.filterLog
-              }, 0, newLine(2));
-  }
-
-  return makeStep(stateChangeStep,
-                  reset,
-                  startRun,
-                  startTest,
-                  startIteration,
-                  endIteration,
-                  endTest,
-                  endRun);
-}
+// // this is were things get concrete
+// export function logGenerationStep(rawPath: string, destDir?: string): (RunState, LogEntry) => RunState {
+//
+//   let rsltPath = destPath(rawPath, 'raw', 'full', destDir),
+//       writeFull = fileWriter(rsltPath),
+//       headerWritten = false;
+//
+//   function startRun(state: RunState) {
+//     let {logItems, runConfig, errors, warnings} = state,
+//         timestamp: string = state.timestamp,
+//         entry = {
+//           'run configuration': runConfig,
+//           preRunErrors: errors.length > 0 ? errors : undefined,
+//           preRunWarnings: warnings.length > 0 ? warnings:  undefined
+//         },
+//         str = `start time: ${timestamp}` + newLine(2) +
+//               objToYaml(entry) + newLine() +
+//               'tests:';
+//
+//         writeFull(str, state.indent, '', false);
+//    }
+//
+//    function makeErrorWriter(prefix: string, indent: number, addSeparatorLine: boolean): (string, Array<LogEntry>) => boolean {
+//       return function writeError(tag: string, logItems: Array<LogEntry>) {
+//         let hasItems = logItems.length > 0;
+//         if (hasItems){
+//           let info = {},
+//               lineCount = addSeparatorLine ? 1 : 2;
+//           info[`${prefix} ${tag}`] = logItems;
+//           writeFull(info, indent, newLine(lineCount), true)
+//         }
+//         return hasItems;
+//       }
+//    }
+//
+//    function writeOutOfTestErrorsWarnings(state: RunState, addSeparatorLine: boolean): boolean {
+//      let {type2Errors, errors, warnings, indent} = state,
+//          errorWriter = makeErrorWriter('out of test', indent, addSeparatorLine);
+//
+//      return errorWriter('errors', errors) ||
+//             errorWriter('type2Errors', type2Errors) ||
+//             errorWriter('warnings', warnings);
+//    }
+//
+//   function startTest(state: RunState) {
+//     let {id, when, then, script} = state.testConfig,
+//         hasOutOfTestInfo = writeOutOfTestErrorsWarnings(state, false),
+//         info = `test: ${id} - ${script} - When ${when} then ${then}` + newLine() +
+//                 `timestamp: ${state.timestamp}` + newLine() +
+//                 'iterations:'
+//
+//     writeFull(info, state.indent, newLine(), true, state.runStats.testCases > 0 || hasOutOfTestInfo);
+//   }
+//
+//
+//   function startIteration(state: RunState) {
+//     writeOutOfTestErrorsWarnings(state, true);
+//   }
+//
+//   function endIteration(state: RunState) {
+//     //writeFull(iterationInfo(state), state.indent + 1, newLine(), true, state.iterationIndex > 0);
+//   }
+//
+//   function endTest(state: RunState) {
+//
+//   }
+//
+//   function endRun(state: RunState) {
+//     writeFull({
+//                 'filter log': state.filterLog
+//               }, 0, newLine(2));
+//   }
+//
+//   return makeStep(stateChangeStep,
+//                   reset,
+//                   startRun,
+//                   startTest,
+//                   startIteration,
+//                   endIteration,
+//                   endTest,
+//                   endRun);
+// }
 
 
 function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean = false): void {
@@ -692,7 +714,6 @@ function stateChangeStep(state: RunState, entry: LogEntry): RunState {
 
     case 'ValidationStart':
       switchErrorInfoStage(state, 'OutOfTest', 'Before Validator');
-      state.inValidation = true;
       state.validationInfo = configObj(entry);
       break;
 
@@ -705,13 +726,11 @@ function stateChangeStep(state: RunState, entry: LogEntry): RunState {
       break;
 
     case 'ValidationEnd':
-      state.inValidation = false;
       break;
 
     case 'StartSummary':
       // other state changes handled in reseter
       switchErrorInfoStage(state, 'InTest', 'Generating Summary');
-      state.inValidation = false;
 
     case 'Summary':
       state.iterationSummary = def(entry.message, '');
@@ -749,9 +768,12 @@ function stateChangeStep(state: RunState, entry: LogEntry): RunState {
       break;
   }
 
-  return state;
+  // resets certain properies
+  // if required
+  return reset(state, entry);
 }
 
+// reset state props if required
 function reset(state: RunState, entry: LogEntry): RunState {
 
   state.indent = entry.popControl === 'PushFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
@@ -775,7 +797,6 @@ function reset(state: RunState, entry: LogEntry): RunState {
     state.iterationSummary = '';
     state.logItems = [];
     state.expectedErrorEncoutered = false;
-    state.inValidation = false;
     validationReset();
     errorCommonReset();
   }
@@ -783,9 +804,6 @@ function reset(state: RunState, entry: LogEntry): RunState {
   function testCommonReset() {
     state.expectedErrorEncoutered = false;
     state.logItems = [];
-    state.testWarning = false;
-    state.testError = false;
-    state.testKnownDefect = false;
     state.validatorIssues = [];
     validationReset();
     errorCommonReset();
@@ -794,35 +812,29 @@ function reset(state: RunState, entry: LogEntry): RunState {
   switch (entry.subType) {
     case 'RunStart':
       state.indent = 1;
-      state.inRun = true;
       break;
 
     case 'RunEnd':
       state.indent = 0;
-      state.inRun = false;
       break;
 
     case 'TestStart':
       state.indent = 3;
-      state.inTest = true;
       testCommonReset();
       break;
 
     case 'TestEnd':
       state.indent = 1;
-      state.inTest = false;
       state.testConfig = emptyTestConfig();
       testCommonReset();
       break;
 
     case 'IterationStart':
       state.indent = 3;
-      state.inIteration = true;
       break;
 
     case 'IterationEnd':
       state.indent = 2;
-      state.inIteration = false;
       state.iterationConfig = emptyIterationConfig();
       iterationCommonReset();
       clearErrorInfo(state);
@@ -898,8 +910,7 @@ function filterLog(str: string) {
    return reorderProps(result, ...logKeys);
 }
 
-
-export const parseLogDefault = (fullPath: string) => parseLog(fullPath, logGenerationStep(fullPath), initalState());
+export const parseLogDefault = (fullPath: string) => parseLog(fullPath, summariseLog(fullPath), initalState());
 
 export const parseLog = <S>(fullPath: string, step: (S, LogEntry) => S, initState: S) => logSplitter(fullPath, parser(step, initState) );
 
