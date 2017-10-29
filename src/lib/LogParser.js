@@ -34,7 +34,6 @@ additionalInfo: |
 
    function logOutOfTestErrors(state: RunState) {
       if (listHasIssues(state.outOfTestIssues)){
-
          callHandler({
            elementType: 3,
            issues: state.outOfTestIssues
@@ -46,7 +45,20 @@ additionalInfo: |
 
      switch (entry.subType) {
        case 'IterationEnd':
-
+         logOutOfTestErrors(state);
+         let iterationInfo = {
+           summary: string,
+           startTime: string,
+           endTime:  string,
+           duration: string,
+           elementType: 2,
+           testFile: string,
+           testConfig: {},
+           item: {},
+           apState: state.apstate,
+           issues: state.inTestIssues
+        };
+         callHandler(iterationInfo);
          break;
 
        case 'TestEnd':
@@ -54,7 +66,7 @@ additionalInfo: |
           break;
 
        case 'RunEnd':
-
+          logOutOfTestErrors(state);
           break;
 
        default:
@@ -155,18 +167,16 @@ function listHasIssues(issuesList: IssuesList, includeKnownDefects: boolean = tr
 }
 
  export type Iteration = {|
-   startTime: moment$Moment,
-   endTime:  moment$Moment,
-   duration: moment$Moment,
+   startTime: string,
+   endTime:  string,
+   duration: string,
    elementType: 2,
    testFile: string,
    testConfig: {},
    item: {},
    summary: string,
    apState: {},
-   issues: IssuesList,
-
-   stats: TestStats
+   issues: IssuesList
  |}
 
  export type OutOfTestIssues = {
