@@ -115,7 +115,7 @@ function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(vali
 
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) {
 
-  logStartIteration(item.id, baseCase.name, item.when, item.then);
+  logStartIteration(item.id, baseCase.name, item.when, item.then, item);
   let stage = 'Executing Interactor';
   try {
 

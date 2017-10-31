@@ -1,0 +1,3 @@
+this is a plain
+text doc
+right here

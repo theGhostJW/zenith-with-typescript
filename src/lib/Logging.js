@@ -103,14 +103,9 @@ export const logStartTest = (id: number, testName: string, when: string, then: s
 
 export const logEndTest = (id: number, testName: string) => specialMessage('TestEnd', 'PopFolder')(`End Test ${id} : ${testName}`, objToYaml({id: id, testName: testName}));
 
-export const logStartIteration = (id: number, testName: string, when: string, then: string) => specialMessage('IterationStart', 'PushFolder')(
+export const logStartIteration = (id: number, testName: string, when: string, then: string, item: {}) => specialMessage('IterationStart', 'PushFolder')(
                                                                                                       `Iteration: ${id}: ${testName} - When ${when} then ${then}`,
-                                                                                                       objToYaml({
-                                                                                                                  id: id,
-                                                                                                                  testName: testName,
-                                                                                                                  when: when,
-                                                                                                                  then: then
-                                                                                                                }));
+                                                                                                       objToYaml(item));
 
 export const logEndIteration = (id: number) => specialMessage('IterationEnd', 'PopFolder')(`End Iteration ${id}`, objToYaml({id: id}))
 

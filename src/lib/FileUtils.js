@@ -31,13 +31,16 @@ const TEMP_STR_FILES : {
 } = {};
 
 export function eachLine(fullPath: string, func: (string) => void, singleByteNLChar: string = '\n', readChunk: number = 1024){
+  debug(fullPath, 'fullpath from each line');
   let ops = {
               readChunk: readChunk,
               newLineCharacter: singleByteNLChar
             },
       liner = new lineByLine(fullPath, ops),
       line = '';
+
   while (line = liner.next()) {
+    debug(line, 'in line');
     func(line);
   }
 }

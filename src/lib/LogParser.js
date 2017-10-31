@@ -6,7 +6,7 @@ import { RECORD_DIVIDER, FOLDER_NESTING } from '../lib/Logging';
 import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
-import { combine, logFile, fileOrFolderName, eachLine, toTemp } from '../lib/FileUtils';
+import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString } from '../lib/FileUtils';
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
@@ -26,11 +26,34 @@ additionalInfo: |
   depth: Regression
  */
 
- function summariseLog(fullPath: string):  (RunState, LogEntry) => RunState {
+ function summariseLog(rawPath: string): (RunState, LogEntry) => RunState {
 
-   let elementHandler = firstPassElementHandler(fullPath),
+   let resultPath = destPath(rawPath, 'raw', 'elements'),
+       elementHandler = firstPassElementHandler(resultPath),
        fullSummary: ?FullSummaryInfo = null,
-       callHandler = (re: RunElement) => {fullSummary = elementHandler(re)}
+       callHandler = (re: RunElement) => {fullSummary = elementHandler(re)},
+       statsLog: TestStats = {
+         iterations: 0,
+         passedIterations: 0,
+         failedIterations: 0,
+         iterationsWithWarning: 0,
+         iterationsWithKnownDefects: 0
+       };
+
+   function calcUpdateTestStats(state): TestStats {
+      let runStats = state.runStats,
+          result =  {
+            iterations: 0,
+            passedIterations: 0,
+            failedIterations: 0,
+            iterationsWithWarning: 0,
+            iterationsWithKnownDefects: 0
+          };
+
+       result = _.mapValues(result, (v, k) => runStats[k] - statsLog[k]);
+       statsLog = _.pick(runStats, _.keys(statsLog));
+       return result;
+   }
 
    function logOutOfTestErrors(state: RunState) {
       if (listHasIssues(state.outOfTestIssues)){
@@ -43,34 +66,50 @@ additionalInfo: |
 
    return function step(state: RunState, entry: LogEntry): RunState {
 
+    debug('step');
      switch (entry.subType) {
        case 'IterationEnd':
          logOutOfTestErrors(state);
          let iterationInfo = {
-           summary: string,
-           startTime: string,
-           endTime:  string,
-           duration: string,
+           summary: state.iterationSummary,
+           startTime: state.iterationStart,
+           endTime: def(entry.timestamp, ''),
            elementType: 2,
-           testFile: string,
-           testConfig: {},
-           item: {},
+           testConfig: state.testConfig,
+           item: state.testItem,
            apState: state.apstate,
            issues: state.inTestIssues
-        };
+         };
          callHandler(iterationInfo);
          break;
 
        case 'TestEnd':
-
+         let test = {
+            elementType: 1,
+            testConfig: state.testConfig,
+            startTime: state.testStart,
+            endTime:  def(entry.timestamp, ''),
+            stats: calcUpdateTestStats(state)
+          };
+          callHandler(test);
           break;
 
        case 'RunEnd':
+         let summary: RunSummary = {
+              elementType: 0,
+              rawLog: state.rawFile,
+              runConfig: state.runConfig,
+              startTime: state.timestamp,
+              endTime: def(entry.timestamp, ''),
+              filterLog: state.filterLog,
+              stats: state.runStats
+          };
+          callHandler(summary);
           logOutOfTestErrors(state);
           break;
 
        default:
-
+         break;
      }
 
      stateChangeStep(state, entry)
@@ -91,18 +130,19 @@ additionalInfo: |
         write = (data) => writer(data, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
 
     return function nextElement(element: RunElement): FullSummaryInfo {
-
+      debug(element);
       switch (element.elementType) {
        case 0: // RunSummary
           result.runSummary = element;
        break;
 
        case 1: // TestSummary ;
-          result.testSummaries[element.file] = element;
+          let cfg = element.testConfig;
+          result.testSummaries[cfg.script] = element;
        break;
 
        default: // Iteration | OutOfTestIssues;
-         write(element);
+         write(debug(element));
       }
 
       return result;
@@ -121,24 +161,24 @@ additionalInfo: |
  type RunElementType = $Keys<typeof RUN_ELEMENT_TYPE>
 
  export type RunSummary = {|
-   name: string,
    elementType: 0,
    rawLog: string,
    runConfig: {},
    startTime: string,
    endTime:  string,
-   duration: string,
    filterLog: {[string]: string},
    stats: RunStats
  |}
 
+ type WithScript = {
+    script: string
+};
+
  export type TestSummary = {|
-   file: string,
    elementType: 1,
-   testConfig: {},
+   testConfig: WithScript,
    startTime: string,
    endTime:  string,
-   duration: string,
    stats: TestStats
  |}
 
@@ -166,15 +206,13 @@ function listHasIssues(issuesList: IssuesList, includeKnownDefects: boolean = tr
    return issuesList.some(issueExists);
 }
 
- export type Iteration = {|
+export type Iteration = {|
+   summary: string,
    startTime: string,
    endTime:  string,
-   duration: string,
    elementType: 2,
-   testFile: string,
    testConfig: {},
    item: {},
-   summary: string,
    apState: {},
    issues: IssuesList
  |}
@@ -247,13 +285,6 @@ const nullStats: () => RunStats = () => {
   };
 }
 
-export type LogTestConfig = {
-  id: number,
-  when: string,
-  then: string,
-  script: string,
-}
-
 export type LogIterationConfig = {
   id: number,
   when: string,
@@ -282,12 +313,15 @@ export type RunState = {|
   runStats: RunStats,
   filterLog: {[string]: string},
   runName: string,
+  rawFile: string,
   runConfig: {},
   timestamp: string,
 
   iterationSummary: string,
+  iterationStart: string,
   indent: number,
-  testConfig: LogTestConfig,
+  testStart: string,
+  testConfig: WithScript,
   iterationConfig: LogIterationConfig,
 
   errorExpectation: ?LogEntry,
@@ -296,13 +330,8 @@ export type RunState = {|
   iterationIndex: number,
   iterationSummary: string,
   apstate: {},
+  testItem: {},
   validationInfo: {},
-  logItems: [],
-
-  errors: Array<LogEntry>,
-  warnings: Array<LogEntry>,
-  expectedErrors: Array<LogEntry>,
-  type2Errors: Array<LogEntry>,
   logItems: Array<LogEntry>,
 
   validatorIssues: Array<ErrorsWarningsDefects>,
@@ -330,17 +359,20 @@ function emptyIterationConfig() {
          };
 }
 
-export const initalState: () => RunState = () => {
+export function initalState(rawFilePath: string): RunState {
   let result: RunState = {
                 runStats: nullStats(),
                 filterLog: {},
                 runName: '',
+                rawFile: rawFilePath,
                 runConfig: {},
                 timestamp: '',
                 iterationSummary: '',
+                iterationStart: '',
 
                 indent: 0,
                 testConfig: emptyTestConfig(),
+                testStart: '',
 
                 iterationConfig: emptyIterationConfig(),
 
@@ -350,11 +382,7 @@ export const initalState: () => RunState = () => {
                 iterationIndex: 0,
                 apstate: {},
                 validationInfo: {},
-
-                errors: [],
-                warnings: [],
-                expectedErrors: [],
-                type2Errors: [],
+                testItem: {},
 
                 logItems: [],
                 validatorIssues: [],
@@ -487,12 +515,12 @@ function valToStr(val: ?ErrorsWarningsDefects): ?string {
 function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
   sourceFilePart = '.' + sourceFilePart + '.';
 
-  ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
+  //ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
 
   let resultPath = replace(rawPath, sourceFilePart, '.' + destFilePart + '.'),
       fileName = fileOrFolderName(resultPath);
 
-  return combine(def(destDir, logFile()), fileName);
+  return combine(def(destDir, logFile()), /* fileName */ 'tempDeleteme');
 }
 
 function fileWriter(destPath: string){
@@ -678,7 +706,6 @@ function stateChangeStep(state: RunState, entry: LogEntry): RunState {
   function resetDefectExpectation() {
     if (state.errorExpectation != null && !state.expectedErrorEncoutered){
       stats.type2Errors++;
-      state.type2Errors.push(state.errorExpectation);
       pushTestErrorWarning(state, entry, true);
     }
     state.errorExpectation = null;
@@ -702,15 +729,18 @@ function stateChangeStep(state: RunState, entry: LogEntry): RunState {
       // other state changes handled in reseter
       resetDefectExpectation();
       const defEmpty = (s?: string) => def(s, '');
-      let testConfig = _.pick(infoObj(), ['id', 'when', 'then','script']);
-      state.testConfig = testConfig;
+      state.testConfig = infoObj();
       state.iterationIndex = -1;
+      state.testStart = def(entry.timestamp, '');
       break;
 
     case 'IterationStart':
       // other state changes handled in reseter
       resetDefectExpectation();
-      state.iterationConfig = _.pick(infoObj(), ['id', 'when', 'then']);
+      let info = infoObj();
+      state.iterationStart = info.timestamp;
+      state.iterationConfig = _.pick(info, ['id', 'when', 'then']);
+      state.testItem = info;
       state.iterationIndex++;
       break;
 
@@ -791,10 +821,6 @@ function reset(state: RunState, entry: LogEntry): RunState {
   function errorCommonReset() {
     state.errorExpectation = null;
     state.expectedErrorEncoutered = false;
-    state.errors = [];
-    state.warnings = [];
-    state.expectedErrors = [];
-    state.type2Errors = [];
   }
 
   function validationReset() {
@@ -920,13 +946,13 @@ function filterLog(str: string) {
    return reorderProps(result, ...logKeys);
 }
 
-export const parseLogDefault = (fullPath: string) => parseLog(fullPath, summariseLog(fullPath), initalState());
+export const parseLogDefault = (fullPath: string) => parseLog(fullPath, summariseLog(fullPath), initalState(fullPath));
 
 export const parseLog = <S>(fullPath: string, step: (S, LogEntry) => S, initState: S) => logSplitter(fullPath, parser(step, initState) );
 
 function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => void {
   let currentState = initialState;
-
+  debug(currentState)
   return (str: string) => {
 
     let yml = false;
@@ -950,13 +976,17 @@ function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => 
 export function logSplitter(fullPath: string, itemParser: string => void ): void {
   let buffer = [];
 
+  debug(fileToString(fullPath));
+
   function processBuffer() {
     let entry = buffer.join(newLine());
+    debug(entry);
     itemParser(entry);
     buffer = [];
   }
 
   function processLine(line) {
+    debug(line);
     if (line == RECORD_DIVIDER){
       processBuffer();
     }

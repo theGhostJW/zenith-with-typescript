@@ -10,7 +10,7 @@ import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 describe.only('file Parsing', () => {
 
   it('logSplitter', () => {
-    parseLogDefault(testDataFile('DemoLog.raw.yaml'));
+    parseLogDefault(testDataFile('Here.txt'));
   });
 
 });
