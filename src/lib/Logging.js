@@ -53,7 +53,8 @@ const specialError = (subType: LogSubType, popControl: PopControl = 'NoAction'):
 
 export const pushLogFolder = (folderLabel: string) => specialMessage('Message', 'PushFolder')(folderLabel);
 export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Folder');
-export const expectDefect = (defectInfo: string) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo));
+
+export const expectDefect = (defectInfo: string, active: boolean = true) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo), {active: active});
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
 export const logStartInteraction = () => specialMessage('InteractorStart', 'PushFolder')('Start Interaction');
 export const logEndInteraction = () => specialMessage('InteractorEnd', 'PopFolder')('End Interaction');

@@ -42,7 +42,7 @@ export function chkExceptionText(action : () => any, exceptionText: string, case
   chkException(
       action,
       (e: Error) => {
-        failMessage = e.message;
+        failMessage = toString(e);
         return hasText(failMessage, exceptionText, caseSensitive);
       },
       () => failMessage == null ? exceptionText :

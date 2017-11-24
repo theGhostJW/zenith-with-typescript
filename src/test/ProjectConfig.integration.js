@@ -19,7 +19,7 @@ describe('run', () => {
     depth: 'Regression'
   };
 
-  it.only('demo Test Run', () => {
+  it('demo Test Run', () => {
     run(runConfig);
   });
 

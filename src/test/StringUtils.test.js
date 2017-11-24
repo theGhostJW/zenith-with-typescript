@@ -117,7 +117,12 @@ describe('trimChars', () => {
   });
 
   it('throws exception on empty', () => {
-    chkExceptionText(() => trimChars('target', ['a', '']), 'Empty string passed in to trimChars char array');
+    chkExceptionText(
+                () => {
+                        trimChars('target', ['a', '']);
+                      },
+                'Empty string passed in to trimChars char array'
+              );
   });
 
   it('empty trim chars array', () => {

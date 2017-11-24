@@ -8,7 +8,7 @@ import { toTempString } from '../src/lib/FileUtils';
 import child_process from 'child_process'
 import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
 import { register } from '../testCases/ProjectConfig';
-import { check } from '../src/lib/CheckUtils';
+import { check, checkFalse} from '../src/lib/CheckUtils';
 import moment from 'moment';
 
 var config: TestConfig = {
@@ -64,7 +64,7 @@ type Item = {|
 
 function check_less_than_2(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
   expectDefect('should fail');
-  check(valState.id < 2, 'expect less than 2');
+  check(valState.id < 2, 'expect less than 2', `${valState.id} should be less than 2`);
   endDefect();
 }
 
@@ -76,13 +76,29 @@ function check_bad_validator(valState: ValState, item: Item, runConfig: RunConfi
   throw('ARGGGHHHHHH!!!')
 }
 
+function check_with_disabled_expectation(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+  expectDefect('should not fail', false);
+  check(true, 'true is true');
+  endDefect();
+}
+
+function check_with_incorrect_disabled_expectation(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+  expectDefect('should fail', false);
+  checkFalse(true, 'false is true');
+  endDefect();
+}
+
 function  testItems(runConfig: RunConfig): Array<Item> {
   return [
     {
       id: 1,
       when: 'I run a test',
       then: 'i get the result',
-      validators: check_less_than_2
+      validators: [
+        check_less_than_2,
+        check_with_disabled_expectation,
+        check_with_incorrect_disabled_expectation
+      ]
     },
 
     {

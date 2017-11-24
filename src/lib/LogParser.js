@@ -1,6 +1,6 @@
 //@flow
 
-import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml } from '../lib/SysUtils';
+import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING } from '../lib/Logging';
 import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
@@ -26,8 +26,7 @@ additionalInfo: |
   depth: Regression
  */
 
- // create a log file of run elements and a summary object
- // for second pass
+ // update summarry info based on element
  function updateSummary(element: RunElement, summaryInfo: FullSummaryInfo): FullSummaryInfo {
 
    switch (element.elementType) {
@@ -45,10 +44,10 @@ additionalInfo: |
  }
 
  function fileRecordWriter(destPath: string): (content: {}) => void {
-    let writer = fileWriter(destPath),
-        write = (data: {}) => writer(data, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
-
-   return write;
+    let writer = fileWriter(destPath);
+    return function writeToFile(content: {}) {
+        writer(content, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
+    }
  }
 
  function summariseLog(rawPath: string): (RunState, LogEntry) => RunState {
@@ -87,17 +86,20 @@ additionalInfo: |
       if (listHasIssues(state.outOfTestIssues)){
          let issues = {
                         elementType: 3,
-                        issues: state.outOfTestIssues
+                        issues: state.outOfTestIssues.filter(i => hasIssues(i))
                      };
          writeToFile(issues);
       }
    }
+
 
    return function step(state: RunState, entry: LogEntry): RunState {
 
      switch (entry.subType) {
        case 'IterationEnd':
          logOutOfTestErrors(state);
+         let issues: Array<ErrorsWarningsDefects> = forceArray(state.inTestIssues, state.validatorIssues);
+             issues = issues.filter(i => hasIssues(i));
          let iterationInfo = {
            summary: state.iterationSummary,
            startTime: state.iterationStart,
@@ -106,7 +108,8 @@ additionalInfo: |
            testConfig: state.testConfig,
            item: state.testItem,
            apState: state.apstate,
-           issues: state.inTestIssues
+           passedValidators: state.passedValidators,
+           issues: issues
          };
          writeToFile(iterationInfo);
          break;
@@ -329,6 +332,7 @@ export type RunState = {|
   testItem: {},
   validationInfo: {},
   logItems: Array<LogEntry>,
+  passedValidators: Array<string>,
 
   validatorIssues: Array<ErrorsWarningsDefects>,
   inTestIssues: Array<ErrorsWarningsDefects>,
@@ -384,6 +388,8 @@ export function initalState(rawFilePath: string): RunState {
                 validatorIssues: [],
                 inTestIssues: [],
                 outOfTestIssues: [],
+                passedValidators: [],
+
 
                 //this are flipped depending on what state we are in
                 activeIssues: null
@@ -600,7 +606,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       switchErrorInfoStage(state, 'InTest', 'Executing Interactor');
       break;
 
-    case 'PrepValidationInfo':
+    case 'PrepValidationInfoStart':
       switchErrorInfoStage(state, 'InTest', 'Preparing Validator State');
       break;
 
@@ -614,6 +620,10 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       break;
 
     case 'ValidatorEnd':
+      let activeIssues = state.activeIssues;
+      if (activeIssues != null && !hasIssues(activeIssues, false)){
+        state.passedValidators.push(activeIssues.name);
+      }
       switchErrorInfoStage(state, 'OutOfTest', 'After Validator');
       break;
 
@@ -644,6 +654,8 @@ function updateState(state: RunState, entry: LogEntry): RunState {
     case 'CheckPass':
     case 'CheckFail':
     case 'Exception':
+    case 'InteractorEnd':
+    case 'PrepValidationInfoEnd':
       // actions handled in reset / message handled by earlier code
       break;
 
@@ -676,6 +688,7 @@ function reset(state: RunState, entry: LogEntry): RunState {
 
   function validationReset() {
     state.validatorIssues = [];
+    state.passedValidators = [];
   }
 
   function iterationCommonReset() {
