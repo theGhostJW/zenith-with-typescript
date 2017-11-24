@@ -31,7 +31,6 @@ const TEMP_STR_FILES : {
 } = {};
 
 export function eachLine(fullPath: string, func: (string) => void, singleByteNLChar: string = '\n', readChunk: number = 1024){
-  debug(fullPath, 'fullpath from each line');
   let ops = {
               readChunk: readChunk,
               newLineCharacter: singleByteNLChar
@@ -40,8 +39,7 @@ export function eachLine(fullPath: string, func: (string) => void, singleByteNLC
       line = '';
 
   while (line = liner.next()) {
-    debug(line, 'in line');
-    func(line);
+    func(line.toString('utf8'));
   }
 }
 
@@ -55,11 +53,8 @@ export function fileLastModified(fullFilePath: string ): moment$Moment  {
 export const copyFile = (sourcePath: string, desPath: string): string => {
   ensure(pathExists(sourcePath), 'Source file does not exist ${sourcePath}');
   fs.writeFileSync(desPath, fs.readFileSync(sourcePath));
-  //fsEx.copySync(debug(sourcePath, 'source'), debug(desPath, 'dest'));
   log(`${sourcePath} copied to ${desPath}`);
   return desPath;
-//  fsEx.copySync(debug(sourcePath, 'source'), debug(desPath, 'dest'));
-//  return desPath;
 }
 
 /*\

@@ -7,10 +7,10 @@ import { testDataFile } from '../lib/FileUtils';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 
-describe.only('file Parsing', () => {
+describe('file Parsing', () => {
 
-  it('logSplitter', () => {
-    parseLogDefault(testDataFile('Here.txt'));
+  it.only('logSplitter', () => {
+    parseLogDefault(testDataFile('DemoLog.raw.yaml'));
   });
 
 });

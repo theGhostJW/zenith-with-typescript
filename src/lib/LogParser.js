@@ -26,12 +26,40 @@ additionalInfo: |
   depth: Regression
  */
 
+ // create a log file of run elements and a summary object
+ // for second pass
+ function updateSummary(element: RunElement, summaryInfo: FullSummaryInfo): FullSummaryInfo {
+
+   switch (element.elementType) {
+    case 0: // RunSummary
+       summaryInfo.runSummary = element;
+    break;
+
+    case 1: // TestSummary ;
+       let cfg = element.testConfig;
+       summaryInfo.testSummaries[cfg.script] = element;
+    break;
+   }
+
+   return summaryInfo;
+ }
+
+ function fileRecordWriter(destPath: string): (content: {}) => void {
+    let writer = fileWriter(destPath),
+        write = (data: {}) => writer(data, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
+
+   return write;
+ }
+
  function summariseLog(rawPath: string): (RunState, LogEntry) => RunState {
 
    let resultPath = destPath(rawPath, 'raw', 'elements'),
-       elementHandler = firstPassElementHandler(resultPath),
-       fullSummary: ?FullSummaryInfo = null,
-       callHandler = (re: RunElement) => {fullSummary = elementHandler(re)},
+      // Here separating writer and summariser
+       writeToFile = fileRecordWriter(resultPath),
+       fullSummary: FullSummaryInfo = {
+         testSummaries: {},
+         runSummary: null
+       },
        statsLog: TestStats = {
          iterations: 0,
          passedIterations: 0,
@@ -57,16 +85,16 @@ additionalInfo: |
 
    function logOutOfTestErrors(state: RunState) {
       if (listHasIssues(state.outOfTestIssues)){
-         callHandler({
-           elementType: 3,
-           issues: state.outOfTestIssues
-         })
+         let issues = {
+                        elementType: 3,
+                        issues: state.outOfTestIssues
+                     };
+         writeToFile(issues);
       }
    }
 
    return function step(state: RunState, entry: LogEntry): RunState {
 
-    debug('step');
      switch (entry.subType) {
        case 'IterationEnd':
          logOutOfTestErrors(state);
@@ -80,7 +108,7 @@ additionalInfo: |
            apState: state.apstate,
            issues: state.inTestIssues
          };
-         callHandler(iterationInfo);
+         writeToFile(iterationInfo);
          break;
 
        case 'TestEnd':
@@ -91,11 +119,11 @@ additionalInfo: |
             endTime:  def(entry.timestamp, ''),
             stats: calcUpdateTestStats(state)
           };
-          callHandler(test);
+          updateSummary(test, fullSummary);
           break;
 
        case 'RunEnd':
-         let summary: RunSummary = {
+         let runSum: RunSummary = {
               elementType: 0,
               rawLog: state.rawFile,
               runConfig: state.runConfig,
@@ -104,7 +132,7 @@ additionalInfo: |
               filterLog: state.filterLog,
               stats: state.runStats
           };
-          callHandler(summary);
+          updateSummary(runSum, fullSummary);
           logOutOfTestErrors(state);
           break;
 
@@ -112,41 +140,9 @@ additionalInfo: |
          break;
      }
 
-     stateChangeStep(state, entry)
+     updateState(state, entry)
      return state;
    }
- }
-
- // create a log file of run elements and a summary object
- // for second pass
- function firstPassElementHandler(destPath: string): (e: RunElement) => FullSummaryInfo {
-
-    let result: FullSummaryInfo = {
-                                    testSummaries: {},
-                                    runSummary: null
-                                 };
-
-    let writer = fileWriter(destPath),
-        write = (data) => writer(data, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
-
-    return function nextElement(element: RunElement): FullSummaryInfo {
-      debug(element);
-      switch (element.elementType) {
-       case 0: // RunSummary
-          result.runSummary = element;
-       break;
-
-       case 1: // TestSummary ;
-          let cfg = element.testConfig;
-          result.testSummaries[cfg.script] = element;
-       break;
-
-       default: // Iteration | OutOfTestIssues;
-         write(debug(element));
-      }
-
-      return result;
-    }
  }
 
 // Need this info to pattern match
@@ -399,7 +395,8 @@ export function initalState(rawFilePath: string): RunState {
 }
 
 function switchErrorInfoStage(state: RunState, stage: StateStage, name: string): void {
-
+   // cardinality problem here
+  // !!!
   let newStageRec = emptyValidatorInfo(stage, name),
       propMap = {
         Validation: state.validatorIssues,
@@ -416,14 +413,6 @@ function clearErrorInfo(state: RunState): void {
   state.outOfTestIssues = [];
   state.activeIssues = null;
 }
-
-
-//todo: mocks
-//todo: rewrite with summary
-//todo: issues
-//todo: summary
-//
-
 
 function valToStr(val: ?ErrorsWarningsDefects): ?string {
   if (val == null) {
@@ -452,9 +441,6 @@ function valToStr(val: ?ErrorsWarningsDefects): ?string {
     }
     else {
       let nonNull = _.pick(result, _.map(pairs, p => p[0]));
-      debug(JSON.stringify(pairs), 'Pairs');
-      debug(JSON.stringify(nonNull), 'NonNull');
-
       return objToYaml(
        val.name == null ? nonNull : {
         [val.name]: nonNull
@@ -462,65 +448,15 @@ function valToStr(val: ?ErrorsWarningsDefects): ?string {
     }
 }
 
-// function validationText(state: RunState): string {
-//
-//   if (!done)
-//     toTemp(state);
-//
-//   let {
-//       validatorIssues,
-//       inTestIssues,
-//
-//       activeInteractor,
-//       outOfTestIssues
-//     } = state,
-//     resultObj = {};
-//
-//   function addItemsToResult(items, propName) {
-//     let strs = _.compact(items.map(valToStr));
-//     if (strs.length > 0){
-//       resultObj[propName] = strs;
-//     }
-//   }
-//
-//   function addSingleValToResult(item, propName) {
-//     let str = valToStr(item);
-//     if (str != null){
-//       resultObj[propName] = str;
-//     }
-//   }
-//
-//   addSingleValToResult(activeInteractor, 'interactor issues');
-//   addItemsToResult(validatorIssues, 'validators');
-//   debug(resultObj, 'validators');
-//   addItemsToResult(inTestIssues, 'other test errors');
-//   addSingleValToResult(outOfTest, 'out of test errors');
-//
-//   done = true;
-//   return objToYaml(resultObj);
-// }
-//
-//   function iterationInfo(state: RunState){
-  //
-  //   let testConfig = state.testConfig,
-  //       iterationConfig = state.iterationConfig,
-  //       when = def(iterationConfig.when, testConfig.when),
-  //       then = def(iterationConfig.then, testConfig.then),
-  //       data =
-  //         `iteration: ${testConfig.id} / ${iterationConfig.id} - When ${when} then ${then}` + newLine() +
-  //         `validations: \n\t ${validationText(state)}`;
-  //   return data;
-  // }
-
 function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
   sourceFilePart = '.' + sourceFilePart + '.';
 
-  //ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
+  ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
 
   let resultPath = replace(rawPath, sourceFilePart, '.' + destFilePart + '.'),
       fileName = fileOrFolderName(resultPath);
 
-  return combine(def(destDir, logFile()), /* fileName */ 'tempDeleteme');
+  return combine(def(destDir, logFile()), fileName );
 }
 
 function fileWriter(destPath: string){
@@ -545,90 +481,6 @@ function fileWriter(destPath: string){
      fs.writeSync(fd, prefix + str);
    }
 }
-
-// // this is were things get concrete
-// export function logGenerationStep(rawPath: string, destDir?: string): (RunState, LogEntry) => RunState {
-//
-//   let rsltPath = destPath(rawPath, 'raw', 'full', destDir),
-//       writeFull = fileWriter(rsltPath),
-//       headerWritten = false;
-//
-//   function startRun(state: RunState) {
-//     let {logItems, runConfig, errors, warnings} = state,
-//         timestamp: string = state.timestamp,
-//         entry = {
-//           'run configuration': runConfig,
-//           preRunErrors: errors.length > 0 ? errors : undefined,
-//           preRunWarnings: warnings.length > 0 ? warnings:  undefined
-//         },
-//         str = `start time: ${timestamp}` + newLine(2) +
-//               objToYaml(entry) + newLine() +
-//               'tests:';
-//
-//         writeFull(str, state.indent, '', false);
-//    }
-//
-//    function makeErrorWriter(prefix: string, indent: number, addSeparatorLine: boolean): (string, Array<LogEntry>) => boolean {
-//       return function writeError(tag: string, logItems: Array<LogEntry>) {
-//         let hasItems = logItems.length > 0;
-//         if (hasItems){
-//           let info = {},
-//               lineCount = addSeparatorLine ? 1 : 2;
-//           info[`${prefix} ${tag}`] = logItems;
-//           writeFull(info, indent, newLine(lineCount), true)
-//         }
-//         return hasItems;
-//       }
-//    }
-//
-//    function writeOutOfTestErrorsWarnings(state: RunState, addSeparatorLine: boolean): boolean {
-//      let {type2Errors, errors, warnings, indent} = state,
-//          errorWriter = makeErrorWriter('out of test', indent, addSeparatorLine);
-//
-//      return errorWriter('errors', errors) ||
-//             errorWriter('type2Errors', type2Errors) ||
-//             errorWriter('warnings', warnings);
-//    }
-//
-//   function startTest(state: RunState) {
-//     let {id, when, then, script} = state.testConfig,
-//         hasOutOfTestInfo = writeOutOfTestErrorsWarnings(state, false),
-//         info = `test: ${id} - ${script} - When ${when} then ${then}` + newLine() +
-//                 `timestamp: ${state.timestamp}` + newLine() +
-//                 'iterations:'
-//
-//     writeFull(info, state.indent, newLine(), true, state.runStats.testCases > 0 || hasOutOfTestInfo);
-//   }
-//
-//
-//   function startIteration(state: RunState) {
-//     writeOutOfTestErrorsWarnings(state, true);
-//   }
-//
-//   function endIteration(state: RunState) {
-//     //writeFull(iterationInfo(state), state.indent + 1, newLine(), true, state.iterationIndex > 0);
-//   }
-//
-//   function endTest(state: RunState) {
-//
-//   }
-//
-//   function endRun(state: RunState) {
-//     writeFull({
-//                 'filter log': state.filterLog
-//               }, 0, newLine(2));
-//   }
-//
-//   return makeStep(stateChangeStep,
-//                   reset,
-//                   startRun,
-//                   startTest,
-//                   startIteration,
-//                   endIteration,
-//                   endTest,
-//                   endRun);
-// }
-
 
 function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean = false): void {
   let level = entry.level,
@@ -680,8 +532,8 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
   }
 }
 
-// update the state without resetting anything
-function stateChangeStep(state: RunState, entry: LogEntry): RunState {
+// update the state then reset if required
+function updateState(state: RunState, entry: LogEntry): RunState {
 
   let stats = state.runStats;
   state.timestamp = def(entry.timestamp, state.timestamp);
@@ -813,7 +665,6 @@ function stateChangeStep(state: RunState, entry: LogEntry): RunState {
   return reset(state, entry);
 }
 
-// reset state props if required
 function reset(state: RunState, entry: LogEntry): RunState {
 
   state.indent = entry.popControl === 'PushFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
@@ -952,7 +803,6 @@ export const parseLog = <S>(fullPath: string, step: (S, LogEntry) => S, initStat
 
 function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => void {
   let currentState = initialState;
-  debug(currentState)
   return (str: string) => {
 
     let yml = false;
@@ -976,18 +826,14 @@ function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => 
 export function logSplitter(fullPath: string, itemParser: string => void ): void {
   let buffer = [];
 
-  debug(fileToString(fullPath));
-
   function processBuffer() {
     let entry = buffer.join(newLine());
-    debug(entry);
     itemParser(entry);
     buffer = [];
   }
 
   function processLine(line) {
-    debug(line);
-    if (line == RECORD_DIVIDER){
+    if (line.startsWith(RECORD_DIVIDER)){
       processBuffer();
     }
     else {

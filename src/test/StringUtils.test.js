@@ -211,7 +211,6 @@ describe('stringToTableMap', () => {
   it('simple', () => {
     let actual = stringToTableMap(TABLES, rowTransformer, fieldTransformer);
     chkEq('YOUNG', actual.secondaryMatch[1].dob);
-    debug(actual);
   });
 });
 

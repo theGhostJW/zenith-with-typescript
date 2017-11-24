@@ -219,7 +219,6 @@ describe('hostName', () => {
 
   it('does not blow up returns a string', () => {
     let actual = hostName();
-    debug(actual);
     chkEq('string', typeof actual);
   });
 

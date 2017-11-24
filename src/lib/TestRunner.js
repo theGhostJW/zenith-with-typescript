@@ -2,12 +2,13 @@
 
 import { eachFile, testCaseFile, fileOrFolderName } from '../lib/FileUtils';
 import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug } from '../lib/SysUtils';
-import { toString } from '../lib/StringUtils';
+import { toString, newLine} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
           logIterationSummary, logFilterLog, logException, logValidationStart,
           logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
-          logStartIterationSummary, logMapValidationInfo } from '../lib/Logging';
+          logStartIterationSummary, logEndInteraction, logPrepValidationInfoStart,
+          logPrepValidationInfoEnd } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
@@ -91,56 +92,74 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
 
 function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validators: GenericValidator<V, I, R> | Array<GenericValidator<V, I, R>>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
   validators = forceArray(validators);
-  const validate = (validator) => {
+  function validate(validator){
     let currentValidator = functionNameFromFunction(validator);
     logStartValidator(currentValidator);
     try {
       validator(valState, item, runConfig, valTime);
     } catch (e) {
-      logException('Exception thrown in validator: ' + currentValidator, e);
-      throw(e);
-    } finally {
-      logEndValidator(currentValidator);
+      throw('Exception thrown in validator: ' + currentValidator + newLine() + toString(e));
     }
+    logEndValidator(currentValidator);
+  }
+  validators.forEach(validate);
+}
+
+type Action = () => void;
+
+function exStage(stage: Action, stageName: string, preLog: Action, postLog: Action, continu: boolean) : boolean {
+  if (!continu){
+    return continu;
   }
 
-  logValidationStart(valTime, valState);
+  preLog();
   try {
-    validators.forEach(validate);
-  }  finally {
-    logValidationEnd();
+    stage();
   }
-
+  catch (e) {
+    logException(`Exception Thrown ${stageName}`, e);
+    continu = false;
+  } finally {
+    postLog();
+  }
+  return continu;
 }
 
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) {
 
-  logStartIteration(item.id, baseCase.name, item.when, item.then, item);
-  let stage = 'Executing Interactor';
-  try {
+ logStartIteration(item.id, baseCase.name, item.when, item.then, item);
+ try {
+    let apState: S,
+        valState: V,
+        continu = true;
 
-    var apState: S;
-    logStartInteraction();
-    try {
-      apState = baseCase.interactor(item, runConfig);
-    } finally {
-      popLogFolder();
-    }
+    continu = exStage(() => {apState = baseCase.interactor(item, runConfig)},
+                        'Executing Interactor',
+                        logStartInteraction,
+                        logEndInteraction,
+                        continu);
 
-    stage = 'Executing Prepstate - Transforming Apstate to ValState';
-    logMapValidationInfo();
-    let valState = baseCase.prepState(apState);
+    continu = exStage(() => {valState = baseCase.prepState(apState)},
+                              'Preparing Validation Info',
+                              logPrepValidationInfoStart,
+                              logPrepValidationInfoEnd,
+                              continu);
+    let valTime = now();
+    continu = exStage(() => runValidators(item.validators, valState, item, runConfig, valTime),
+                              'Running Validators',
+                              () => logValidationStart(valTime, valState),
+                              logValidationEnd,
+                              continu);
 
-    stage = 'Executing Validators';
-    runValidators(item.validators, valState, item, runConfig, now());
-
-    stage = 'Generating Summary';
-    logStartIterationSummary();
-    let summary = baseCase.summarise(runConfig, item, apState, valState);
-    logIterationSummary(summary);
+    let summary = '';
+    continu = exStage(() => {summary = baseCase.summarise(runConfig, item, apState, valState)},
+                                'Generating Summary',
+                                logStartIterationSummary,
+                                () => logIterationSummary(summary),
+                                continu);
   }
   catch (e) {
-    logException(`Exception Thrown ${stage}`, e);
+    logException('Exception thrown in iteration');
   } finally {
     logEndIteration(item.id)
   }
@@ -183,7 +202,14 @@ export function filterTestItems<T, TC, R>(testCases: Array<NamedObj<T>>, configE
 
 export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
 
-  let { itemRunner, testRunner, testList, runConfig, runConfigDefaulter, testConfigDefaulter, testFilters} = params,
+  let {
+        itemRunner,
+        testRunner,
+        testList, runConfig,
+        runConfigDefaulter,
+        testConfigDefaulter,
+        testFilters
+      } = params,
       runName = runConfig.name;
 
   runConfig = runConfigDefaulter(runConfig);

@@ -10,11 +10,11 @@ import child_process from 'child_process'
 describe.skip('process', () => {
 
   it('platform', () => {
-    debug(`${process.platform}`, 'This platform is');
+    console.log(`${process.platform}`, 'This platform is');
   });
 
   it('file name', () => {
-    debug(module.filename, 'module name');
+    console.log(module.filename, 'module name');
   });
 
 });
@@ -46,7 +46,6 @@ describe.skip('cloneDeep', () => {
 
   it('pojso', () => {
     let actual = _.cloneDeep(TARGET);
-    debug(actual);
     chkEq(TARGET, actual);
   });
 

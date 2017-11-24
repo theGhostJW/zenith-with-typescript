@@ -56,8 +56,11 @@ export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Fo
 export const expectDefect = (defectInfo: string) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo));
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
 export const logStartInteraction = () => specialMessage('InteractorStart', 'PushFolder')('Start Interaction');
+export const logEndInteraction = () => specialMessage('InteractorEnd', 'PopFolder')('End Interaction');
 
-export const logMapValidationInfo = () => specialMessage('PrepValidationInfo')();
+export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')();
+export const logPrepValidationInfoEnd = () => specialMessage('PrepValidationInfoEnd')();
+
 export const logStartIterationSummary = () => specialMessage('StartSummary')();
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
 export const logValidationStart = (valTime: moment$Moment, valState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
@@ -124,7 +127,8 @@ export type LogSubType = "Message" |
                           "IterationStart" |
                           "IterationEnd" |
                           "TestEnd" |
-                          "PrepValidationInfo" |
+                          "PrepValidationInfoStart" |
+                          "PrepValidationInfoEnd" |
                           "StartSummary" |
                           "Summary" |
                           "RunEnd" |
@@ -132,6 +136,7 @@ export type LogSubType = "Message" |
                           "EndDefect" |
                           "Exception" |
                           "InteractorStart" |
+                          "InteractorEnd" |
                           "ValidationStart" |
                           "ValidationEnd" |
                           "ValidatorStart" |

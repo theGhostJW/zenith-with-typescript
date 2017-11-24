@@ -87,7 +87,6 @@ describe('now', () => {
     let actual = now(),
         jsDate = Date.now();
 
-    debug(actual.toDate());
     chk(jsDate - actual.toDate() < 1000);
   });
 
@@ -113,12 +112,12 @@ describe('formatted nows', () => {
 
   it('just check it does not blow up - nowAsLogFormat', () => {
     var actual = nowAsLogFormat();
-    debug(actual);
+    console.log(actual);
   });
 
   it('just check it does not blow up - nowFileFormatted', () => {
     var actual = nowFileFormatted();
-    debug(actual);
+    console.log(actual);
   });
 
 });
