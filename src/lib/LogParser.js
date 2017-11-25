@@ -1,6 +1,6 @@
 //@flow
 
-import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray } from '../lib/SysUtils';
+import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING } from '../lib/Logging';
 import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
@@ -596,7 +596,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       // other state changes handled in reseter
       resetDefectExpectation();
       let info = infoObj();
-      state.iterationStart = info.timestamp;
+      state.iterationStart = def(entry.timestamp, '');
       state.iterationConfig = _.pick(info, ['id', 'when', 'then']);
       state.testItem = info;
       state.iterationIndex++;
@@ -660,7 +660,11 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       break;
 
     case "StartDefect":
-      state.errorExpectation = entry;
+      let isActive = seekInObj(infoObj(), 'active');
+      // only enable defect expectation if it is active
+      if (isActive == null || isActive){
+        state.errorExpectation = entry;
+      }
       break;
 
     case "EndDefect":
