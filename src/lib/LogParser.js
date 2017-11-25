@@ -10,39 +10,6 @@ import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString } fr
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
-/*
-timestamp: '2017-10-01 13:46:27'
-level: info
-subType: RunStart
-popControl: PushFolder
-message: 'Test Run: Test Test Run',
-link: ?string,
-callstack: any
-additionalInfo: |
-  name: Test Test Run
-  country: Australia
-  environment: TST
-  testCases: []
-  depth: Regression
- */
-
- // update summarry info based on element
- function updateSummary(element: RunElement, summaryInfo: FullSummaryInfo): FullSummaryInfo {
-
-   switch (element.elementType) {
-    case 0: // RunSummary
-       summaryInfo.runSummary = element;
-    break;
-
-    case 1: // TestSummary ;
-       let cfg = element.testConfig;
-       summaryInfo.testSummaries[cfg.script] = element;
-    break;
-   }
-
-   return summaryInfo;
- }
-
  function fileRecordWriter(destPath: string): (content: {}) => void {
     let writer = fileWriter(destPath);
     return function writeToFile(content: {}) {
@@ -50,15 +17,11 @@ additionalInfo: |
     }
  }
 
- function summariseLog(rawPath: string): (RunState, LogEntry) => RunState {
+ function summariseLog(rawPath: string, fullSummary: FullSummaryInfo): (RunState, LogEntry) => RunState {
 
    let resultPath = destPath(rawPath, 'raw', 'elements'),
       // Here separating writer and summariser
        writeToFile = fileRecordWriter(resultPath),
-       fullSummary: FullSummaryInfo = {
-         testSummaries: {},
-         runSummary: null
-       },
        statsLog: TestStats = {
          iterations: 0,
          passedIterations: 0,
@@ -67,6 +30,8 @@ additionalInfo: |
          iterationsWithKnownDefects: 0
        };
 
+   fullSummary.rawFile = rawPath;
+   fullSummary.elementsFile = resultPath;
    function calcUpdateTestStats(state): TestStats {
       let runStats = state.runStats,
           result =  {
@@ -85,7 +50,7 @@ additionalInfo: |
    function logOutOfTestErrors(state: RunState) {
       if (listHasIssues(state.outOfTestIssues)){
          let issues = {
-                        elementType: 3,
+                        elementType: 'OutOfTestErrors',
                         issues: state.outOfTestIssues.filter(i => hasIssues(i))
                      };
          writeToFile(issues);
@@ -104,7 +69,7 @@ additionalInfo: |
            summary: state.iterationSummary,
            startTime: state.iterationStart,
            endTime: def(entry.timestamp, ''),
-           elementType: 2,
+           elementType: 'InterationInfo',
            testConfig: state.testConfig,
            item: state.testItem,
            apState: state.apstate,
@@ -115,27 +80,25 @@ additionalInfo: |
          break;
 
        case 'TestEnd':
-         let test = {
-            elementType: 1,
-            testConfig: state.testConfig,
-            startTime: state.testStart,
-            endTime:  def(entry.timestamp, ''),
-            stats: calcUpdateTestStats(state)
-          };
-          updateSummary(test, fullSummary);
+         let
+            cfg = def(state.testConfig, {script: 'LOG ERROR CONFIG NOT DEFINED'}),
+            testInfo = {
+               testConfig: cfg,
+               startTime: state.testStart,
+               endTime:  def(entry.timestamp, ''),
+               stats: calcUpdateTestStats(state)
+             };
+          fullSummary.testSummaries[cfg.script] = testInfo;
           break;
 
        case 'RunEnd':
-         let runSum: RunSummary = {
-              elementType: 0,
-              rawLog: state.rawFile,
+         fullSummary.runSummary = {
               runConfig: state.runConfig,
               startTime: state.timestamp,
               endTime: def(entry.timestamp, ''),
               filterLog: state.filterLog,
               stats: state.runStats
           };
-          updateSummary(runSum, fullSummary);
           logOutOfTestErrors(state);
           break;
 
@@ -148,20 +111,7 @@ additionalInfo: |
    }
  }
 
-// Need this info to pattern match
-// - after type erasure
- const RUN_ELEMENT_TYPE = {
-   RunSummary: 0,
-   TestSummary: 1,
-   Iteration: 2,
-   OutOfTestIssues: 3
- };
-
- type RunElementType = $Keys<typeof RUN_ELEMENT_TYPE>
-
  export type RunSummary = {|
-   elementType: 0,
-   rawLog: string,
    runConfig: {},
    startTime: string,
    endTime:  string,
@@ -169,12 +119,13 @@ additionalInfo: |
    stats: RunStats
  |}
 
+ type RunElementType = 'InterationInfo' | 'OutOfTestErrors';
+
  type WithScript = {
     script: string
 };
 
  export type TestSummary = {|
-   elementType: 1,
    testConfig: WithScript,
    startTime: string,
    endTime:  string,
@@ -221,9 +172,9 @@ export type Iteration = {|
    issues: IssuesList
  };
 
-export type RunElement = RunSummary | TestSummary | Iteration | OutOfTestIssues;
-
 export type FullSummaryInfo = {
+  rawFile: string,
+  elementsFile: string,
   testSummaries: {[string]: TestSummary},
   runSummary: ?RunSummary
 }
@@ -240,22 +191,21 @@ type RunStats =  {|
   testCases: number,
   passedTests: number,
   failedTests: number,
-  testsWithWarning: number,
+  testsWithWarnings: number,
   testsWithKnownDefects: number,
+  testsWithType2Errors: number,
 
   iterations: number,
   passedIterations: number,
   failedIterations: number,
-  iterationsWithWarning: number,
+  iterationsWithWarnings: number,
   iterationsWithKnownDefects: number,
+  iterationsWithType2Errors: number,
 
-  inTestErrors: number,
-  inTestWarnings: number,
   outOfTestErrors: number,
   outOfTestWarnings: number,
-
-  knownDefects: number,
-  type2Errors: number
+  outOfTestType2Errors: number,
+  outOfTestKnownDefects: number
 |};
 
 const nullStats: () => RunStats = () => {
@@ -264,23 +214,22 @@ const nullStats: () => RunStats = () => {
     testCases: 0,
     passedTests: 0,
     failedTests: 0,
-    testsWithWarning: 0,
+    testsWithWarnings: 0,
     testsWithKnownDefects: 0,
+    testsWithType2Errors: 0,
 
     iterations: 0,
     passedIterations: 0,
     failedIterations: 0,
-    iterationsWithWarning: 0,
+    iterationsWithWarnings: 0,
+    iterationsWithType2Errors: 0,
     iterationsWithKnownDefects: 0,
-
-    inTestErrors: 0,
-    inTestWarnings: 0,
 
     outOfTestErrors: 0,
     outOfTestWarnings: 0,
-
-    knownDefects: 0,
-    type2Errors: 0
+    outOfTestType2Errors: 0,
+    outOfTestType2Errors: 0,
+    outOfTestKnownDefects: 0
   };
 }
 
@@ -320,13 +269,12 @@ export type RunState = {|
   iterationStart: string,
   indent: number,
   testStart: string,
-  testConfig: WithScript,
-  iterationConfig: LogIterationConfig,
+  testConfig: ?WithScript,
+  iterationConfig: ?LogIterationConfig,
 
   errorExpectation: ?LogEntry,
-  expectedErrorEncoutered: false,
+  expectedErrorEncoutered: boolean,
 
-  iterationIndex: number,
   iterationSummary: string,
   apstate: {},
   testItem: {},
@@ -334,30 +282,23 @@ export type RunState = {|
   logItems: Array<LogEntry>,
   passedValidators: Array<string>,
 
+  testErrorLogged: boolean,
+  testType2ErrorLogged: boolean,
+  testWarningLogged: boolean,
+  testKnownDefectLogged: boolean,
+
+  iterationErrorLogged: boolean,
+  iterationWarningLogged: boolean,
+  iterationType2ErrorLogged: boolean,
+  iterationKnownDefectLogged: boolean,
+
+
   validatorIssues: Array<ErrorsWarningsDefects>,
   inTestIssues: Array<ErrorsWarningsDefects>,
   outOfTestIssues: Array<ErrorsWarningsDefects>,
 
   activeIssues: ?ErrorsWarningsDefects
 |};
-
-
-function emptyTestConfig() {
-  return {
-           id: -99999,
-           when: '',
-           then: '',
-           script: ''
-         };
-}
-
-function emptyIterationConfig() {
-  return {
-           id: -99999,
-           when: '',
-           then: '',
-         };
-}
 
 export function initalState(rawFilePath: string): RunState {
   let result: RunState = {
@@ -371,15 +312,14 @@ export function initalState(rawFilePath: string): RunState {
                 iterationStart: '',
 
                 indent: 0,
-                testConfig: emptyTestConfig(),
+                testConfig: null,
                 testStart: '',
 
-                iterationConfig: emptyIterationConfig(),
+                iterationConfig: null,
 
                 errorExpectation: null,
                 expectedErrorEncoutered: false,
 
-                iterationIndex: 0,
                 apstate: {},
                 validationInfo: {},
                 testItem: {},
@@ -390,10 +330,18 @@ export function initalState(rawFilePath: string): RunState {
                 outOfTestIssues: [],
                 passedValidators: [],
 
+                testErrorLogged: false,
+                testWarningLogged: false,
+                testKnownDefectLogged: false,
+                testType2ErrorLogged: false,
+
+                iterationErrorLogged: false,
+                iterationWarningLogged: false,
+                iterationKnownDefectLogged: false,
+                iterationType2ErrorLogged: false,
 
                 //this are flipped depending on what state we are in
                 activeIssues: null
-
               };
 
   switchErrorInfoStage(result, 'OutOfTest', 'out of test');
@@ -418,40 +366,6 @@ function clearErrorInfo(state: RunState): void {
   state.inTestIssues = [];
   state.outOfTestIssues = [];
   state.activeIssues = null;
-}
-
-function valToStr(val: ?ErrorsWarningsDefects): ?string {
-  if (val == null) {
-    return null;
-  }
-
-  let {
-        errors,
-        type2Errors,
-        warnings,
-        knownDefects
-      } = val,
-      result = {
-        errors: errors,
-        'type 2 errors': type2Errors,
-        warnings: warnings,
-        knownDefects: knownDefects
-      },
-      pairs = _.chain(result)
-                    .toPairs()
-                    .filter(p => p[1].length > 0)
-                    .value();
-
-    if ( pairs.length == 0 ) {
-      return null;
-    }
-    else {
-      let nonNull = _.pick(result, _.map(pairs, p => p[0]));
-      return objToYaml(
-       val.name == null ? nonNull : {
-        [val.name]: nonNull
-      });
-    }
 }
 
 function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
@@ -490,8 +404,7 @@ function fileWriter(destPath: string){
 
 function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean = false): void {
   let level = entry.level,
-      errorSink = state.activeIssues,
-      stats = state.runStats;
+      errorSink = state.activeIssues;
 
   if(errorSink == null){
     fail( `parser error - no active error / wanring sink at entry: ${toString(entry)}`);
@@ -504,37 +417,34 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
         inTest = stage !== 'outOfTest';
 
     if (isType2) {
-      stats.type2Errors++;
       errArrray = type2Errors;
     }
     else if (level === 'error' && state.errorExpectation != null){
-      //toDo: include errorExpectation
-      stats.knownDefects++;
       errArrray = knownDefects;
     }
     else if (level === 'error'){
-      if (inTest){
-        stats.inTestErrors++;
-      }
-      else {
-        stats.outOfTestErrors++;
-      }
       errArrray = errors;
     }
     else if (level === 'warn'){
-      if (inTest){
-        stats.inTestWarnings++;
-      }
-      else {
-        stats.outOfTestWarnings++;
-      }
       errArrray = warnings;
     }
     else {
       fail('pushTestErrorWarning - not an not in valid state: ' + toString(entry));
     }
 
+   if (isType2 && state.errorExpectation != null){
+     let info = _.cloneDeep(entry),
+         exStr = objToYaml(
+                     _.pick(state.errorExpectation,
+                                             'message',
+                                             'additionalInfo'
+                                          ));
+     info.additionalInfo =  exStr;
+     errArrray.push(info);
+   }
+   else {
     errArrray.push(entry);
+   }
   }
 }
 
@@ -547,9 +457,49 @@ function updateState(state: RunState, entry: LogEntry): RunState {
   state.indent = entry.popControl === 'PopFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
   state.logItems.push(entry);
 
+  let inIteration = state.iterationConfig != null,
+      inTest = inIteration || state.testConfig != null;
+
   switch (entry.level) {
     case 'error':
+      if (state.errorExpectation == null){
+        if (inIteration && !state.iterationErrorLogged){
+           stats.failedIterations++;
+           state.iterationErrorLogged = true;
+        }
+
+        if (inTest && !state.testErrorLogged){
+           stats.failedTests++;
+           state.testErrorLogged = true;
+        }
+
+
+        if (!inTest && !inIteration){
+          stats.outOfTestErrors++;
+        }
+
+        pushTestErrorWarning(state, entry);
+      }
+      else {
+         state.expectedErrorEncoutered = true;
+      }
+      break;
+
     case 'warn':
+      if (inIteration && !state.iterationWarningLogged){
+         stats.iterationsWithWarnings++;
+         state.iterationWarningLogged = true;
+      }
+
+      if (inTest && !state.testWarningLogged){
+         stats.testsWithWarnings++;
+         state.testWarningLogged = true;
+      }
+
+      if (!inTest && !inIteration){
+       stats.outOfTestWarnings++;
+      }
+
       pushTestErrorWarning(state, entry);
       break;
 
@@ -561,13 +511,62 @@ function updateState(state: RunState, entry: LogEntry): RunState {
     return entry.additionalInfo == null ? {} : yamlToObj(entry.additionalInfo);
   }
 
-  function resetDefectExpectation() {
+  function resetDefectExpectationUpdateStats() {
+    // type 2 error
     if (state.errorExpectation != null && !state.expectedErrorEncoutered){
-      stats.type2Errors++;
-      pushTestErrorWarning(state, entry, true);
+         if (inIteration && !state.iterationType2ErrorLogged){
+            stats.iterationsWithType2Errors++;
+            state.iterationType2ErrorLogged = true;
+         }
+
+         if (inTest && !state.testType2ErrorLogged) {
+            stats.testsWithType2Errors++;
+            state.testType2ErrorLogged = true;
+         }
+
+         if (!inIteration && !inTest){
+           stats.outOfTestType2Errors++;
+         }
+         pushTestErrorWarning(state, entry, true);
+      }
+      else if (state.errorExpectation != null && state.expectedErrorEncoutered) {
+         if (inIteration && !state.iterationKnownDefectLogged){
+            stats.iterationsWithKnownDefects++;
+            state.iterationKnownDefectLogged = true;
+         }
+
+         if (inTest && !state.testKnownDefectLogged){
+            stats.testsWithKnownDefects++;
+            state.testKnownDefectLogged = true;
+         }
+
+         if (!inIteration && !inTest){
+           stats.outOfTestKnownDefects++;
+         }
     }
+
     state.errorExpectation = null;
+    state.expectedErrorEncoutered = false;
   }
+
+   function iterationCommonReset() {
+      state.apstate = {};
+      state.validationInfo = {};
+      state.iterationSummary = '';
+      state.logItems = [];
+      state.expectedErrorEncoutered = false;
+      state.iterationErrorLogged = false;
+      state.iterationWarningLogged = false;
+      state.iterationType2ErrorLogged = false;
+      state.validatorIssues = [];
+      state.passedValidators = [];
+   }
+
+   function testCommonReset() {
+      state.testErrorLogged = false;
+      state.testType2ErrorLogged = false;
+      iterationCommonReset() ;
+   }
 
   let additionalInfo = entry.additionalInfo == null ? '' : entry.additionalInfo;
   const infoObj = () => yamlToObj(additionalInfo);
@@ -578,32 +577,36 @@ function updateState(state: RunState, entry: LogEntry): RunState {
 
     case 'RunStart':
       // other state changes handled in reseter
-      resetDefectExpectation();
+      resetDefectExpectationUpdateStats();
       state.runConfig = configObj(entry);
       state.runName = state.runConfig.name;
+      state.indent = 1;
       break;
 
     case 'TestStart':
       // other state changes handled in reseter
-      resetDefectExpectation();
+      resetDefectExpectationUpdateStats();
       const defEmpty = (s?: string) => def(s, '');
       state.testConfig = infoObj();
-      state.iterationIndex = -1;
       state.testStart = def(entry.timestamp, '');
+      state.testKnownDefectLogged = false;
+      state.indent = 3;
+      testCommonReset();
       break;
 
     case 'IterationStart':
       // other state changes handled in reseter
-      resetDefectExpectation();
+      resetDefectExpectationUpdateStats();
       let info = infoObj();
       state.iterationStart = def(entry.timestamp, '');
+      state.iterationKnownDefectLogged = false;
       state.iterationConfig = _.pick(info, ['id', 'when', 'then']);
       state.testItem = info;
-      state.iterationIndex++;
       break;
 
     case 'InteractorStart':
       switchErrorInfoStage(state, 'InTest', 'Executing Interactor');
+      state.indent = 3;
       break;
 
     case 'PrepValidationInfoStart':
@@ -639,16 +642,46 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       break;
 
     case 'IterationEnd':
+      if (!state.iterationErrorLogged){
+         stats.passedIterations++;
+      }
       switchErrorInfoStage(state, 'OutOfTest', 'After Iteration');
       stats.iterations++;
+      state.indent = 2;
+      state.iterationConfig = null;
+      iterationCommonReset();
+      clearErrorInfo(state);
+      switchErrorInfoStage(state, 'OutOfTest', 'out of test');
       break;
 
     case 'TestEnd':
       stats.testCases++;
+      if (!state.testErrorLogged){
+         stats.passedTests++;
+      }
+      state.indent = 1;
+      state.testConfig = null;
+      testCommonReset();
       break;
 
     case 'RunEnd':
-      resetDefectExpectation();
+      resetDefectExpectationUpdateStats();
+      state.indent = 0;
+      break;
+
+    case "StartDefect":
+      let isActive = seekInObj(infoObj(), 'active');
+      // only enable defect expectation if it is active
+      if (isActive == null || isActive){
+        debug(entry,  'SETTING ');
+        state.errorExpectation = entry;
+      }
+      break;
+
+    case "EndDefect":
+      debug(entry, 'EndDefect ')
+      resetDefectExpectationUpdateStats();
+      break;
 
     case 'Message':
     case 'CheckPass':
@@ -656,19 +689,6 @@ function updateState(state: RunState, entry: LogEntry): RunState {
     case 'Exception':
     case 'InteractorEnd':
     case 'PrepValidationInfoEnd':
-      // actions handled in reset / message handled by earlier code
-      break;
-
-    case "StartDefect":
-      let isActive = seekInObj(infoObj(), 'active');
-      // only enable defect expectation if it is active
-      if (isActive == null || isActive){
-        state.errorExpectation = entry;
-      }
-      break;
-
-    case "EndDefect":
-      resetDefectExpectation();
       break;
 
     default:
@@ -676,128 +696,8 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       break;
   }
 
-  // resets certain properies
-  // if required
-  return reset(state, entry);
-}
-
-function reset(state: RunState, entry: LogEntry): RunState {
-
   state.indent = entry.popControl === 'PushFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
-
-  function errorCommonReset() {
-    state.errorExpectation = null;
-    state.expectedErrorEncoutered = false;
-  }
-
-  function validationReset() {
-    state.validatorIssues = [];
-    state.passedValidators = [];
-  }
-
-  function iterationCommonReset() {
-    state.apstate = {};
-    state.validationInfo = {};
-    state.iterationSummary = '';
-    state.logItems = [];
-    state.expectedErrorEncoutered = false;
-    validationReset();
-    errorCommonReset();
-  }
-
-  function testCommonReset() {
-    state.expectedErrorEncoutered = false;
-    state.logItems = [];
-    state.validatorIssues = [];
-    validationReset();
-    errorCommonReset();
-  }
-
-  switch (entry.subType) {
-    case 'RunStart':
-      state.indent = 1;
-      break;
-
-    case 'RunEnd':
-      state.indent = 0;
-      break;
-
-    case 'TestStart':
-      state.indent = 3;
-      testCommonReset();
-      break;
-
-    case 'TestEnd':
-      state.indent = 1;
-      state.testConfig = emptyTestConfig();
-      testCommonReset();
-      break;
-
-    case 'IterationStart':
-      state.indent = 3;
-      break;
-
-    case 'IterationEnd':
-      state.indent = 2;
-      state.iterationConfig = emptyIterationConfig();
-      iterationCommonReset();
-      clearErrorInfo(state);
-      switchErrorInfoStage(state, 'OutOfTest', 'out of test');
-      break;
-
-    default:
-      break;
-  }
-
   return state;
-}
-
-
-function makeStep<S>(onEntry:(S, LogEntry) => S,
-                    afterEntry:(S, LogEntry) => S,
-                    startRun: S => void,
-                    startTest: S => void,
-                    startIteration: S => void,
-                    endIteration: S => void,
-                    endTest: S => void,
-                    endRun: S => void): (S, LogEntry) => S {
-
-  return function step(state, entry) {
-
-    let newState: S = onEntry(state, entry);
-
-
-    switch (entry.subType) {
-      case 'IterationStart':
-        startIteration(state);
-        break;
-
-      case 'TestStart':
-        startTest(state);
-        break;
-
-      case 'RunStart':
-        startRun(state);
-        break;
-
-      case 'IterationEnd':
-        endIteration(newState);
-        break;
-
-      case 'TestEnd':
-        endTest(newState);
-        break;
-
-      case 'RunEnd':
-        endRun(newState);
-        break;
-
-      default:
-        break;
-    }
-
-    return afterEntry(newState, entry);
-  }
 }
 
 function filterLog(str: string) {
@@ -814,9 +714,20 @@ function filterLog(str: string) {
    return reorderProps(result, ...logKeys);
 }
 
-export const parseLogDefault = (fullPath: string) => parseLog(fullPath, summariseLog(fullPath), initalState(fullPath));
+export function parseLogDefault(fullPath: string): FullSummaryInfo {
+  let fullSummary: FullSummaryInfo = {
+    rawFile: '',
+    elementsFile: '',
+    testSummaries: {},
+    runSummary: null
+  };
+  parseLog(fullPath, summariseLog(fullPath, fullSummary), initalState(fullPath));
+  return fullSummary;
+}
 
-export const parseLog = <S>(fullPath: string, step: (S, LogEntry) => S, initState: S) => logSplitter(fullPath, parser(step, initState) );
+export function parseLog<S>(fullPath: string, step: (S, LogEntry) => S, initState: S){
+   logSplitter(fullPath, parser(step, initState) );
+}
 
 function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => void {
   let currentState = initialState;

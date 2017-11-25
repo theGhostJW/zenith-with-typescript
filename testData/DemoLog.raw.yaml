@@ -21,6 +21,19 @@ additionalInfo: |
   depth: Regression
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
+level: warn
+subType: Message
+message: 'warning added for testing'
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: error
+subType: Message
+popControl: NoAction
+message: bodged out of test example failure
+additionalInfo: |-
+  blahh
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
 level: info
 subType: TestStart
 popControl: PushFolder
@@ -44,46 +57,6 @@ subType: Message
 message: Loading Test Items
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
-subType: Message
-popControl: NoAction
-message: bodged out of test example failure
-additionalInfo: |-
-  blahh
-callstack: |2-
-      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
-      at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-      at logSpecial (C:/ZWTF/src/lib/Logging.js:153:5)
-      at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
-      at checkTextContains (C:/ZWTF/src/lib/CheckUtils.js:48:10)
-      at check_has_another (C:/ZWTF/testCases/Another_Demo_Case.js:62:3)
-      at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
-      at Array.forEach (native)
-      at runValidators (C:/ZWTF/src/lib/TestRunner.js:105:14)
-      at C:/ZWTF/src/lib/TestRunner.js:148:29
-      at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
-      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:148:15)
-      at C:/ZWTF/src/lib/TestRunner.js:171:30
-      at Array.forEach (native)
-      at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-      at Array.forEach (native)
-      at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-      at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-      at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-      at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-      at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-      at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-      at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-      at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-      at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-      at runCallback (timers.js:800:20)
-      at tryOnImmediate (timers.js:762:5)
-      at processImmediate [as _immediateCallback] (timers.js:733:5)
--------------------------------
-timestamp: '2017-11-25 11:28:22'
 level: info
 subType: IterationStart
 popControl: PushFolder
@@ -98,6 +71,11 @@ level: info
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: warn
+subType: Message
+message: 'Warning added for testing in iteration'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -132,6 +110,12 @@ level: info
 subType: ValidatorStart
 popControl: PushFolder
 message: check_has_another
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: error
+subType: CheckFail
+popControl: NoAction
+message: Check Text Contains ~ 2 errors 1 iteration
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: error
@@ -313,6 +297,22 @@ additionalInfo: |
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
+subType: StartDefect
+message: 'out of test type 2 error'
+additionalInfo: |
+  active: true
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: EndDefect
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: warn
+subType: Message
+message: 'out of test warning 2'
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
 subType: TestStart
 popControl: PushFolder
 message: >-
@@ -392,7 +392,7 @@ timestamp: '2017-11-25 11:28:22'
 level: info
 subType: StartDefect
 popControl: NoAction
-message: 'Defect Expected: should fail'
+message: 'Defect Expected: 1'
 additionalInfo: |
   active: true
 -------------------------------
@@ -425,7 +425,7 @@ timestamp: '2017-11-25 11:28:22'
 level: info
 subType: StartDefect
 popControl: NoAction
-message: 'Defect Expected: should not fail'
+message: 'Defect Expected: 2'
 additionalInfo: |
   active: false
 -------------------------------
@@ -457,7 +457,7 @@ timestamp: '2017-11-25 11:28:22'
 level: info
 subType: StartDefect
 popControl: NoAction
-message: 'Defect Expected: should fail'
+message: 'Defect Expected: 3'
 additionalInfo: |
   active: false
 -------------------------------
@@ -592,7 +592,7 @@ timestamp: '2017-11-25 11:28:22'
 level: info
 subType: StartDefect
 popControl: NoAction
-message: 'Defect Expected: should fail'
+message: 'Defect Expected: 4'
 additionalInfo: |
   active: true
 -------------------------------
@@ -888,6 +888,136 @@ message: 'End Test 1 : Demo_Case.js'
 additionalInfo: |
   id: 1
   testName: Demo_Case.js
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: TestStart
+popControl: PushFolder
+message: 'Dummy passing test'
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: IterationStart
+popControl: PushFolder
+message: 'Iteration: 1: Demo_Case3 added for testing.js - When I run a test then i get the result'
+additionalInfo: |
+  id: 1
+  when: I run a test
+  then: i get the result
+  validators: []
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: InteractorStart
+popControl: PushFolder
+message: Start Interaction
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: StartDefect
+popControl: NoAction
+message: 'Known Defect 5'
+additionalInfo: |
+  active: true
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: error
+subType: Exception
+popControl: NoAction
+message: Exception Thrown Executing Interactor
+additionalInfo: |-
+  I do not like 4
+
+  Error
+      at fail (C:/ZWTF/src/lib/SysUtils.js:448:13)
+      at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
+      at C:/ZWTF/src/lib/TestRunner.js:136:49
+      at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:136:15)
+      at C:/ZWTF/src/lib/TestRunner.js:171:30
+      at Array.forEach (native)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
+      at Array.forEach (native)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
+      at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
+      at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
+      at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
+      at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
+      at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
+      at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
+      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
+      at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
+      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
+      at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
+      at runCallback (timers.js:800:20)
+      at tryOnImmediate (timers.js:762:5)
+      at processImmediate [as _immediateCallback] (timers.js:733:5)
+callstack: |2-
+      at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
+      at logError (C:/ZWTF/src/lib/Logging.js:42:95)
+      at logException (C:/ZWTF/src/lib/Logging.js:78:67)
+      at exStage (C:/ZWTF/src/lib/TestRunner.js:120:5)
+      at runTestItem (C:/ZWTF/src/lib/TestRunner.js:136:15)
+      at C:/ZWTF/src/lib/TestRunner.js:171:30
+      at Array.forEach (native)
+      at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
+      at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
+      at Array.forEach (native)
+      at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
+      at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
+      at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
+      at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
+      at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
+      at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
+      at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
+      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
+      at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
+      at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
+      at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
+      at runCallback (timers.js:800:20)
+      at tryOnImmediate (timers.js:762:5)
+      at processImmediate [as _immediateCallback] (timers.js:733:5)
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: EndDefect
+popControl: NoAction
+message: End Defect ~ Known
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: InteractorEnd
+popControl: PopFolder
+message: End Interaction
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: IterationEnd
+popControl: PopFolder
+message: 'Dummy'
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: TestEnd
+popControl: PopFolder
+message: 'Dummy passing test'
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: StartDefect
+message: 'out of test known error'
+additionalInfo: |
+  active: true
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: error
+subType: Message
+message: 'out of test known error'
+-------------------------------
+timestamp: '2017-11-25 11:28:22'
+level: info
+subType: EndDefect
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
