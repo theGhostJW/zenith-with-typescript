@@ -125,9 +125,18 @@ function exStage(stage: Action, stageName: string, preLog: Action, postLog: Acti
   return continu;
 }
 
+function validatorsToString(item): {} {
+  let result = _.cloneDeep(item);
+  result.validators = forceArray(result.validators).map(functionNameFromFunction);
+  if (result.validators.length == 1) {
+    result.validators = result.validators[0];
+  }
+  return result;
+}
+
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) {
 
- logStartIteration(item.id, baseCase.name, item.when, item.then, item);
+ logStartIteration(item.id, baseCase.name, item.when, item.then, validatorsToString(item));
  try {
     let apState: S,
         valState: V,

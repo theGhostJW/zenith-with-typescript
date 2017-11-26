@@ -65,6 +65,7 @@ additionalInfo: |
   id: 1
   when: I run a test
   then: i get the result
+  validators: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -202,7 +203,7 @@ additionalInfo: |
   id: 2
   when: I run another test
   then: i get another result
-  validators: []
+  validators: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -346,7 +347,10 @@ additionalInfo: |
   id: 1
   when: I run a test
   then: i get the result
-  validators: []
+  validators:
+    - check_less_than_2
+    - check_with_disabled_expectation
+    - check_with_incorrect_disabled_expectation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -546,7 +550,9 @@ additionalInfo: |
   id: 2
   when: I run another test
   then: i get another result
-  validators: []
+  validators:
+    - check_less_than_2
+    - check_less_than_3
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -700,7 +706,7 @@ additionalInfo: |
   id: 3
   when: I run another test
   then: i get another result
-  validators: []
+  validators: check_bad_validator
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -799,7 +805,7 @@ additionalInfo: |
   id: 4
   when: I run another test
   then: i get another result
-  validators: []
+  validators: check_bad_validator
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -916,7 +922,7 @@ additionalInfo: |
   id: 1
   when: I run a test
   then: i get the result
-  validators: []
+  validators: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
