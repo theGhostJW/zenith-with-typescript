@@ -55,19 +55,43 @@ describe('file Parsing', () => {
      chkEq(expected, actual);
   });
 
-  describe.skip('test stats correct', () => {
-    it('anotherCaseStats', () => {
+  describe('test stats correct', () => {
+    it('e.g. Another_Demo_Case', () => {
        let expected = {
           iterations: 2,
           passedIterations: 1,
           failedIterations: 1,
-          iterationsWithWarning: 0,
+          iterationsWithWarnings: 1,
           iterationsWithKnownDefects: 0
        },
        actual = seekInObj(summary, 'Another_Demo_Case', 'stats');
-
        chkEq(expected, actual);
     });
+
+    it('e.g. Demo_Case', () => {
+       let expected = {
+          iterations: 4,
+          passedIterations: 1,
+          failedIterations: 3,
+          iterationsWithWarnings: 0,
+          iterationsWithKnownDefects: 1
+       },
+       actual = seekInObj(summary, 'Demo_Case', 'stats');
+       chkEq(expected, actual);
+    });
+
+    it('e.g. Demo_Case3', () => {
+       let expected = {
+          iterations: 1,
+          passedIterations: 1,
+          failedIterations: 0,
+          iterationsWithWarnings: 0,
+          iterationsWithKnownDefects: 1
+       },
+       actual = seekInObj(summary, 'Demo_Case3', 'stats');
+       chkEq(expected, actual);
+    });
+
   });
 
 });

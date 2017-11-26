@@ -894,6 +894,18 @@ level: info
 subType: TestStart
 popControl: PushFolder
 message: 'Dummy passing test'
+additionalInfo: |
+  script: Demo_Case3
+  id: 2
+  when: i test anther case
+  then: it still works
+  owner: JW
+  enabled: true
+  countries:
+    - Australia
+  environments:
+    - TST
+  depth: Regression
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info
@@ -1001,7 +1013,7 @@ timestamp: '2017-11-25 11:28:22'
 level: info
 subType: TestEnd
 popControl: PopFolder
-message: 'Dummy passing test'
+message: 'Demo_Case3 - Dummy passing test'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info

@@ -26,7 +26,7 @@ import moment from 'moment';
          iterations: 0,
          passedIterations: 0,
          failedIterations: 0,
-         iterationsWithWarning: 0,
+         iterationsWithWarnings: 0,
          iterationsWithKnownDefects: 0
        };
 
@@ -38,7 +38,7 @@ import moment from 'moment';
             iterations: 0,
             passedIterations: 0,
             failedIterations: 0,
-            iterationsWithWarning: 0,
+            iterationsWithWarnings: 0,
             iterationsWithKnownDefects: 0
           };
 
@@ -183,7 +183,7 @@ export type TestStats = {|
   iterations: number,
   passedIterations: number,
   failedIterations: number,
-  iterationsWithWarning: number,
+  iterationsWithWarnings: number,
   iterationsWithKnownDefects: number
 |};
 
@@ -673,13 +673,11 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       let isActive = seekInObj(infoObj(), 'active');
       // only enable defect expectation if it is active
       if (isActive == null || isActive){
-        debug(entry,  'SETTING ');
         state.errorExpectation = entry;
       }
       break;
 
     case "EndDefect":
-      debug(entry, 'EndDefect ')
       resetDefectExpectationUpdateStats();
       break;
 
