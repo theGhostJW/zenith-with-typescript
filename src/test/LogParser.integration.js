@@ -8,7 +8,7 @@ import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import { replace } from '../lib/StringUtils';
 
-describe.only('file Parsing', () => {
+describe('file Parsing', () => {
 
   let summary,
       rawName = 'DemoLog.raw.yaml',
@@ -31,7 +31,7 @@ describe.only('file Parsing', () => {
   });
 
 
-  it.only('run stats correct', () => {
+  it('run stats correct', () => {
      let expected = {
        testCases: 3,
        passedTests: 1,

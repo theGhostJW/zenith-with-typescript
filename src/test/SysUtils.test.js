@@ -210,7 +210,7 @@ describe('flattenObj', () => {
   });
 
   it('deeply nested values should throw exception when allowDuplicateKeyOverwrites is false', () => {
-    chkExceptionText(() => flattenObj(NESTED), 'the key: d would appear more than once in the flattened object');
+    chkExceptionText(() => flattenObj(NESTED), 'the key: d would appear more than once in the flattened*object');
   });
 
 });
@@ -603,7 +603,7 @@ describe('setInObjn', () => {
   it('throws on missing property', () => {
       chkExceptionText(() => {
                               setInObjn(ACTUAL, ['st*', 'toys', 'will not work']);
-                             }, 'toys, will not work');
+                            }, 'toys, will not*work');
   });
 });
 
@@ -725,7 +725,7 @@ describe('seekInObjxxx - derived functions', () => {
       chkExceptionText(() => {
         seekInObj(EG_OBJ, 'store', 'category')
       },
-      'More than one object matches supplied specifiers: store.book.category, store.bicycle.category');
+      'More than one object matches supplied specifiers:*store.book.category, store.bicycle.category');
     });
 
   });
@@ -748,7 +748,7 @@ describe('seekInObjxxx - derived functions', () => {
     it('ambiguous - expect error', () => {
       chkExceptionText(() => {
         seekInObjWithInfo(EG_OBJ, 'store', 'category')
-      }, 'More than one object matches supplied specifiers: store.book.category, store.bicycle.category');
+      }, 'More than one object matches supplied specifiers:*store.book.category, store.bicycle.category');
     });
 
   });

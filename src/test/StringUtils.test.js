@@ -299,7 +299,7 @@ describe('stringToTableLooseTyped', () => {
   describe('sectioned should cause exception', () => {
 
      it('throws expected exception', () => {
-       chkExceptionText(() => stringToTableLooseTyped(SECTIONED_TABLE),  'loading nested rows with stringToTable - use stringToGroupedTable');
+       chkExceptionText(() => stringToTableLooseTyped(SECTIONED_TABLE),  'stringToGroupedTable');
      });
 
   });

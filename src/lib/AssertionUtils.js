@@ -1,7 +1,7 @@
 // @flow
 
 import * as _ from 'lodash';
-import {toString, hasText} from '../lib/StringUtils';
+import {toString, hasText, wildCardMatch} from '../lib/StringUtils';
 import {areEqual, ensure, fail, debug} from '../lib/SysUtils';
 
 export function chkWithMessage(val: boolean, message: string = ''): void {
@@ -43,7 +43,7 @@ export function chkExceptionText(action : () => any, exceptionText: string, case
       action,
       (e: Error) => {
         failMessage = toString(e);
-        return hasText(failMessage, exceptionText, caseSensitive);
+        return wildCardMatch(failMessage, exceptionText, caseSensitive);
       },
       () => failMessage == null ? exceptionText :
               '<' +  exceptionText + '> not found in: \n<' + failMessage +'>'
