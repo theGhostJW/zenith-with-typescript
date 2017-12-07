@@ -4,10 +4,11 @@ import {test, describe} from 'mocha'
 import {debug, areEqual} from '../lib/SysUtils';
 import {  testFormatter, nowAsLogFormat, nowFileFormatted,
         LOG_FILE_MS_SEC_FORMAT, LOG_TO_SEC_FORMAT, now, today, date, time, datePlus, todayPlus,
-        toMoment } from '../lib/DateTimeUtils';
+        toMoment, strToMoment, SHORT_DATE_TIME, SHORT_DATE, duration, durationFormatted, SHORT_DATE_TIME_MS } from '../lib/DateTimeUtils';
 import { chk, chkEq, chkEqJson, chkFalse, chkHasText,
         chkWithMessage
       } from '../lib/AssertionUtils';
+import moment from 'moment';
 
 
 function jsToday() {
@@ -30,6 +31,128 @@ describe('toMoment', () => {
 
 });
 
+describe('strToMoment', () => {
+
+  it('simple', () => {
+    let jsDate = new Date(2017, 10, 25, 11, 28, 22),
+        actual = strToMoment('2017-11-25 11:28:22');
+
+    chkEq(jsDate, actual.toDate())
+  });
+
+  it('simple short date time', () => {
+    let jsDate = new Date(2017, 10, 25, 11, 28, 22),
+        actual = strToMoment('25/11/2017 11:28:22', SHORT_DATE_TIME);
+
+    chkEq(jsDate, actual.toDate())
+  });
+
+  it('simple short date', () => {
+    let jsDate = new Date(2017, 10, 25),
+        actual = strToMoment('25/11/2017 11:28:22', SHORT_DATE);
+
+    chkEq(jsDate, actual.toDate())
+  });
+
+
+});
+
+
+const chkMomentEq = (mE, mA) => chkEq(mE.asMilliseconds(), mA.asMilliseconds());
+
+describe('duration', () => {
+
+  it('2 strings', () => {
+    let from = '2017-01-01',
+        to = '2017-01-15',
+        expected = moment.duration({
+                                  seconds: 0,
+                                  minutes: 0,
+                                  hours: 0,
+                                  days: 0,
+                                  weeks: 2,
+                                  months: 0,
+                                  years: 0
+                                });
+
+    chkMomentEq(expected, duration(from, to));
+  });
+
+  it('2 strings all units', () => {
+    let from = '2017-01-01',
+        to = '2018-01-15 16:28:14.987',
+        expected = moment.duration({
+                                  milliseconds: 987,
+                                  seconds: 14,
+                                  minutes: 28,
+                                  hours: 16,
+                                  days: 14,
+                                  weeks: 0,
+                                  months: 0,
+                                  years: 1
+                                });
+
+    chkMomentEq(expected, duration(from, to));
+  });
+
+  it('2 strings all units formatted', () => {
+    let from = '01/01/2017',
+        to = '15/01/2018 16:28:14.987',
+        expected = moment.duration({
+                                  milliseconds: 987,
+                                  seconds: 14,
+                                  minutes: 28,
+                                  hours: 16,
+                                  days: 14,
+                                  weeks: 0,
+                                  months: 0,
+                                  years: 1
+                                });
+
+    chkMomentEq(expected, duration(from, to, SHORT_DATE_TIME_MS));
+  });
+
+
+});
+
+describe('durationFormatted', () => {
+
+  it('zero', () => {
+    let from = '2017-01-01',
+        to = '2017-01-01';
+
+    chkEq('00:00:00', durationFormatted(from, to));
+  });
+
+  it('many hours', () => {
+    let from = '2018-01-01',
+        to = '2018-01-15 16:05:14.987';
+
+    chkEq('352:05:14', durationFormatted(from, to));
+  });
+
+  it('zero with ms', () => {
+    let from = '2017-01-01',
+        to = '2017-01-01';
+
+    chkEq('00:00:00.000', durationFormatted(from, to, true));
+  });
+
+  it('many hours with ms', () => {
+    let from = '2018-01-01',
+        to = '2018-01-15 16:05:14.987';
+
+    chkEq('352:05:14.987', durationFormatted(from, to, true));
+  });
+
+  it('many hours format in', () => {
+    let from = '01/01/2018',
+        to = '15/01/2018 16:05:14.987';
+
+    chkEq('352:05:14', durationFormatted(from, to, false, SHORT_DATE_TIME_MS));
+  });
+});
+
 describe('todayPlus', () => {
 
   it('equal today when zero', () => {
@@ -38,6 +161,14 @@ describe('todayPlus', () => {
 
   it('equal yestrday when -1', () => {
     chkEq(1 * 1000 * 60 * 60 * 24, jsToday() - todayPlus(-1).toDate());
+  });
+
+});
+
+describe('', () => {
+
+  it('', () => {
+
   });
 
 });

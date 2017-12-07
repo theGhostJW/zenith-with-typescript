@@ -214,7 +214,8 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
   let {
         itemRunner,
         testRunner,
-        testList, runConfig,
+        testList,
+        runConfig,
         runConfigDefaulter,
         testConfigDefaulter,
         testFilters

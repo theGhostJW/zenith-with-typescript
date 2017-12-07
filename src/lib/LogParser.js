@@ -7,12 +7,30 @@ import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '.
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString } from '../lib/FileUtils';
+import type { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats } from '../lib/LogFormatter';
+import { summaryBlock } from '../lib/LogFormatter';
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
- function fileRecordWriter(destPath: string): (content: {}) => void {
+
+export function parseElements(summary: FullSummaryInfo) {
+  let  {
+      rawFile,
+      elementsFile,
+      runSummary
+    } = summary;
+
+  let fullWriter = fileRecordWriter(debug(destPath(rawFile, 'raw', 'full')));
+
+  fullWriter(runSummary == null ? '' : summaryBlock(runSummary))
+
+
+//  logSplitter(elementsFile, itemParser: string => void )
+}
+
+ function fileRecordWriter(destPath: string): (content: {} | string) => void {
     let writer = fileWriter(destPath);
-    return function writeToFile(content: {}) {
+    return function writeToFile(content: {} | string) {
         writer(content, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
     }
  }
@@ -111,26 +129,7 @@ import moment from 'moment';
    }
  }
 
- export type RunSummary = {|
-   runConfig: {},
-   startTime: string,
-   endTime:  string,
-   filterLog: {[string]: string},
-   stats: RunStats
- |}
-
  type RunElementType = 'InterationInfo' | 'OutOfTestErrors';
-
- type WithScript = {
-    script: string
-};
-
- export type TestSummary = {|
-   testConfig: WithScript,
-   startTime: string,
-   endTime:  string,
-   stats: TestStats
- |}
 
  const STATE_STAGE = {
    Validation: 'validation',
@@ -171,42 +170,6 @@ export type Iteration = {|
    elementType: 3,
    issues: IssuesList
  };
-
-export type FullSummaryInfo = {
-  rawFile: string,
-  elementsFile: string,
-  testSummaries: {[string]: TestSummary},
-  runSummary: ?RunSummary
-}
-
-export type TestStats = {|
-  iterations: number,
-  passedIterations: number,
-  failedIterations: number,
-  iterationsWithWarnings: number,
-  iterationsWithKnownDefects: number
-|};
-
-type RunStats =  {|
-  testCases: number,
-  passedTests: number,
-  failedTests: number,
-  testsWithWarnings: number,
-  testsWithKnownDefects: number,
-  testsWithType2Errors: number,
-
-  iterations: number,
-  passedIterations: number,
-  failedIterations: number,
-  iterationsWithWarnings: number,
-  iterationsWithKnownDefects: number,
-  iterationsWithType2Errors: number,
-
-  outOfTestErrors: number,
-  outOfTestWarnings: number,
-  outOfTestType2Errors: number,
-  outOfTestKnownDefects: number
-|};
 
 const nullStats: () => RunStats = () => {
 

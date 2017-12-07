@@ -2,8 +2,8 @@
 
 import {test, describe} from 'mocha'
 import { debug, seekInObj } from '../lib/SysUtils';
-import { logSplitter, parseLogDefault } from '../lib/LogParser';
-import { testDataFile, logFile } from '../lib/FileUtils';
+import { logSplitter, parseLogDefault, parseElements } from '../lib/LogParser';
+import { testDataFile, logFile, toTemp, fromTestData } from '../lib/FileUtils';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import { replace } from '../lib/StringUtils';
@@ -16,6 +16,8 @@ describe('file Parsing', () => {
 
   before(() => {
     summary = parseLogDefault(rawPath);
+    toTemp(summary);
+    //debug(JSON.stringify(summary))
   });
 
   describe('file paths correct', () => {
@@ -90,6 +92,19 @@ describe('file Parsing', () => {
        },
        actual = seekInObj(summary, 'Demo_Case3', 'stats');
        chkEq(expected, actual);
+    });
+
+  });
+
+  describe('elementProcessor', () => {
+
+    let summary;
+    before(() => {
+      summary = fromTestData('ParserSummary.yaml');
+    });
+
+    it('parseElements', () => {
+      parseElements(summary);
     });
 
   });
