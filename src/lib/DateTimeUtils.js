@@ -26,9 +26,9 @@ export function duration(from: moment$Moment | string, to: moment$Moment | strin
 // returns duration as Hrs:Mins:Secs.Ms
 export function durationFormatted(from: moment$Moment | string, to: moment$Moment | string, wantMS: bool = false, formatIn: ?string  ): string {
   let dur = duration(from, to, formatIn),
-      zPad = (n: number, l: number = 2) => n.toString().padStart(l, '0');
+      zPad = (n: number, l: number = 2) => Math.abs(n).toString().padStart(l, '0');
 
-  return `${zPad(Math.floor(dur.asHours()))}:${zPad(dur.minutes())}:${zPad(dur.seconds())}${wantMS ? '.' + zPad(dur.milliseconds(), 3): ''}`;
+  return `${dur.asMilliseconds() < 0 ? '-' : ''}${zPad(Math.trunc(dur.asHours()))}:${zPad(dur.minutes())}:${zPad(dur.seconds())}${wantMS ? '.' + zPad(dur.milliseconds(), 3): ''}`;
 }
 
 export function nowAsLogFormat(): string {

@@ -9,11 +9,12 @@ import {
 } from '../lib/SysUtils';
 import {
   newLine,
-  trimChars
+  trimChars,
+  toString
 } from '../lib/StringUtils';
 import {
-
 } from '../lib/DateTimeUtils';
+import * as _ from 'lodash';
 
 export type RunSummary = {|
   runConfig: {[string]: string},
@@ -74,8 +75,61 @@ export type TestStats = {|
 
 export const testPrivate = {
   headerLine: headerLine,
-  summaryBlock: summaryBlock
+  summaryBlock: summaryBlock,
+  padProps: padProps
 };
+
+function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): string {
+
+  function toStringPairs(obj): Array<[string, string]> {
+    return _.chain(obj)
+            .toPairs()
+            .map((kv) => [toString(kv[0]), toString(kv[1])])
+            .value()
+  }
+
+  function maxlenOfIdx(idx: 0 | 1) {
+    return (accum, kv) => Math.max(kv[idx].length, accum)
+  }
+
+  let pairs = toStringPairs(obj),
+      padding = {};
+
+  if (leftJustify){
+
+    function totalKVLenPlus1Map(maxLen: number) {
+      return function totalKeyLenPlus1(accum: {}, kv: [string, string]) {
+        let k = kv[0];
+        accum[k] = maxLen + 1 - k.length;
+        return accum;
+      }
+    }
+
+    let maxLen = _.reduce(pairs, maxlenOfIdx(0) , 0);
+    padding = _.reduce(pairs, totalKVLenPlus1Map(maxLen), {});
+  }
+  else {
+
+    function totalKVLenPlus1Map(maxLen: number) {
+      return function totalKVLenPlus1(accum: {}, kv: [string, string]) {
+        let [k, v] = kv;
+        accum[k] = maxLen + 1 - k.length - v.length;
+        return accum;
+      }
+    }
+
+    let maxLen = _.reduce(pairs, maxlenOfIdx(0) , 0) + _.reduce(pairs, maxlenOfIdx(1) , 0);
+    padding = _.reduce(pairs, totalKVLenPlus1Map(maxLen), {});
+  }
+
+  function padValStringify(kv) {
+    let [k, v] = kv,
+        pad = ' '.repeat(padding[k]);
+    return prefix + k + ':' + pad + v;
+  }
+
+  return _.map(pairs, padValStringify).join(newLine());
+}
 
 export function summaryBlock(runSummary: RunSummary): string {
   debug(typeof runSummary)
@@ -89,8 +143,6 @@ export function summaryBlock(runSummary: RunSummary): string {
       heading = majorHeader('', false) + newLine() +
                 majorHeader(headerLine, false) + newLine() +
                 majorHeader('', false);
-
-
 
   return heading;
 }

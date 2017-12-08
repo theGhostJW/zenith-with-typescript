@@ -2,6 +2,7 @@
 
 import { testPrivate} from '../lib/LogFormatter';
 import { toTempString } from '../lib/FileUtils';
+import { newLine } from '../lib/StringUtils';
 import {
           chkEq,
           chkExceptionText
@@ -30,6 +31,116 @@ describe('headerLine', () => {
 
   it('padding with % padding', () => {
     chkEq('#% Hello ###', headerLine('Hello', '#', true, 12))
+  });
+
+});
+
+describe('padProps', () => {
+  let padProps = testPrivate.padProps;
+
+  it('right justify differing length numbers', () => {
+    let expected =  'iterations:                 700' + newLine() +
+                    'passedIterations:             3' + newLine() +
+                    'failedIterations:             4' + newLine() +
+                    'iterationsWithWarnings:       1' + newLine() +
+                    'iterationsWithType2Errors:    1' + newLine() +
+                    'iterationsWithKnownDefects:   2',
+
+         source = {
+                  iterations:                 700,
+                  passedIterations:             3,
+                  failedIterations:             4,
+                  iterationsWithWarnings:       1,
+                  iterationsWithType2Errors:    1,
+                  iterationsWithKnownDefects:   2
+                 };
+
+
+     expected = chkEq(expected, padProps(source, false));
+  });
+
+  it('right justify differing length numbers long key and val', () => {
+    let expected =  'iterations:                   7' + newLine() +
+                    'passedIterations:             3' + newLine() +
+                    'failedIterations:             4' + newLine() +
+                    'iterationsWithWarnings:       1' + newLine() +
+                    'iterationsWithType2Errors:    1' + newLine() +
+                    'iterationsWithKnownDefects: 700',
+
+         source = {
+                  iterations:                   7,
+                  passedIterations:             3,
+                  failedIterations:             4,
+                  iterationsWithWarnings:       1,
+                  iterationsWithType2Errors:    1,
+                  iterationsWithKnownDefects:   700
+                 };
+
+
+     expected = chkEq(expected, padProps(source, false));
+  });
+
+  it('right justify differing length numbers long key and val with prefix', () => {
+    let expected =  '  iterations:                   7' + newLine() +
+                    '  passedIterations:             3' + newLine() +
+                    '  failedIterations:             4' + newLine() +
+                    '  iterationsWithWarnings:       1' + newLine() +
+                    '  iterationsWithType2Errors:    1' + newLine() +
+                    '  iterationsWithKnownDefects: 700',
+
+         source = {
+                  iterations:                   7,
+                  passedIterations:             3,
+                  failedIterations:             4,
+                  iterationsWithWarnings:       1,
+                  iterationsWithType2Errors:    1,
+                  iterationsWithKnownDefects:   700
+                 };
+
+
+     expected = chkEq(expected, padProps(source, false, '  '));
+  });
+
+  it('left justify differing length numbers long key and val', () => {
+    let expected =  'iterations:                 7' + newLine() +
+                    'passedIterations:           3' + newLine() +
+                    'failedIterations:           4' + newLine() +
+                    'iterationsWithWarnings:     1' + newLine() +
+                    'iterationsWithType2Errors:  1' + newLine() +
+                    'iterationsWithKnownDefects: 700',
+
+         source = {
+                  iterations:                   7,
+                  passedIterations:             3,
+                  failedIterations:             4,
+                  iterationsWithWarnings:       1,
+                  iterationsWithType2Errors:    1,
+                  iterationsWithKnownDefects:   700
+                 };
+
+
+     expected = chkEq(expected, padProps(source));
+  });
+
+  it('right justify differing length numbers long key and val with prefix', () => {
+    let expected =  '  iterations:                 7' + newLine() +
+                    '  passedIterations:           3' + newLine() +
+                    '  failedIterations:           4' + newLine() +
+                    '  iterationsWithWarnings:     1' + newLine() +
+                    '  iterationsWithType2Errors:  1' + newLine() +
+                    '  iterationsWithKnownDefects: 700',
+
+         source = {
+                  iterations:                   7,
+                  passedIterations:             3,
+                  failedIterations:             4,
+                  iterationsWithWarnings:       1,
+                  iterationsWithType2Errors:    1,
+                  iterationsWithKnownDefects:   700
+                 };
+
+
+     expected = chkEq(expected, padProps(source, true, '  '));
   });
 
 });

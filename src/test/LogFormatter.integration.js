@@ -38,24 +38,24 @@ runConfig:
   depth:       Regression
 
 stats:
-  testCases:                   30
-  passedTests:                  1
-  failedTests:                  2
-  testsWithWarnings:            1
-  testsWithKnownDefects:        2
-  testsWithType2Errors:         1
+  testCases:                  30
+  passedTests:                 1
+  failedTests:                 2
+  testsWithWarnings:           1
+  testsWithKnownDefects:       2
+  testsWithType2Errors:        1
 
-  iterations:                   7
-  passedIterations:             3
-  failedIterations:             4
-  iterationsWithWarnings:       1
-  iterationsWithType2Errors:    1
-  iterationsWithKnownDefects:   2
+  iterations:                  7
+  passedIterations:            3
+  failedIterations:            4
+  iterationsWithWarnings:      1
+  iterationsWithType2Errors:   1
+  iterationsWithKnownDefects:  2
 
-  outOfTestErrors:              1
-  outOfTestWarnings:            2
-  outOfTestType2Errors:         1
-  outOfTestKnownDefects:        1`
+  outOfTestErrors:             1
+  outOfTestWarnings:           2
+  outOfTestType2Errors:        1
+  outOfTestKnownDefects:       1`
 
 
   let actual = testPrivate.summaryBlock(summary.runSummary);

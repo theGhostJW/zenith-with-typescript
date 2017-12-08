@@ -115,7 +115,7 @@ describe('duration', () => {
 
 });
 
-describe('durationFormatted', () => {
+describe.only('durationFormatted', () => {
 
   it('zero', () => {
     let from = '2017-01-01',
@@ -145,7 +145,21 @@ describe('durationFormatted', () => {
     chkEq('352:05:14.987', durationFormatted(from, to, true));
   });
 
-  it('many hours format in', () => {
+  it('many hours with ms negative hours', () => {
+    let from = '2018-01-01 16:00:00',
+        to = '2018-01-15 00:05:14.987';
+
+    chkEq('320:05:14.987', durationFormatted(from, to, true));
+  });
+
+  it.only('many hours with ms negative duration', () => {
+    let from = '2018-01-01',
+        to = '2018-01-15 16:05:14.987';
+
+    chkEq('-352:05:14.987', durationFormatted(to, from, true));
+  });
+
+  it('many hours format no ms', () => {
     let from = '01/01/2018',
         to = '15/01/2018 16:05:14.987';
 
