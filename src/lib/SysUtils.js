@@ -481,15 +481,15 @@ function eqCustomiser <T, U> (val1 : T, val2 : U) : void | boolean {
     : undefined;
 }
 
-type MixedSpecifier = string | Predicate | IndexSpecifier | {};
+export type MixedSpecifier = string | Predicate | IndexSpecifier | {};
 
-type Predicate = (val : mixed, key : string | number) => bool;
+export type Predicate = (val : mixed, key : string | number) => bool;
 
 type ArrayItemPredicate = (val : mixed) => bool;
 
 type FuncSpecifier = (val : any, key : string | number) => any;
 
-type IndexSpecifier = [number | ArrayItemPredicate];
+export type IndexSpecifier = [number | ArrayItemPredicate];
 
 type SeekInObjResultItem = {
   parent: SeekInObjResultItem | null,

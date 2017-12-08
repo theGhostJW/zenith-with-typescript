@@ -79,7 +79,7 @@ runSummary:
     Another_Demo_Case: Accepted
     Demo_Case: Accepted
   stats:
-    testCases: 3
+    testCases: 30
     passedTests: 1
     failedTests: 2
     testsWithWarnings: 1

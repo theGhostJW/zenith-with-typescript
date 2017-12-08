@@ -11,9 +11,10 @@ import {
         } from '../lib/FileUtils';
 
 
-describe('summaryBlock', () => {
+describe.only('summaryBlock', () => {
 
-  let summary;
+  let summary,
+  summaryBlock = testPrivate.summaryBlock;
   before(() => {
     summary = fromTestData('ParserSummary.yaml');
   });
@@ -25,10 +26,10 @@ describe('summaryBlock', () => {
 ########################### Summary - Test Test Run ############################
 ################################################################################
 
-start:     2017-11-25 11:28:22
-end:       2017-11-25 12:38:44
-duration:  01:10:22
-raw:       .\DemoLog.raw.yaml
+start:    2017-11-25 11:28:22
+end:      2017-11-25 12:38:44
+duration: 01:10:22
+raw:      .\\DemoLog.raw.yaml
 
 runConfig:
   mocked:      false
@@ -58,10 +59,10 @@ stats:
   outOfTestKnownDefects:       1`
 
 
-  let actual = testPrivate.summaryBlock(summary.runSummary);
+  let actual = summaryBlock('C:\\ZWTF\\logs\\DemoLog.raw.yaml', summary.runSummary);
 
-  toTempString(EXPECTED, 'expected.yaml');
-  toTempString(actual, 'actual.yaml');
+  //toTempString(EXPECTED, 'expected.yaml')
+  //toTempString(actual, 'actual.yaml')
 
   chkEq(EXPECTED, actual);
 

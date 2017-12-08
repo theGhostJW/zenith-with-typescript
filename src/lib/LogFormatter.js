@@ -1,19 +1,11 @@
 // @flow
 
-import {
-  def,
-  debug,
-  objToYaml,
-  ensure,
-  yamlToObj
-} from '../lib/SysUtils';
-import {
-  newLine,
-  trimChars,
-  toString
-} from '../lib/StringUtils';
-import {
-} from '../lib/DateTimeUtils';
+import { def, debug, objToYaml, ensure, yamlToObj,
+         seekInObj } from '../lib/SysUtils';
+import type { MixedSpecifier } from '../lib/SysUtils';
+import { newLine, trimChars, toString, transformGroupedTable, replace } from '../lib/StringUtils';
+import { durationFormatted } from '../lib/DateTimeUtils';
+import { fileOrFolderName } from '../lib/FileUtils';
 import * as _ from 'lodash';
 
 export type RunSummary = {|
@@ -82,9 +74,12 @@ export const testPrivate = {
 function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): string {
 
   function toStringPairs(obj): Array<[string, string]> {
+
+    let toStr = (val) => typeof val == 'object' ? replace(toString(val), newLine(), '') : toString(val);
+
     return _.chain(obj)
             .toPairs()
-            .map((kv) => [toString(kv[0]), toString(kv[1])])
+            .map((kv) => [toStr(kv[0]), toStr(kv[1])])
             .value()
   }
 
@@ -131,20 +126,35 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): st
   return _.map(pairs, padValStringify).join(newLine());
 }
 
-export function summaryBlock(runSummary: RunSummary): string {
-  debug(typeof runSummary)
+export function summaryBlock(rawPath: string, runSummary: RunSummary): string {
   let {
         startTime,
         endTime,
-        runConfig
-      } = debug(runSummary),
-      name = def(debug(runConfig)['name'], 'Unnamed Test Run'),
+        runConfig,
+        stats
+      } = runSummary,
+      name = def(runConfig['name'], 'Unnamed Test Run'),
       headerLine = `Summary - ${name}`,
       heading = majorHeader('', false) + newLine() +
                 majorHeader(headerLine, false) + newLine() +
                 majorHeader('', false);
 
-  return heading;
+  let seekInSumm = (specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): string => toString(seekInObj(runSummary, specifier, ...otherSpecifiers)),
+  basic = {
+    start: startTime,
+    end: endTime,
+    duration: durationFormatted(startTime, endTime),
+    raw: '.\\' + fileOrFolderName(rawPath)
+  };
+
+  basic = padProps(basic);
+
+  return heading + newLine(2) +
+          basic + newLine(2) +
+          'runConfig:' + newLine() +
+          padProps(_.omit(runConfig, 'name'), true, '  ') + newLine(2) +
+          'stats:' + newLine() +
+          padProps(stats, false, '  ').replace('  iterations:', '\n  iterations:').replace('  outOfTestErrors:', '\n  outOfTestErrors:');
 }
 
 

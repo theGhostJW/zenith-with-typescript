@@ -115,7 +115,7 @@ describe('duration', () => {
 
 });
 
-describe.only('durationFormatted', () => {
+describe('durationFormatted', () => {
 
   it('zero', () => {
     let from = '2017-01-01',
@@ -152,7 +152,7 @@ describe.only('durationFormatted', () => {
     chkEq('320:05:14.987', durationFormatted(from, to, true));
   });
 
-  it.only('many hours with ms negative duration', () => {
+  it('many hours with ms negative duration', () => {
     let from = '2018-01-01',
         to = '2018-01-15 16:05:14.987';
 

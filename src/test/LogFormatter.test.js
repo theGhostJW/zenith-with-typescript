@@ -143,4 +143,26 @@ describe('padProps', () => {
      expected = chkEq(expected, padProps(source, true, '  '));
   });
 
+  it.only('right justify differing length numbers long key and val with prefix + array', () => {
+    let expected =  '  iterations:                 7' + newLine() +
+                    '  passedIterations:           3' + newLine() +
+                    '  failedIterations:           4' + newLine() +
+                    '  iterationsWithWarnings:     []' + newLine() +
+                    '  iterationsWithType2Errors:  1' + newLine() +
+                    '  iterationsWithKnownDefects: 700',
+
+
+         source = {
+                  iterations:                   7,
+                  passedIterations:             3,
+                  failedIterations:             4,
+                  iterationsWithWarnings:       [],
+                  iterationsWithType2Errors:    1,
+                  iterationsWithKnownDefects:   700
+                 };
+
+
+     expected = chkEq(expected, padProps(source, true, '  '));
+  });
+
 });

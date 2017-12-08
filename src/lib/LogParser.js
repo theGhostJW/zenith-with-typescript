@@ -20,9 +20,9 @@ export function parseElements(summary: FullSummaryInfo) {
       runSummary
     } = summary;
 
-  let fullWriter = fileRecordWriter(debug(destPath(rawFile, 'raw', 'full')));
+  let fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'));
 
-  fullWriter(runSummary == null ? '' : summaryBlock(runSummary))
+  fullWriter(runSummary == null ? '' : summaryBlock(rawFile, runSummary))
 
 
 //  logSplitter(elementsFile, itemParser: string => void )
