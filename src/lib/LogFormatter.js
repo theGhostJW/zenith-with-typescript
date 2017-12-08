@@ -126,8 +126,13 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): st
   return _.map(pairs, padValStringify).join(newLine());
 }
 
-export function summaryBlock(rawPath: string, runSummary: RunSummary): string {
-  let {
+export function summaryBlock(summary: FullSummaryInfo): string {
+  let runSummary = ((seekInObj(summary, 'runSummary'): any): RunSummary) ;
+  if (runSummary == null){
+    return '';
+  }
+  else {
+    let {
         startTime,
         endTime,
         runConfig,
@@ -144,7 +149,7 @@ export function summaryBlock(rawPath: string, runSummary: RunSummary): string {
     start: startTime,
     end: endTime,
     duration: durationFormatted(startTime, endTime),
-    raw: '.\\' + fileOrFolderName(rawPath)
+    raw: '.\\' + fileOrFolderName(summary.rawFile)
   };
 
   basic = padProps(basic);
@@ -155,6 +160,9 @@ export function summaryBlock(rawPath: string, runSummary: RunSummary): string {
           padProps(_.omit(runConfig, 'name'), true, '  ') + newLine(2) +
           'stats:' + newLine() +
           padProps(stats, false, '  ').replace('  iterations:', '\n  iterations:').replace('  outOfTestErrors:', '\n  outOfTestErrors:');
+
+  }
+
 }
 
 

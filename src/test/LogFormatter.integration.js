@@ -1,17 +1,17 @@
 // @flow
 
 import { testPrivate } from '../lib/LogFormatter';
-import {
-          chkEq,
-          chkExceptionText
-        } from '../lib/AssertionUtils';
-import {
-          fromTestData,
-          toTempString
-        } from '../lib/FileUtils';
+import {  chkEq, chkExceptionText } from '../lib/AssertionUtils';
+import { fromTestData, toTempString, fromTestDataString } from '../lib/FileUtils';
+import { trimChars, newLine, standardiseLineEndings } from '../lib/StringUtils';
 
+
+function sectionIntegrationTest(sourceFile: string, expectedFile: string, transformer: (string, string) => string) {
+
+}
 
 describe.only('summaryBlock', () => {
+  //sectionIntegrationTest('ParserSummary.yaml', 'ParserSummary.expected.yaml', transformer: (string, string) => string)
 
   let summary,
   summaryBlock = testPrivate.summaryBlock;
@@ -21,50 +21,14 @@ describe.only('summaryBlock', () => {
 
   it('produces expected block', () => {
 
-    const EXPECTED =
-`################################################################################
-########################### Summary - Test Test Run ############################
-################################################################################
+  let expected = trimChars(standardiseLineEndings(fromTestDataString('ParserSummary.expected.yaml')), [newLine()]),
+      actual = summaryBlock(summary);
 
-start:    2017-11-25 11:28:22
-end:      2017-11-25 12:38:44
-duration: 01:10:22
-raw:      .\\DemoLog.raw.yaml
+  toTempString(expected, 'expected.yaml')
+  toTempString(actual, 'actual.yaml')
 
-runConfig:
-  mocked:      false
-  country:     Australia
-  environment: TST
-  testCases:   []
-  depth:       Regression
+  chkEq(expected, actual);
 
-stats:
-  testCases:                  30
-  passedTests:                 1
-  failedTests:                 2
-  testsWithWarnings:           1
-  testsWithKnownDefects:       2
-  testsWithType2Errors:        1
-
-  iterations:                  7
-  passedIterations:            3
-  failedIterations:            4
-  iterationsWithWarnings:      1
-  iterationsWithType2Errors:   1
-  iterationsWithKnownDefects:  2
-
-  outOfTestErrors:             1
-  outOfTestWarnings:           2
-  outOfTestType2Errors:        1
-  outOfTestKnownDefects:       1`
-
-
-  let actual = summaryBlock('C:\\ZWTF\\logs\\DemoLog.raw.yaml', summary.runSummary);
-
-  //toTempString(EXPECTED, 'expected.yaml')
-  //toTempString(actual, 'actual.yaml')
-
-  chkEq(EXPECTED, actual);
 
   });
 

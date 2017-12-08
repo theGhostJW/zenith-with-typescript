@@ -20,7 +20,49 @@ issues:
     knownDefects: []
 
 -------------------------------
-summary: Summary not implemented
+summary: |-
+  ==== Notes ====
+   			licence correct version incorrect - dob differs - [DriverCheck: Invalid driver licence details entered]
+
+   ==== Cache Prior to Request (DB) ====
+
+   ==== Enquiry Properties ====
+         productCode: CLC3
+         firstName: Helen
+         otherName: May
+         surname: Ayto
+         dateOfBirth: 29/07/1938
+         number: AA277022
+         version: 845
+         enquiryType: 2
+
+   ==== Cache After Request (DB) ====
+
+   ==== Components After Request (DB) ====
+
+   ==== NZTA Log (DB) ====
+         id: 137
+         NZTAReference: bccbe88d-da99-4da3-af5a-5a4de0476358
+         requestStart: 2017-08-21 17:19:57.1473649
+         requestDuration: 936
+         request:
+            RequestBody:
+               CustomerDetails:
+                  NameDetails:
+                     PersonName:
+                        LastName: Ayto
+                        FirstName: Helen
+                        MiddleName: May
+                  PersonInfo:
+                     BirthInfo:
+                        BirthDate:
+                           Date: 1938-07-29
+         response:
+            ResponseBody:
+
+   ==== B2B Response - Driver's Licence Info ====
+         Error: Invalid driver licence details entered
+         
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:27'
 elementType: InterationInfo

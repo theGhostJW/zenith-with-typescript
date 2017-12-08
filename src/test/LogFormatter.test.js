@@ -143,7 +143,7 @@ describe('padProps', () => {
      expected = chkEq(expected, padProps(source, true, '  '));
   });
 
-  it.only('right justify differing length numbers long key and val with prefix + array', () => {
+  it('right justify differing length numbers long key and val with prefix + array', () => {
     let expected =  '  iterations:                 7' + newLine() +
                     '  passedIterations:           3' + newLine() +
                     '  failedIterations:           4' + newLine() +
