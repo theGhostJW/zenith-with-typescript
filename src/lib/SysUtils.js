@@ -658,7 +658,7 @@ function getResultValues(result: Array <SeekInObjResultItem>): Array<mixed> {
   return result.map((s: SeekInObjResultItem) => s.value);
 }
 
-export function seekInObj(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {
+export function seekInObj<T>(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?T {
   let info = seekInObjWithInfo(target, specifier, ...otherSpecifiers);
   return info == null ? undefined : info.value;
 }

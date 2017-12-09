@@ -1,0 +1,129 @@
+summary: |-
+  ==== Notes ====
+   			licence correct version incorrect - dob differs - [DriverCheck: Invalid driver licence details entered]
+
+   ==== Cache Prior to Request (DB) ====
+
+   ==== Enquiry Properties ====
+         productCode: CLC3
+         firstName: Helen
+         otherName: May
+         surname: Ayto
+         dateOfBirth: 29/07/1938
+         number: AA277022
+         version: 845
+         enquiryType: 2
+
+   ==== Cache After Request (DB) ====
+
+   ==== Components After Request (DB) ====
+
+   ==== NZTA Log (DB) ====
+         id: 137
+         NZTAReference: bccbe88d-da99-4da3-af5a-5a4de0476358
+         requestStart: 2017-08-21 17:19:57.1473649
+         requestDuration: 936
+         request:
+            RequestBody:
+               CustomerDetails:
+                  NameDetails:
+                     PersonName:
+                        LastName: Ayto
+                        FirstName: Helen
+                        MiddleName: May
+                  PersonInfo:
+                     BirthInfo:
+                        BirthDate:
+                           Date: 1938-07-29
+         response:
+            ResponseBody:
+
+   ==== B2B Response - Driver's Licence Info ====
+         Error: Invalid driver licence details entered
+
+startTime: '2017-11-25 11:28:22'
+endTime: '2017-11-25 11:28:44'
+elementType: InterationInfo
+testConfig:
+  script: Another_Demo_Case
+  id: 2
+  when: i test anther case
+  then: it still works
+  owner: JW
+  enabled: true
+  countries:
+    - Australia
+  environments:
+    - TST
+  depth: Regression
+item:
+  id: 1
+  when: I run a test
+  then: i get the result
+  validators: check_has_another
+apState: {}
+passedValidators:
+  - check_that_worked
+issues:
+  - name: Executing Interactor
+    infoType: InTest
+    warnings:
+      - timestamp: '2017-11-25 11:28:22'
+        level: warn
+        subType: Message
+        message: Warning added for testing in iteration
+    errors: []
+    type2Errors: []
+    knownDefects: []
+  - name: check_has_another
+    infoType: Validation
+    warnings: []
+    errors:
+      - timestamp: '2017-11-25 11:28:22'
+        level: error
+        subType: CheckFail
+        popControl: NoAction
+        message: Check Text Contains ~ 2 errors 1 iteration
+      - timestamp: '2017-11-25 11:28:22'
+        level: error
+        subType: CheckFail
+        popControl: NoAction
+        message: Check Text Contains
+        additionalInfo: |-
+          Looking for: another
+           in
+          I run a test
+        callstack: |2-
+              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
+              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
+              at logSpecial (C:/ZWTF/src/lib/Logging.js:153:5)
+              at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
+              at checkTextContains (C:/ZWTF/src/lib/CheckUtils.js:48:10)
+              at check_has_another (C:/ZWTF/testCases/Another_Demo_Case.js:62:3)
+              at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
+              at Array.forEach (native)
+              at runValidators (C:/ZWTF/src/lib/TestRunner.js:105:14)
+              at C:/ZWTF/src/lib/TestRunner.js:148:29
+              at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
+              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:148:15)
+              at C:/ZWTF/src/lib/TestRunner.js:171:30
+              at Array.forEach (native)
+              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
+              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
+              at Array.forEach (native)
+              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
+              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
+              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
+              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
+              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
+              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
+              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
+              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
+              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
+              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
+              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
+              at runCallback (timers.js:800:20)
+              at tryOnImmediate (timers.js:762:5)
+              at processImmediate [as _immediateCallback] (timers.js:733:5)
+    type2Errors: []
+    knownDefects: []

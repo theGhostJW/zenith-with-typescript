@@ -7,7 +7,8 @@ import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '.
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString } from '../lib/FileUtils';
-import type { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats } from '../lib/LogFormatter';
+import type { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats, ErrorsWarningsDefects,
+              StateStage, IssuesList, RunState } from '../lib/LogParserTypes';
 import { summaryBlock } from '../lib/LogFormatter';
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
@@ -28,6 +29,8 @@ export function parseElements(summary: FullSummaryInfo) {
 //  logSplitter(elementsFile, itemParser: string => void )
 }
 
+export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
+
  function fileRecordWriter(destPath: string): (content: {} | string) => void {
     let writer = fileWriter(destPath);
     return function writeToFile(content: {} | string) {
@@ -35,30 +38,29 @@ export function parseElements(summary: FullSummaryInfo) {
     }
  }
 
+ function emptyTestStats() {
+   return {
+     iterations: 0,
+     passedIterations: 0,
+     failedIterations: 0,
+     iterationsWithType2Errors: 0,
+     iterationsWithWarnings: 0,
+     iterationsWithKnownDefects: 0
+   };
+ }
+
  function summariseLog(rawPath: string, fullSummary: FullSummaryInfo): (RunState, LogEntry) => RunState {
 
    let resultPath = destPath(rawPath, 'raw', 'elements'),
       // Here separating writer and summariser
        writeToFile = fileRecordWriter(resultPath),
-       statsLog: TestStats = {
-         iterations: 0,
-         passedIterations: 0,
-         failedIterations: 0,
-         iterationsWithWarnings: 0,
-         iterationsWithKnownDefects: 0
-       };
+       statsLog: TestStats = emptyTestStats();
 
    fullSummary.rawFile = rawPath;
    fullSummary.elementsFile = resultPath;
    function calcUpdateTestStats(state): TestStats {
       let runStats = state.runStats,
-          result =  {
-            iterations: 0,
-            passedIterations: 0,
-            failedIterations: 0,
-            iterationsWithWarnings: 0,
-            iterationsWithKnownDefects: 0
-          };
+          result =  emptyTestStats();
 
        result = _.mapValues(result, (v, k) => runStats[k] - statsLog[k]);
        statsLog = _.pick(runStats, _.keys(statsLog));
@@ -129,47 +131,10 @@ export function parseElements(summary: FullSummaryInfo) {
    }
  }
 
- type RunElementType = 'InterationInfo' | 'OutOfTestErrors';
-
- const STATE_STAGE = {
-   Validation: 'validation',
-   InTest: 'in test',
-   OutOfTest: 'out of test'
- };
-
- type StateStage = $Keys<typeof STATE_STAGE>;
-
- export type ErrorsWarningsDefects = {
-   name: string,
-   infoType: StateStage,
-   warnings: Array<LogEntry>,
-   errors: Array<LogEntry>,
-   type2Errors: Array<LogEntry>,
-   knownDefects: Array<LogEntry>
- }
-
- export type IssuesList = Array<ErrorsWarningsDefects>;
-
 function listHasIssues(issuesList: IssuesList, includeKnownDefects: boolean = true): boolean {
    let issueExists : ErrorsWarningsDefects => boolean  = (i: ErrorsWarningsDefects) => hasIssues(i, includeKnownDefects);
    return issuesList.some(issueExists);
 }
-
-export type Iteration = {|
-   summary: string,
-   startTime: string,
-   endTime:  string,
-   elementType: 2,
-   testConfig: {},
-   item: {},
-   apState: {},
-   issues: IssuesList
- |}
-
- export type OutOfTestIssues = {
-   elementType: 3,
-   issues: IssuesList
- };
 
 const nullStats: () => RunStats = () => {
 
@@ -196,12 +161,6 @@ const nullStats: () => RunStats = () => {
   };
 }
 
-export type LogIterationConfig = {
-  id: number,
-  when: string,
-  then: string
-}
-
 function emptyValidatorInfo(infoType: StateStage, name: string): ErrorsWarningsDefects {
   return {
     name: name,
@@ -219,49 +178,6 @@ function hasIssues(val: ErrorsWarningsDefects, includeKnownDefects: boolean = tr
           val.type2Errors.length > 0 ||
           (includeKnownDefects && val.knownDefects.length > 0);
 }
-
-export type RunState = {|
-  runStats: RunStats,
-  filterLog: {[string]: string},
-  runName: string,
-  rawFile: string,
-  runConfig: {},
-  timestamp: string,
-
-  iterationSummary: string,
-  iterationStart: string,
-  indent: number,
-  testStart: string,
-  testConfig: ?WithScript,
-  iterationConfig: ?LogIterationConfig,
-
-  errorExpectation: ?LogEntry,
-  expectedErrorEncoutered: boolean,
-
-  iterationSummary: string,
-  apstate: {},
-  testItem: {},
-  validationInfo: {},
-  logItems: Array<LogEntry>,
-  passedValidators: Array<string>,
-
-  testErrorLogged: boolean,
-  testType2ErrorLogged: boolean,
-  testWarningLogged: boolean,
-  testKnownDefectLogged: boolean,
-
-  iterationErrorLogged: boolean,
-  iterationWarningLogged: boolean,
-  iterationType2ErrorLogged: boolean,
-  iterationKnownDefectLogged: boolean,
-
-
-  validatorIssues: Array<ErrorsWarningsDefects>,
-  inTestIssues: Array<ErrorsWarningsDefects>,
-  outOfTestIssues: Array<ErrorsWarningsDefects>,
-
-  activeIssues: ?ErrorsWarningsDefects
-|};
 
 export function initalState(rawFilePath: string): RunState {
   let result: RunState = {
@@ -568,7 +484,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       break;
 
     case 'InteractorStart':
-      switchErrorInfoStage(state, 'InTest', 'Executing Interactor');
+      switchErrorInfoStage(state, 'InTest', EXECUTING_INTERACTOR_STR);
       state.indent = 3;
       break;
 

@@ -1,0 +1,134 @@
+################################################################################
+###################### Another Demo Case - 00:10:01 ############################
+################################################################################
+
+stats:
+  iterations:                 2
+  passedIterations:           1
+  failedIterations:           1
+  iterationsWithType2Errors:  2
+  iterationsWithWarnings:     1
+  iterationsWithKnownDefects: 0
+
+#-------------------------------------------------------------------------------
+#%---------------- Another_Demo_Case - Item 1 - 01:00:22 -----------------------
+#-------------------------------------------------------------------------------
+
+when:   I run a test
+then:   i get the result
+status: errors, type2Errors, warnings, knownDefects
+
+validation:
+  - interactor:               failed
+  - check cache not updated:  failed
+  - check has no components:  passed
+  - check for error:          passed
+
+summary:
+  ==== Notes ====
+   			licence correct version incorrect - dob differs - [DriverCheck: Invalid driver licence details entered]
+
+   ==== Cache Prior to Request (DB) ====
+
+   ==== Enquiry Properties ====
+         productCode: CLC3
+         firstName: Helen
+         otherName: May
+         surname: Ayto
+         dateOfBirth: 29/07/1938
+         number: AA277022
+         version: 845
+         enquiryType: 2
+
+   ==== Cache After Request (DB) ====
+
+   ==== Components After Request (DB) ====
+
+   ==== NZTA Log (DB) ====
+         id: 137
+         NZTAReference: bccbe88d-da99-4da3-af5a-5a4de0476358
+         requestStart: 2017-08-21 17:19:57.1473649
+         requestDuration: 936
+         request:
+            RequestBody:
+               CustomerDetails:
+                  NameDetails:
+                     PersonName:
+                        LastName: Ayto
+                        FirstName: Helen
+                        MiddleName: May
+                  PersonInfo:
+                     BirthInfo:
+                        BirthDate:
+                           Date: 1938-07-29
+         response:
+            ResponseBody:
+
+   ==== B2B Response - Driver's Licence Info ====
+         Error: Invalid driver licence details entered
+
+#-------------------------------------------------------------------------------
+
+issues:
+  - name: Executing Interactor
+    warnings:
+      - timestamp: 2017-11-25 11:28:22
+        message: Warning added for testing in iteration
+
+  - name: validator - check_has_another
+    errors:
+      - timestamp: '2017-11-25 11:28:22'
+        subType: CheckFail
+        message: Check Text Contains ~ 2 errors 1 iteration
+
+      - timestamp: '2017-11-25 11:28:22'
+        message: Check Text Contains
+        additionalInfo: |-
+          Looking for: another
+           in
+          I run a test
+        callstack: |2-
+              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
+              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
+              at logSpecial (C:/ZWTF/src/lib/Logging.js:153:5)
+              at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
+              at checkTextContains (C:/ZWTF/src/lib/CheckUtils.js:48:10)
+              at check_has_another (C:/ZWTF/testCases/Another_Demo_Case.js:62:3)
+              at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
+              at Array.forEach (native)
+              at runValidators (C:/ZWTF/src/lib/TestRunner.js:105:14)
+              at C:/ZWTF/src/lib/TestRunner.js:148:29
+              at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
+              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:148:15)
+              at C:/ZWTF/src/lib/TestRunner.js:171:30
+              at Array.forEach (native)
+              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
+              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
+              at Array.forEach (native)
+              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
+              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
+              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
+              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
+              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
+              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
+              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
+              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
+              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
+              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
+              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
+              at runCallback (timers.js:800:20)
+              at tryOnImmediate (timers.js:762:5)
+              at processImmediate [as _immediateCallback] (timers.js:733:5)
+
+#-------------------------------------------------------------------------------
+
+item:
+  id: 1
+  when: I run a test
+  then: i get the result
+
+#-------------------------------------------------------------------------------
+
+apState:
+  username: dscdssadsa
+  password: reretregrgfdgvfgvfv

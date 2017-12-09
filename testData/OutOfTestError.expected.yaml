@@ -1,12 +1,12 @@
 ################################################################################
-#%######################## Out of Test Issues ##################################
+#%############################ Out of Test Issues ##############################
 ################################################################################
 
 warnings:
   - timestamp: 2017-11-25 11:28:22
-    message: warning added for testing
+    message:   warning added for testing
 
 errors:
-  - timestamp: 2017-11-25 11:28:22
-    message: bodged out of test example failure
+  - timestamp:      2017-11-25 11:28:22
+    message:        bodged out of test example failure
     additionalInfo: blahh

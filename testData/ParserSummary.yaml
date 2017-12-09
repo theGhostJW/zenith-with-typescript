@@ -15,11 +15,12 @@ testSummaries:
         - TST
       depth: Regression
     startTime: '2017-11-25 11:28:22'
-    endTime: '2017-11-25 11:28:22'
+    endTime: '2017-11-25 11:38:23'
     stats:
       iterations: 2
       passedIterations: 1
       failedIterations: 1
+      iterationsWithType2Errors: 2
       iterationsWithWarnings: 1
       iterationsWithKnownDefects: 0
   Demo_Case:
