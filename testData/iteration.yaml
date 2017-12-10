@@ -60,8 +60,17 @@ item:
   id: 1
   when: I run a test
   then: i get the result
+  notes: |-
+    these are the notes
+    about stuff
+  password: bad
+  multiLine: |-
+    dfdfdff ffdfdf dfdfdff
+    ffff ffgf kk end
+  user: JPCitizen
   validators: check_has_another
-apState: {}
+apState:
+  blahh: sdfdfdfdf
 passedValidators:
   - check_that_worked
 issues:

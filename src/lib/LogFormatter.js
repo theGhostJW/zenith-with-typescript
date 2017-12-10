@@ -19,6 +19,50 @@ export const testPrivate = {
   iteration: iteration,
 }
 
+function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript: string): string {
+  let script = toString(seekInObj(iteration.testConfig, 'script')),
+      header = '';
+
+  let summaryInfo = seekInObj(fullSummary, 'testSummaries', script),
+      seekSumStr = str => toString(seekInObj(((summaryInfo: any): {}), str));
+
+  if (!sameText(script, lastScript)){
+    header = majorHeaderBlock(summaryInfo == null ? `NO SUMMARY INFO AVAILABLE FOR ${script}`:
+                `${deUnderscore(script)} - ${durationFormatted(seekSumStr('startTime'), seekSumStr('endTime'))}`, false) +
+             newLine(2) + 'stats:' + newLine() + padProps(def(seekInObj(summaryInfo, 'stats'), {}), false, '  ');
+  }
+
+  header = header + newLine(2) + minorHeaderBlock(`${script} - Item ${iteration.item.id} - ${durationFormatted(iteration.startTime, iteration.endTime)}`, true);
+
+  let issues = issueTypes(iteration.issues),
+      notes = seekInObj(iteration, 'item', 'notes'),
+      hasNotes = notes != null,
+      itheader = {
+                    when: seekInObj(iteration, 'item', 'when'),
+                    then: seekInObj(iteration, 'item', 'then'),
+                    notes: notes,
+                    status: joinIssues(issues)
+                  },
+        itHeaderText = padProps(hasNotes ? itheader : _.omit(itheader, 'notes'), true, '', hasNotes);
+
+
+  let lineX2 = newLine(2),
+      subDivider =  lineX2 + SUB_DIVIDER + lineX2;
+  return header + lineX2 +
+                    itHeaderText +
+                    lineX2 +
+                    valText(iteration) +
+                    lineX2 +
+                    titledText(iteration.summary, 'summary', 'Not Implemented') +
+                    subDivider +
+                    titledText(issuesText(iteration.issues), 'issues', 'No Issues') +
+                    subDivider +
+                    titledText(objToYaml(_.omit(seekInObj(iteration, 'item'), 'id', 'validators', 'when', 'then', 'notes')), 'item', 'Parse Error Item not Found') +
+                    subDivider +
+                    titledText(objToYaml(seekInObj(iteration, 'apState')), 'apState', 'Parse Error apState not Found');
+}
+
+
 function padLines(str: ?string, padding: string): string {
   return str != '' && str != null ? str.split(newLine()).map(l => padding + l).join(newLine()) : ''
 }
@@ -56,7 +100,6 @@ function issuesText(issues: IssuesList): string {
 
   lines = _.transform(lines, pushLine, []);
   return trimChars(lines.join(newLine()), [newLine()])
-
 }
 
 function valText(iteration: Iteration): string {
@@ -127,44 +170,6 @@ function deUnderscore(str: string): string {
   return replace(str, '_', ' ')
 }
 
-function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript: string): string {
-  let script = toString(seekInObj(iteration.testConfig, 'script')),
-      header = '';
-
-  let summaryInfo = seekInObj(fullSummary, 'testSummaries', script),
-      seekSumStr = str => toString(seekInObj(((summaryInfo: any): {}), str));
-
-  if (!sameText(script, lastScript)){
-    header = majorHeaderBlock(summaryInfo == null ? `NO SUMMARY INFO AVAILABLE FOR ${script}`:
-                `${deUnderscore(script)} - ${durationFormatted(seekSumStr('startTime'), seekSumStr('endTime'))}`, false) +
-             newLine(2) + 'stats:' + newLine() + padProps(def(seekInObj(summaryInfo, 'stats'), {}), false, '  ');
-  }
-
-  header = header + newLine(2) + minorHeaderBlock(`${script} - Item ${iteration.item.id} - ${durationFormatted(iteration.startTime, iteration.endTime)}`, true);
-
-  let issues = issueTypes(iteration.issues),
-      itheader = {
-                    when: seekInObj(iteration, 'item', 'when'),
-                    then: seekInObj(iteration, 'item', 'then'),
-                    status: joinIssues(issues)
-                  };
-
-  let lineX2 = newLine(2),
-      subDivider =  lineX2 + SUB_DIVIDER + lineX2;
-  return header + lineX2 +
-                    padProps(itheader) +
-                    lineX2 +
-                    valText(iteration) +
-                    lineX2 +
-                    titledText(iteration.summary, 'summary', 'Not Implemented') +
-                    subDivider +
-                    titledText(issuesText(iteration.issues), 'issues', 'No Issues') +
-                    subDivider
-                    ;
-}
-
-
-
 function singularise(obj) {
   return _.isArray(obj) && obj.length === 1 ? obj[0] : obj;
 }
@@ -210,8 +215,7 @@ function toStringPairs(obj): Array<[string, string]> {
           .value()
 }
 
-function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): string {
-
+function padProps(obj: {}, leftJustify: boolean = true, prefix: string = '', handleMultiLine: boolean = false): string {
   function maxlenOfIdx(idx: 0 | 1) {
     return (accum, kv) => Math.max(kv[idx].length, accum)
   }
@@ -219,11 +223,20 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): st
   let pairs = toStringPairs(obj),
       padding = {};
 
+  function multLineRule(val: string){
+    return handleMultiLine && hasText(val, newLine(), true);
+  }
+
   if (leftJustify){
 
     function totalKVLenPlus1Map(maxLen: number) {
       return function totalKeyLenPlus1(accum: {}, kv: [string, string]) {
-        let k = kv[0];
+        let [k, v] = kv;
+
+        if (multLineRule(v)){
+          return accum;
+        }
+
         accum[k] = maxLen + 1 - k.length;
         return accum;
       }
@@ -237,6 +250,12 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): st
     function totalKVLenPlus1Map(maxLen: number) {
       return function totalKVLenPlus1(accum: {}, kv: [string, string]) {
         let [k, v] = kv;
+
+        if (multLineRule(v)){
+          return accum;
+        }
+
+
         accum[k] = maxLen + 1 - k.length - v.length;
         return accum;
       }
@@ -247,9 +266,16 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = ''): st
   }
 
   function padValStringify(kv) {
-    let [k, v] = kv,
-        pad = ' '.repeat(padding[k]);
-    return prefix + k + ':' + pad + v;
+    let [k, v] = kv;
+
+    if (multLineRule(v)){
+      v = newLine() + padLines(v, prefix + '  ')
+      return prefix + k + ':' + v;
+    }
+    else {
+      let pad = ' '.repeat(padding[k]);
+      return prefix + k + ':' + pad + v;
+    }
   }
 
   return _.map(pairs, padValStringify).join(newLine());
