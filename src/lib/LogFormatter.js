@@ -87,13 +87,22 @@ function issuesText(issues: IssuesList): string {
       result = toString(realIssues),
       lines = result.split(newLine());
 
-  let nameEncountered = false;
+  let nameEncountered = false,
+      timestampEncountered = false;
+
   function pushLine(accum: Array<string>, str: string) {
-    if (hasText(str, '- name:')) {
+    if (str.includes('- name:')) {
       if (nameEncountered){
         accum.push('');
       }
       nameEncountered = true;
+      timestampEncountered = false;
+    }
+    else if (str.includes('- timestamp:')) {
+      if (timestampEncountered){
+        accum.push('');
+      }
+      timestampEncountered = true;
     }
     accum.push(str);
   }
@@ -130,7 +139,7 @@ function valText(iteration: Iteration): string {
 
   let passedValidators = seekInObj(iteration, 'passedValidators');
   if (passedValidators != null){
-    passedValidators.forEach(s => result[s] = 'passed');
+    passedValidators.forEach(s => result[deUnderscore(s)] = 'passed');
   }
 
 
@@ -169,11 +178,6 @@ function issueTypes(issues: IssuesList | ErrorsWarningsDefects) {
 function deUnderscore(str: string): string {
   return replace(str, '_', ' ')
 }
-
-function singularise(obj) {
-  return _.isArray(obj) && obj.length === 1 ? obj[0] : obj;
-}
-
 
 function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects> }): string {
   let issues = outOfTest.issues;

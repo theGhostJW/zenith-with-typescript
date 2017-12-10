@@ -204,6 +204,7 @@ export function initalState(rawFilePath: string): RunState {
                 testItem: {},
 
                 logItems: [],
+                valTime: '',
                 validatorIssues: [],
                 inTestIssues: [],
                 outOfTestIssues: [],

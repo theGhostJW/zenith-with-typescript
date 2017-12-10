@@ -120,9 +120,9 @@ export type RunState = {|
   errorExpectation: ?LogEntry,
   expectedErrorEncoutered: boolean,
 
-  iterationSummary: string,
   apstate: {},
   testItem: {},
+  valTime: string,
   validationInfo: {},
   logItems: Array<LogEntry>,
   passedValidators: Array<string>,
