@@ -1,13 +1,13 @@
 // @flow
 
 import { def, debug, objToYaml, ensure, yamlToObj,
-         seekInObj, forceArray } from '../lib/SysUtils';
+         seekInObj, forceArray, areEqual } from '../lib/SysUtils';
 import type { MixedSpecifier } from '../lib/SysUtils';
-import { newLine, trimChars, toString, transformGroupedTable, replace, sameText } from '../lib/StringUtils';
+import { newLine, trimChars, toString, transformGroupedTable, replace, sameText, hasText } from '../lib/StringUtils';
 import { durationFormatted } from '../lib/DateTimeUtils';
 import { fileOrFolderName } from '../lib/FileUtils';
 import type { LogEntry } from '../lib/Logging';
-import { EXECUTING_INTERACTOR_STR } from '../lib/LogParser';
+import { EXECUTING_INTERACTOR_STR, hasIssues } from '../lib/LogParser';
 import type { StateStage, ErrorsWarningsDefects, RunSummary, FullSummaryInfo, Iteration, IssuesList } from '../lib/LogParserTypes';
 import * as _ from 'lodash';
 
@@ -17,6 +17,46 @@ export const testPrivate = {
   padProps: padProps,
   outOfTestError: outOfTestError,
   iteration: iteration,
+}
+
+function padLines(str: ?string, padding: string): string {
+  return str != '' && str != null ? str.split(newLine()).map(l => padding + l).join(newLine()) : ''
+}
+
+function titledText(obj: mixed, title: string, nullText: string): string {
+  return title + ':' + newLine() +
+          (obj == null ? '  ' + nullText : padLines(toString(obj), '  '));
+}
+
+function issuesText(issues: IssuesList): string {
+
+  function removeEmptyArrays(issue: ErrorsWarningsDefects) {
+    return _.chain(issue)
+             .toPairs()
+             .filter(p => !areEqual(p[1], []))
+             .tap(debug)
+             .fromPairs()
+             .value();
+  }
+
+  let realIssues = issues.filter(i => hasIssues(i)).map(removeEmptyArrays),
+      result = toString(realIssues),
+      lines = result.split(newLine());
+
+  let nameEncountered = false;
+  function pushLine(accum: Array<string>, str: string) {
+    if (hasText(str, '- name:')) {
+      if (nameEncountered){
+        accum.push('');
+      }
+      nameEncountered = true;
+    }
+    accum.push(str);
+  }
+
+  lines = _.transform(lines, pushLine, []);
+  return trimChars(lines.join(newLine()), [newLine()])
+
 }
 
 function valText(iteration: Iteration): string {
@@ -30,20 +70,28 @@ function valText(iteration: Iteration): string {
   }
 
   let issuesInfo = _.map(iteration.issues, summarise),
-      interactorIssues = issuesInfo.find(issueSum => issueSum.name === EXECUTING_INTERACTOR_STR),
+      isIntIssue = issueSum => issueSum.name === EXECUTING_INTERACTOR_STR,
+      interactorIssues = issuesInfo.find(isIntIssue),
       result: {[string]: string} = {};
 
   if (interactorIssues != null && interactorIssues.issues !== 'passed'){
     result.interactor = joinIssues(interactorIssues.issues);
   }
 
+  //Non interactor issues
+  function addIssue(issue) {
+    result[sameText(issue.infoType, 'validation') ? deUnderscore(issue.name) : issue.name] = joinIssues(issue.issues);
+  }
+
+  issuesInfo.filter(i => !isIntIssue(i)).forEach(addIssue);
+
   let passedValidators = seekInObj(iteration, 'passedValidators');
   if (passedValidators != null){
     passedValidators.forEach(s => result[s] = 'passed');
   }
 
-  debug(issuesInfo, 'up to here')
-  return objToYaml(result)
+
+  return 'validation:' + newLine() + padProps(result, true, '  - ');
 }
 
 function joinIssues(issues: Array<string>) {
@@ -101,11 +149,21 @@ function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScrip
                     status: joinIssues(issues)
                   };
 
-  return header + newLine(2) +
+  let lineX2 = newLine(2),
+      subDivider =  lineX2 + SUB_DIVIDER + lineX2;
+  return header + lineX2 +
                     padProps(itheader) +
-                    newLine(2) +
-                    valText(iteration);
+                    lineX2 +
+                    valText(iteration) +
+                    lineX2 +
+                    titledText(iteration.summary, 'summary', 'Not Implemented') +
+                    subDivider +
+                    titledText(issuesText(iteration.issues), 'issues', 'No Issues') +
+                    subDivider
+                    ;
 }
+
+
 
 function singularise(obj) {
   return _.isArray(obj) && obj.length === 1 ? obj[0] : obj;
@@ -242,7 +300,7 @@ export function summaryBlock(summary: FullSummaryInfo): string {
 
 }
 
-
+const SUB_DIVIDER = '#' + headerLine('', '-', false, 79);
 const majorHeader = (header: string, wantPrcntChar: boolean): string => standardHeader(header, '#', wantPrcntChar);
 const minorHeader = (header: string, wantPrcntChar: boolean): string => (wantPrcntChar ? '#%' : '#' ) + headerLine(header, '-', false, wantPrcntChar ? 78 : 79);
 const standardHeader = (header: string, padder: string, wantPrcntChar: boolean): string => headerLine(header, padder, wantPrcntChar, 80);

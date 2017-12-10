@@ -172,7 +172,7 @@ function emptyValidatorInfo(infoType: StateStage, name: string): ErrorsWarningsD
   }
 }
 
-function hasIssues(val: ErrorsWarningsDefects, includeKnownDefects: boolean = true) {
+export function hasIssues(val: ErrorsWarningsDefects, includeKnownDefects: boolean = true) {
   return  val.errors.length > 0 ||
           val.warnings.length > 0 ||
           val.type2Errors.length > 0 ||
