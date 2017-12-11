@@ -98,7 +98,7 @@ describe('file Parsing', () => {
 
   });
 
-  describe('elementProcessor', () => {
+  describe.only('elementProcessor', () => {
 
     let summary;
     before(() => {

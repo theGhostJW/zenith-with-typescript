@@ -10,13 +10,13 @@ import { debug } from '../lib/SysUtils';
 function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, transformer: T => string) {
 
     let source = debug(fromTestData(sourceFile), 'Source'),
-        expected = trimChars(standardiseLineEndings(fromTestDataString(expectedFile)), [newLine()]),
-        actual = transformer(source);
+        expected = trimChars(standardiseLineEndings(fromTestDataString(expectedFile)), [newLine(), ' ']),
+        actual = trimChars(transformer(source), [newLine(), ' ']);
 
-    toTempString(expected, 'expected.yaml')
-    toTempString(actual, 'actual.yaml')
+    toTempString(expected, 'expected.yaml');
+    toTempString(actual, 'actual.yaml');
 
-  //  chkEq(expected, actual);
+    chkEq(expected, actual);
 }
 
 describe('formatter components', () => {

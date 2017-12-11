@@ -1,5 +1,5 @@
 ################################################################################
-###################### Another Demo Case - 00:10:01 ############################
+######################### Another Demo Case - 00:10:01 #########################
 ################################################################################
 
 stats:
@@ -11,25 +11,27 @@ stats:
   iterationsWithKnownDefects: 0
 
 #-------------------------------------------------------------------------------
-#%---------------- Another_Demo_Case - Item 1 - 01:00:22 -----------------------
+#%------------------- Another_Demo_Case - Item 1 - 00:00:22 --------------------
 #-------------------------------------------------------------------------------
 
 when:   I run a test
 then:   i get the result
-status: errors, type2Errors, warnings, knownDefects
+notes:
+  these are the notes
+  about stuff
+status: errors, warnings
 
 validation:
-  - interactor:               failed
-  - check cache not updated:  failed
-  - check has no components:  passed
-  - check for error:          passed
+  - interactor:        warnings
+  - check has another: errors
+  - check that worked: passed
 
 summary:
   ==== Notes ====
    			licence correct version incorrect - dob differs - [DriverCheck: Invalid driver licence details entered]
-
+  
    ==== Cache Prior to Request (DB) ====
-
+  
    ==== Enquiry Properties ====
          productCode: CLC3
          firstName: Helen
@@ -39,11 +41,11 @@ summary:
          number: AA277022
          version: 845
          enquiryType: 2
-
+  
    ==== Cache After Request (DB) ====
-
+  
    ==== Components After Request (DB) ====
-
+  
    ==== NZTA Log (DB) ====
          id: 137
          NZTAReference: bccbe88d-da99-4da3-af5a-5a4de0476358
@@ -63,7 +65,7 @@ summary:
                            Date: 1938-07-29
          response:
             ResponseBody:
-
+  
    ==== B2B Response - Driver's Licence Info ====
          Error: Invalid driver licence details entered
 
@@ -71,17 +73,27 @@ summary:
 
 issues:
   - name: Executing Interactor
+    infoType: InTest
     warnings:
-      - timestamp: 2017-11-25 11:28:22
+      - timestamp: '2017-11-25 11:28:22'
+        level: warn
+        subType: Message
         message: Warning added for testing in iteration
-
-  - name: validator - check_has_another
+  
+  - name: check_has_another
+    infoType: Validation
+    valTime: 2017-11-25 11-28-22-299
     errors:
       - timestamp: '2017-11-25 11:28:22'
+        level: error
         subType: CheckFail
+        popControl: NoAction
         message: Check Text Contains ~ 2 errors 1 iteration
-
+  
       - timestamp: '2017-11-25 11:28:22'
+        level: error
+        subType: CheckFail
+        popControl: NoAction
         message: Check Text Contains
         additionalInfo: |-
           Looking for: another
@@ -123,11 +135,14 @@ issues:
 #-------------------------------------------------------------------------------
 
 item:
-    password: bad
-    user:     JPCitizen
+  password: bad
+  multiLine: |-
+    dfdfdff ffdfdf dfdfdff
+    ffff ffgf kk end
+  user: JPCitizen
+  
 
 #-------------------------------------------------------------------------------
 
 apState:
-  username: dscdssadsa
-  password: reretregrgfdgvfgvfv
+  blahh: sdfdfdfdf
