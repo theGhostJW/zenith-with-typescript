@@ -62,9 +62,10 @@ summary: |-
 
    ==== B2B Response - Driver's Licence Info ====
          Error: Invalid driver licence details entered
-         
+
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:27'
+valTime: 2017-11-25 11-28-22-346
 elementType: InterationInfo
 testConfig:
   script: Another_Demo_Case
@@ -153,6 +154,7 @@ issues:
 summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
+valTime: 2017-11-25 11-28-22-346
 elementType: InterationInfo
 testConfig:
   script: Another_Demo_Case
@@ -201,6 +203,7 @@ issues:
 summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
+valTime: 2017-11-25 11-28-22-346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -290,6 +293,7 @@ issues:
 summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
+valTime: 2017-11-25 11-28-22-346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -321,6 +325,7 @@ issues: []
 summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
+valTime: 2017-11-25 11-28-22-346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -387,6 +392,7 @@ issues:
 summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
+valTime: 2017-11-25 11-28-22-346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -478,6 +484,7 @@ issues:
 summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
+valTime: 2017-11-25 11-28-22-346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case3

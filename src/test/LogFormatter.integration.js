@@ -4,11 +4,12 @@ import { testPrivate } from '../lib/LogFormatter';
 import {  chkEq, chkExceptionText } from '../lib/AssertionUtils';
 import { fromTestData, toTempString, fromTestDataString } from '../lib/FileUtils';
 import { trimChars, newLine, standardiseLineEndings } from '../lib/StringUtils';
+import { debug } from '../lib/SysUtils';
 
 
 function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, transformer: T => string) {
 
-    let source = fromTestData(sourceFile),
+    let source = debug(fromTestData(sourceFile), 'Source'),
         expected = trimChars(standardiseLineEndings(fromTestDataString(expectedFile)), [newLine()]),
         actual = transformer(source);
 

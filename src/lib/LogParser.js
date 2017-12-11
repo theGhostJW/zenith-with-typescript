@@ -89,6 +89,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
            summary: state.iterationSummary,
            startTime: state.iterationStart,
            endTime: def(entry.timestamp, ''),
+           valTime: def(seekInObj(state, 'validationInfo', 'valTime'), ''),
            elementType: 'InterationInfo',
            testConfig: state.testConfig,
            item: state.testItem,
@@ -203,8 +204,6 @@ export function initalState(rawFilePath: string): RunState {
                 validationInfo: {},
                 testItem: {},
 
-                logItems: [],
-                valTime: '',
                 validatorIssues: [],
                 inTestIssues: [],
                 outOfTestIssues: [],
@@ -328,18 +327,47 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
   }
 }
 
-// update the state then reset if required
-function updateState(state: RunState, entry: LogEntry): RunState {
-
+function resetDefectExpectationUpdateStats(state: RunState, entry: LogEntry, inTest: boolean, inIteration: boolean) {
+  // type 2 error
   let stats = state.runStats;
-  state.timestamp = def(entry.timestamp, state.timestamp);
+  if (state.errorExpectation != null && !state.expectedErrorEncoutered){
+       if (inIteration && !state.iterationType2ErrorLogged){
+          stats.iterationsWithType2Errors++;
+          state.iterationType2ErrorLogged = true;
+       }
 
-  state.indent = entry.popControl === 'PopFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
-  state.logItems.push(entry);
+       if (inTest && !state.testType2ErrorLogged) {
+          stats.testsWithType2Errors++;
+          state.testType2ErrorLogged = true;
+       }
 
-  let inIteration = state.iterationConfig != null,
-      inTest = inIteration || state.testConfig != null;
+       if (!inIteration && !inTest){
+         stats.outOfTestType2Errors++;
+       }
+       pushTestErrorWarning(state, entry, true);
+    }
+    else if (state.errorExpectation != null && state.expectedErrorEncoutered) {
+       if (inIteration && !state.iterationKnownDefectLogged){
+          stats.iterationsWithKnownDefects++;
+          state.iterationKnownDefectLogged = true;
+       }
 
+       if (inTest && !state.testKnownDefectLogged){
+          stats.testsWithKnownDefects++;
+          state.testKnownDefectLogged = true;
+       }
+
+       if (!inIteration && !inTest){
+         stats.outOfTestKnownDefects++;
+       }
+  }
+
+  state.errorExpectation = null;
+  state.expectedErrorEncoutered = false;
+}
+
+function updateStateForErrorsAndWarnings(state: RunState, entry: LogEntry, inTest: boolean, inIteration: boolean) {
+  let stats = state.runStats;
   switch (entry.level) {
     case 'error':
       if (state.errorExpectation == null){
@@ -386,67 +414,43 @@ function updateState(state: RunState, entry: LogEntry): RunState {
     default:
       break;
   }
+}
 
-  function configObj(ent: LogEntry) {
-    return entry.additionalInfo == null ? {} : yamlToObj(entry.additionalInfo);
-  }
+function configObj(entry: LogEntry) {
+  return entry.additionalInfo == null ? {} : yamlToObj(entry.additionalInfo);
+}
 
-  function resetDefectExpectationUpdateStats() {
-    // type 2 error
-    if (state.errorExpectation != null && !state.expectedErrorEncoutered){
-         if (inIteration && !state.iterationType2ErrorLogged){
-            stats.iterationsWithType2Errors++;
-            state.iterationType2ErrorLogged = true;
-         }
+function iterationCommonReset(state: RunState) {
+   state.apstate = {};
+   state.validationInfo = {};
+   state.iterationSummary = '';
+   state.expectedErrorEncoutered = false;
+   state.iterationErrorLogged = false;
+   state.iterationWarningLogged = false;
+   state.iterationType2ErrorLogged = false;
+   state.validatorIssues = [];
+   state.passedValidators = [];
+}
 
-         if (inTest && !state.testType2ErrorLogged) {
-            stats.testsWithType2Errors++;
-            state.testType2ErrorLogged = true;
-         }
+function testCommonReset(state: RunState) {
+   state.testErrorLogged = false;
+   state.testType2ErrorLogged = false;
+   iterationCommonReset(state);
+}
 
-         if (!inIteration && !inTest){
-           stats.outOfTestType2Errors++;
-         }
-         pushTestErrorWarning(state, entry, true);
-      }
-      else if (state.errorExpectation != null && state.expectedErrorEncoutered) {
-         if (inIteration && !state.iterationKnownDefectLogged){
-            stats.iterationsWithKnownDefects++;
-            state.iterationKnownDefectLogged = true;
-         }
+// update the state then reset if required
+function updateState(state: RunState, entry: LogEntry): RunState {
 
-         if (inTest && !state.testKnownDefectLogged){
-            stats.testsWithKnownDefects++;
-            state.testKnownDefectLogged = true;
-         }
+  let stats = state.runStats;
+  state.timestamp = def(entry.timestamp, state.timestamp);
 
-         if (!inIteration && !inTest){
-           stats.outOfTestKnownDefects++;
-         }
-    }
+  state.indent = entry.popControl === 'PopFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
 
-    state.errorExpectation = null;
-    state.expectedErrorEncoutered = false;
-  }
+  let inIteration = state.iterationConfig != null,
+      inTest = inIteration || state.testConfig != null,
+      resetDefectAndStats = () => resetDefectExpectationUpdateStats(state, entry, inTest, inIteration);
 
-   function iterationCommonReset() {
-      state.apstate = {};
-      state.validationInfo = {};
-      state.iterationSummary = '';
-      state.logItems = [];
-      state.expectedErrorEncoutered = false;
-      state.iterationErrorLogged = false;
-      state.iterationWarningLogged = false;
-      state.iterationType2ErrorLogged = false;
-      state.validatorIssues = [];
-      state.passedValidators = [];
-   }
-
-   function testCommonReset() {
-      state.testErrorLogged = false;
-      state.testType2ErrorLogged = false;
-      iterationCommonReset() ;
-   }
+  updateStateForErrorsAndWarnings(state, entry, inTest, inIteration)
 
   let additionalInfo = entry.additionalInfo == null ? '' : entry.additionalInfo;
   const infoObj = () => yamlToObj(additionalInfo);
@@ -457,7 +461,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
 
     case 'RunStart':
       // other state changes handled in reseter
-      resetDefectExpectationUpdateStats();
+      resetDefectAndStats();
       state.runConfig = configObj(entry);
       state.runName = state.runConfig.name;
       state.indent = 1;
@@ -465,18 +469,18 @@ function updateState(state: RunState, entry: LogEntry): RunState {
 
     case 'TestStart':
       // other state changes handled in reseter
-      resetDefectExpectationUpdateStats();
+      resetDefectAndStats();
       const defEmpty = (s?: string) => def(s, '');
       state.testConfig = infoObj();
       state.testStart = def(entry.timestamp, '');
       state.testKnownDefectLogged = false;
       state.indent = 3;
-      testCommonReset();
+      testCommonReset(state);
       break;
 
     case 'IterationStart':
       // other state changes handled in reseter
-      resetDefectExpectationUpdateStats();
+      resetDefectAndStats();
       let info = infoObj();
       state.iterationStart = def(entry.timestamp, '');
       state.iterationKnownDefectLogged = false;
@@ -529,7 +533,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       stats.iterations++;
       state.indent = 2;
       state.iterationConfig = null;
-      iterationCommonReset();
+      iterationCommonReset(state);
       clearErrorInfo(state);
       switchErrorInfoStage(state, 'OutOfTest', 'out of test');
       break;
@@ -541,11 +545,11 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       }
       state.indent = 1;
       state.testConfig = null;
-      testCommonReset();
+      testCommonReset(state);
       break;
 
     case 'RunEnd':
-      resetDefectExpectationUpdateStats();
+      resetDefectAndStats();
       state.indent = 0;
       break;
 
@@ -558,7 +562,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       break;
 
     case "EndDefect":
-      resetDefectExpectationUpdateStats();
+      resetDefectAndStats();
       break;
 
     case 'Message':

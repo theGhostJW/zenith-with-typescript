@@ -16,7 +16,7 @@ describe('file Parsing', () => {
 
   before(() => {
     summary = parseLogDefault(rawPath);
-    toTemp(summary);
+    //toTemp(summary);
     //debug(JSON.stringify(summary))
   });
 
@@ -31,7 +31,6 @@ describe('file Parsing', () => {
     });
 
   });
-
 
   it('run stats correct', () => {
      let expected = {
@@ -63,6 +62,7 @@ describe('file Parsing', () => {
           iterations: 2,
           passedIterations: 1,
           failedIterations: 1,
+          iterationsWithType2Errors: 0,
           iterationsWithWarnings: 1,
           iterationsWithKnownDefects: 0
        },
@@ -75,6 +75,7 @@ describe('file Parsing', () => {
           iterations: 4,
           passedIterations: 1,
           failedIterations: 3,
+          iterationsWithType2Errors: 1,
           iterationsWithWarnings: 0,
           iterationsWithKnownDefects: 1
        },
@@ -87,6 +88,7 @@ describe('file Parsing', () => {
           iterations: 1,
           passedIterations: 1,
           failedIterations: 0,
+          iterationsWithType2Errors: 0,
           iterationsWithWarnings: 0,
           iterationsWithKnownDefects: 1
        },

@@ -1,7 +1,7 @@
 // @flow
 
 import { def, debug, objToYaml, ensure, yamlToObj,
-         seekInObj, forceArray, areEqual } from '../lib/SysUtils';
+         seekInObj, forceArray, areEqual, reorderProps } from '../lib/SysUtils';
 import type { MixedSpecifier } from '../lib/SysUtils';
 import { newLine, trimChars, toString, transformGroupedTable, replace, sameText, hasText } from '../lib/StringUtils';
 import { durationFormatted } from '../lib/DateTimeUtils';
@@ -48,6 +48,7 @@ function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScrip
 
   let lineX2 = newLine(2),
       subDivider =  lineX2 + SUB_DIVIDER + lineX2;
+
   return header + lineX2 +
                     itHeaderText +
                     lineX2 +
@@ -55,7 +56,7 @@ function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScrip
                     lineX2 +
                     titledText(iteration.summary, 'summary', 'Not Implemented') +
                     subDivider +
-                    titledText(issuesText(iteration.issues), 'issues', 'No Issues') +
+                    titledText(issuesText(iteration.issues, iteration.valTime), 'issues', 'No Issues') +
                     subDivider +
                     titledText(objToYaml(_.omit(seekInObj(iteration, 'item'), 'id', 'validators', 'when', 'then', 'notes')), 'item', 'Parse Error Item not Found') +
                     subDivider +
@@ -72,18 +73,27 @@ function titledText(obj: mixed, title: string, nullText: string): string {
           (obj == null ? '  ' + nullText : padLines(toString(obj), '  '));
 }
 
-function issuesText(issues: IssuesList): string {
+const VALIDATION_STAGE: StateStage = 'Validation';
 
-  function removeEmptyArrays(issue: ErrorsWarningsDefects) {
-    return _.chain(issue)
-             .toPairs()
-             .filter(p => !areEqual(p[1], []))
-             .tap(debug)
-             .fromPairs()
-             .value();
+function issuesText(issues: IssuesList, valTime: string): string {
+
+  function removeEmptyArraysAddValTime(issue: ErrorsWarningsDefects) {
+    let result = _.chain(issue)
+                   .toPairs()
+                   .filter(p => !areEqual(p[1], []))
+                   .tap(debug)
+                   .fromPairs()
+                   .value();
+
+    if (result.infoType == VALIDATION_STAGE){
+      result.valTime = valTime;
+      result = reorderProps(result, 'name', 'infoType', 'valTime');
+    }
+
+    return result;
   }
 
-  let realIssues = issues.filter(i => hasIssues(i)).map(removeEmptyArrays),
+  let realIssues = issues.filter(i => hasIssues(i)).map(removeEmptyArraysAddValTime),
       result = toString(realIssues),
       lines = result.split(newLine());
 

@@ -12,6 +12,7 @@ export type Iteration = {|
    summary: string,
    startTime: string,
    endTime:  string,
+   valTime: string,
    elementType: 2,
    testConfig: {},
    item: {id: number},
@@ -122,9 +123,7 @@ export type RunState = {|
 
   apstate: {},
   testItem: {},
-  valTime: string,
   validationInfo: {},
-  logItems: Array<LogEntry>,
   passedValidators: Array<string>,
 
   testErrorLogged: boolean,
