@@ -21,29 +21,40 @@ export function parseElements(summary: FullSummaryInfo) {
       runSummary
     } = summary;
 
-  let fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'), newLine(2));
+  let fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'), newLine(2)),
+      issuesWriter = fileRecordWriter(destPath(rawFile, 'raw', 'issues'), newLine(2));
 
+  issuesWriter(summaryBlock(summary));
   fullWriter(summaryBlock(summary));
 
   let lastScript: ?string = '',
       logText = '';
 
   function processElement(elementStr: string) {
-    let element = yamlToObj(elementStr);
+    let element = yamlToObj(elementStr),
+        isIssue = false;
+
     switch (element.elementType) {
       case 'OutOfTestErrors':
         logText = outOfTestError(element);
+        isIssue = true;
         break;
 
       case 'InterationInfo':
           logText = iteration(element, summary, lastScript);
-          lastScript = script(element)
+          lastScript = script(element);
+          let issuesList = element.issues;
+          isIssue = issuesList != null && listHasIssues(((issuesList: any): IssuesList));
           break;
 
       default:
         logText = `PARSER ERROR UNHANDLED ELEMENT TYPE \nElement Type: ${toString(element.elementType)}\n\nFullElement:\n${toString(element)}`
     }
+
     fullWriter(logText);
+    if (isIssue){
+      issuesWriter(logText);
+    }
   }
 
   logSplitter(elementsFile, processElement);
