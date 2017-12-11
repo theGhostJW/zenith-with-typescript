@@ -1,6 +1,6 @@
 // @flow
 
-import { testPrivate } from '../lib/LogFormatter';
+import { testPrivate, iteration, outOfTestError} from '../lib/LogFormatter';
 import {  chkEq, chkExceptionText } from '../lib/AssertionUtils';
 import { fromTestData, toTempString, fromTestDataString } from '../lib/FileUtils';
 import { trimChars, newLine, standardiseLineEndings } from '../lib/StringUtils';
@@ -26,12 +26,12 @@ describe('formatter components', () => {
   });
 
   it('out of test errors', () => {
-    sectionIntegrationTest('OutOfTestError.yaml', 'OutOfTestError.expected.yaml', testPrivate.outOfTestError);
+    sectionIntegrationTest('OutOfTestError.yaml', 'OutOfTestError.expected.yaml', outOfTestError);
   });
 
-  it.only('iteration', () => {
+  it('iteration', () => {
     let fullSum = fromTestData('ParserSummary'),
-        transformer = iterationInfo => testPrivate.iteration(iterationInfo, fullSum, 'Last_Script');
+        transformer = iterationInfo => iteration(iterationInfo, fullSum, 'Last_Script');
 
     sectionIntegrationTest('Iteration.yaml', 'Iteration.expected.yaml', transformer);
   });

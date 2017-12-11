@@ -14,19 +14,21 @@ import * as _ from 'lodash';
 export const testPrivate = {
   headerLine: headerLine,
   summaryBlock: summaryBlock,
-  padProps: padProps,
-  outOfTestError: outOfTestError,
-  iteration: iteration,
+  padProps: padProps
 }
 
-function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript: string): string {
+export function script(iteration: Iteration): ?string {
+  return toString(seekInObj(iteration.testConfig, 'script'))
+}
+
+export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript: ?string): string {
   let script = toString(seekInObj(iteration.testConfig, 'script')),
       header = '';
 
   let summaryInfo = seekInObj(fullSummary, 'testSummaries', script),
       seekSumStr = str => toString(seekInObj(((summaryInfo: any): {}), str));
 
-  if (!sameText(script, lastScript)){
+  if (!sameText(script, def(lastScript, ''))){
     header = majorHeaderBlock(summaryInfo == null ? `NO SUMMARY INFO AVAILABLE FOR ${script}`:
                 `${deUnderscore(script)} - ${durationFormatted(seekSumStr('startTime'), seekSumStr('endTime'))}`, false) +
              newLine(2) + 'stats:' + newLine() + padProps(def(seekInObj(summaryInfo, 'stats'), {}), false, '  ');
@@ -189,7 +191,7 @@ function deUnderscore(str: string): string {
   return replace(str, '_', ' ')
 }
 
-function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects> }): string {
+export function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects> }): string {
   let issues = outOfTest.issues;
 
   if (issues == null){

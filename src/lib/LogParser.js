@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString } from '../lib/FileUtils';
 import type { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats, ErrorsWarningsDefects,
               StateStage, IssuesList, RunState } from '../lib/LogParserTypes';
-import { summaryBlock } from '../lib/LogFormatter';
+import { summaryBlock, iteration, outOfTestError, script } from '../lib/LogFormatter';
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
@@ -21,20 +21,40 @@ export function parseElements(summary: FullSummaryInfo) {
       runSummary
     } = summary;
 
-  let fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'));
+  let fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'), newLine(2));
 
-  fullWriter(summaryBlock(summary))
+  fullWriter(summaryBlock(summary));
 
+  let lastScript: ?string = '',
+      logText = '';
 
-//  logSplitter(elementsFile, itemParser: string => void )
+  function processElement(elementStr: string) {
+    let element = yamlToObj(elementStr);
+    switch (element.elementType) {
+      case 'OutOfTestErrors':
+        logText = outOfTestError(element);
+        break;
+
+      case 'InterationInfo':
+          logText = iteration(element, summary, lastScript);
+          lastScript = script(element)
+          break;
+
+      default:
+        logText = `PARSER ERROR UNHANDLED ELEMENT TYPE \nElement Type: ${toString(element.elementType)}\n\nFullElement:\n${toString(element)}`
+    }
+    fullWriter(logText);
+  }
+
+  logSplitter(elementsFile, processElement);
 }
 
 export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
 
- function fileRecordWriter(destPath: string): (content: {} | string) => void {
+ function fileRecordWriter(destPath: string, separator: string = '\n' + RECORD_DIVIDER + '\n' ): (content: {} | string, overrideSeparator: ?string) => void {
     let writer = fileWriter(destPath);
-    return function writeToFile(content: {} | string) {
-        writer(content, 0, newLine() + RECORD_DIVIDER + newLine(), false, false);
+    return function writeToFile(content: {} | string, overrideSeparator: ?string) {
+        writer(content, 0, def(overrideSeparator, separator), false, false);
     }
  }
 
@@ -638,7 +658,9 @@ export function logSplitter(fullPath: string, itemParser: string => void ): void
 
   function processBuffer() {
     let entry = buffer.join(newLine());
-    itemParser(entry);
+    if (buffer.length != 0 && entry.trim() != ''){
+      itemParser(entry);
+    }
     buffer = [];
   }
 
