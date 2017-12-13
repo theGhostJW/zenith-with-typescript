@@ -1,20 +1,19 @@
 //@flow
 
-import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj } from '../lib/SysUtils';
+import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING } from '../lib/Logging';
 import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
-import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString } from '../lib/FileUtils';
+import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString, toMock } from '../lib/FileUtils';
 import type { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats, ErrorsWarningsDefects,
-              StateStage, IssuesList, RunState } from '../lib/LogParserTypes';
+              StateStage, IssuesList, RunState, Iteration } from '../lib/LogParserTypes';
 import { summaryBlock, iteration, outOfTestError, script } from '../lib/LogFormatter';
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
-
-export function parseElements(summary: FullSummaryInfo) {
+export function parseElements(summary: FullSummaryInfo, mockFileFragmentExtractor: ((runConfig: {[string]: mixed}) => string) = environment ) {
   let  {
       rawFile,
       elementsFile,
@@ -24,15 +23,22 @@ export function parseElements(summary: FullSummaryInfo) {
   let fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'), newLine(2)),
       issuesWriter = fileRecordWriter(destPath(rawFile, 'raw', 'issues'), newLine(2));
 
-  issuesWriter(summaryBlock(summary));
-  fullWriter(summaryBlock(summary));
+  function writeAll(entry: string, writeIssue: boolean) {
+    fullWriter(entry);
+    if (writeIssue){
+      issuesWriter(entry);
+    }
+  }
+
+  writeAll(summaryBlock(summary), true);
 
   let lastScript: ?string = '',
       logText = '';
 
   function processElement(elementStr: string) {
     let element = yamlToObj(elementStr),
-        isIssue = false;
+        isIssue = false,
+        wantWriteMock = false;
 
     switch (element.elementType) {
       case 'OutOfTestErrors':
@@ -42,22 +48,52 @@ export function parseElements(summary: FullSummaryInfo) {
 
       case 'InterationInfo':
           logText = iteration(element, summary, lastScript);
-          lastScript = script(element);
+          lastScript = script(element), 'script';
           let issuesList = element.issues;
           isIssue = issuesList != null && listHasIssues(((issuesList: any): IssuesList));
+          wantWriteMock = true;
           break;
 
       default:
         logText = `PARSER ERROR UNHANDLED ELEMENT TYPE \nElement Type: ${toString(element.elementType)}\n\nFullElement:\n${toString(element)}`
     }
 
-    fullWriter(logText);
-    if (isIssue){
-      issuesWriter(logText);
+    writeAll(logText, isIssue);
+
+    if (wantWriteMock){
+      let runConfig: ?{[string]: any} = def(runSummary, {}).runConfig;
+      if (runConfig == null){
+        writeAll(objToYaml(failInfoObj('parseElements parsing error ~ RunConfig is null')), isIssue);
+      }
+      else {
+        writeMock(element, runConfig, mockFileFragmentExtractor)
+      }
     }
   }
 
   logSplitter(elementsFile, processElement);
+}
+
+function environment(runConfig: {[string]: mixed}): string {
+  return toString(def(runConfig['environment'], ''));
+}
+
+function writeMock(iteration: Iteration, runConfig: {[string]: mixed}, mockFileFragmentExtractor: ((runConfig: {[string]: mixed}) => string)) {
+
+//item: Item, runConfig: RunConfig, valTime: moment$Moment
+//
+
+ let item = def(seekInObj(iteration, 'item'), {}),
+     script = toString(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
+     id = toString(def(item.id, 'ERR_NO_ID')),
+     destFile = script + '_' + id + '_' + mockFileFragmentExtractor(runConfig) + '.yaml',
+     mockInfo = {
+                 runConfig: runConfig,
+                 valTime: seekInObj(iteration, 'valTime'),
+                 apState: seekInObj(iteration, 'apState'),
+                 item: item
+               };
+    toMock(mockInfo, destFile);
 }
 
 export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
@@ -69,33 +105,41 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
     }
  }
 
- function emptyTestStats() {
+ function emptyTestStats(): TestStats {
    return {
      iterations: 0,
      passedIterations: 0,
-     failedIterations: 0,
+     iterationsWithErrors: 0,
      iterationsWithType2Errors: 0,
      iterationsWithWarnings: 0,
      iterationsWithKnownDefects: 0
    };
  }
 
- function summariseLog(rawPath: string, fullSummary: FullSummaryInfo): (RunState, LogEntry) => RunState {
+ function rawToElements(rawPath: string, fullSummary: FullSummaryInfo): (RunState, LogEntry) => RunState {
 
    let resultPath = destPath(rawPath, 'raw', 'elements'),
       // Here separating writer and summariser
        writeToFile = fileRecordWriter(resultPath),
-       statsLog: TestStats = emptyTestStats();
+       lastRunStats: RunStats = nullRunStats(),
+       testStatKeys = _.keys(emptyTestStats());
 
    fullSummary.rawFile = rawPath;
    fullSummary.elementsFile = resultPath;
-   function calcUpdateTestStats(state): TestStats {
-      let runStats = state.runStats,
-          result =  emptyTestStats();
 
-       result = _.mapValues(result, (v, k) => runStats[k] - statsLog[k]);
-       statsLog = _.pick(runStats, _.keys(statsLog));
-       return result;
+
+
+   function calcUpdateTestStats(state): TestStats {
+      let runStats = state.runStats;
+
+      function runStatsDelta(testStasKey: string) {
+        let result = runStats[testStasKey] - lastRunStats[testStasKey];
+        return result;
+      }
+      
+      let result = _.mapValues(emptyTestStats(), (v, k) => runStatsDelta(k));
+      lastRunStats = _.cloneDeep(runStats);
+      return result;
    }
 
    function logOutOfTestErrors(state: RunState) {
@@ -114,8 +158,11 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
      switch (entry.subType) {
        case 'IterationEnd':
          logOutOfTestErrors(state);
+
+
          let issues: Array<ErrorsWarningsDefects> = forceArray(state.inTestIssues, state.validatorIssues);
              issues = issues.filter(i => hasIssues(i));
+
          let iterationInfo = {
            summary: state.iterationSummary,
            startTime: state.iterationStart,
@@ -168,7 +215,7 @@ function listHasIssues(issuesList: IssuesList, includeKnownDefects: boolean = tr
    return issuesList.some(issueExists);
 }
 
-const nullStats: () => RunStats = () => {
+const nullRunStats: () => RunStats = () => {
 
   return {
     testCases: 0,
@@ -180,7 +227,7 @@ const nullStats: () => RunStats = () => {
 
     iterations: 0,
     passedIterations: 0,
-    failedIterations: 0,
+    iterationsWithErrors: 0,
     iterationsWithWarnings: 0,
     iterationsWithType2Errors: 0,
     iterationsWithKnownDefects: 0,
@@ -213,7 +260,7 @@ export function hasIssues(val: ErrorsWarningsDefects, includeKnownDefects: boole
 
 export function initalState(rawFilePath: string): RunState {
   let result: RunState = {
-                runStats: nullStats(),
+                runStats: nullRunStats(),
                 filterLog: {},
                 runName: '',
                 rawFile: rawFilePath,
@@ -292,7 +339,7 @@ function destPath(rawPath: string, sourceFilePart: string, destFilePart: string,
 function fileWriter(destPath: string){
    let fd = fs.openSync(destPath, 'w');
 
-   return function writer(data, indent: number, prefix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
+   return function writer(data, indent: number, suffix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
      let str = toString(data);
 
      // depricate this ??
@@ -308,7 +355,7 @@ function fileWriter(destPath: string){
      }
 
      //$FlowFixMe
-     fs.writeSync(fd, prefix + str);
+     fs.writeSync(fd, str + suffix);
    }
 }
 
@@ -339,7 +386,7 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
       errArrray = warnings;
     }
     else {
-      fail('pushTestErrorWarning - not an not in valid state: ' + toString(entry));
+      fail('pushTestErrorWarning - not in valid state: ' + toString(entry));
     }
 
    if (isType2 && state.errorExpectation != null){
@@ -403,7 +450,7 @@ function updateStateForErrorsAndWarnings(state: RunState, entry: LogEntry, inTes
     case 'error':
       if (state.errorExpectation == null){
         if (inIteration && !state.iterationErrorLogged){
-           stats.failedIterations++;
+           stats.iterationsWithErrors++;
            state.iterationErrorLogged = true;
         }
 
@@ -416,12 +463,11 @@ function updateStateForErrorsAndWarnings(state: RunState, entry: LogEntry, inTes
         if (!inTest && !inIteration){
           stats.outOfTestErrors++;
         }
-
-        pushTestErrorWarning(state, entry);
       }
       else {
          state.expectedErrorEncoutered = true;
       }
+      pushTestErrorWarning(state, entry);
       break;
 
     case 'warn':
@@ -634,7 +680,7 @@ export function parseLogDefault(fullPath: string): FullSummaryInfo {
     testSummaries: {},
     runSummary: null
   };
-  parseLog(fullPath, summariseLog(fullPath, fullSummary), initalState(fullPath));
+  parseLog(fullPath, rawToElements(fullPath, fullSummary), initalState(fullPath));
   return fullSummary;
 }
 

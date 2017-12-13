@@ -102,7 +102,7 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-11-25 11-28-22-299
+  valTime: '2017-12-13 13:18:33.641'
   valState:
     when: I run a test
 -------------------------------
@@ -235,7 +235,7 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-11-25 11-28-22-346
+  valTime: '2017-12-13 13:18:33.641'
   valState:
     when: I run another test
 -------------------------------
@@ -382,7 +382,7 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-11-25 11-28-22-362
+  valTime: '2017-12-13 13:18:33.641'
   valState:
     id: 1
 -------------------------------
@@ -584,7 +584,7 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-11-25 11-28-22-393
+  valTime: '2017-12-13 13:18:33.641'
   valState:
     id: 2
 -------------------------------
@@ -738,7 +738,7 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-11-25 11-28-22-426
+  valTime: '2017-12-13 13:18:33.641'
   valState:
     id: 3
 -------------------------------
@@ -1031,7 +1031,7 @@ additionalInfo: |
 timestamp: '2017-11-25 11:28:22'
 level: error
 subType: Message
-message: 'out of test known error'
+message: 'out of test known error !!!'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info

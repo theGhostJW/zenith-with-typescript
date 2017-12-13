@@ -24,7 +24,7 @@ stats:
 
   iterations:                   7
   passedIterations:             3
-  failedIterations:             4
+  iterationsWithErrors:             4
   iterationsWithWarnings:       1
   iterationsWithType2Errors:    1
   iterationsWithKnownDefects:   2

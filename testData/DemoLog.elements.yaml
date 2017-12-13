@@ -1,5 +1,4 @@
 
--------------------------------
 elementType: OutOfTestErrors
 issues:
   - name: out of test
@@ -65,7 +64,7 @@ summary: |-
 
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:27'
-valTime: 2017-11-25 11-28-22-346
+valTime: 2017-11-25 11:28:22.346
 elementType: InterationInfo
 testConfig:
   script: Another_Demo_Case
@@ -154,7 +153,7 @@ issues:
 summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
-valTime: 2017-11-25 11-28-22-346
+valTime: 2017-11-25 11:28:22.346
 elementType: InterationInfo
 testConfig:
   script: Another_Demo_Case
@@ -203,7 +202,7 @@ issues:
 summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
-valTime: 2017-11-25 11-28-22-346
+valTime: 2017-11-25 11:28:22.346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -293,7 +292,7 @@ issues:
 summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
-valTime: 2017-11-25 11-28-22-346
+valTime: 2017-11-25 11:28:22.346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -325,7 +324,7 @@ issues: []
 summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
-valTime: 2017-11-25 11-28-22-346
+valTime: 2017-11-25 11:28:22.346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -392,7 +391,7 @@ issues:
 summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
-valTime: 2017-11-25 11-28-22-346
+valTime: 2017-11-25 11:28:22.346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case
@@ -484,7 +483,7 @@ issues:
 summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
-valTime: 2017-11-25 11-28-22-346
+valTime: 2017-11-25 11:28:22.346
 elementType: InterationInfo
 testConfig:
   script: Demo_Case3
@@ -506,3 +505,18 @@ item:
 apState: {}
 passedValidators: []
 issues: []
+-------------------------------
+elementType: OutOfTestErrors
+issues:
+  - name: out of test
+    infoType: OutOfTest
+    warnings: []
+    errors: []
+    type2Errors: []
+    knownDefects:
+      - timestamp: '2017-11-25 11:28:22'
+        level: error
+        subType: Message
+        message: out of test known error !!!
+
+-------------------------------

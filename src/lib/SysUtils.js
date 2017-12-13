@@ -428,7 +428,11 @@ export function yamlToObj<T>(yamlStr: string, trimLeadingSpaceBaseOnFirstLine: b
 	return (untypedVal: T);
 }
 
-export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
+export function cast<T>(targ: any): T {
+  return (targ: T);
+}
+
+export function debug<T>(msg: T | () => T, label: string): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
   console.log(appendDelim(_.toUpper(label), ': ', toString(msgStr)));
   return msgStr;
@@ -445,8 +449,12 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
 
 // a fudge to keep the type checker happy
 export function fail<T>(description: string): T {
+  throw failInfoObj(description);
+}
+
+export function failInfoObj(description: string) {
   let err = new Error();
-  throw {
+  return {
     message: description,
     callStack: err.stack
   }

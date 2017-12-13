@@ -71,7 +71,7 @@ export type RunStats =  {|
 
   iterations: number,
   passedIterations: number,
-  failedIterations: number,
+  iterationsWithErrors: number,
   iterationsWithWarnings: number,
   iterationsWithKnownDefects: number,
   iterationsWithType2Errors: number,
@@ -96,12 +96,11 @@ export type TestSummary = {|
 export type TestStats = {|
   iterations: number,
   passedIterations: number,
-  failedIterations: number,
+  iterationsWithErrors: number,
   iterationsWithType2Errors: number,
   iterationsWithWarnings: number,
   iterationsWithKnownDefects: number
 |};
-
 
 export type RunState = {|
   runStats: RunStats,

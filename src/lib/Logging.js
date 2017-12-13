@@ -6,7 +6,7 @@ import * as winston from 'winston';
 import * as util from 'util'
 import {appendDelim, newLine, capFirst, subStrAfter, toString } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
-import { nowAsLogFormat, nowFileFormatted, timeToFormattedms} from '../lib/DateTimeUtils';
+import { nowAsLogFormat, nowFileFormatted, timeToShortDateTimeHyphenatedMs} from '../lib/DateTimeUtils';
 import { changeExtension } from '../lib/FileUtils';
 // force loading of module
 import * as fs from 'fs';
@@ -65,7 +65,7 @@ export const logPrepValidationInfoEnd = () => specialMessage('PrepValidationInfo
 export const logStartIterationSummary = () => specialMessage('StartSummary')();
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
 export const logValidationStart = (valTime: moment$Moment, valState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
-                                                                                                                                    valTime: timeToFormattedms(valTime),
+                                                                                                                                    valTime: timeToShortDateTimeHyphenatedMs(valTime),
                                                                                                                                     valState: valState
                                                                                                                                   });
 

@@ -21,6 +21,7 @@ export function script(iteration: Iteration): ?string {
   return toString(seekInObj(iteration.testConfig, 'script'))
 }
 
+
 export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript: ?string): string {
   let script = toString(seekInObj(iteration.testConfig, 'script')),
       header = '';
@@ -83,7 +84,6 @@ function issuesText(issues: IssuesList, valTime: string): string {
     let result = _.chain(issue)
                    .toPairs()
                    .filter(p => !areEqual(p[1], []))
-                   .tap(debug)
                    .fromPairs()
                    .value();
 

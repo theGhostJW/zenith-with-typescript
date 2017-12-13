@@ -41,7 +41,7 @@ describe('padProps', () => {
   it('right justify differing length numbers', () => {
     let expected =  'iterations:                 700' + newLine() +
                     'passedIterations:             3' + newLine() +
-                    'failedIterations:             4' + newLine() +
+                    'iterationsWithErrors:         4' + newLine() +
                     'iterationsWithWarnings:       1' + newLine() +
                     'iterationsWithType2Errors:    1' + newLine() +
                     'iterationsWithKnownDefects:   2',
@@ -49,7 +49,7 @@ describe('padProps', () => {
          source = {
                   iterations:                 700,
                   passedIterations:             3,
-                  failedIterations:             4,
+                  iterationsWithErrors:         4,
                   iterationsWithWarnings:       1,
                   iterationsWithType2Errors:    1,
                   iterationsWithKnownDefects:   2
@@ -62,7 +62,7 @@ describe('padProps', () => {
   it('right justify differing length numbers long key and val', () => {
     let expected =  'iterations:                   7' + newLine() +
                     'passedIterations:             3' + newLine() +
-                    'failedIterations:             4' + newLine() +
+                    'iterationsWithErrors:         4' + newLine() +
                     'iterationsWithWarnings:       1' + newLine() +
                     'iterationsWithType2Errors:    1' + newLine() +
                     'iterationsWithKnownDefects: 700',
@@ -70,7 +70,7 @@ describe('padProps', () => {
          source = {
                   iterations:                   7,
                   passedIterations:             3,
-                  failedIterations:             4,
+                  iterationsWithErrors:         4,
                   iterationsWithWarnings:       1,
                   iterationsWithType2Errors:    1,
                   iterationsWithKnownDefects:   700
@@ -83,7 +83,7 @@ describe('padProps', () => {
   it('right justify differing length numbers long key and val with prefix', () => {
     let expected =  '  iterations:                   7' + newLine() +
                     '  passedIterations:             3' + newLine() +
-                    '  failedIterations:             4' + newLine() +
+                    '  iterationsWithErrors:         4' + newLine() +
                     '  iterationsWithWarnings:       1' + newLine() +
                     '  iterationsWithType2Errors:    1' + newLine() +
                     '  iterationsWithKnownDefects: 700',
@@ -91,7 +91,7 @@ describe('padProps', () => {
          source = {
                   iterations:                   7,
                   passedIterations:             3,
-                  failedIterations:             4,
+                  iterationsWithErrors:         4,
                   iterationsWithWarnings:       1,
                   iterationsWithType2Errors:    1,
                   iterationsWithKnownDefects:   700
@@ -104,7 +104,7 @@ describe('padProps', () => {
   it('left justify differing length numbers long key and val', () => {
     let expected =  'iterations:                 7' + newLine() +
                     'passedIterations:           3' + newLine() +
-                    'failedIterations:           4' + newLine() +
+                    'iterationsWithErrors:       4' + newLine() +
                     'iterationsWithWarnings:     1' + newLine() +
                     'iterationsWithType2Errors:  1' + newLine() +
                     'iterationsWithKnownDefects: 700',
@@ -112,7 +112,7 @@ describe('padProps', () => {
          source = {
                   iterations:                   7,
                   passedIterations:             3,
-                  failedIterations:             4,
+                  iterationsWithErrors:         4,
                   iterationsWithWarnings:       1,
                   iterationsWithType2Errors:    1,
                   iterationsWithKnownDefects:   700
@@ -125,7 +125,7 @@ describe('padProps', () => {
   it('right justify differing length numbers long key and val with prefix', () => {
     let expected =  '  iterations:                 7' + newLine() +
                     '  passedIterations:           3' + newLine() +
-                    '  failedIterations:           4' + newLine() +
+                    '  iterationsWithErrors:       4' + newLine() +
                     '  iterationsWithWarnings:     1' + newLine() +
                     '  iterationsWithType2Errors:  1' + newLine() +
                     '  iterationsWithKnownDefects: 700',
@@ -133,7 +133,7 @@ describe('padProps', () => {
          source = {
                   iterations:                   7,
                   passedIterations:             3,
-                  failedIterations:             4,
+                  iterationsWithErrors:         4,
                   iterationsWithWarnings:       1,
                   iterationsWithType2Errors:    1,
                   iterationsWithKnownDefects:   700
@@ -146,7 +146,7 @@ describe('padProps', () => {
   it('right justify differing length numbers long key and val with prefix + array', () => {
     let expected =  '  iterations:                 7' + newLine() +
                     '  passedIterations:           3' + newLine() +
-                    '  failedIterations:           4' + newLine() +
+                    '  iterationsWithErrors:       4' + newLine() +
                     '  iterationsWithWarnings:     []' + newLine() +
                     '  iterationsWithType2Errors:  1' + newLine() +
                     '  iterationsWithKnownDefects: 700',
@@ -155,7 +155,7 @@ describe('padProps', () => {
          source = {
                   iterations:                   7,
                   passedIterations:             3,
-                  failedIterations:             4,
+                  iterationsWithErrors:         4,
                   iterationsWithWarnings:       [],
                   iterationsWithType2Errors:    1,
                   iterationsWithKnownDefects:   700

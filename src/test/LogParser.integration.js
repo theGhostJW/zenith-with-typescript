@@ -16,7 +16,7 @@ describe('file Parsing', () => {
 
   before(() => {
     summary = parseLogDefault(rawPath);
-    //toTemp(summary);
+    toTemp(summary, 'summary');
     //debug(JSON.stringify(summary))
   });
 
@@ -42,7 +42,7 @@ describe('file Parsing', () => {
        testsWithType2Errors: 1,
        iterations: 7,
        passedIterations: 3,
-       failedIterations: 4,
+       iterationsWithErrors: 4,
        iterationsWithWarnings: 1,
        iterationsWithType2Errors: 1,
        iterationsWithKnownDefects: 2,
@@ -61,7 +61,7 @@ describe('file Parsing', () => {
        let expected = {
           iterations: 2,
           passedIterations: 1,
-          failedIterations: 1,
+          iterationsWithErrors: 1,
           iterationsWithType2Errors: 0,
           iterationsWithWarnings: 1,
           iterationsWithKnownDefects: 0
@@ -74,7 +74,7 @@ describe('file Parsing', () => {
        let expected = {
           iterations: 4,
           passedIterations: 1,
-          failedIterations: 3,
+          iterationsWithErrors: 3,
           iterationsWithType2Errors: 1,
           iterationsWithWarnings: 0,
           iterationsWithKnownDefects: 1
@@ -87,7 +87,7 @@ describe('file Parsing', () => {
        let expected = {
           iterations: 1,
           passedIterations: 1,
-          failedIterations: 0,
+          iterationsWithErrors: 0,
           iterationsWithType2Errors: 0,
           iterationsWithWarnings: 0,
           iterationsWithKnownDefects: 1
@@ -98,7 +98,7 @@ describe('file Parsing', () => {
 
   });
 
-  describe.only('elementProcessor', () => {
+  describe('elementProcessor', () => {
 
     let summary;
     before(() => {

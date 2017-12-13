@@ -7,6 +7,7 @@ import {  } from '../lib/StringUtils';
 export const LOG_TO_SEC_FORMAT = "YYYY-MM-DD HH:mm:ss";
 export const LOG_FILE_MS_SEC_FORMAT = "YYYY-MM-DD HH-mm-ss-SSS";
 export const SHORT_DATE_TIME = "DD/MM/YYYY HH:mm:ss";
+export const DATE_TIME_HYPHENATED_MS = "YYYY-MM-DD HH:mm:ss.SSS";
 export const SHORT_DATE_TIME_MS = "DD/MM/YYYY HH:mm:ss.SSS";
 export const SHORT_DATE = "DD/MM/YYYY";
 
@@ -39,12 +40,16 @@ export function nowFormatted(formatString: string): string {
   return moment().format(formatString);
 }
 
-export function timeToFormattedms(dateTime: moment$Moment): string {
+export function timeToShortDateTimeHyphenatedMs(dateTime: moment$Moment): string {
+  return dateTime.format(DATE_TIME_HYPHENATED_MS);
+}
+
+export function timeToFormattedMs(dateTime: moment$Moment): string {
   return dateTime.format(LOG_FILE_MS_SEC_FORMAT);
 }
 
 export function nowFileFormatted(): string {
-  return timeToFormattedms(moment());
+  return timeToFormattedMs(moment());
 }
 
 export function toMoment(jsDateTime: Date): moment$Moment {

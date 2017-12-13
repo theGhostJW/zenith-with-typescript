@@ -1,0 +1,14 @@
+runConfig:
+  name: Test Test Run
+  mocked: false
+  country: Australia
+  environment: TST
+  testCases: []
+  depth: Regression
+valTime: 2017-11-25 11-28-22-346
+apState: {}
+item:
+  id: 4
+  when: I run another test
+  then: i get another result
+  validators: check_bad_validator
