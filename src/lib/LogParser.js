@@ -2,7 +2,7 @@
 
 import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
-import { RECORD_DIVIDER, FOLDER_NESTING } from '../lib/Logging';
+import { RECORD_DIVIDER, FOLDER_NESTING, timeStampedRawPath } from '../lib/Logging';
 import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
@@ -13,21 +13,29 @@ import { summaryBlock, iteration, outOfTestError, script } from '../lib/LogForma
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
-export function parseElements(summary: FullSummaryInfo, mockFileFragmentExtractor: ((runConfig: {[string]: mixed}) => string) = environment ) {
+export function elementsToFullMock(summary: FullSummaryInfo, mockFileFragmentExtractor: ((runConfig: {[string]: mixed}) => string) = environment ) {
   let  {
       rawFile,
       elementsFile,
       runSummary
     } = summary;
 
-  let fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'), newLine(2)),
-      issuesWriter = fileRecordWriter(destPath(rawFile, 'raw', 'issues'), newLine(2));
+  let timeStampedPath = timeStampedRawPath(),
+      fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'), newLine(2)),
+      fullWriterTimestamped = fileRecordWriter(destPath(timeStampedRawPath(), 'raw', 'full'), newLine(2)),
+      issuesWriter = fileRecordWriter(destPath(rawFile, 'raw', 'issues'), newLine(2)),
+      issuesWriterTimestamped = fileRecordWriter(destPath(timeStampedRawPath(), 'raw', 'issues'), newLine(2));
 
   function writeAll(entry: string, writeIssue: boolean) {
+
     fullWriter(entry);
+    fullWriterTimestamped(entry);
+
     if (writeIssue){
       issuesWriter(entry);
+      issuesWriterTimestamped(entry);
     }
+
   }
 
   writeAll(summaryBlock(summary), true);
@@ -63,7 +71,7 @@ export function parseElements(summary: FullSummaryInfo, mockFileFragmentExtracto
     if (wantWriteMock){
       let runConfig: ?{[string]: any} = def(runSummary, {}).runConfig;
       if (runConfig == null){
-        writeAll(objToYaml(failInfoObj('parseElements parsing error ~ RunConfig is null')), isIssue);
+        writeAll(objToYaml(failInfoObj('elementsToFullMock parsing error ~ RunConfig is null')), isIssue);
       }
       else {
         writeMock(element, runConfig, mockFileFragmentExtractor)
@@ -136,7 +144,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
         let result = runStats[testStasKey] - lastRunStats[testStasKey];
         return result;
       }
-      
+
       let result = _.mapValues(emptyTestStats(), (v, k) => runStatsDelta(k));
       lastRunStats = _.cloneDeep(runStats);
       return result;
@@ -680,7 +688,11 @@ export function parseLogDefault(fullPath: string): FullSummaryInfo {
     testSummaries: {},
     runSummary: null
   };
+
+  // generate elements ~ mutates full summary
   parseLog(fullPath, rawToElements(fullPath, fullSummary), initalState(fullPath));
+  // generate full & mock
+  elementsToFullMock(fullSummary);
   return fullSummary;
 }
 

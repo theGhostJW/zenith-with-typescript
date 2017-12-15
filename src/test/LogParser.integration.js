@@ -2,7 +2,7 @@
 
 import {test, describe} from 'mocha'
 import { debug, seekInObj } from '../lib/SysUtils';
-import { logSplitter, parseLogDefault, parseElements } from '../lib/LogParser';
+import { logSplitter, parseLogDefault, elementsToFullMock } from '../lib/LogParser';
 import { testDataFile, logFile, toTemp, fromTestData } from '../lib/FileUtils';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
@@ -105,8 +105,8 @@ describe('file Parsing', () => {
       summary = fromTestData('ParserSummary.yaml');
     });
 
-    it('parseElements', () => {
-      parseElements(summary);
+    it('elementsToFullMock', () => {
+      elementsToFullMock(summary);
     });
 
   });

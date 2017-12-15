@@ -432,7 +432,7 @@ export function cast<T>(targ: any): T {
   return (targ: T);
 }
 
-export function debug<T>(msg: T | () => T, label: string): T {
+export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
   console.log(appendDelim(_.toUpper(label), ': ', toString(msgStr)));
   return msgStr;

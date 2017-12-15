@@ -235,19 +235,23 @@ export type LogEntry = {
  };
 
 
+let rawTimeStampLogFile: string = '';
 export const logger = newWinstton();
 
+export const latestRawPath = () => logFile('latest.raw.yaml');
+export const timeStampedRawPath = () => rawTimeStampLogFile;
 
 function newWinstton() {
   if (logger) {
     logger.close();
   }
 
+  rawTimeStampLogFile = `log ${nowFileFormatted()}.raw.yaml`;
   return new (winston.Logger)({
     transports: [
       consoleLogger(),
       fileLogger('latest.raw.yaml'),
-      fileLogger(`log ${nowFileFormatted()}.raw.yaml`)
+      fileLogger(rawTimeStampLogFile)
     ]
   });
 }
@@ -269,6 +273,7 @@ export function consoleLogger() {
     });
 }
 
+const rawLogFilePaths: Array<string> = [];
 
 export function fileLogger(fileNameNoPath: string) {
   let filePath = logFile(fileNameNoPath);

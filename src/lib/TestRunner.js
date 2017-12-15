@@ -1,6 +1,6 @@
 // @flow
 
-import { eachFile, testCaseFile, fileOrFolderName } from '../lib/FileUtils';
+import { eachFile, testCaseFile, fileOrFolderName, logFile } from '../lib/FileUtils';
 import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug } from '../lib/SysUtils';
 import { toString, newLine} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
@@ -8,11 +8,62 @@ import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logIterationSummary, logFilterLog, logException, logValidationStart,
           logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
           logStartIterationSummary, logEndInteraction, logPrepValidationInfoStart,
-          logPrepValidationInfoEnd } from '../lib/Logging';
+          logPrepValidationInfoEnd, latestRawPath } from '../lib/Logging';
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
+import { parseLogDefault } from '../lib/LogParser';
 
+
+export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
+
+  let {
+        itemRunner,
+        testRunner,
+        testList,
+        runConfig,
+        runConfigDefaulter,
+        testConfigDefaulter,
+        testFilters
+      } = params,
+      runName = runConfig.name;
+
+  runConfig = runConfigDefaulter(runConfig);
+
+  let filterResult = filterTestItems(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
+  logFilterLog(filterResult.log);
+  testList = ((filterResult.items: any): Array<NamedCase<R, T, *, *, *>>);
+
+  logStartRun(runName, runConfig);
+  try {
+
+    function runTestInstance(testCase) {
+      let {
+            testItems,
+            testConfig,
+            name
+           } = testCase,
+           id = testConfig.id;
+
+      // ensure the testConfig is fully populated
+      testConfig = testConfigDefaulter(testConfig);
+      testCase.testConfig = ((testConfig: any): T);
+
+      logStartTest(id, name, testConfig.when, testConfig.then, testConfig);
+      testRunner(testCase, runConfig, itemRunner);
+      logEndTest(id, name);
+    }
+
+    testList.forEach(runTestInstance);
+
+  } catch (e) {
+    logException(`Exception thrown in test run`, e);
+  } finally {
+    logEndRun(runName);
+  }
+
+  parseLogDefault(latestRawPath());
+}
 
 const allCases: Array<any> = [];
 
@@ -207,55 +258,6 @@ export function filterTestItems<T, TC, R>(testCases: Array<NamedObj<T>>, configE
                                 log: {}
                               });
   return result;
-}
-
-export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
-
-  let {
-        itemRunner,
-        testRunner,
-        testList,
-        runConfig,
-        runConfigDefaulter,
-        testConfigDefaulter,
-        testFilters
-      } = params,
-      runName = runConfig.name;
-
-  runConfig = runConfigDefaulter(runConfig);
-
-  let filterResult = filterTestItems(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
-  logFilterLog(filterResult.log);
-  testList = ((filterResult.items: any): Array<NamedCase<R, T, *, *, *>>);
-
-  logStartRun(runName, runConfig);
-  try {
-
-    function runTestInstance(testCase) {
-      let {
-            testItems,
-            testConfig,
-            name
-           } = testCase,
-           id = testConfig.id;
-
-      // ensure the testConfig is fully populated
-      testConfig = testConfigDefaulter(testConfig);
-      testCase.testConfig = ((testConfig: any): T);
-
-      logStartTest(id, name, testConfig.when, testConfig.then, testConfig);
-      testRunner(testCase, runConfig, itemRunner);
-      logEndTest(id, name);
-    }
-
-    testList.forEach(runTestInstance);
-
-  } catch (e) {
-    logException(`Exception thrown in test run`, e);
-  } finally {
-    logEndRun(runName);
-  }
-
 }
 
 export type TestRunner<R: BaseRunConfig, T: BaseTestConfig> =

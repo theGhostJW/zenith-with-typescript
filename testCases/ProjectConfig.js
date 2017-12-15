@@ -107,7 +107,6 @@ function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<Ru
 export function run(runConfig: RunConfig) {
   let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
   let runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  = setRunParamsDefaults(runConfig, testCases);
-
   testRun(runParams);
 }
 
