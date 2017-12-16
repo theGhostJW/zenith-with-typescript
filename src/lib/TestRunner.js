@@ -82,6 +82,7 @@ export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
   testRunner: TestRunner<FR, FT>,
   itemRunner: ItemRunner<FR, *>,
   testFilters: Array<TestFilter<FR, FT>>,
+  // used for endpoints
   itemFilter?: (FR, testItem: any) => boolean
 |}
 
