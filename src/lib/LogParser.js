@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString, toMock } from '../lib/FileUtils';
 import type { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats, ErrorsWarningsDefects,
               StateStage, IssuesList, RunState, Iteration } from '../lib/LogParserTypes';
-import { summaryBlock, iteration, outOfTestError, script } from '../lib/LogFormatter';
+import { summaryBlock, iteration, outOfTestError, script, filterLogText } from '../lib/LogFormatter';
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
@@ -80,7 +80,9 @@ export function elementsToFullMock(summary: FullSummaryInfo, mockFileFragmentExt
   }
 
   logSplitter(elementsFile, processElement);
+  writeAll(filterLogText(summary), true);
 }
+
 
 function environment(runConfig: {[string]: mixed}): string {
   return toString(def(runConfig['environment'], ''));

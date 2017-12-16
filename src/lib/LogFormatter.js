@@ -17,6 +17,11 @@ export const testPrivate = {
   padProps: padProps
 }
 
+export function filterLogText(summary: FullSummaryInfo): string {
+  let fl = seekInObj(summary, 'filterLog');
+  return majorHeaderBlock('Filter Log', false) + newLine(2) + objToYaml(fl);
+}
+
 export function script(iteration: Iteration): ?string {
   return toString(seekInObj(iteration.testConfig, 'script'))
 }
