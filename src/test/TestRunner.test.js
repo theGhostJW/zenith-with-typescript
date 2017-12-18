@@ -1,9 +1,43 @@
 
 import {it, describe} from 'mocha'
-import { filterTestItems } from '../lib/TestRunner';
+import { filterTestItems, filterTests, lastItem, matchesProps, idFilter, allItems } from '../lib/TestRunner';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import { debug } from '../lib/SysUtils';
 
+describe.only('end-point filters', () => {
+
+  const TEST_ITEMS = [
+      {id: 1,  prp1: 'hello', prp2: 'hello1'},
+      {id: 2,  prp1: 'hello', prp2: 'hello2'},
+      {id: 3, prp1: 'hello', prp2: 'hello3'},
+      {id: 4, prp1: 'hello', prp2: 'hello4'}
+  ];
+
+
+
+  function chkFilter(fltr, expected) {
+    var actual = filterTestItems(TEST_ITEMS, {}, fltr);
+    chkEq(expected, actual)
+  }
+
+  it('lastItem', () => {
+    chkFilter(lastItem, [{id: 4, prp1: 'hello', prp2: 'hello4'}]);
+  });
+
+  it('matchesProps', () => {
+    chkFilter(matchesProps({prp1: 'hello', prp2: 'hello3'}), [{id: 3, prp1: 'hello', prp2: 'hello3'}]);
+  });
+
+
+  it('id', () => {
+    chkFilter(idFilter(2), [{id: 2,  prp1: 'hello', prp2: 'hello2'}]);
+  });
+
+  it('allItems', () => {
+    chkFilter(allItems, TEST_ITEMS);
+  });
+
+});
 
 describe('filterTestItems', () => {
 
@@ -48,7 +82,7 @@ describe('filterTestItems', () => {
        test20: 'sizeTest'
       }
     },
-    actual = filterTestItems(testCases, extractor, predicates, {env: 'TST', size: 7});
+    actual = filterTests(testCases, extractor, predicates, {env: 'TST', size: 7});
     chk(expected, actual);
   });
 

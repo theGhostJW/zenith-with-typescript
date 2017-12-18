@@ -1,7 +1,7 @@
 // @flow
 
 import { eachFile, testCaseFile, fileOrFolderName, logFile } from '../lib/FileUtils';
-import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug } from '../lib/SysUtils';
+import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual } from '../lib/SysUtils';
 import { toString, newLine} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
@@ -30,14 +30,14 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
 
   runConfig = runConfigDefaulter(runConfig);
 
-  let filterResult = filterTestItems(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
+  let filterResult = filterTests(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
   logFilterLog(filterResult.log);
   testList = ((filterResult.items: any): Array<NamedCase<R, T, *, *, *>>);
 
   logStartRun(runName, runConfig);
   try {
 
-    function runTestInstance(testCase) {
+    function runTestInstance(testCase: NamedCase<R, T, *, *, *>) {
       let {
             testItems,
             testConfig,
@@ -83,9 +83,36 @@ export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
   itemRunner: ItemRunner<FR, *>,
   testFilters: Array<TestFilter<FR, FT>>,
   // used for endpoints
-  itemFilter?: (FR, testItem: any) => boolean
+  itemFilter?: (FR, testItem: {[string]: any}, fullList: Array<{[string]: any}>) => boolean
 |}
 
+
+export function filterTestItems<FR>(testItems: Array<BaseItem>, runConfig: FR, fltr: (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
+  let predicate = (testItem: BaseItem): boolean => fltr(runConfig, testItem, testItems);
+  return testItems.filter(predicate);
+}
+
+// endpoint item filters
+export function lastItem<FR>(fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>): boolean {
+  return areEqual(_.last(fullList), testItem);
+}
+
+export function matchesProps<FR>(target: {[string]: any}): (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
+  return function propsMatch(fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) {
+    return _.chain(target)
+            .keys()
+            .every(k => areEqual(target[k], testItem[k]))
+            .value();
+  }
+}
+
+export function idFilter<FR>(id: number): (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
+  return matchesProps({id: id});
+}
+
+export function allItems<FR>(fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) {
+  return true;
+}
 
 let lastLoadedFileName = '??';
 export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: BaseCase<R, T, I, S, V>): void {
@@ -237,7 +264,7 @@ export type FilterResult<C> = {
   log: {[string]: string}
 }
 
-export function filterTestItems<T, TC, R>(testCases: Array<NamedObj<T>>, configExtractor: T => TC, predicates: Array<(string, TC, R) => boolean>, runConfig: R): FilterResult<T> {
+export function filterTests<T, TC, R>(testCases: Array<NamedObj<T>>, configExtractor: T => TC, predicates: Array<(string, TC, R) => boolean>, runConfig: R): FilterResult<T> {
 
   let predicateNames = predicates.map(functionNameFromFunction);
 

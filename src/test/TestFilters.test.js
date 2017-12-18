@@ -2,12 +2,12 @@
 // @flow
 
 import {it, describe} from 'mocha'
-import { is_enabled, environment_match, country_match, test_depth, in_list } from '../../testCases/ProjectConfig';
+import { is_enabled, environment_match, country_match, test_depth, in_list } from '../../testCases/TestFilters';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import  type { Environment, Country, Depth } from '../../testCases/ProjectConfig';
 import { debug } from '../lib/SysUtils';
 
-describe('filters', () => {
+describe('test filters', () => {
 
   const baseCase = () => {
     return {
