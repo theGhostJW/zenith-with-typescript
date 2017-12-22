@@ -14,6 +14,45 @@ import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
 import { parseLogDefault } from '../lib/LogParser';
 
+export function runTest(itemFilter?: ItemFilter<*,*>){
+  return function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
+    log('Loading Test Items');
+    let itemList = testCase.testItems(runConfig);
+    if (itemFilter != null){
+      itemList = filterTestItems(itemList, runConfig, itemFilter);
+    }
+    itemList.forEach((item) => itemRunner(testCase, runConfig, item));
+  }
+}
+
+export function filterTestItems<FR>(testItems: Array<BaseItem>, runConfig: FR, fltr: (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
+  let predicate = (testItem: BaseItem): boolean => fltr(runConfig, testItem, testItems);
+  return testItems.filter(predicate);
+}
+
+// endpoint item filters
+export function lastItem(testItem: BaseItem, fullList: Array<BaseItem>): boolean {
+  return areEqual(_.last(fullList), testItem);
+}
+
+export function matchesProps<FR>(target: {[string]: any}): (testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
+  return function propsMatch(testItem: BaseItem, fullList: Array<BaseItem>): boolean {
+    return _.chain(target)
+            .keys()
+            .every(k => areEqual(target[k], testItem[k]))
+            .value();
+  }
+}
+
+export function idFilter(id: number): (testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
+  return matchesProps({id: id});
+}
+
+export function allItems(testItem: BaseItem, fullList: Array<BaseItem>) {
+  return true;
+}
+
+export type ItemFilter<R: BaseRunConfig, I: BaseItem> = (R, I, Array<I>) => boolean
 
 export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
 
@@ -85,34 +124,6 @@ export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
   // used for endpoints
   itemFilter?: (FR, testItem: {[string]: any}, fullList: Array<{[string]: any}>) => boolean
 |}
-
-
-export function filterTestItems<FR>(testItems: Array<BaseItem>, runConfig: FR, fltr: (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
-  let predicate = (testItem: BaseItem): boolean => fltr(runConfig, testItem, testItems);
-  return testItems.filter(predicate);
-}
-
-// endpoint item filters
-export function lastItem<FR>(fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>): boolean {
-  return areEqual(_.last(fullList), testItem);
-}
-
-export function matchesProps<FR>(target: {[string]: any}): (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
-  return function propsMatch(fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) {
-    return _.chain(target)
-            .keys()
-            .every(k => areEqual(target[k], testItem[k]))
-            .value();
-  }
-}
-
-export function idFilter<FR>(id: number): (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
-  return matchesProps({id: id});
-}
-
-export function allItems<FR>(fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) {
-  return true;
-}
 
 let lastLoadedFileName = '??';
 export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: BaseCase<R, T, I, S, V>): void {
@@ -251,12 +262,6 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
   } finally {
     logEndIteration(item.id)
   }
-}
-
-export function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
-  log('Loading Test Items');
-  let itemList = testCase.testItems(runConfig);
-  itemList.forEach((item) => itemRunner(testCase, runConfig, item));
 }
 
 export type FilterResult<C> = {

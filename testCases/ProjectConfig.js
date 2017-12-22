@@ -103,7 +103,7 @@ function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<Ru
     testList: testList,
     runConfigDefaulter: setRunConfigDefaults,
     testConfigDefaulter: setTestConfigDefaults,
-    testRunner: runTest,
+    testRunner: runTest(),
     itemRunner: runTestItem,
     testFilters: filters,
     itemFilter: undefined
