@@ -65,7 +65,7 @@ summary: |-
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:27'
 valTime: 2017-11-25 11:28:22.346
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Another_Demo_Case
   id: 2
@@ -154,7 +154,7 @@ summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 valTime: 2017-11-25 11:28:22.346
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Another_Demo_Case
   id: 2
@@ -203,7 +203,7 @@ summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 valTime: 2017-11-25 11:28:22.346
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Demo_Case
   id: 1
@@ -293,7 +293,7 @@ summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 valTime: 2017-11-25 11:28:22.346
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Demo_Case
   id: 1
@@ -325,7 +325,7 @@ summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 valTime: 2017-11-25 11:28:22.346
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Demo_Case
   id: 1
@@ -392,7 +392,7 @@ summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 valTime: 2017-11-25 11:28:22.346
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Demo_Case
   id: 1
@@ -484,7 +484,7 @@ summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 valTime: 2017-11-25 11:28:22.346
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Demo_Case3
   id: 2

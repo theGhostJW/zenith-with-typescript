@@ -34,7 +34,7 @@ export type ErrorsWarningsDefects = {
   knownDefects: Array<LogEntry>
 }
 
-export type RunElementType = 'InterationInfo' | 'OutOfTestErrors';
+export type RunElementType = 'IterationInfo' | 'OutOfTestErrors';
 
 const STATE_STAGE = {
   Validation: 'validation',

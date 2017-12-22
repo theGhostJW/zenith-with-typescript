@@ -54,7 +54,7 @@ export function elementsToFullMock(summary: FullSummaryInfo, mockFileFragmentExt
         isIssue = true;
         break;
 
-      case 'InterationInfo':
+      case 'IterationInfo':
           logText = iteration(element, summary, lastScript);
           lastScript = script(element), 'script';
           let issuesList = element.issues;
@@ -178,7 +178,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
            startTime: state.iterationStart,
            endTime: def(entry.timestamp, ''),
            valTime: def(seekInObj(state, 'validationInfo', 'valTime'), ''),
-           elementType: 'InterationInfo',
+           elementType: 'IterationInfo',
            testConfig: state.testConfig,
            item: state.testItem,
            apState: state.apstate,

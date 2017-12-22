@@ -44,7 +44,7 @@ summary: |-
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:44'
 valTime: 2017-11-25 11-28-22-299
-elementType: InterationInfo
+elementType: IterationInfo
 testConfig:
   script: Another_Demo_Case
   id: 2
