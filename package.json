@@ -48,9 +48,9 @@
     "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
     "testWatch": "node ./scripts/yarnWatch.js test",
     "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js --grep endPoint --invert",
-    "endPoint": "mocha --compilers js:babel-core/register ./src/test/**/*.integration.js --grep endPoint",
+    "endPoint": "mocha --compilers js:babel-core/register ./src/test/**/*.integration.js ./testCases/**/*.integration.js --grep endPoint",
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
-    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
+    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js --grep endPoint --invert",
     "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node gaze flow-bin nyc istanbul-reports --dev"
   },
   "nyc": {

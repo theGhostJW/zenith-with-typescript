@@ -1,10 +1,8 @@
+import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
+import { allItems, filterTestItems, filterTests, idFilter, lastItem, matchesProps } from '../lib/TestRunner';
 
-import {it, describe} from 'mocha'
-import { filterTestItems, filterTests, lastItem, matchesProps, idFilter, allItems } from '../lib/TestRunner';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import { debug } from '../lib/SysUtils';
 
-describe.only('end-point filters', () => {
+describe('end-point filters', () => {
 
   const TEST_ITEMS = [
       {id: 1,  prp1: 'hello', prp2: 'hello1'},
@@ -12,7 +10,6 @@ describe.only('end-point filters', () => {
       {id: 3, prp1: 'hello', prp2: 'hello3'},
       {id: 4, prp1: 'hello', prp2: 'hello4'}
   ];
-
 
 
   function chkFilter(fltr, expected) {

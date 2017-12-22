@@ -132,7 +132,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
   ];
 }
 
-const testCase: TestCase<Item, ApState, ValState>  = {
+export const testCase: TestCase<Item, ApState, ValState>  = {
   testConfig: config,
   interactor: interactor,
   prepState: prepState,
