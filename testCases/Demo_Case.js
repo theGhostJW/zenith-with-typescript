@@ -58,6 +58,7 @@ type Item = {|
   id: number,
   when: string,
   then: string,
+  data?: string,
   validators: Validators<ValState, Item>
 |}
 
@@ -114,6 +115,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       id: 3,
       when: 'I run another test',
       then: 'i get another result',
+      data: 'random info used in test',
       validators: [
         check_bad_validator
       ]
