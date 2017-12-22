@@ -8,17 +8,17 @@ import { toTemp, toTempString } from '../src/lib/FileUtils';
 import * as _ from 'lodash';
 
 import { testCase } from '../testCases/Demo_Case';
-//import { testCaseEndPoint } from '../testCases/ProjectConfig';
+import { testCaseEndPoint } from '../testCases/ProjectConfig';
 
 describe.only('endPoint', () => {
 
   it('demo endpoint', () => {
-    // testCaseEndPoint(
-    //   {
-    //   testCase: testCase,
-    //   selector: 1,
-    //   environment: 'UAT',
-    //   invalid: 6
-       }
+     testCaseEndPoint(
+       {
+       testCase: testCase,
+       selector: 1,
+       environment: 'UAT'
+     }
     );
+  });
 });

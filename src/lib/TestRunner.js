@@ -25,6 +25,11 @@ export function runTest(itemFilter?: ItemFilter<*>){
   }
 }
 
+export type EndPointInfo<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
+  testCase: BaseCase<R, T, I, S, V>,
+  selector?: Number |  $Supertype<R> | (testItem: I, fullList: Array<I>) => boolean
+}
+
 export function filterTestItems<FR>(testItems: Array<BaseItem>, fltr: (testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
   let predicate = (testItem: BaseItem): boolean => fltr(testItem, testItems);
   return testItems.filter(predicate);

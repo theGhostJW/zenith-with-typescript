@@ -11,7 +11,6 @@ describe('end-point filters', () => {
       {id: 4, prp1: 'hello', prp2: 'hello4'}
   ];
 
-
   function chkFilter(fltr, expected) {
     var actual = filterTestItems(TEST_ITEMS, fltr);
     chkEq(expected, actual)

@@ -1,13 +1,18 @@
 // @flow
 
 import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
-              GenericValidator, RunParams, NamedCase, TestFilter
+              GenericValidator, RunParams, NamedCase, TestFilter,
+              EndPointInfo
             } from '../src/lib/TestRunner';
 import { runTestItem, runTest, testRun, loadAll} from '../src/lib/TestRunner';
 import { forceArray, debug } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from '../testCases/TestFilters';
 import * as _ from 'lodash';
+
+export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
+   debug(module.filename)
+}
 
 export function run(runConfig: RunConfig) {
   let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
@@ -25,6 +30,17 @@ export const depthMap = {
 export type Environment = "TST" | "UAT" | "PVT";
 export type Depth = $Keys<typeof depthMap>;
 export type Country = "Australia" | "New Zealand";
+
+
+export type TestCaseEndPointParams<R, T, I, S, V> = {|
+  testCase: BaseCase<R, T, I, S, V>,
+  selector?: Number |  $Supertype<R> | (testItem: I, fullList: Array<I>) => boolean,
+  mocked?: boolean,
+  country?: Country,
+  environment?: Environment,
+  testCases?: Array<number|string> | number | string,
+  depth?: Depth
+|}
 
 export type RunConfig = {
   name: string,
