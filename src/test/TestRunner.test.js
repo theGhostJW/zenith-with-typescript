@@ -2,7 +2,7 @@ import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage} from 
 import { allItems, filterTestItems, filterTests, idFilter, lastItem, matchesProps } from '../lib/TestRunner';
 
 
-describe('end-point filters', () => {
+describe.only('end-point filters', () => {
 
   const TEST_ITEMS = [
       {id: 1,  prp1: 'hello', prp2: 'hello1'},
@@ -13,7 +13,7 @@ describe('end-point filters', () => {
 
 
   function chkFilter(fltr, expected) {
-    var actual = filterTestItems(TEST_ITEMS, {}, fltr);
+    var actual = filterTestItems(TEST_ITEMS, fltr);
     chkEq(expected, actual)
   }
 

@@ -14,19 +14,19 @@ import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
 import { parseLogDefault } from '../lib/LogParser';
 
-export function runTest(itemFilter?: ItemFilter<*,*>){
+export function runTest(itemFilter?: ItemFilter<*>){
   return function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
     log('Loading Test Items');
     let itemList = testCase.testItems(runConfig);
     if (itemFilter != null){
-      itemList = filterTestItems(itemList, runConfig, itemFilter);
+      itemList = filterTestItems(itemList, itemFilter);
     }
     itemList.forEach((item) => itemRunner(testCase, runConfig, item));
   }
 }
 
-export function filterTestItems<FR>(testItems: Array<BaseItem>, runConfig: FR, fltr: (fullRunConfig: FR, testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
-  let predicate = (testItem: BaseItem): boolean => fltr(runConfig, testItem, testItems);
+export function filterTestItems<FR>(testItems: Array<BaseItem>, fltr: (testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
+  let predicate = (testItem: BaseItem): boolean => fltr(testItem, testItems);
   return testItems.filter(predicate);
 }
 
@@ -52,7 +52,7 @@ export function allItems(testItem: BaseItem, fullList: Array<BaseItem>) {
   return true;
 }
 
-export type ItemFilter<R: BaseRunConfig, I: BaseItem> = (R, I, Array<I>) => boolean
+export type ItemFilter<I: BaseItem> = (I, Array<I>) => boolean
 
 export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
 
