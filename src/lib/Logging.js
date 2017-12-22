@@ -42,6 +42,7 @@ export const logWarning : LogFunction = (message, additionalInfo, attr) => globa
 export const logError: LogFunction = (message, additionalInfo, attr) => globaLoggingFunctions.logError(message, additionalInfo, attr);
 export const logLink = (message: string, link: string, additionalInfo?: string, attrs?: LogAttributes) => {
   attrs = attrs == null ? {} : attrs;
+  attrs.subType = def(attrs.subType, 'Message');
   attrs.link = link;
   globaLoggingFunctions.log(message + ': ' + link, additionalInfo, attrs);
 }
