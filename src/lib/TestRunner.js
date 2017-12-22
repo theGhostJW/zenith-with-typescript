@@ -1,7 +1,7 @@
 // @flow
 
 import { eachFile, testCaseFile, fileOrFolderName, logFile } from '../lib/FileUtils';
-import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual } from '../lib/SysUtils';
+import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail} from '../lib/SysUtils';
 import { toString, newLine} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
@@ -27,7 +27,7 @@ export function runTest(itemFilter?: ItemFilter<*>){
 
 export type EndPointInfo<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
   testCase: BaseCase<R, T, I, S, V>,
-  selector?: Number |  $Supertype<R> | (testItem: I, fullList: Array<I>) => boolean
+  selector?: Number |  $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean
 }
 
 export function filterTestItems<FR>(testItems: Array<BaseItem>, fltr: (testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
@@ -35,12 +35,31 @@ export function filterTestItems<FR>(testItems: Array<BaseItem>, fltr: (testItem:
   return testItems.filter(predicate);
 }
 
+export function itemFilter<I: BaseItem>(selector?: Number |  $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean): (testItem: I, fullList: Array<I>) => boolean {
+  if (selector == null){
+    return lastItem;
+  }
+  else if (_.isFunction(selector)) {
+    return cast(selector);
+  }
+  else if (_.isNumber(selector)){
+    return idFilter(cast(selector));
+  }
+  else  if (_.isObject(selector)){
+    return matchesProps(selector)
+  }
+
+  fail('Invalid item selector property: ' + newLine() + toString(selector));
+  // will never get here this is just to keep flow happy
+  return allItems;
+}
+
 // endpoint item filters
 export function lastItem(testItem: BaseItem, fullList: Array<BaseItem>): boolean {
   return areEqual(_.last(fullList), testItem);
 }
 
-export function matchesProps<FR>(target: {[string]: any}): (testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
+export function matchesProps<I: BaseItem>(target: $Supertype<I>): (testItem: I, fullList: Array<BaseItem>) => boolean {
   return function propsMatch(testItem: BaseItem, fullList: Array<BaseItem>): boolean {
     return _.chain(target)
             .keys()

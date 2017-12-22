@@ -16,8 +16,7 @@ describe.only('endPoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
-       selector: 1,
-       environment: 'UAT'
+       selector: 3
      }
     );
   });

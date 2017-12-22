@@ -4,14 +4,22 @@ import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
               GenericValidator, RunParams, NamedCase, TestFilter,
               EndPointInfo
             } from '../src/lib/TestRunner';
-import { runTestItem, runTest, testRun, loadAll} from '../src/lib/TestRunner';
-import { forceArray, debug } from '../src/lib/SysUtils';
+import { runTestItem, runTest, testRun, loadAll, itemFilter} from '../src/lib/TestRunner';
+import { forceArray, cast, debug } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from '../testCases/TestFilters';
 import * as _ from 'lodash';
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
-   debug(module.filename)
+  let testCase: NamedCase<RunConfig, TestConfig, BaseItem, *, *> = cast(endPointConfig.testCase);
+  testCase.name = 'Test Case End Point';
+
+  let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = [testCase],
+      runConfig = _.omit(endPointConfig,  'testCase', 'selector');
+
+  let runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig> = setRunParamsDefaults(runConfig, testCases);
+  runParams.testRunner = runTest(itemFilter(endPointConfig.selector));
+  testRun(runParams);
 }
 
 export function run(runConfig: RunConfig) {
