@@ -69,7 +69,6 @@ export type FullRunConfig = {|
 |}
 
 export type TestConfig = {
-  id: number,
   when: string,
   then: string,
   owner: string,

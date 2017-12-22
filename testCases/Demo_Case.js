@@ -12,7 +12,6 @@ import { check, checkFalse} from '../src/lib/CheckUtils';
 import moment from 'moment';
 
 var config: TestConfig = {
-  id: 1,
   when: 'I cannot think of anything',
   then: 'I just write something',
   owner: 'JW',

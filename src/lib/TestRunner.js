@@ -105,16 +105,15 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
             testItems,
             testConfig,
             name
-           } = testCase,
-           id = testConfig.id;
+           } = testCase;
 
       // ensure the testConfig is fully populated
       testConfig = testConfigDefaulter(testConfig);
       testCase.testConfig = ((testConfig: any): T);
 
-      logStartTest(id, name, testConfig.when, testConfig.then, testConfig);
+      logStartTest(name, testConfig.when, testConfig.then, testConfig);
       testRunner(testCase, runConfig, itemRunner);
-      logEndTest(id, name);
+      logEndTest(name);
     }
 
     testList.forEach(runTestInstance);
@@ -177,7 +176,6 @@ export type ItemRequired = {
                   };
 
 export type BaseTestConfig = {
-                    id: number,
                     when: string,
                     then: string,
                     enabled: boolean

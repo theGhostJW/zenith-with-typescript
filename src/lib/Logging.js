@@ -93,7 +93,7 @@ export const logStartRun = (runName: string, runConfig: mixed) => specialMessage
 
 export const logEndRun = (runName: string) => specialMessage('RunEnd', 'PopFolder')(`End Run: ${runName}`);
 
-export const logStartTest = (id: number, testName: string, when: string, then: string, testConfig: {}) =>
+export const logStartTest = (testName: string, when: string, then: string, testConfig: {}) =>
                                                                                                     {
                                                                                                       let plainName = changeExtension(testName, ''),
                                                                                                           addInfo = _.defaults(
@@ -102,11 +102,11 @@ export const logStartTest = (id: number, testName: string, when: string, then: s
                                                                                                                               );
 
                                                                                                       return specialMessage('TestStart', 'PushFolder')(
-                                                                                                      `Test: ${id}: ${plainName} - When ${when} then ${then}`,
+                                                                                                      `Test: ${plainName} - When ${when} then ${then}`,
                                                                                                        objToYaml(addInfo));
                                                                                                      }
 
-export const logEndTest = (id: number, testName: string) => specialMessage('TestEnd', 'PopFolder')(`End Test ${id} : ${testName}`, objToYaml({id: id, testName: testName}));
+export const logEndTest = (testName: string) => specialMessage('TestEnd', 'PopFolder')(`End Test ${testName}`, objToYaml({testName: testName}));
 
 export const logStartIteration = (id: number, testName: string, when: string, then: string, item: {}) => specialMessage('IterationStart', 'PushFolder')(
                                                                                                       `Iteration: ${id}: ${testName} - When ${when} then ${then}`,
