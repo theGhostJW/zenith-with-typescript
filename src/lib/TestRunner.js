@@ -127,7 +127,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
   parseLogDefault(latestRawPath());
 }
 
-const allCases: Array<any> = [];
+let allCases: Array<any> = [];
 
 export type BaseRunConfig = {
   name: string,
@@ -188,6 +188,7 @@ type NamedObj<T> = T & {
 }
 
 export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<R, T, *, *, *>> {
+
   function loadFile(name, pth) {
     // Delete cache entry to make sure the file is re-read from disk.
     delete require.cache[pth];
@@ -204,6 +205,7 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
            !hasText(name, 'ProjectConfig.js')
   }
 
+  allCases = [];
   eachFile(testCaseDir, loadFile, isTestCaseFile);
   return cast(allCases);
 }

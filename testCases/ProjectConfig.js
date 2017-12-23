@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
   let allTestCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
+  debug(allTestCases);
   let testCase: NamedCase<RunConfig, TestConfig, BaseItem, *, *> = cast(endPointConfig.testCase);
   testCase.name = 'Test Case End Point';
 
