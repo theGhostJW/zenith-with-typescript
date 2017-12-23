@@ -38,7 +38,9 @@ import {
   deepReduceValues,
   functionNameFromFunction,
   _parseTaskList,
-  waitRetry
+  waitRetry,
+  randomInt,
+  randomInt0
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
@@ -46,6 +48,34 @@ import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from 
 import * as _ from 'lodash';
 import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
+
+describe.only('random ', () => {
+
+  function probTest(func: () => number, expectedVals: Array<string>) {
+    _.chain(1000)
+      .times(func)
+      .groupBy(_.identity)
+      .toPairs()
+      .each(kv => {
+        let k = kv[0],
+            v = kv[1];
+        chkWithMessage(expectedVals.includes(k), `key ${toString(k)}`);
+        chkWithMessage(v.length > 10, `val ${toString(v)}`);
+      })
+      .value();
+  }
+
+  it('probablistic randomInt', () => {
+    probTest(() => randomInt(1, 5.9), ['1', '2', '3', '4', '5']);
+  });
+
+  it('probablistic randomInt0', () => {
+    probTest(() => randomInt0(5.9), ['0', '1', '2', '3', '4', '5']);
+  });
+
+
+
+});
 
 
 describe('waitRetry', () => {

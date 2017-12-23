@@ -12,6 +12,14 @@ import { now } from '../lib/DateTimeUtils';
 import { log, logException } from '../lib/Logging';
 import { runTimeFile, pathExists } from '../lib/FileUtils';
 
+export function randomInt(lwrBound: number, upperBound: number) {
+  return _.random(Math.trunc(lwrBound), Math.trunc(upperBound));
+}
+
+export function randomInt0(upperBound: number) {
+  return randomInt(0, upperBound);
+}
+
 
 export type TaskListItem = {
   imageName: string,

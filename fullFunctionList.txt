@@ -16,6 +16,7 @@ TDate 					To Do			Done			Completion
 30-08-2017			87				166				65.6 %
 31-08-2017			83				168				66.9 %
 02-09-2017			75				177				70.2 %
+23-12-2017			18				233				70.2 %
 
 ===== CheckUtils =====
 /****** Exports *****/
@@ -127,36 +128,36 @@ TDate 					To Do			Done			Completion
   -- Depricated - better alternatives for utilities that use this
 ===== SimplifiedLogUtils =====
 /****** Exports *****/
-	TODO: inExpectDefect = inExpectDefect;
-	TODO: UNMET_DEFECT_EXPECTATION_PREFIX = UNMET_DEFECT_EXPECTATION_PREFIX;
-	TODO: interestingMessage = interestingMessage;
-	TODO: onLogMessage = onLogMessage;
-	TODO: GeneralEvents_OnLogLink = GeneralEvents_OnLogLink;
-	TODO: logThemessage = logThemessage;
-	TODO: onLogError = onLogError;
-	TODO: onLogWarning = onLogWarning;
-	TODO: callLogErrorWarningEvent = callLogErrorWarningEvent;
-	TODO: onLogErrorEndPoint = onLogErrorEndPoint;
-	TODO: logTime = logTime;
-	TODO: isStartTest = isStartTest;
-	TODO: isEndTest = isEndTest;
-	TODO: isDefectStart = isDefectStart;
-	TODO: isActiveDefectStart = isActiveDefectStart;
-	TODO: isInActiveDefectStart = isInActiveDefectStart;
-	TODO: isDefectEnd = isDefectEnd;
-	TODO: ERROR_PREFIX = ERROR_PREFIX;
-	TODO: FILTER_LOG_TOKEN = FILTER_LOG_TOKEN;
-	TODO: FILTER_RESULTS_HEADER = FILTER_RESULTS_HEADER;
-	TODO: isError = isError;
-	TODO: isFilterLog = isFilterLog;
-	TODO: saveProcessSimplifiedLog = saveProcessSimplifiedLog;
-	TODO: defaultSimpleLogProcessing = defaultSimpleLogProcessing;
-	TODO: parseSimplifiedLogFile = parseSimplifiedLogFile;
-	TODO: parseLineUpdateStateAndResult = parseLineUpdateStateAndResult;
-	TODO: updateKnowDefectCount = updateKnowDefectCount;
-	TODO: updateResultAndResetState = updateResultAndResetState;
-	TODO: parseSimplifiedLogFileWriteToTestLog = parseSimplifiedLogFileWriteToTestLog;
-	TODO: parseSimplifiedLogFileWriteToTestLogEndPoint = parseSimplifiedLogFileWriteToTestLogEndPoint;
+	DONE: inExpectDefect = inExpectDefect;
+	DONE: UNMET_DEFECT_EXPECTATION_PREFIX = UNMET_DEFECT_EXPECTATION_PREFIX;
+	DONE: interestingMessage = interestingMessage;
+	DONE: onLogMessage = onLogMessage;
+	DONE: GeneralEvents_OnLogLink = GeneralEvents_OnLogLink;
+	DONE: logThemessage = logThemessage;
+	DONE: onLogError = onLogError;
+	DONE: onLogWarning = onLogWarning;
+	DONE: callLogErrorWarningEvent = callLogErrorWarningEvent;
+	DONE: onLogErrorEndPoint = onLogErrorEndPoint;
+	DONE: logTime = logTime;
+	DONE: isStartTest = isStartTest;
+	DONE: isEndTest = isEndTest;
+	DONE: isDefectStart = isDefectStart;
+	DONE: isActiveDefectStart = isActiveDefectStart;
+	DONE: isInActiveDefectStart = isInActiveDefectStart;
+	DONE: isDefectEnd = isDefectEnd;
+	DONE: ERROR_PREFIX = ERROR_PREFIX;
+	DONE: FILTER_LOG_TOKEN = FILTER_LOG_TOKEN;
+	DONE: FILTER_RESULTS_HEADER = FILTER_RESULTS_HEADER;
+	DONE: isError = isError;
+	DONE: isFilterLog = isFilterLog;
+	DONE: saveProcessSimplifiedLog = saveProcessSimplifiedLog;
+	DONE: defaultSimpleLogProcessing = defaultSimpleLogProcessing;
+	DONE: parseSimplifiedLogFile = parseSimplifiedLogFile;
+	DONE: parseLineUpdateStateAndResult = parseLineUpdateStateAndResult;
+	DONE: updateKnowDefectCount = updateKnowDefectCount;
+	DONE: updateResultAndResetState = updateResultAndResetState;
+	DONE: parseSimplifiedLogFileWriteToTestLog = parseSimplifiedLogFileWriteToTestLog;
+	DONE: parseSimplifiedLogFileWriteToTestLogEndPoint = parseSimplifiedLogFileWriteToTestLogEndPoint;
 ===== StringUtils =====
 /****** Exports *****/
 	DONE - autoType =  -moved to sysutils;
@@ -281,37 +282,37 @@ TDate 					To Do			Done			Completion
 	DONE logColourAttributes = logColourAttributes; - depricated
 ===== TestCaseListUtils =====
 /****** Exports *****/
-	TODO: testListItems = testListItems;
-	TODO: listContentAsArrayMinusHeader = listContentAsArrayMinusHeader;
-	TODO: regenerateTestCaseListFile = regenerateTestCaseListFile;
+	DONE: testListItems = testListItems;
+	DONE: listContentAsArrayMinusHeader = listContentAsArrayMinusHeader;
+	DONE: regenerateTestCaseListFile = regenerateTestCaseListFile;
 ===== TestRunner =====
 /****** Exports *****/
-	TODO: testFilters = testFilters;
-	TODO: registerTestRunElement = registerTestRunElement;
-	TODO: defaultRunConfigInfo = defaultRunConfigInfo;
-	TODO: defaultRunConfigForTestCaseEndPoint = defaultRunConfigForTestCaseEndPoint;
-	TODO: defaultTestConfigInfo = defaultTestConfigInfo;
-	TODO: lastItemWithValidators = lastItemWithValidators;
-	TODO: topIssue = topIssue;
-	TODO: all = all;
-	TODO: runTestCaseEndPoint = runTestCaseEndPoint;
+	DONE: testFilters = testFilters;
+	DONE: registerTestRunElement = registerTestRunElement;
+	DONE: defaultRunConfigInfo = defaultRunConfigInfo;
+	DONE: defaultRunConfigForTestCaseEndPoint = defaultRunConfigForTestCaseEndPoint;
+	DONE: defaultTestConfigInfo = defaultTestConfigInfo;
+	DONE: lastItemWithValidators = lastItemWithValidators;
+	DONE: topIssue = topIssue;
+	DONE: all = all;
+	DONE: runTestCaseEndPoint = runTestCaseEndPoint;
 ===== TestRunnerUtils =====
 /****** Exports *****/
-	TODO: MOCK_REPLACE_NONE = MOCK_REPLACE_NONE;
-	TODO: MOCK_ADD_MISSING_REPLACE_FAILED = MOCK_ADD_MISSING_REPLACE_FAILED;
-	TODO: MOCK_REPLACE_ALL = MOCK_REPLACE_ALL;
-	TODO: expect_defect = expect_defect;
-	TODO: registerTestRunElement = registerTestRunElement;
-	TODO: getConfig = getConfig;
-	TODO: isRestart = isRestart;
-	TODO: testSubList = testSubList;
-	TODO: issuesPath = issuesPath;
-	TODO: issuesFileName = issuesFileName;
-	TODO: generateManifest = generateManifest;
-	TODO: runTests = runTests;
-	TODO: validateAndSetDefaultConfigProperties = validateAndSetDefaultConfigProperties;
-	TODO: runTestCaseEndPoint = runTestCaseEndPoint;
-	TODO: scriptNameFromId = scriptNameFromId;
+	DONE: MOCK_REPLACE_NONE = MOCK_REPLACE_NONE;
+	DONE: MOCK_ADD_MISSING_REPLACE_FAILED = MOCK_ADD_MISSING_REPLACE_FAILED;
+	DONE: MOCK_REPLACE_ALL = MOCK_REPLACE_ALL;
+	DONE: expect_defect = expect_defect;
+	DONE: registerTestRunElement = registerTestRunElement;
+	DONE: getConfig = getConfig;
+	DONE: isRestart = isRestart;
+	DONE: testSubList = testSubList;
+	DONE: issuesPath = issuesPath;
+	DONE: issuesFileName = issuesFileName;
+	DONE: generateManifest = generateManifest;
+	DONE: runTests = runTests;
+	DONE: validateAndSetDefaultConfigProperties = validateAndSetDefaultConfigProperties;
+	DONE: runTestCaseEndPoint = runTestCaseEndPoint;
+	DONE: scriptNameFromId = scriptNameFromId;
 ===== ToReadableUtils =====
 /****** Exports *****/
 
@@ -332,5 +333,5 @@ TDate 					To Do			Done			Completion
 
 ===== DataGenerationUtils =====
 /****** Exports *****/
-	TODO: randomItem = randomItem;
-	TODO: randomInt = randomInt;
+	DEPRICATE: randomItem = randomItem; ~ _.sample
+	DONE: randomInt = randomInt;
