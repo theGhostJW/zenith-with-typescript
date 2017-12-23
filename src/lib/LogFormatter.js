@@ -55,7 +55,8 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
 
 
   let lineX2 = newLine(2),
-      subDivider =  lineX2 + SUB_DIVIDER + lineX2;
+      subDivider =  lineX2 + SUB_DIVIDER + lineX2,
+      valState = seekInObj(iteration, 'valState');
 
   return header + lineX2 +
                     itHeaderText +
@@ -64,9 +65,11 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
                     lineX2 +
                     titledText(iteration.summary, 'summary', 'Not Implemented') +
                     subDivider +
-                    titledText(issuesText(iteration.issues, iteration.valTime), 'issues', 'No Issues') +
+                    titledText(issuesText(iteration.issues, iteration.valTime, valState), 'issues', 'No Issues') +
                     subDivider +
                     titledText(objToYaml(_.omit(seekInObj(iteration, 'item'), 'id', 'validators', 'when', 'then', 'notes')), 'item', 'Parse Error Item not Found') +
+                    subDivider +
+                    titledText(objToYaml(valState), 'valState', 'Parse Error valState not Found') +
                     subDivider +
                     titledText(objToYaml(seekInObj(iteration, 'apState')), 'apState', 'Parse Error apState not Found');
 }
@@ -83,7 +86,7 @@ function titledText(obj: mixed, title: string, nullText: string): string {
 
 const VALIDATION_STAGE: StateStage = 'Validation';
 
-function issuesText(issues: IssuesList, valTime: string): string {
+function issuesText(issues: IssuesList, valTime: string, valState: any): string {
 
   function removeEmptyArraysAddValTime(issue: ErrorsWarningsDefects) {
     let result = _.chain(issue)
@@ -94,7 +97,8 @@ function issuesText(issues: IssuesList, valTime: string): string {
 
     if (result.infoType == VALIDATION_STAGE){
       result.valTime = valTime;
-      result = reorderProps(result, 'name', 'infoType', 'valTime');
+      result.valState = valState;
+      result = reorderProps(result, 'name', 'infoType', 'valTime', 'valState');
     }
 
     return result;

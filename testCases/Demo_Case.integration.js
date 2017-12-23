@@ -16,7 +16,7 @@ describe.only('endPoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
-       selector: 3
+       selector: 1
      }
     );
   });

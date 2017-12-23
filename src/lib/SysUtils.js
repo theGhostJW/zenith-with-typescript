@@ -384,8 +384,8 @@ function dotToNulls(obj: {}, exclusions: Array<string>): {} {
   return _.mapValues(obj, dotToNull);
 }
 
-export function objToYaml(obj: mixed) : string {
-  return ((yaml.safeDump(obj, {skipInvalid: true}): any): string) ;
+export function objToYaml(obj: mixed, useRefs: boolean = false) : string {
+  return ((yaml.safeDump(obj, {skipInvalid: true, noRefs: !useRefs }): any): string) ;
 }
 
 function trimLine1Leading(str: string): string {

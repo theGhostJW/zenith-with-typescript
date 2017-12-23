@@ -61,7 +61,7 @@ export const logStartInteraction = () => specialMessage('InteractorStart', 'Push
 export const logEndInteraction = (apState: any) => specialMessage('InteractorEnd', 'PopFolder')('End Interaction', {apState: apState});
 
 export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')('Start Validation Prep');
-export const logPrepValidationInfoEnd = () => specialMessage('PrepValidationInfoEnd')('End Validation Prep');
+export const logPrepValidationInfoEnd = (valState: any) => specialMessage('PrepValidationInfoEnd')('End Validation Prep', {valState: valState});
 
 export const logStartIterationSummary = () => specialMessage('StartSummary')('Start Summary');
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);

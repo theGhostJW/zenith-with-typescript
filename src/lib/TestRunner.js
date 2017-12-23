@@ -271,7 +271,7 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
     continu = exStage(() => {valState = baseCase.prepState(apState)},
                               'Preparing Validation Info',
                               logPrepValidationInfoStart,
-                              logPrepValidationInfoEnd,
+                              () => logPrepValidationInfoEnd(valState),
                               continu);
     let valTime = now();
     continu = exStage(() => runValidators(item.validators, valState, item, runConfig, valTime),

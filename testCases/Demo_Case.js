@@ -37,12 +37,14 @@ type ApState = {|
 |}
 
 type ValState = {|
-  id: number
+  id: number,
+  someWords: string
 |}
 
 function prepState(apState: ApState): ValState {
   return {
-    id: apState.id
+    id: apState.id,
+    someWords: 'YES WE CAN'
   }
 }
 

@@ -181,6 +181,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
            elementType: 'IterationInfo',
            testConfig: state.testConfig,
            item: state.testItem,
+           valState: def(seekInObj(state, 'validationInfo', 'valState'), ''),
            apState: state.apstate,
            passedValidators: state.passedValidators,
            issues: issues
