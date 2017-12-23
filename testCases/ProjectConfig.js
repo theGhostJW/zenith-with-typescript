@@ -5,16 +5,19 @@ import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
               EndPointInfo
             } from '../src/lib/TestRunner';
 import { runTestItem, runTest, testRun, loadAll, itemFilter} from '../src/lib/TestRunner';
-import { forceArray, cast, debug } from '../src/lib/SysUtils';
+import { forceArray, cast, debug, areEqual, def } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from '../testCases/TestFilters';
 import * as _ from 'lodash';
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
   let allTestCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
-  debug(allTestCases);
-  let testCase: NamedCase<RunConfig, TestConfig, BaseItem, *, *> = cast(endPointConfig.testCase);
-  testCase.name = 'Test Case End Point';
+
+  let testCase: NamedCase<RunConfig, TestConfig, BaseItem, *, *> = cast(endPointConfig.testCase),
+      testCaseConfig = testCase.testConfig,
+      namedCase = allTestCases.find(tc => areEqual(tc.testConfig, testCaseConfig));
+
+  testCase.name = cast(def(namedCase, {})).name;
 
   let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = [testCase],
       runConfig = _.omit(endPointConfig,  'testCase', 'selector');
