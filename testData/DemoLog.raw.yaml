@@ -83,6 +83,10 @@ level: info
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
+additionalInfo: |
+  apState:
+    id: 3456789
+    observation: blahh
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: info

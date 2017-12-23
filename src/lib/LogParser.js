@@ -1,6 +1,6 @@
 //@flow
 
-import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj } from '../lib/SysUtils';
+import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING, timeStampedRawPath } from '../lib/Logging';
 import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
@@ -578,6 +578,11 @@ function updateState(state: RunState, entry: LogEntry): RunState {
     case 'InteractorStart':
       switchErrorInfoStage(state, 'InTest', EXECUTING_INTERACTOR_STR);
       state.indent = 3;
+      break;
+
+    case 'InteractorEnd':
+      state.apstate = cast(def(seekInObj(infoObj(), 'apState'), {}));
+      state.indent = 2; // ??
       break;
 
     case 'PrepValidationInfoStart':

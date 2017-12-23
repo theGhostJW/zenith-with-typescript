@@ -199,7 +199,7 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
 
   let testCaseDir = testCaseFile('');
   eachFile(testCaseDir, loadFile);
-  return ((allCases: any): Array<NamedCase<R, T, *, *, *>>);
+  return cast(allCases);
 }
 
 function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validators: GenericValidator<V, I, R> | Array<GenericValidator<V, I, R>>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
@@ -257,7 +257,7 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
     continu = exStage(() => {apState = baseCase.interactor(item, runConfig)},
                         'Executing Interactor',
                         logStartInteraction,
-                        logEndInteraction,
+                        () => logEndInteraction(apState),
                         continu);
 
     continu = exStage(() => {valState = baseCase.prepState(apState)},

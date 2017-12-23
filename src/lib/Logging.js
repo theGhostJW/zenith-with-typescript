@@ -58,12 +58,12 @@ export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Fo
 export const expectDefect = (defectInfo: string, active: boolean = true) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo), {active: active});
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
 export const logStartInteraction = () => specialMessage('InteractorStart', 'PushFolder')('Start Interaction');
-export const logEndInteraction = () => specialMessage('InteractorEnd', 'PopFolder')('End Interaction');
+export const logEndInteraction = (apState: any) => specialMessage('InteractorEnd', 'PopFolder')('End Interaction', {apState: apState});
 
-export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')();
-export const logPrepValidationInfoEnd = () => specialMessage('PrepValidationInfoEnd')();
+export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')('Start Validation Prep');
+export const logPrepValidationInfoEnd = () => specialMessage('PrepValidationInfoEnd')('End Validation Prep');
 
-export const logStartIterationSummary = () => specialMessage('StartSummary')();
+export const logStartIterationSummary = () => specialMessage('StartSummary')('Start Summary');
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
 export const logValidationStart = (valTime: moment$Moment, valState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
                                                                                                                                     valTime: timeToShortDateTimeHyphenatedMs(valTime),

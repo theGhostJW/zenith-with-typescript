@@ -12,7 +12,7 @@ import { check, checkFalse} from '../src/lib/CheckUtils';
 import moment from 'moment';
 
 var config: TestConfig = {
-  when: 'I cannot think of anything',
+  when: 'I cannot think of anything ~ Demo_Case',
   then: 'I just write something',
   owner: 'JW',
   enabled: true,
@@ -27,13 +27,13 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
 
   return {
     id: item.id,
-    obs: 'blahh'
+    observation: 'blahh'
   }
 }
 
 type ApState = {|
   id: number,
-  obs: string
+  observation: string
 |}
 
 type ValState = {|
