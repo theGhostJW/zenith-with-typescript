@@ -14,7 +14,7 @@ function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, tra
         actual = trimChars(transformer(source), [newLine(), ' ']);
 
     function trimLines(str) {
-      return str.split(newLine()).map(s => s.trim).join(newLine());
+      return str.split(newLine()).map(s => s.trim()).join(newLine());
     }
 
     // seem to be losing whitespace loading expected this is a
@@ -30,7 +30,6 @@ function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, tra
 }
 
 describe('formatter components', () => {
-
 
   it('summary block', () => {
     sectionIntegrationTest('ParserSummary.yaml', 'ParserSummary.expected.yaml', testPrivate.summaryBlock);

@@ -16,6 +16,7 @@ export type Iteration = {|
    elementType: 2,
    testConfig: {},
    item: {id: number},
+   mocked: boolean,
    apState: {},
    issues: IssuesList
  |}

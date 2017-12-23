@@ -10,13 +10,14 @@ import * as _ from 'lodash';
 import { testCase } from '../testCases/Demo_Case';
 import { testCaseEndPoint } from '../testCases/ProjectConfig';
 
-describe.only('endPoint', () => {
+describe('endPoint', () => {
 
-  it('demo endpoint', () => {
+  it.only('demo endpoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
-       selector: 1
+       selector: 1,
+       mocked: true
      }
     );
   });

@@ -16,7 +16,7 @@ describe('endPoints ', () => {
 });
 
 
-describe.only('run', () => {
+describe('run', () => {
 
   const runConfig = {
     name: 'Test Test Run',

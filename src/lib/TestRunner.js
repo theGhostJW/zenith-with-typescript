@@ -1,6 +1,6 @@
 // @flow
 
-import { eachFile, testCaseFile, fileOrFolderName, logFile } from '../lib/FileUtils';
+import { eachFile, testCaseFile, fileOrFolderName, logFile, pathExists, mockFile, fromMock } from '../lib/FileUtils';
 import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail} from '../lib/SysUtils';
 import { toString, newLine, hasText} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
@@ -10,18 +10,20 @@ import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logStartIterationSummary, logEndInteraction, logPrepValidationInfoStart,
           logPrepValidationInfoEnd, latestRawPath } from '../lib/Logging';
 import moment from 'moment';
-import { now } from '../lib/DateTimeUtils';
+import { now, strToMoment } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
 import { defaultLogParser } from '../lib/LogParser'
 
+export type MockFileNameFunction<R> = (itemId: ?number, testName: string, runConfig: R) => string
+
 export function runTest(itemFilter?: ItemFilter<*>){
-  return function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
+  return function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>, mockFileNameFunc: MockFileNameFunction<R>) : void {
     log('Loading Test Items');
     let itemList = testCase.testItems(runConfig);
     if (itemFilter != null){
       itemList = filterTestItems(itemList, itemFilter);
     }
-    itemList.forEach((item) => itemRunner(testCase, runConfig, item));
+    itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
   }
 }
 
@@ -93,9 +95,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
 
   runConfig = runConfigDefaulter(runConfig);
 
-  let runName = runConfig.name,
-      mocked = runConfig.mocked; 
-      // Up To Here
+  let runName = runConfig.name;
 
   let filterResult = filterTests(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
   logFilterLog(filterResult.log);
@@ -116,7 +116,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
       testCase.testConfig = ((testConfig: any): T);
 
       logStartTest(name, testConfig.when, testConfig.then, testConfig);
-      testRunner(testCase, runConfig, itemRunner);
+      testRunner(testCase, cast(runConfig), itemRunner, mockFileNameGenerator);
       logEndTest(name);
     }
 
@@ -261,20 +261,35 @@ export function itemRunner() {
 
 }
 
-export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) {
+export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) {
 
  logStartIteration(item.id, baseCase.name, item.when, item.then, validatorsToString(item));
  try {
     let apState: S,
         valState: V,
         continu = true,
-        mocked = runConfig.mocked;
+        mocked = runConfig.mocked,
+        mockFileName = mockFileNameFunc(item.id, baseCase.name, runConfig),
+        mockPath = mockFile(mockFileName),
+        useMock = mocked && pathExists(mockPath),
+        valTime;
 
+    function interactOrMock() {
+      if (useMock) {
+        let mockObj = fromMock(mockFileName);
+        valTime = strToMoment(mockObj.valTime);
+        apState =  mockObj.apState;
+      }
+      else {
+        valTime = now();
+        apState =  baseCase.interactor(item, runConfig);
+      }
+    }
 
-    continu = exStage(() => {apState = baseCase.interactor(item, runConfig)},
-                        'Executing Interactor',
+    continu = exStage(  interactOrMock,
+                        (useMock ? 'Mocking' : 'Executing') + ' Interactor',
                         logStartInteraction,
-                        () => logEndInteraction(apState, mocked),
+                        () => logEndInteraction(apState, useMock),
                         continu);
 
     continu = exStage(() => {valState = baseCase.prepState(apState)},
@@ -282,7 +297,7 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
                               logPrepValidationInfoStart,
                               () => logPrepValidationInfoEnd(valState),
                               continu);
-    let valTime = now();
+
     continu = exStage(() => runValidators(item.validators, valState, item, runConfig, valTime),
                               'Running Validators',
                               () => logValidationStart(valTime, valState),
@@ -333,7 +348,7 @@ export function filterTests<T, TC, R>(testCases: Array<NamedObj<T>>, configExtra
 }
 
 export type TestRunner<R: BaseRunConfig, T: BaseTestConfig> =
-      <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) => void
+      <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>, MockFileNameFunction<R>) => void
 
 export type ItemRunner<R: BaseRunConfig, T: BaseTestConfig> =
-      <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) => void
+      <R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) => void

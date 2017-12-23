@@ -2,18 +2,18 @@
 
 import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
               GenericValidator, RunParams, NamedCase, TestFilter,
-              EndPointInfo
+              EndPointInfo, MockFileNameFunction
             } from '../src/lib/TestRunner';
 import { runTestItem, runTest, testRun, loadAll, itemFilter} from '../src/lib/TestRunner';
 import { forceArray, cast, debug, areEqual, def } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from '../testCases/TestFilters';
 import { toString } from '../src/lib/StringUtils';
+import { fileOrFolderNameNoExt } from '../src/lib/FileUtils';
 import * as _ from 'lodash';
 
-export function mockFileNameUseEnvironment(itemId: ?number, testName: string, runConfig: RunConfig): string {
-  return testName + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
-}
+export const mockFileNameUseEnvironment: MockFileNameFunction<RunConfig> =
+                  (itemId, testName, runConfig) => fileOrFolderNameNoExt(testName) + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
 
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {

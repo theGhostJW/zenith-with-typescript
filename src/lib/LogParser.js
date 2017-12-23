@@ -181,6 +181,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
            elementType: 'IterationInfo',
            testConfig: state.testConfig,
            item: state.testItem,
+           mocked: state.mocked,
            valState: def(seekInObj(state, 'validationInfo', 'valState'), ''),
            apState: state.apstate,
            passedValidators: state.passedValidators,
@@ -517,6 +518,7 @@ function iterationCommonReset(state: RunState) {
    state.iterationErrorLogged = false;
    state.iterationWarningLogged = false;
    state.iterationType2ErrorLogged = false;
+   state.mocked = false;
    state.validatorIssues = [];
    state.passedValidators = [];
 }

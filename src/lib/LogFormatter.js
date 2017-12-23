@@ -32,7 +32,8 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
       header = '';
 
   let summaryInfo = seekInObj(fullSummary, 'testSummaries', script),
-      seekSumStr = str => toString(seekInObj(((summaryInfo: any): {}), str));
+      seekSumStr = str => toString(seekInObj(((summaryInfo: any): {}), str)),
+      mocked = iteration.mocked;
 
   if (!sameText(script, def(lastScript, ''))){
     header = majorHeaderBlock(summaryInfo == null ? `NO SUMMARY INFO AVAILABLE FOR ${script}`:
@@ -40,7 +41,7 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
              newLine(2) + 'stats:' + newLine() + padProps(def(seekInObj(summaryInfo, 'stats'), {}), false, '  ');
   }
 
-  header = header + newLine(2) + minorHeaderBlock(`${script} - Item ${iteration.item.id} - ${durationFormatted(iteration.startTime, iteration.endTime)}`, true);
+  header = header + newLine(2) + minorHeaderBlock(`${script} -${mocked ? ' MOCKED -' : ''} Item ${iteration.item.id} - ${durationFormatted(iteration.startTime, iteration.endTime)}`, true);
 
   let issues = issueTypes(iteration.issues),
       notes = seekInObj(iteration, 'item', 'notes'),
@@ -58,10 +59,15 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
       subDivider =  lineX2 + SUB_DIVIDER + lineX2,
       valState = seekInObj(iteration, 'valState');
 
+  function titledText(obj: mixed, title: string, nullText: string): string {
+    return title + (mocked ? ' MOCKED' : '') + ':' + newLine() +
+            (obj == null ? '  ' + nullText : padLines(toString(obj), '  '));
+  }
+
   return header + lineX2 +
                     itHeaderText +
                     lineX2 +
-                    valText(iteration) +
+                    valText(iteration, mocked) +
                     lineX2 +
                     titledText(iteration.summary, 'summary', 'Not Implemented') +
                     subDivider +
@@ -77,11 +83,6 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
 
 function padLines(str: ?string, padding: string): string {
   return str != '' && str != null ? str.split(newLine()).map(l => padding + l).join(newLine()) : ''
-}
-
-function titledText(obj: mixed, title: string, nullText: string): string {
-  return title + ':' + newLine() +
-          (obj == null ? '  ' + nullText : padLines(toString(obj), '  '));
 }
 
 const VALIDATION_STAGE: StateStage = 'Validation';
@@ -132,7 +133,7 @@ function issuesText(issues: IssuesList, valTime: string, valState: any): string 
   return trimChars(lines.join(newLine()), [newLine()])
 }
 
-function valText(iteration: Iteration): string {
+function valText(iteration: Iteration, mocked: boolean): string {
 
   function summarise(issue: ErrorsWarningsDefects) {
     return {
@@ -163,8 +164,7 @@ function valText(iteration: Iteration): string {
     passedValidators.forEach(s => result[deUnderscore(s)] = 'passed');
   }
 
-
-  return 'validation:' + newLine() + padProps(result, true, '  - ');
+  return `validation${mocked ? ' MOCKED' : ''}:` + newLine() + padProps(result, true, '  - ');
 }
 
 function joinIssues(issues: Array<string>) {
