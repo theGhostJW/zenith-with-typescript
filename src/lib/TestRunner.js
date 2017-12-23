@@ -2,7 +2,7 @@
 
 import { eachFile, testCaseFile, fileOrFolderName, logFile } from '../lib/FileUtils';
 import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail} from '../lib/SysUtils';
-import { toString, newLine} from '../lib/StringUtils';
+import { toString, newLine, hasText} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
           logIterationSummary, logFilterLog, logException, logValidationStart,
@@ -188,7 +188,6 @@ type NamedObj<T> = T & {
 }
 
 export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<R, T, *, *, *>> {
-
   function loadFile(name, pth) {
     // Delete cache entry to make sure the file is re-read from disk.
     delete require.cache[pth];
@@ -198,7 +197,14 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
   }
 
   let testCaseDir = testCaseFile('');
-  eachFile(testCaseDir, loadFile);
+
+  function isTestCaseFile(path: string, name: string) {
+    return !hasText(name, 'testfilters.js') &&
+           !hasText(name, '.integration.') &&
+           !hasText(name, 'ProjectConfig.js')
+  }
+
+  eachFile(testCaseDir, loadFile, isTestCaseFile);
   return cast(allCases);
 }
 
