@@ -21,6 +21,8 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
 
   let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = [testCase],
       runConfig = _.omit(endPointConfig,  'testCase', 'selector');
+      
+  runConfig.name = `Test Case EndPoint ~ ${testCase.name}`;
 
   let runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig> = setRunParamsDefaults(runConfig, testCases);
   runParams.testRunner = runTest(itemFilter(endPointConfig.selector));
