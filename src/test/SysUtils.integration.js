@@ -1,14 +1,27 @@
 // @flow
 
 import {it, describe } from 'mocha'
-import { listProcesses, waitRetry, killTask, executeFile, executeRunTimeFile } from '../lib/SysUtils';
-import { toTempString } from '../lib/FileUtils';
+import { listProcesses, waitRetry, killTask, executeFile, executeRunTimeFile, xmlToObj, cast, debug } from '../lib/SysUtils';
+import { toTempString, fromTestDataString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
 import type { TaskListItem } from '../lib/SysUtils';
+
+
+describe('xmlToObj', () => {
+
+  it('parse demo file', () => {
+
+    let xml = fromTestDataString('books.xml'),
+        obj = cast(xmlToObj(xml)),
+        recCount = obj.catalog.book.length;
+
+     chkEq(12, recCount);
+  });
+});
 
 
 describe('executeFileRunTimeFile', () => {

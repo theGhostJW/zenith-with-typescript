@@ -49,7 +49,7 @@ import * as _ from 'lodash';
 import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
 
-describe.only('random ', () => {
+describe('random ', () => {
 
   function probTest(func: () => number, expectedVals: Array<string>) {
     _.chain(1000)

@@ -11,6 +11,21 @@ import child_process from 'child_process';
 import { now } from '../lib/DateTimeUtils';
 import { log, logException } from '../lib/Logging';
 import { runTimeFile, pathExists } from '../lib/FileUtils';
+import { parseString } from 'xml2js'
+
+
+export function xmlToObj(xml: string): {} {
+
+  let result;
+  parseString(xml, (err, rslt) => {
+    if (err != null){
+      throw err;
+    }
+    result = rslt;
+  });
+  waitRetry(() => result != null, 60000, () => {}, 0);
+ return cast(result);
+}
 
 export function randomInt(lwrBound: number, upperBound: number) {
   return _.random(Math.trunc(lwrBound), Math.trunc(upperBound));

@@ -327,8 +327,8 @@ TDate 					To Do			Done			Completion
 	TODO: transformSection = transformSection;
 ===== XmlToJsonUtils =====
 /****** Exports *****/
-	TODO: xmlToObject = xmlToObject;
-	TODO: xmlToJson = xmlToJson;
+	DONE: xmlToObject = xmlToObject;
+	DEPRICATED: xmlToJson = xmlToJson; ~ not usefull easy to call JSON.stringify / standadising on YAML
 ===== EndPointLauncherUtils =====
 
 ===== DataGenerationUtils =====
