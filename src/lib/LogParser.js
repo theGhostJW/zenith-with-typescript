@@ -13,7 +13,11 @@ import { summaryBlock, iteration, outOfTestError, script, filterLogText } from '
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
-export function elementsToFullMock(summary: FullSummaryInfo, mockFileFragmentExtractor: ((runConfig: {[string]: mixed}) => string) = environment ) {
+export function mockFileName(itemId: ?number, testName: string, runConfig: {[string]: mixed}): string {
+  return testName + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
+}
+
+export function elementsToFullMock(summary: FullSummaryInfo, mockFileNameFunc: ((?number, string, {[string]: mixed}) => string) = mockFileName) {
   let  {
       rawFile,
       elementsFile,
@@ -74,7 +78,7 @@ export function elementsToFullMock(summary: FullSummaryInfo, mockFileFragmentExt
         writeAll(objToYaml(failInfoObj('elementsToFullMock parsing error ~ RunConfig is null')), isIssue);
       }
       else {
-        writeMock(element, runConfig, mockFileFragmentExtractor)
+        writeMock(element, runConfig, mockFileNameFunc)
       }
     }
   }
@@ -88,15 +92,15 @@ function environment(runConfig: {[string]: mixed}): string {
   return toString(def(runConfig['environment'], ''));
 }
 
-function writeMock(iteration: Iteration, runConfig: {[string]: mixed}, mockFileFragmentExtractor: ((runConfig: {[string]: mixed}) => string)) {
+function writeMock(iteration: Iteration, runConfig: {[string]: mixed}, mockFileNameFunc: (itemId: ?number, testName: string, runConfig: {[string]: mixed}) => string) {
 
 //item: Item, runConfig: RunConfig, valTime: moment$Moment
 //
 
  let item = def(seekInObj(iteration, 'item'), {}),
      script = toString(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
-     id = toString(def(item.id, 'ERR_NO_ID')),
-     destFile = script + '_' + id + '_' + mockFileFragmentExtractor(runConfig) + '.yaml',
+     id = item.id,
+     destFile = mockFileNameFunc(id, script, runConfig),
      mockInfo = {
                  runConfig: runConfig,
                  valTime: seekInObj(iteration, 'valTime'),
@@ -290,6 +294,7 @@ export function initalState(rawFilePath: string): RunState {
                 expectedErrorEncoutered: false,
 
                 apstate: {},
+                mocked: false,
                 validationInfo: {},
                 testItem: {},
 
@@ -583,6 +588,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
 
     case 'InteractorEnd':
       state.apstate = cast(def(seekInObj(infoObj(), 'apState'), {}));
+      state.mocked = cast(def(seekInObj(infoObj(), 'mocked'), false));
       state.indent = 2; // ??
       break;
 

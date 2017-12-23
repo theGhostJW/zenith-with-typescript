@@ -121,6 +121,7 @@ export type RunState = {|
   expectedErrorEncoutered: boolean,
 
   apstate: {},
+  mocked: boolean,
   testItem: {},
   validationInfo: {},
   passedValidators: Array<string>,

@@ -260,12 +260,14 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
  try {
     let apState: S,
         valState: V,
-        continu = true;
+        continu = true,
+        mocked = runConfig.mocked;
+
 
     continu = exStage(() => {apState = baseCase.interactor(item, runConfig)},
                         'Executing Interactor',
                         logStartInteraction,
-                        () => logEndInteraction(apState),
+                        () => logEndInteraction(apState, mocked),
                         continu);
 
     continu = exStage(() => {valState = baseCase.prepState(apState)},

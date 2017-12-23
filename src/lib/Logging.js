@@ -58,7 +58,9 @@ export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Fo
 export const expectDefect = (defectInfo: string, active: boolean = true) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo), {active: active});
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
 export const logStartInteraction = () => specialMessage('InteractorStart', 'PushFolder')('Start Interaction');
-export const logEndInteraction = (apState: any) => specialMessage('InteractorEnd', 'PopFolder')('End Interaction', {apState: apState});
+export const logEndInteraction = (
+                                  apState: any,
+                                  mocked: boolean) => specialMessage('InteractorEnd', 'PopFolder')('End Interaction', {mocked: mocked, apState: apState});
 
 export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')('Start Validation Prep');
 export const logPrepValidationInfoEnd = (valState: any) => specialMessage('PrepValidationInfoEnd')('End Validation Prep', {valState: valState});
