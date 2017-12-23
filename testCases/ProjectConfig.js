@@ -8,7 +8,13 @@ import { runTestItem, runTest, testRun, loadAll, itemFilter} from '../src/lib/Te
 import { forceArray, cast, debug, areEqual, def } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from '../testCases/TestFilters';
+import { toString } from '../src/lib/StringUtils';
 import * as _ from 'lodash';
+
+export function mockFileNameUseEnvironment(itemId: ?number, testName: string, runConfig: RunConfig): string {
+  return testName + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
+}
+
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
   let allTestCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
@@ -21,7 +27,7 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
 
   let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = [testCase],
       runConfig = _.omit(endPointConfig,  'testCase', 'selector');
-      
+
   runConfig.name = `Test Case EndPoint ~ ${testCase.name}`;
 
   let runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig> = setRunParamsDefaults(runConfig, testCases);
@@ -136,6 +142,6 @@ function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<Ru
     testRunner: runTest(),
     itemRunner: runTestItem,
     testFilters: filters,
-    itemFilter: undefined
+    mockFileNameGenerator: mockFileNameUseEnvironment
   }
 }

@@ -2,9 +2,10 @@
 
 import {test, describe} from 'mocha'
 import { debug, seekInObj } from '../lib/SysUtils';
-import { logSplitter, parseLogDefault, elementsToFullMock } from '../lib/LogParser';
+import { logSplitter, defaultLogParser, elementsToFullMock,  } from '../lib/LogParser';
 import { testDataFile, logFile, toTemp, fromTestData } from '../lib/FileUtils';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
+import { mockFileNameUseEnvironment } from '../../testCases/ProjectConfig';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import { replace } from '../lib/StringUtils';
 
@@ -15,7 +16,7 @@ describe('file Parsing', () => {
       rawPath = testDataFile(rawName);
 
   before(() => {
-    summary = parseLogDefault(rawPath);
+    summary = defaultLogParser(mockFileNameUseEnvironment)(rawPath);
     toTemp(summary, 'summary');
     //debug(JSON.stringify(summary))
   });
@@ -106,7 +107,7 @@ describe('file Parsing', () => {
     });
 
     it('elementsToFullMock', () => {
-      elementsToFullMock(summary);
+      elementsToFullMock(summary, mockFileNameUseEnvironment);
     });
 
   });

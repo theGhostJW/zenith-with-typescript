@@ -12,7 +12,7 @@ import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
 import moment from 'moment';
 import { now } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
-import { parseLogDefault } from '../lib/LogParser';
+import { defaultLogParser } from '../lib/LogParser'
 
 export function runTest(itemFilter?: ItemFilter<*>){
   return function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>) : void {
@@ -87,11 +87,15 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
         runConfig,
         runConfigDefaulter,
         testConfigDefaulter,
-        testFilters
-      } = params,
-      runName = runConfig.name;
+        testFilters,
+        mockFileNameGenerator
+      } = params;
 
   runConfig = runConfigDefaulter(runConfig);
+
+  let runName = runConfig.name,
+      mocked = runConfig.mocked; 
+      // Up To Here
 
   let filterResult = filterTests(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
   logFilterLog(filterResult.log);
@@ -124,7 +128,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
     logEndRun(runName);
   }
 
-  parseLogDefault(latestRawPath());
+  defaultLogParser(mockFileNameGenerator)(latestRawPath());
 }
 
 let allCases: Array<any> = [];
@@ -144,8 +148,7 @@ export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
   testRunner: TestRunner<FR, FT>,
   itemRunner: ItemRunner<FR, *>,
   testFilters: Array<TestFilter<FR, FT>>,
-  // used for endpoints
-  itemFilter?: (FR, testItem: {[string]: any}, fullList: Array<{[string]: any}>) => boolean
+  mockFileNameGenerator: (itemId: ?number, testName: string, runConfig: R) => string
 |}
 
 let lastLoadedFileName = '??';
@@ -252,6 +255,10 @@ function validatorsToString(item): {} {
     result.validators = result.validators[0];
   }
   return result;
+}
+
+export function itemRunner() {
+
 }
 
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I) {

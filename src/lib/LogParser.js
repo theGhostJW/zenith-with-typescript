@@ -13,11 +13,7 @@ import { summaryBlock, iteration, outOfTestError, script, filterLogText } from '
 import * as DateTime from '../lib/DateTimeUtils';
 import moment from 'moment';
 
-export function mockFileName(itemId: ?number, testName: string, runConfig: {[string]: mixed}): string {
-  return testName + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
-}
-
-export function elementsToFullMock(summary: FullSummaryInfo, mockFileNameFunc: ((?number, string, {[string]: mixed}) => string) = mockFileName) {
+export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc: ((?number, string, R) => string)) {
   let  {
       rawFile,
       elementsFile,
@@ -73,7 +69,7 @@ export function elementsToFullMock(summary: FullSummaryInfo, mockFileNameFunc: (
     writeAll(logText, isIssue);
 
     if (wantWriteMock){
-      let runConfig: ?{[string]: any} = def(runSummary, {}).runConfig;
+      let runConfig: ?R = cast(def(runSummary, {}).runConfig);
       if (runConfig == null){
         writeAll(objToYaml(failInfoObj('elementsToFullMock parsing error ~ RunConfig is null')), isIssue);
       }
@@ -92,7 +88,7 @@ function environment(runConfig: {[string]: mixed}): string {
   return toString(def(runConfig['environment'], ''));
 }
 
-function writeMock(iteration: Iteration, runConfig: {[string]: mixed}, mockFileNameFunc: (itemId: ?number, testName: string, runConfig: {[string]: mixed}) => string) {
+function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: ?number, testName: string, R) => string) {
 
 //item: Item, runConfig: RunConfig, valTime: moment$Moment
 //
@@ -695,19 +691,21 @@ function filterLog(str: string) {
    return reorderProps(result, ...logKeys);
 }
 
-export function parseLogDefault(fullPath: string): FullSummaryInfo {
-  let fullSummary: FullSummaryInfo = {
-    rawFile: '',
-    elementsFile: '',
-    testSummaries: {},
-    runSummary: null
-  };
+export function defaultLogParser<R>(mockFileNameGenerator: (itemId: ?number, testName: string, runConfig: R) => string) {
+  return function parseLogDefault(fullPath: string): FullSummaryInfo {
+    let fullSummary: FullSummaryInfo = {
+      rawFile: '',
+      elementsFile: '',
+      testSummaries: {},
+      runSummary: null
+    };
 
-  // generate elements ~ mutates full summary
-  parseLog(fullPath, rawToElements(fullPath, fullSummary), initalState(fullPath));
-  // generate full & mock
-  elementsToFullMock(fullSummary);
-  return fullSummary;
+    // generate elements ~ mutates full summary
+    parseLog(fullPath, rawToElements(fullPath, fullSummary), initalState(fullPath));
+    // generate full & mock
+    elementsToFullMock(fullSummary, mockFileNameGenerator);
+    return fullSummary;
+  }
 }
 
 export function parseLog<S>(fullPath: string, step: (S, LogEntry) => S, initState: S){
