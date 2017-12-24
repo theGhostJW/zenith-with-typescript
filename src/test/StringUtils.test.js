@@ -2,18 +2,27 @@
 
 import {chk, chkEq, chkEqJson, chkException, chkExceptionText, chkFalse} from '../lib/AssertionUtils';
 import {datePlus, now, strToMoment, timeToSQLDateTimeSec, today} from '../lib/DateTimeUtils';
-import { toTemp } from '../lib/FileUtils';
-import {appendDelim, arrayToString, bisect, capFirst, createGuid, createGuidTruncated, endsWith, hasText,
+import { toTemp, toTempString } from '../lib/FileUtils';
+import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate, createGuid, createGuidTruncated, endsWith, hasText,
   loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv,
   removeSection, replace, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
   stringToGroupedTableLooseTyped, stringToGroupedTableLooseTypedDefinedTabSize, stringToGroupedTableMap, stringToTable,
   stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, toString,
   trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
 import {areEqual, debug, deepMapValues, def, flattenObj, forceArray} from '../lib/SysUtils';
-import { GROUPED_TABLES, SAMPLE_TEMPLATE, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES } from '../test/StringUtils.data.test';
+import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES } from '../test/StringUtils.data.test';
 import * as _ from 'lodash'
 
-describe.only('loadSectionedTemplate', () => {
+describe.only('convertXmlToSimpleTemplate', () => {
+
+  it('simple', () => {
+    let result = convertXmlToSimpleTemplate(SAMPLE_XML);
+    toTempString(result)
+  });
+
+});
+
+describe('loadSectionedTemplate', () => {
 
   const DEMO_DATA = {
               batch: {

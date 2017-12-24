@@ -8,6 +8,28 @@ import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
 
+// converts simple xml - one field per line
+// tags closed to mostched template
+export function convertXmlToSimpleTemplate(xml: string){
+  var lines = standardiseLineEndings(xml).split(newLine());
+
+  function makeTemplateLineIfSimple(str){
+    let tagName = subStrBetween(str, '<','>'),
+        result = str;
+
+    if (hasValue(tagName) && hasText(str, '</' + tagName)) {
+      let propName = lowerFirst(replace(tagName, ' ', '')),
+          prefix = subStrBefore(str, '>') + '>',
+          suffix = '</' + subStrAfter(str, '</');
+      result = prefix + '{{' + propName + '}}' + suffix;
+    }
+
+    return result;
+  }
+
+  return lines.map(makeTemplateLineIfSimple).join(newLine());
+}
+
 
 function transformSection(dataObj: {}, transformerFunc: (string, {}) => string, transformedTemplate: string, unTransformedTemplate: string, sectionName: string){
   let parts = templateSectionParts(unTransformedTemplate, sectionName),

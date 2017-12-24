@@ -302,3 +302,103 @@ export const SAMPLE_TEMPLATE: string = `
   <!-- end accounts -->
 </ARCAAccountReportBatch>
 `;
+
+export const SAMPLE_XML: string = `
+<?xml version="1.0" encoding="utf-8"?>
+                              <CRAReportBatch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                                <Batch>
+                                  <BatchID></BatchID>
+                                  <ExtractDate></ExtractDate>
+                                  <ExtractTime></ExtractTime>
+                                  <ProviderReference></ProviderReference>
+                                  <NotificationEmail></NotificationEmail>
+                                  <Version></Version>
+                                  <Mode></Mode>
+                                  <BatchType></BatchType>
+                                  <NameOfTheProvider></NameOfTheProvider>
+                                  <IndustryType></IndustryType>
+                                  <SignatoryID></SignatoryID>
+                                  <SignatorySubID></SignatorySubID>
+                                  <MainContactName></MainContactName>
+                                  <MainContactEmail></MainContactEmail>
+                                  <MainContactPhone></MainContactPhone>
+                                  <OptionalContactName></OptionalContactName>
+                                  <OptionalContactEmail></OptionalContactEmail>
+                                  <OptionalContactPhone></OptionalContactPhone>
+                                </Batch>
+                                <Accounts>
+                                  <Account>
+                                    <AccountHeader>
+                                      <RecordID></RecordID>
+                                      <CorrectionFlag></CorrectionFlag>
+                                      <AccountID>
+                                        <AccountNumber></AccountNumber>
+                                        <AccountSubID></AccountSubID>
+                                      </AccountID>
+                                      <Status></Status>
+                                      <StatusDate></StatusDate>
+                                      <CreditPurpose></CreditPurpose>
+                                      <TypeOfAccount></TypeOfAccount>
+                                    </AccountHeader>
+                                    <AccountDetail>
+                                      <OpenDate></OpenDate>
+                                      <ClosedDate></ClosedDate>
+                                      <PaymentType></PaymentType>
+                                      <CreditType></CreditType>
+                                      <SecuredCredit></SecuredCredit>
+                                      <TermOfLoan></TermOfLoan>
+                                      <PaymentFrequency></PaymentFrequency>
+                                      <CreditLimit></CreditLimit>
+                                      <AccountName></AccountName>
+                                    </AccountDetail>
+                                    <CustomerCount></CustomerCount>
+                                    <Customer>
+                                      <CustomerID></CustomerID>
+                                      <StartDate></StartDate>
+                                      <CeaseDate />
+                                      <CustomerDetail>
+                                        <FormattedName>
+                                          <FormattedNameType></FormattedNameType>
+                                          <Family></Family>
+                                          <First></First>
+                                          <Middle></Middle>
+                                          <Title></Title>
+                                        </FormattedName>
+                                        <Relationship></Relationship>
+                                        <BirthDate></BirthDate>
+                                        <Gender></Gender>
+                                        <Deceased></Deceased>
+                                        <DriversLicence>
+                                        <DriversLicenceNumber></DriversLicenceNumber>
+                                        <DriversLicenceVersion></DriversLicenceVersion>
+                                        </DriversLicence>
+                                        <EmployerName></EmployerName>
+                                        <PreviousEmployerName></PreviousEmployerName>
+                                        <Occupation></Occupation>
+                                        <FormattedAddress>
+                                          <FormattedAddressType></FormattedAddressType>
+                                          <Property></Property>
+                                          <UnitNumber></UnitNumber>
+                                          <StreetNumber></StreetNumber>
+                                          <StreetName></StreetName>
+                                          <StreetType></StreetType>
+                                          <Town></Town>
+                                          <Suburb></Suburb>
+                                          <State></State>
+                                          <Postcode></Postcode>
+                                          <Country></Country>
+                                        </FormattedAddress>
+                                        <UnformattedAddress>
+                                          <UnformattedAddressType></UnformattedAddressType>
+                                          <UnformattedAddress></UnformattedAddress>
+                                        </UnformattedAddress>
+                                      </CustomerDetail>
+                                    </Customer>
+                                    <Payment>
+                                      <Period></Period>
+                                      <PaymentStatus></PaymentStatus>
+                                    </Payment>
+                                  </Account>
+                                </Accounts>
+                              </CRAReportBatch>
+`;
