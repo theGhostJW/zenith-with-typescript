@@ -1,11 +1,87 @@
 // @flow
 
-import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn, areEqual } from '../lib/SysUtils';
+import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn, areEqual,
+          cast } from '../lib/SysUtils';
 import { toTemp } from '../lib/FileUtils';
 import S from 'string';
 import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
+import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
 
+
+function transformSection(dataObj: {}, transformerFunc: (string, {}) => string, transformedTemplate: string, unTransformedTemplate: string, sectionName: string){
+  let parts = templateSectionParts(unTransformedTemplate, sectionName),
+      transformedSection = transformerFunc(parts.section, dataObj);
+
+  return {
+        transformedTemplate: transformedTemplate + parts.prefix + transformedSection,
+        unTransformedTemplate: parts.suffix
+      };
+}
+
+export function loadSectionedTemplate(template: string, transformers: {[string]: (string, {}) => string}, data: {}): string {
+
+
+    function applyTransformer(accum, transformerFunc: (string, {}) => string, sectionName: string){
+      return transformSection(data[sectionName],
+                                      transformerFunc,
+                                      accum.transformedTemplate,
+                                      accum.unTransformedTemplate,
+                                      sectionName
+                                      );
+    }
+
+    let transformed = _.reduce(transformers, applyTransformer, {
+                                                                   transformedTemplate: '',
+                                                                   unTransformedTemplate: template
+                                                                  });
+
+    return transformed.transformedTemplate + transformed.unTransformedTemplate;
+}
+
+
+function standardStartEndSectionedTemplateTags(sectionName: string){
+  return {
+    recordStart: '<!-- ' + sectionName +' -->',
+    recordFinish: '<!-- end ' + sectionName + ' -->'
+  }
+}
+
+export function removeSection(template: string, sectionName: string){
+  let parts = templateSectionParts(template, sectionName);
+  return parts.prefix + parts.suffix;
+}
+
+export const templateSectionParts = (template: string, sectionName: string) =>
+                  templateParts(template, '<!-- ' + sectionName +' -->', '<!-- end ' + sectionName + ' -->');
+
+export function templateParts(template: string, recordStart: string, recordFinish: string){
+
+  ensure(hasText(template, recordStart),
+    'Cannot find section start in template: "' + recordStart + '"'+
+      newLine() + 'looking in template remaining: '
+      + template + newLine(2)
+      + 'NOTE PROPERTIES OF THE TRANSFORMERS OBJECT MUST BE LISTED IN THE SAME ORDER AS THEY APPEAR IN THE TEMPLATE');
+
+  let prefixTarget = bisect(template, recordStart),
+      prefix = prefixTarget[0],
+      target = prefixTarget[1];
+
+  ensure(hasText(target, recordFinish, true),
+                'Cannot find section end in template (case sensitive): ' +  newLine() + recordFinish  +
+                newLine() + 'looking in template remaining: ' + newLine() +
+                + target);
+
+  let targetRemainder = bisect(target, recordFinish),
+      remainder = targetRemainder[1],
+      finalTarget = targetRemainder[0];
+
+  return {
+          prefix: prefix,
+          section: finalTarget,
+          suffix: remainder
+         };
+}
 
 export function templateLoader(templateString: string): {} => string {
   _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
@@ -16,8 +92,8 @@ export function loadTemplate(templateString: string, data: {}): string {
   return templateLoader(templateString)(data);
 }
 
-// loadTemplateP ~ P is for positional ~ will not throw exception on incorrect fields
-export function loadTemplateP(templateString: string, ...data: any): string {
+
+export function loadTemplatePositional(templateString: string, ...data: any): string {
   // note lodays does not work with numeric keys so can't use lodash templating for this
   function applyKey(accum, val, idx) {
     let tag = '{{' + toString(idx) + '}}'
@@ -467,7 +543,7 @@ export function toString<T>(val : T): string {
 
   switch (typeof val) {
     case 'object':
-      return objToYaml(val);
+      return val._isAMomentObject ? timeToSQLDateTimeSec(cast(val)) : objToYaml(val);
 
     case 'boolean':
       return val ? 'true' : 'false';

@@ -167,6 +167,11 @@ export function valueTracker<T>(mapName: string, generatorFunction: (...args: an
          };
 }
 
+/*
+_.deepMapValues(object, function(value, path){
+    return path + ' is ' + value)
+});
+ */
 export const deepMapValues = deep.deepMapValues;
 
 export function deepReduceValues<T>(obj: {[string|number]: any}, func: (accum: T, val: any, propertyPath: string, baseObj: {[string|number]: any}) => T, accum: T): T{

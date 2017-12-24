@@ -11,9 +11,6 @@ export const DATE_TIME_HYPHENATED_MS = "YYYY-MM-DD HH:mm:ss.SSS";
 export const SHORT_DATE_TIME_MS = "DD/MM/YYYY HH:mm:ss.SSS";
 export const SHORT_DATE = "DD/MM/YYYY";
 
-
-
-
 export function testFormatter(year: number, month: number, day: number, hr24: number = 0, minute: number = 0, second: number = 0, milliSecond: number = 0, formatString: string): string {
   // moment zero bases months WTF
   return time(year, month, day, hr24, minute, second, milliSecond).format(formatString);
@@ -47,6 +44,8 @@ export function timeToShortDateTimeHyphenatedMs(dateTime: moment$Moment): string
 export function timeToFormattedMs(dateTime: moment$Moment): string {
   return dateTime.format(LOG_FILE_MS_SEC_FORMAT);
 }
+
+export const timeToSQLDateTimeSec = (dateTime: moment$Moment) => dateTime.format(LOG_TO_SEC_FORMAT);
 
 export function nowFileFormatted(): string {
   return timeToFormattedMs(moment());

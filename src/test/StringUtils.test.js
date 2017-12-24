@@ -1,51 +1,145 @@
 // @flow
 
-import {test, describe} from 'mocha'
-import {debug, areEqual} from '../lib/SysUtils';
-import {
-  toString,
-  endsWith,
-  startsWith,
-  hasText,
-  wildCardMatch,
-  replace,
-  appendDelim,
-  lowerCase,
-  upperCase,
-  lowerFirst,
-  newLine,
-  upperFirst,
-  standardiseLineEndings,
-  createGuid,
-  createGuidTruncated,
-  trim,
-  stringToGroupedTableLooseTyped,
-  stringToTableLooseTyped,
-  stringToGroupedTableLooseTypedDefinedTabSize,
-  stringToTable,
-  bisect,
-  subStrBefore,
-  subStrAfter,
-  stringToGroupedTable,
-  stringToTableMap,
-  stringToGroupedTableMap,
-  capFirst,
-  stringToArray,
-  arrayToString,
-  parseCsv,
-  DEFAULT_CSV_PARSE_OPTIONS,
-  trimChars,
-  subStrBetween,
-  sameText,
-  trimLines,
-  loadTemplate,
-  loadTemplateP
-} from '../lib/StringUtils';
+import {chk, chkEq, chkEqJson, chkException, chkExceptionText, chkFalse} from '../lib/AssertionUtils';
+import {datePlus, now, strToMoment, timeToSQLDateTimeSec, today} from '../lib/DateTimeUtils';
 import { toTemp } from '../lib/FileUtils';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkException} from '../lib/AssertionUtils';
-import { SIMPLE_TABLE, SECTIONED_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, GROUPED_TABLES } from '../test/StringUtils.data.test';
+import {appendDelim, arrayToString, bisect, capFirst, createGuid, createGuidTruncated, endsWith, hasText,
+  loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv,
+  removeSection, replace, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
+  stringToGroupedTableLooseTyped, stringToGroupedTableLooseTypedDefinedTabSize, stringToGroupedTableMap, stringToTable,
+  stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, toString,
+  trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
+import {areEqual, debug, deepMapValues, def, flattenObj, forceArray} from '../lib/SysUtils';
+import { GROUPED_TABLES, SAMPLE_TEMPLATE, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES } from '../test/StringUtils.data.test';
+import * as _ from 'lodash'
 
-describe('loadTemplate / loadTemplateP', () => {
+describe.only('loadSectionedTemplate', () => {
+
+  const DEMO_DATA = {
+              batch: {
+                batchId: createGuidTruncated(20),
+                extractDateTime: timeToSQLDateTimeSec(now()),
+                providerReference: createGuidTruncated(20),
+                notificationEmail: 'test@rrrr.com',
+                version: 2.02,
+                mode: 'T',
+                batchType: 'I',
+                providerName: createGuidTruncated(20),
+                industryType: 'F',
+                signatoryId: createGuidTruncated(20),
+                signatorySubId: createGuidTruncated(20),
+                contactName: createGuidTruncated(20),
+                contactEmail: 'mainContactEmail@myServer.com',
+                contactPhone: '98288888'
+              },
+              accounts: {
+                            recordId: 1,
+                            correctionFlag: 'N',
+                            accountNumber: createGuidTruncated(20),
+                            accountSubId: 'ACCS14082015',
+                            status: 'A',
+                            statusDate: timeToSQLDateTimeSec(today()),
+                            creditPurpose: 'R',
+                            accountHolderCount: 1,
+                            accountType: 'AL',
+                            openDate: timeToSQLDateTimeSec(datePlus(today(), -(20*30))),
+                            closedDate: '',
+                            paymentType: 'P',
+                            creditType: 'F',
+                            termOfLoan: 640,
+                            loanPaymentMethod: 'C',
+                            unlimitedCredit: 'N',
+                            termType: 'M',
+                            securedCredit: 'S',
+                            paymentFrequency: 'M',
+                            maximumAmountOfCreditAvailable: 100000,
+
+                            creditLimit: 300000,
+                            accountName: createGuidTruncated(20),
+                            customerCount: 1,
+                            customer: {
+                              customerId: 244324,
+                              startDate: timeToSQLDateTimeSec(datePlus(today(), -(20*30))),
+                              formattedName: {
+                                  formattedNameType: 'P',
+                                  family: createGuidTruncated(20),
+                                  first: createGuidTruncated(20),
+                                  middle: createGuidTruncated(20),
+                                  title: 'Mr'
+                                },
+                                relationship: "1",
+                                seriousCreditInfringement: false,
+                                birthDate: "2070-01-01",
+                                deceased: 'N',
+                                driversLicence: '',
+                                driversLicenceVersion: '',
+                                gender: 'M',
+                                employerName: 'Test Emp',
+                                previousEmployerName: "Fidel's Fish and Chippery",
+                                occupation: 'Revolutionary',
+                                /*
+                                unformattedAddress: {
+                                  unformattedAddressType: 'C',
+                                  unformattedAddress: '1 Watson Street Akaroa 7520'
+                                },
+                                */
+                                unformattedAddressType: undefined,
+                                unformattedAddress: undefined,
+                                formattedAddress: {
+                                 formattedAddressType: 'C',
+                                 property: undefined,
+                                 unitNumber: '',
+                                 streetNumber: 123,
+                                 streetName: createGuidTruncated(20),
+                                 streetType: "Street",
+                                 town: createGuidTruncated(20),
+                                 suburbTown: createGuidTruncated(20),
+                                 state: '',
+                                 postcode: 3625,
+                                 country: "NZ"
+                                }
+                            },
+                            payment: {
+                              period: '2016-09-01',
+                              paymentStatus: 'X'
+                            }
+                        }
+          };
+
+    function accountsTransformer(xmlTemplate, accountsObj){
+      let arrAccounts = forceArray(accountsObj),
+          accountTemplate = templateSectionParts(xmlTemplate, 'account').section,
+          sectionToRemove = accountsObj.unformattedAddress == null ?
+                                                                    'unformattedAddress' :
+                                                                    'formattedAddress';
+
+      accountTemplate = removeSection(accountTemplate, sectionToRemove);
+
+      function transformAccount(accountObj){
+        var flattened = flattenObj(accountObj)
+        return loadTemplate(accountTemplate, flattened);
+      }
+
+      var allAccounts = _.map(arrAccounts, transformAccount)
+      return allAccounts.join();
+    }
+
+  it('large template load', () => {
+    let data = DEMO_DATA,
+        template = SAMPLE_TEMPLATE,
+        transformers =  {
+                        batch: loadTemplate,
+                        accounts: accountsTransformer
+                      },
+        result = loadSectionedTemplate(template, transformers, data);
+
+     chkFalse(hasText(result, '{{'));
+  });
+
+});
+
+
+describe('loadTemplate / loadTemplatePositional', () => {
 
   it('loadTemplate ~ basic template load', () => {
     const TEMPLATE = `given: {{given}},
@@ -79,7 +173,7 @@ describe('loadTemplate / loadTemplateP', () => {
                                     () => 'checking for any exception the way the template works is weird');
   });
 
-  it('loadTemplateP ~ basic template load', () => {
+  it('loadTemplatePositional ~ basic template load', () => {
     const TEMPLATE = `given: {{0}},
                     last: {{1}},
                     gender: {{2}},`;
@@ -88,7 +182,7 @@ describe('loadTemplate / loadTemplateP', () => {
                       last: Doe,
                       gender: Male,`;
 
-    chkEq(trimLines(EXPECTED), trimLines(loadTemplateP(TEMPLATE, 'John', 'Doe', 'Male')));
+    chkEq(trimLines(EXPECTED), trimLines(loadTemplatePositional(TEMPLATE, 'John', 'Doe', 'Male')));
   });
 
 });
@@ -652,6 +746,11 @@ describe('toString', () => {
 
   it('object', () => {
     chkEq('hi: 1\n', toString({hi: 1}));
+  });
+
+  it('moment', () => {
+    let mmt = strToMoment('2017-11-04')
+    chkEq('2017-11-04 00:00:00', toString(mmt));
   });
 
   it('number', () => {
