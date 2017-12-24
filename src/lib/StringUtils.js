@@ -6,8 +6,24 @@ import S from 'string';
 import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
 
-export function loadTemplate() {
 
+export function templateLoader(templateString: string): {} => string {
+  _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+  return _.template(templateString);
+}
+
+export function loadTemplate(templateString: string, data: {}): string {
+  return templateLoader(templateString)(data);
+}
+
+// loadTemplateP ~ P is for positional ~ will not throw exception on incorrect fields
+export function loadTemplateP(templateString: string, ...data: any): string {
+  // note lodays does not work with numeric keys so can't use lodash templating for this
+  function applyKey(accum, val, idx) {
+    let tag = '{{' + toString(idx) + '}}'
+    return replace(accum, tag, toString(val))
+  }
+  return data.reduce(applyKey, templateString);
 }
 
 export function trimLines(str: string) {

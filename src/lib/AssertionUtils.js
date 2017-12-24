@@ -41,7 +41,7 @@ export function chkExceptionText(action : () => any, exceptionText: string, case
   let failMessage = null;
   chkException(
       action,
-      (e: Error) => {
+      (e) => {
         failMessage = toString(e);
         return wildCardMatch(failMessage, exceptionText, caseSensitive);
       },
@@ -50,7 +50,7 @@ export function chkExceptionText(action : () => any, exceptionText: string, case
   );
 }
 
-export function chkException(action : () => any, erroCheck: Error => boolean, message : (() => string) | string | void){
+export function chkException(action : () => any, erroCheck: any => boolean, message : (() => string) | string | void){
 
   function messageFunc(): string {
     return message == null ? '' :

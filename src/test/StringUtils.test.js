@@ -38,30 +38,63 @@ import {
   subStrBetween,
   sameText,
   trimLines,
-  loadTemplate
+  loadTemplate,
+  loadTemplateP
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
+import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkException} from '../lib/AssertionUtils';
 import { SIMPLE_TABLE, SECTIONED_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, GROUPED_TABLES } from '../test/StringUtils.data.test';
 
-// describe('loadTemplate', () => {
-//
-//   function template() {
-//     let result = `given: {{given}},
-//                   last: {{last}},
-//                   gender: {{gender}},
-//                   `
-//    }
-//
-//
-//   it('', () => {
-//
-//   });
-//
-// });
-//
+describe('loadTemplate / loadTemplateP', () => {
 
-describe.only('trimLines', () => {
+  it('loadTemplate ~ basic template load', () => {
+    const TEMPLATE = `given: {{given}},
+                    last: {{last}},
+                    gender: {{gender}},`;
+
+    const EXPECTED = `given: John,
+                      last: Doe,
+                      gender: Male,`;
+
+    const DATA = {
+                   given: 'John',
+                   last: 'Doe',
+                   gender: 'Male'
+                  };
+
+    chkEq(trimLines(EXPECTED), trimLines(loadTemplate(TEMPLATE, DATA)));
+  });
+
+  it('loadTemplate ~ missing prop', () => {
+    const TEMPLATE = `given: {{given}},
+                    last: {{last}},
+                    gender: {{gender}},`;
+
+    const DATA = {
+                   given: 'John',
+                   last: 'Doe'
+                  };
+
+    chkException(() => loadTemplate(TEMPLATE, DATA), e => true,
+                                    () => 'checking for any exception the way the template works is weird');
+  });
+
+  it('loadTemplateP ~ basic template load', () => {
+    const TEMPLATE = `given: {{0}},
+                    last: {{1}},
+                    gender: {{2}},`;
+
+    const EXPECTED = `given: John,
+                      last: Doe,
+                      gender: Male,`;
+
+    chkEq(trimLines(EXPECTED), trimLines(loadTemplateP(TEMPLATE, 'John', 'Doe', 'Male')));
+  });
+
+});
+
+
+describe('trimLines', () => {
 
   it('empty', () => {
     chkEq('', trimLines(''))
