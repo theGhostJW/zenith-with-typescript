@@ -3,7 +3,7 @@
 import { testPrivate, iteration, outOfTestError} from '../lib/LogFormatter';
 import {  chkEq, chkExceptionText } from '../lib/AssertionUtils';
 import { fromTestData, toTempString, fromTestDataString } from '../lib/FileUtils';
-import { trimChars, newLine, standardiseLineEndings } from '../lib/StringUtils';
+import { trimChars, newLine, standardiseLineEndings, trimLines } from '../lib/StringUtils';
 import { debug } from '../lib/SysUtils';
 
 
@@ -12,10 +12,6 @@ function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, tra
     let source = fromTestData(sourceFile),
         expected = trimChars(standardiseLineEndings(fromTestDataString(expectedFile)), [newLine(), ' ']),
         actual = trimChars(transformer(source), [newLine(), ' ']);
-
-    function trimLines(str) {
-      return str.split(newLine()).map(s => s.trim()).join(newLine());
-    }
 
     // seem to be losing whitespace loading expected this is a
     // work around

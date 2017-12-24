@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ARCAAccountReportBatch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" mode="T" version="0100">
+  <!-- batch -->
+	<Header>
+    <Batch>
+      <BatchId>{{batchId}}</BatchId>
+      <ProviderReference>{{providerReference}}</ProviderReference>
+      <NotificationEmail>{{notificationEmail}}</NotificationEmail>
+      <ExtractDateTime>{{extractDateTime}}</ExtractDateTime>
+      <BatchType>{{batchType}}</BatchType>
+      <ResponseDetail>F</ResponseDetail>
+    </Batch>
+    <Provider>
+      <Licensee>N</Licensee>
+      <Name>{{providerName}}</Name>
+      <SignatoryId>{{signatoryId}}</SignatoryId>
+      <SignatorySubId>{{signatorySubId}}</SignatorySubId>
+      <IndustryType>{{industryType}}</IndustryType>
+      <OtherIndustryTypeDescriptor />
+    </Provider>
+    <Contact>
+      <Name>{{contactName}}</Name>
+      <Email>{{contactEmail}}</Email>
+      <Phone>{{contactPhone}}</Phone>
+    </Contact>
+  </Header>
+	<!-- end batch -->
+	<!-- accounts -->
+  <Accounts>
+		<!-- account -->
+    <Account recordId="{{recordId}}">
+      <Header>
+        <AccountId>
+          <AccountNumber>{{accountNumber}}</AccountNumber>
+          <AccountSubId>{{accountSubId}}</AccountSubId>
+        </AccountId>
+        <CreditPurpose>{{creditPurpose}}</CreditPurpose>
+        <AccountType>{{accountType}}</AccountType>
+        <OtherAccountTypeDescriptor />
+        <AccountHolderCount>{{accountHolderCount}}</AccountHolderCount>
+        <OpenDate>{{openDate}}</OpenDate>
+        <CloseDate />
+      </Header>
+      <ConsumerCreditLiability>
+        <LoanPaymentMethod>{{loanPaymentMethod}}</LoanPaymentMethod>
+        <TermType>{{termType}}</TermType>
+        <SecuredCredit>{{securedCredit}}</SecuredCredit>
+        <TermOfLoan>{{termOfLoan}}</TermOfLoan>
+        <MaximumAmountOfCreditAvailable>{{maximumAmountOfCreditAvailable}}</MaximumAmountOfCreditAvailable>
+        <UnlimitedCredit>{{unlimitedCredit}}</UnlimitedCredit>
+      </ConsumerCreditLiability>
+			<!-- accountHolders -->      
+      <AccountHolders>
+				<!-- accountHolder -->
+        <AccountHolder>
+          <StartDate>{{startDate}}</StartDate>
+          <Relationship>1</Relationship>
+          <DefaultAssociationStartDate />
+          <DefaultAssociationCeaseDate />
+          <SeriousCreditInfringement>{{seriousCreditInfringement}}</SeriousCreditInfringement>
+          <PrimaryName>
+            <Formatted>
+							<Family>{{family}}</Family>
+							<First>{{first}}</First>
+							<Middle>{{middle}}</Middle>
+							<Title>{{title}}</Title>
+            </Formatted>
+          </PrimaryName>
+          <BirthDate>{{birthDate}}</BirthDate>
+          <Gender>{{gender}}</Gender>
+          <Deceased>{{deceased}}</Deceased>
+					<DriversLicence>{{driversLicence}}</DriversLicence>
+          
+					<!-- currentAddress -->
+					<CurrentAddress>
+						<!-- formattedAddress -->
+            <Formatted>
+							<Property>{{property}}</Property>			
+							<UnitNumber>{{unitNumber}}</UnitNumber>
+							<StreetNumber>{{streetNumber}}</StreetNumber>
+							<StreetName>{{streetName}}</StreetName>
+							<StreetType>{{streetType}}</StreetType>
+              <SuburbTown>{{suburbTown}}</SuburbTown>
+              <State>{{state}}</State>
+              <Postcode>{{postcode}}</Postcode>
+              <Country>{{country}}</Country>
+            </Formatted>
+						<!-- end formattedAddress -->
+					<!-- unformattedAddress -->
+					<Unformatted>
+						<Address>{{unformattedAddress}}</Address>
+					</Unformatted>
+					<!-- end unformattedAddress -->
+          </CurrentAddress>
+					<!-- end currentAddress -->
+					
+					<!-- previousAddress -->
+					<PreviousAddress>
+						<!-- formattedAddress -->
+            <Formatted>
+							<Property>{{property}}</Property>			
+							<UnitNumber>{{unitNumber}}</UnitNumber>
+							<StreetNumber>{{streetNumber}}</StreetNumber>
+							<StreetName>{{streetName}}</StreetName>
+							<StreetType>{{streetType}}</StreetType>
+              <SuburbTown>{{suburbTown}}</SuburbTown>
+              <State>{{state}}</State>
+              <Postcode>{{postcode}}</Postcode>
+              <Country>{{country}}</Country>
+            </Formatted>
+					<!-- unformattedAddress -->
+					<Unformatted>
+						<Address>{{unformattedAddress}}</Address>
+					</Unformatted>
+					<!-- end unformattedAddress -->
+          </PreviousAddress>
+					<!-- end previousAddress -->
+					
+					<!-- mailingAddress -->
+					<MailingAddress>
+						<!-- formattedAddress -->
+            <Formatted>
+							<Property>{{property}}</Property>			
+							<UnitNumber>{{unitNumber}}</UnitNumber>
+							<StreetNumber>{{streetNumber}}</StreetNumber>
+							<StreetName>{{streetName}}</StreetName>
+							<StreetType>{{streetType}}</StreetType>
+              <SuburbTown>{{suburbTown}}</SuburbTown>
+              <State>{{state}}</State>
+              <Postcode>{{postcode}}</Postcode>
+              <Country>{{country}}</Country>
+            </Formatted>
+					<!-- unformattedAddress -->
+					<Unformatted>
+						<Address>{{unformattedAddress}}</Address>
+					</Unformatted>
+					<!-- end unformattedAddress -->
+          </MailingAddress>
+					<!-- end mailingAddress -->
+					
+        </AccountHolder>
+				<!-- end accountHolder -->
+      </AccountHolders>
+			<!-- end accountHolders -->
+    </Account>
+		<!-- end account -->
+  </Accounts>
+	<!-- end accounts -->
+</ARCAAccountReportBatch>

@@ -6,6 +6,14 @@ import S from 'string';
 import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
 
+export function loadTemplate() {
+
+}
+
+export function trimLines(str: string) {
+  return standardiseLineEndings(str).split(newLine()).map(s => s.trim()).join(newLine());
+}
+
 
 export function sameText(str1: string, str2: string, caseSensitive: boolean = false) {
   return caseSensitive ? areEqual(str1, str2) : areEqual(str1.toLowerCase(), str2.toLowerCase());

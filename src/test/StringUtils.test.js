@@ -36,11 +36,51 @@ import {
   DEFAULT_CSV_PARSE_OPTIONS,
   trimChars,
   subStrBetween,
-  sameText
+  sameText,
+  trimLines,
+  loadTemplate
 } from '../lib/StringUtils';
 import { toTemp } from '../lib/FileUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText} from '../lib/AssertionUtils';
 import { SIMPLE_TABLE, SECTIONED_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, GROUPED_TABLES } from '../test/StringUtils.data.test';
+
+// describe('loadTemplate', () => {
+//
+//   function template() {
+//     let result = `given: {{given}},
+//                   last: {{last}},
+//                   gender: {{gender}},
+//                   `
+//    }
+//
+//
+//   it('', () => {
+//
+//   });
+//
+// });
+//
+
+describe.only('trimLines', () => {
+
+  it('empty', () => {
+    chkEq('', trimLines(''))
+  });
+
+  it('lines', () => {
+    let
+      targ = `
+              blahhh \r\n
+
+              de blaaa
+              hi there
+            `,
+      expected = '\nblahhh\n\n\nde blaaa\nhi there\n';
+
+    chkEq(expected, trimLines(targ))
+  });
+
+});
 
 type RecType = {
   id: number,

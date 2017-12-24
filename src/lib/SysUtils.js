@@ -13,7 +13,6 @@ import { log, logException } from '../lib/Logging';
 import { runTimeFile, pathExists } from '../lib/FileUtils';
 import { parseString } from 'xml2js'
 
-
 export function xmlToObj(xml: string): {} {
 
   let result;
