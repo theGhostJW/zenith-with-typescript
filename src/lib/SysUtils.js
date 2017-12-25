@@ -3,7 +3,7 @@
 import * as _ from 'lodash';
 import * as deep from 'lodash-deep';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
-      subStrBetween, stringToArray, replace, newLine} from '../lib/StringUtils';
+      subStrBetween, stringToArray, replace, newLine, lwrFirst} from '../lib/StringUtils';
 import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
@@ -16,7 +16,7 @@ import { parseString } from 'xml2js'
 export function xmlToObj(xml: string): {} {
 
   let result;
-  parseString(xml, (err, rslt) => {
+  parseString(xml, {explicitArray: false, tagNameProcessors: [lwrFirst], attributeNameProcessors: [lwrFirst]}, (err, rslt) => {
     if (err != null){
       throw err;
     }

@@ -474,8 +474,9 @@ describe('<to / from>TestDataString round trip', () => {
 describe('from / to tempString', () => {
 
   it('simple round trip full defaults', () => {
-    toTempString('Hi');
-    chkEq('Hi', fromTempString());
+    let targ = 'ddasdasqwfcvufts Hi De Hi';
+    toTempString(targ);
+    chkHasText(fromTempString(), targ);
   });
 
 

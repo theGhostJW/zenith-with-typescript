@@ -1,12 +1,55 @@
 // @flow
 
 import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn, areEqual,
-          cast } from '../lib/SysUtils';
-import { toTemp } from '../lib/FileUtils';
+          cast, xmlToObj, deepMapValues } from '../lib/SysUtils';
+import { toTemp, toTempString } from '../lib/FileUtils';
 import S from 'string';
 import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
+
+
+export function lwrFirst(str: ?string) {
+  return str == null ? str : str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+function ALLOWABLE_PROP_CHARS(){
+  function firstChar(str){
+    return str.slice(0, 1);
+  }
+
+  return _.chain(_.range(65, 91))
+                      .concat(_.range(97, 123))
+                      .map(String.fromCharCode)
+                      .map(firstChar)
+                      .concat('_')
+                      .concat(_.map(_.range(0, 11), toString))
+                      .value();
+
+}
+
+function containsNonAlphaNumericOrUnderscore(str){
+
+  var allowable = ALLOWABLE_PROP_CHARS();
+
+  function notAllowed(chr){
+    return !allowable.includes(chr);
+  }
+
+  return _.some(str.split(''), notAllowed);
+}
+
+// just to get stingify to look pretty
+export function objToJson(obj: any) {
+  return JSON.stringify(obj, null, ' ');
+}
+
+// used to generate properties object for templating from xml
+export function propsObjectStringFromXml(xmlStr: string){
+  var xmlObj = xmlToObj(xmlStr);
+  return replace(replace(objToJson(deepMapValues(xmlObj, () => null)), '""', 'null'), '"', '');
+}
+
 
 // converts simple xml - one field per line
 // tags closed to mostched template

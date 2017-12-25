@@ -17,8 +17,10 @@ describe('xmlToObj', () => {
   it('parse demo file', () => {
 
     let xml = fromTestDataString('books.xml'),
-        obj = cast(xmlToObj(xml)),
-        recCount = obj.catalog.book.length;
+        obj = cast(xmlToObj(xml));
+
+        debug(obj)
+        let recCount = obj.catalog.book.length;
 
      chkEq(12, recCount);
   });

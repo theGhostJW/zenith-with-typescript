@@ -1,10 +1,10 @@
 // @flow
 
-import {chk, chkEq, chkEqJson, chkException, chkExceptionText, chkFalse} from '../lib/AssertionUtils';
+import {chk, chkEq, chkEqJson, chkException, chkExceptionText, chkFalse, chkHasText} from '../lib/AssertionUtils';
 import {datePlus, now, strToMoment, timeToSQLDateTimeSec, today} from '../lib/DateTimeUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate, createGuid, createGuidTruncated, endsWith, hasText,
-  loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv,
+  loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv, propsObjectStringFromXml,
   removeSection, replace, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
   stringToGroupedTableLooseTyped, stringToGroupedTableLooseTypedDefinedTabSize, stringToGroupedTableMap, stringToTable,
   stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, toString,
@@ -13,7 +13,17 @@ import {areEqual, debug, deepMapValues, def, flattenObj, forceArray} from '../li
 import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES } from '../test/StringUtils.data.test';
 import * as _ from 'lodash'
 
-describe.only('convertXmlToSimpleTemplate', () => {
+describe('propsObjectStringFromXml', () => {
+
+  it('converts xml to valid object', () => {
+    let result = propsObjectStringFromXml(SAMPLE_XML);
+    console.log(result);
+    chkHasText(result, 'formattedNameType: null,')
+  });
+
+});
+
+describe('convertXmlToSimpleTemplate', () => {
 
   it('simple', () => {
     let result = convertXmlToSimpleTemplate(SAMPLE_XML);

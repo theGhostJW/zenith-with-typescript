@@ -307,7 +307,7 @@ export const SAMPLE_XML: string = `
 <?xml version="1.0" encoding="utf-8"?>
                               <CRAReportBatch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                                 <Batch>
-                                  <BatchID></BatchID>
+                                  <BatchID>1</BatchID>
                                   <ExtractDate></ExtractDate>
                                   <ExtractTime></ExtractTime>
                                   <ProviderReference></ProviderReference>
