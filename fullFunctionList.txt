@@ -47,15 +47,17 @@ TDate 					To Do			Done			Completion
 	DONE - logDateHeader = logDateHeader; - depricated
 ===== DBUtils =====
 /****** Exports *****/
-	TODO: makeSQlServerConnectionString = makeSQlServerConnectionString;
-	TODO: makeSQLite3ConnectionString = makeSQLite3ConnectionString;
-	TODO: runSQLQuery = runSQLQuery;
-	TODO: getRecords = getRecords;
-	TODO: getRecord = getRecord;
-	TODO: getField = getField;
+  ~ Needs SQL SERVER - DO at D&B use mssql pkg from yarn
+	DEFER: makeSQlServerConnectionString = makeSQlServerConnectionString;
+	DEFER: makeSQLite3ConnectionString = makeSQLite3ConnectionString;
+	DEFER: runSQLQuery = runSQLQuery;
+	DEFER: getRecords = getRecords;
+	DEFER: getRecord = getRecord;
+	DEFER: getField = getField;
 ===== EmailUtils =====
 /****** Exports *****/
-	TODO: sendEmail = sendEmail;
+	~ Needs Exchange Server ~ Do at D&B
+	DEFER: sendEmail = sendEmail;
 ===== ExcelDataConnectionUtils =====
 /****** Exports *****/
 	 depricate in favour of CSV

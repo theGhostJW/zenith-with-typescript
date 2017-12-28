@@ -24,6 +24,7 @@
     "n-readlines": "^0.2.8",
     "node-zip": "^1.1.1",
     "psnode": "^0.0.1",
+    "sqlite3": "^3.1.13",
     "string": "^3.3.3",
     "winston": "^2.3.1",
     "xml2js": "^0.4.19"
@@ -34,7 +35,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-node": "^5.1.1",
-    "flow-bin": "^0.61.0",
+    "flow-bin": "^0.62.0",
     "flow-types": "^1.0.0",
     "gaze": "^1.1.2",
     "istanbul": "^0.4.5",
@@ -52,7 +53,7 @@
     "endPoint": "mocha --compilers js:babel-core/register ./src/test/**/*.integration.js ./testCases/**/*.integration.js --grep endPoint",
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
     "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js --grep endPoint --invert",
-    "fixBabel": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node gaze flow-bin nyc istanbul-reports --dev"
+    "fixBuild": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node gaze flow-bin nyc istanbul-reports --dev"
   },
   "nyc": {
     "exclude": [
