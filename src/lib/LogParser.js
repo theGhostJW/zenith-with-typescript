@@ -22,9 +22,9 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
 
   let timeStampedPath = timeStampedRawPath(),
       fullWriter = fileRecordWriter(destPath(rawFile, 'raw', 'full'), newLine(2)),
-      fullWriterTimestamped = fileRecordWriter(destPath(timeStampedRawPath(), 'raw', 'full'), newLine(2)),
+      fullWriterTimestamped = fileRecordWriter(destPath(timeStampedPath, 'raw', 'full'), newLine(2)),
       issuesWriter = fileRecordWriter(destPath(rawFile, 'raw', 'issues'), newLine(2)),
-      issuesWriterTimestamped = fileRecordWriter(destPath(timeStampedRawPath(), 'raw', 'issues'), newLine(2));
+      issuesWriterTimestamped = fileRecordWriter(destPath(timeStampedPath, 'raw', 'issues'), newLine(2));
 
   function writeAll(entry: string, writeIssue: boolean) {
 
@@ -343,10 +343,9 @@ function destPath(rawPath: string, sourceFilePart: string, destFilePart: string,
 
   ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
 
-  let resultPath = replace(rawPath, sourceFilePart, '.' + destFilePart + '.'),
-      fileName = fileOrFolderName(resultPath);
+  let resultPath = replace(rawPath, sourceFilePart, '.' + destFilePart + '.');
 
-  return combine(def(destDir, logFile()), fileName );
+  return destDir== null ? resultPath : combine(logFile(), fileOrFolderName(resultPath));
 }
 
 function fileWriter(destPath: string){

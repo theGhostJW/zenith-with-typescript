@@ -1,52 +1,81 @@
-elementType: OutOfTestErrors
-issues:
-  - name: out of test
-    infoType: OutOfTest
-    warnings:
-      - timestamp: '2017-11-25 11:28:22'
-        level: warn
-        subType: Message
-        message: warning added for testing
-    errors:
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: Message
-        popControl: NoAction
-        message: bodged out of test example failure
-        additionalInfo: blahh
-    type2Errors: []
-    knownDefects: []
+################################################################################
+########################### Summary - Test Test Run ############################
+################################################################################
 
--------------------------------
-summary: Summary not implemented
-startTime: '2017-11-25 11:28:22'
-endTime: '2017-11-25 11:28:27'
-valTime: '2017-12-13 13:18:33.641'
-elementType: IterationInfo
-testConfig:
-  script: Another_Demo_Case
-  id: 2
-  when: i test anther case
-  then: it still works
-  owner: JW
-  enabled: true
-  countries:
-    - Australia
-  environments:
-    - TST
-  depth: Regression
-item:
-  id: 1
-  when: I run a test
-  then: i get the result
-  validators: check_has_another
-mocked: false
-valState:
-  when: I run a test
-apState:
-  id: 3456789
-  observation: blahh
-passedValidators: []
+start:    2017-11-25 11:28:22
+end:      2017-11-25 12:38:44
+duration: 01:10:22
+raw:      .\DemoLog.raw.yaml
+
+runConfig:
+  mocked:      false
+  country:     Australia
+  environment: TST
+  testCases:   []
+  depth:       Regression
+
+stats:
+  testCases:                  30
+  passedTests:                 1
+  failedTests:                 2
+  testsWithWarnings:           1
+  testsWithKnownDefects:       2
+  testsWithType2Errors:        1
+
+  iterations:                  7
+  passedIterations:            3
+  iterationsWithErrors:        4
+  iterationsWithWarnings:      1
+  iterationsWithType2Errors:   1
+  iterationsWithKnownDefects:  2
+
+  outOfTestErrors:             1
+  outOfTestWarnings:           2
+  outOfTestType2Errors:        1
+  outOfTestKnownDefects:       1
+
+################################################################################
+#%############################ Out of Test Issues ##############################
+################################################################################
+
+warnings:
+  - timestamp: 2017-11-25 11:28:22
+    message:   warning added for testing
+
+errors:
+  - timestamp:      2017-11-25 11:28:22
+    message:        bodged out of test example failure
+    additionalInfo: blahh
+
+################################################################################
+######################### Another Demo Case - 00:10:01 #########################
+################################################################################
+
+stats:
+  iterations:                 2
+  passedIterations:           1
+  iterationsWithErrors:       1
+  iterationsWithType2Errors:  2
+  iterationsWithWarnings:     1
+  iterationsWithKnownDefects: 0
+
+#-------------------------------------------------------------------------------
+#%------------------- Another_Demo_Case - Item 1 - 00:00:05 --------------------
+#-------------------------------------------------------------------------------
+
+when:   I run a test
+then:   i get the result
+status: errors, warnings
+
+validation:
+  - interactor:        warnings
+  - check has another: errors
+
+summary:
+  Summary not implemented
+
+#-------------------------------------------------------------------------------
+
 issues:
   - name: Executing Interactor
     infoType: InTest
@@ -55,18 +84,19 @@ issues:
         level: warn
         subType: Message
         message: Warning added for testing in iteration
-    errors: []
-    type2Errors: []
-    knownDefects: []
+  
   - name: check_has_another
     infoType: Validation
-    warnings: []
+    valTime: '2017-12-13 13:18:33.641'
+    valState:
+      when: I run a test
     errors:
       - timestamp: '2017-11-25 11:28:22'
         level: error
         subType: CheckFail
         popControl: NoAction
         message: Check Text Contains ~ 2 errors 1 iteration
+  
       - timestamp: '2017-11-25 11:28:22'
         level: error
         subType: CheckFail
@@ -108,99 +138,76 @@ issues:
               at runCallback (timers.js:800:20)
               at tryOnImmediate (timers.js:762:5)
               at processImmediate [as _immediateCallback] (timers.js:733:5)
-    type2Errors: []
-    knownDefects: []
 
--------------------------------
-summary: Summary not implemented
-startTime: '2017-11-25 11:28:22'
-endTime: '2017-11-25 11:28:22'
-valTime: '2017-12-13 13:18:33.641'
-elementType: IterationInfo
-testConfig:
-  script: Another_Demo_Case
-  id: 2
-  when: i test anther case
-  then: it still works
-  owner: JW
-  enabled: true
-  countries:
-    - Australia
-  environments:
-    - TST
-  depth: Regression
+#-------------------------------------------------------------------------------
+
 item:
-  id: 2
-  when: I run another test
-  then: i get another result
-  validators: check_has_another
-mocked: false
+  {}
+  
+
+#-------------------------------------------------------------------------------
+
 valState:
-  when: I run another test
-apState: {}
-passedValidators:
-  - check_has_another
-issues: []
-
--------------------------------
-elementType: OutOfTestErrors
-issues:
-  - name: out of test
-    infoType: OutOfTest
-    warnings:
-      - timestamp: '2017-11-25 11:28:22'
-        level: warn
-        subType: Message
-        message: out of test warning 2
-    errors: []
-    type2Errors:
-      - timestamp: '2017-11-25 11:28:22'
-        level: info
-        subType: EndDefect
-        additionalInfo: |
-          message: out of test type 2 error
-          additionalInfo: |
-            active: true
-    knownDefects: []
-
--------------------------------
-summary: Summary not implemented
-startTime: '2017-11-25 11:28:22'
-endTime: '2017-11-25 11:28:22'
-valTime: '2017-12-13 13:18:33.641'
-elementType: IterationInfo
-testConfig:
-  script: Demo_Case
-  id: 1
-  when: I cannot think of anything
-  then: I just write something
-  owner: JW
-  enabled: true
-  countries:
-    - New Zealand
-    - Australia
-  environments:
-    - TST
-  depth: Regression
-item:
-  id: 1
   when: I run a test
-  then: i get the result
-  validators:
-    - check_less_than_2
-    - check_with_disabled_expectation
-    - check_with_incorrect_disabled_expectation
-mocked: false
-valState:
-  id: 1
-apState: {}
-passedValidators:
-  - check_with_disabled_expectation
+  
+
+#-------------------------------------------------------------------------------
+
+apState:
+  id: 3456789
+  observation: blahh
+  
+
+################################################################################
+#%############################ Out of Test Issues ##############################
+################################################################################
+
+warnings:
+  - timestamp: 2017-11-25 11:28:22
+    message:   out of test warning 2
+
+type2Errors:
+  - timestamp:      2017-11-25 11:28:22
+    additionalInfo: message: out of test type 2 error
+additionalInfo: |
+  active: true
+
+
+################################################################################
+############################# Demo Case - 00:00:00 #############################
+################################################################################
+
+stats:
+  iterations:                 4
+  passedIterations:           1
+  iterationsWithErrors:       3
+  iterationsWithWarnings:     0
+  iterationsWithKnownDefects: 1
+
+#-------------------------------------------------------------------------------
+#%----------------------- Demo_Case - Item 1 - 00:00:00 ------------------------
+#-------------------------------------------------------------------------------
+
+when:   I run a test
+then:   i get the result
+status: errors, type2Errors
+
+validation:
+  - check less than 2:                         type2Errors
+  - check with incorrect disabled expectation: errors
+  - check with disabled expectation:           passed
+
+summary:
+  Summary not implemented
+
+#-------------------------------------------------------------------------------
+
 issues:
   - name: check_less_than_2
     infoType: Validation
-    warnings: []
-    errors: []
+    valTime: '2017-12-13 13:18:33.641'
+    valState:
+      id: 1
     type2Errors:
       - timestamp: '2017-11-25 11:28:22'
         level: info
@@ -211,10 +218,12 @@ issues:
           message: 'Defect Expected: 1'
           additionalInfo: |
             active: true
-    knownDefects: []
+  
   - name: check_with_incorrect_disabled_expectation
     infoType: Validation
-    warnings: []
+    valTime: '2017-12-13 13:18:33.641'
+    valState:
+      id: 1
     errors:
       - timestamp: '2017-11-25 11:28:22'
         level: error
@@ -253,48 +262,50 @@ issues:
               at runCallback (timers.js:800:20)
               at tryOnImmediate (timers.js:762:5)
               at processImmediate [as _immediateCallback] (timers.js:733:5)
-    type2Errors: []
-    knownDefects: []
 
--------------------------------
-summary: Summary not implemented
-startTime: '2017-11-25 11:28:22'
-endTime: '2017-11-25 11:28:22'
-valTime: '2017-12-13 13:18:33.641'
-elementType: IterationInfo
-testConfig:
-  script: Demo_Case
-  id: 1
-  when: I cannot think of anything
-  then: I just write something
-  owner: JW
-  enabled: true
-  countries:
-    - New Zealand
-    - Australia
-  environments:
-    - TST
-  depth: Regression
+#-------------------------------------------------------------------------------
+
 item:
-  id: 2
-  when: I run another test
-  then: i get another result
-  validators:
-    - check_less_than_2
-    - check_less_than_3
-mocked: false
+  {}
+  
+
+#-------------------------------------------------------------------------------
+
 valState:
-  id: 2
-apState: {}
-passedValidators:
-  - check_less_than_2
-  - check_less_than_3
+  id: 1
+  
+
+#-------------------------------------------------------------------------------
+
+apState:
+  {}
+  
+
+
+
+#-------------------------------------------------------------------------------
+#%----------------------- Demo_Case - Item 2 - 00:00:00 ------------------------
+#-------------------------------------------------------------------------------
+
+when:   I run another test
+then:   i get another result
+status: knownDefects
+
+validation:
+  - check less than 2: passed
+  - check less than 3: passed
+
+summary:
+  Summary not implemented
+
+#-------------------------------------------------------------------------------
+
 issues:
   - name: check_less_than_2
     infoType: Validation
-    warnings: []
-    errors: []
-    type2Errors: []
+    valTime: '2017-12-13 13:18:33.641'
+    valState:
+      id: 2
     knownDefects:
       - timestamp: '2017-11-25 11:28:22'
         level: error
@@ -335,39 +346,48 @@ issues:
               at tryOnImmediate (timers.js:762:5)
               at processImmediate [as _immediateCallback] (timers.js:733:5)
 
--------------------------------
-summary: ''
-startTime: '2017-11-25 11:28:22'
-endTime: '2017-11-25 11:28:22'
-valTime: '2017-12-13 13:18:33.641'
-elementType: IterationInfo
-testConfig:
-  script: Demo_Case
-  id: 1
-  when: I cannot think of anything
-  then: I just write something
-  owner: JW
-  enabled: true
-  countries:
-    - New Zealand
-    - Australia
-  environments:
-    - TST
-  depth: Regression
+#-------------------------------------------------------------------------------
+
 item:
-  id: 3
-  when: I run another test
-  then: i get another result
-  validators: check_bad_validator
-mocked: false
+  {}
+  
+
+#-------------------------------------------------------------------------------
+
 valState:
-  id: 3
-apState: {}
-passedValidators: []
+  id: 2
+  
+
+#-------------------------------------------------------------------------------
+
+apState:
+  {}
+  
+
+
+
+#-------------------------------------------------------------------------------
+#%----------------------- Demo_Case - Item 3 - 00:00:00 ------------------------
+#-------------------------------------------------------------------------------
+
+when:   I run another test
+then:   i get another result
+status: errors
+
+validation:
+  - check bad validator: errors
+
+summary:
+
+
+#-------------------------------------------------------------------------------
+
 issues:
   - name: check_bad_validator
     infoType: Validation
-    warnings: []
+    valTime: '2017-12-13 13:18:33.641'
+    valState:
+      id: 3
     errors:
       - timestamp: '2017-11-25 11:28:22'
         level: error
@@ -402,41 +422,46 @@ issues:
               at runCallback (timers.js:800:20)
               at tryOnImmediate (timers.js:762:5)
               at processImmediate [as _immediateCallback] (timers.js:733:5)
-    type2Errors: []
-    knownDefects: []
 
--------------------------------
-summary: ''
-startTime: '2017-11-25 11:28:22'
-endTime: '2017-11-25 11:28:22'
-valTime: ''
-elementType: IterationInfo
-testConfig:
-  script: Demo_Case
-  id: 1
-  when: I cannot think of anything
-  then: I just write something
-  owner: JW
-  enabled: true
-  countries:
-    - New Zealand
-    - Australia
-  environments:
-    - TST
-  depth: Regression
+#-------------------------------------------------------------------------------
+
 item:
-  id: 4
-  when: I run another test
-  then: i get another result
-  validators: check_bad_validator
-mocked: false
-valState: ''
-apState: {}
-passedValidators: []
+  {}
+  
+
+#-------------------------------------------------------------------------------
+
+valState:
+  id: 3
+  
+
+#-------------------------------------------------------------------------------
+
+apState:
+  {}
+  
+
+
+
+#-------------------------------------------------------------------------------
+#%----------------------- Demo_Case - Item 4 - 00:00:00 ------------------------
+#-------------------------------------------------------------------------------
+
+when:   I run another test
+then:   i get another result
+status: errors
+
+validation:
+  - interactor: errors
+
+summary:
+
+
+#-------------------------------------------------------------------------------
+
 issues:
   - name: Executing Interactor
     infoType: InTest
-    warnings: []
     errors:
       - timestamp: '2017-11-25 11:28:22'
         level: error
@@ -445,7 +470,7 @@ issues:
         message: Exception Thrown Executing Interactor
         additionalInfo: |-
           I do not like 4
-
+  
           Error
               at fail (C:/ZWTF/src/lib/SysUtils.js:448:13)
               at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
@@ -496,42 +521,55 @@ issues:
               at runCallback (timers.js:800:20)
               at tryOnImmediate (timers.js:762:5)
               at processImmediate [as _immediateCallback] (timers.js:733:5)
-    type2Errors: []
-    knownDefects: []
 
--------------------------------
-summary: ''
-startTime: '2017-11-25 11:28:22'
-endTime: '2017-11-25 11:28:22'
-valTime: ''
-elementType: IterationInfo
-testConfig:
-  script: Demo_Case3
-  id: 2
-  when: i test anther case
-  then: it still works
-  owner: JW
-  enabled: true
-  countries:
-    - Australia
-  environments:
-    - TST
-  depth: Regression
+#-------------------------------------------------------------------------------
+
 item:
-  id: 1
-  when: I run a test
-  then: i get the result
-  validators: check_has_another
-mocked: false
-valState: ''
-apState: {}
-passedValidators: []
+  {}
+  
+
+#-------------------------------------------------------------------------------
+
+valState:
+  ''
+  
+
+#-------------------------------------------------------------------------------
+
+apState:
+  {}
+  
+
+################################################################################
+############################ Demo Case3 - 00:00:00 #############################
+################################################################################
+
+stats:
+  iterations:                 1
+  passedIterations:           1
+  iterationsWithErrors:       0
+  iterationsWithWarnings:     0
+  iterationsWithKnownDefects: 1
+
+#-------------------------------------------------------------------------------
+#%----------------------- Demo_Case3 - Item 1 - 00:00:00 -----------------------
+#-------------------------------------------------------------------------------
+
+when:   I run a test
+then:   i get the result
+status: knownDefects
+
+validation:
+  - interactor: knownDefects
+
+summary:
+
+
+#-------------------------------------------------------------------------------
+
 issues:
   - name: Executing Interactor
     infoType: InTest
-    warnings: []
-    errors: []
-    type2Errors: []
     knownDefects:
       - timestamp: '2017-11-25 11:28:22'
         level: error
@@ -540,7 +578,7 @@ issues:
         message: Exception Thrown Executing Interactor
         additionalInfo: |-
           I do not like 4
-
+  
           Error
               at fail (C:/ZWTF/src/lib/SysUtils.js:448:13)
               at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
@@ -592,18 +630,37 @@ issues:
               at tryOnImmediate (timers.js:762:5)
               at processImmediate [as _immediateCallback] (timers.js:733:5)
 
--------------------------------
-elementType: OutOfTestErrors
-issues:
-  - name: out of test
-    infoType: OutOfTest
-    warnings: []
-    errors: []
-    type2Errors: []
-    knownDefects:
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: Message
-        message: out of test known error !!!
+#-------------------------------------------------------------------------------
 
--------------------------------
+item:
+  {}
+  
+
+#-------------------------------------------------------------------------------
+
+valState:
+  ''
+  
+
+#-------------------------------------------------------------------------------
+
+apState:
+  {}
+  
+
+################################################################################
+#%############################ Out of Test Issues ##############################
+################################################################################
+
+knownDefects:
+  - timestamp: 2017-11-25 11:28:22
+    message:   out of test known error !!!
+
+################################################################################
+################################## Filter Log ##################################
+################################################################################
+
+Another_Demo_Case: Accepted
+Demo_Case: Accepted
+
+

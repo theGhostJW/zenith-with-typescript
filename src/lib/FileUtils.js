@@ -12,7 +12,7 @@ import {
   yamlToObj
 } from '../lib/SysUtils';
 import {newLine, toString, replace} from '../lib/StringUtils';
-import {logWarning, log, logError} from '../lib/Logging';
+import {logWarning, log, logError, timeStampedLogDir} from '../lib/Logging';
 import {parse, join, relative } from 'path';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -405,6 +405,11 @@ export function runTimeFile(fileName :
 }
 
 export function logFile(fileName :? string) : string {
+  let parDir = timeStampedLogDir();
+  return parDir == '' || parDir == null ? logFileBase(fileName) : combine(parDir, def(fileName, '')) ;
+}
+
+export function logFileBase(fileName :? string) : string {
   return subFile('logs', fileName);
 }
 

@@ -28,7 +28,7 @@ describe('file Parsing', () => {
     });
 
     it('elements', () => {
-     chkEq(logFile(replace(rawName, '.raw', '.elements')), summary.elementsFile)
+     chkEq(replace(rawPath, '.raw', '.elements'), summary.elementsFile)
     });
 
   });

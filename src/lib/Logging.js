@@ -11,6 +11,18 @@ import { changeExtension } from '../lib/FileUtils';
 // force loading of module
 import * as fs from 'fs';
 import * as path from 'path';
+import * as mkdirp from 'mkdirp';
+
+
+// may have issues loading so duplicated from FileUtils
+function combineDuplicate(root : string, ...childPaths : Array < string >) {
+  return path.join(root, ...childPaths);
+}
+
+export function forceDirectoryDuplicate(path : string) : string {
+  mkdirp.sync(path);
+  return path;
+}
 
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
 export const FOLDER_NESTING = {
@@ -238,23 +250,28 @@ export type LogEntry = {
  };
 
 
-let rawTimeStampLogFile: string = '';
+let rawTimeStampLogDir: string = '',
+    rawTimeStampLogFilePath: string = '';
 export const logger = newWinstton();
 
-export const latestRawPath = () => logFile('latest.raw.yaml');
-export const timeStampedRawPath = () => rawTimeStampLogFile;
+export const latestRawPath = () => logFileBaseDuplicate('latest.raw.yaml');
+export const timeStampedRawPath = () => rawTimeStampLogFilePath;
+export const timeStampedLogDir = () => rawTimeStampLogDir;
 
 function newWinstton() {
   if (logger) {
     logger.close();
   }
 
-  rawTimeStampLogFile = `log ${nowFileFormatted()}.raw.yaml`;
+  let rightNow = nowFileFormatted(),
+      subDir = combineDuplicate(logFileBaseDuplicate(), rightNow);
+  rawTimeStampLogFilePath = combineDuplicate(subDir, `log ${rightNow}.raw.yaml`);
+  forceDirectoryDuplicate(subDir);
   return new (winston.Logger)({
     transports: [
       consoleLogger(),
-      fileLogger('latest.raw.yaml'),
-      fileLogger(rawTimeStampLogFile)
+      fileLogger(logFileBaseDuplicate('latest.raw.yaml')),
+      fileLogger(rawTimeStampLogFilePath)
     ]
   });
 }
@@ -278,10 +295,15 @@ export function consoleLogger() {
 
 const rawLogFilePaths: Array<string> = [];
 
-export function fileLogger(fileNameNoPath: string) {
-  let filePath = logFile(fileNameNoPath);
+// base name of a full path ~ duplicated because of load timing issues
+export function fileOrFolderNameDuplicate(fullPath: string): string {
+  let parts = path.parse(fullPath);
+  return parts.base;
+}
+
+export function fileLogger(filePath: string) {
   return new (winston.transports.CustomLogger)({
-      name: fileNameNoPath,
+      name: fileOrFolderNameDuplicate(filePath),
       timestamp: nowAsLogFormat,
       filename: filePath,
       level: 'info',
@@ -297,7 +319,7 @@ export function fileLogger(fileNameNoPath: string) {
 // don't know how to call directly as modules aren't loaded if call in FileUtils
 // when winston is loading
 
-function logFile(fileName: string): string {
+function logFileBaseDuplicate(fileName: string = ''): string {
   return path.join(projectDirDuplicate(), 'logs', fileName);
 }
 
