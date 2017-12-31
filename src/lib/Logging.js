@@ -19,7 +19,7 @@ function combineDuplicate(root : string, ...childPaths : Array < string >) {
   return path.join(root, ...childPaths);
 }
 
-export function forceDirectoryDuplicate(path : string) : string {
+function forceDirectoryDuplicate(path : string) : string {
   mkdirp.sync(path);
   return path;
 }
@@ -296,7 +296,7 @@ export function consoleLogger() {
 const rawLogFilePaths: Array<string> = [];
 
 // base name of a full path ~ duplicated because of load timing issues
-export function fileOrFolderNameDuplicate(fullPath: string): string {
+function fileOrFolderNameDuplicate(fullPath: string): string {
   let parts = path.parse(fullPath);
   return parts.base;
 }

@@ -435,7 +435,7 @@ export function seekFolder(startFileOrFolder : string, pathPredicate : (path : s
 
 export function pathExists(path : string) : boolean {return fs.existsSync(path);}
 
-export const SENTINAL_PROJECT_FILE: string = 'package.json';
+const SENTINAL_PROJECT_FILE: string = 'package.json';
 
 export function projectDir() : string {
 
