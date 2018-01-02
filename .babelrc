@@ -2,8 +2,5 @@
   "presets": [
     "flow",
     "env"
-  ],
-  "plugins": [
-    "transform-flow-strip-types",
   ]
 }
