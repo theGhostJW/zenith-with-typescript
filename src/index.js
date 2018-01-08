@@ -240,6 +240,7 @@ export {
   popLogFolder,
   expectDefect,
   endDefect,
+  log,
   logStartInteraction,
   logEndInteraction,
   logPrepValidationInfoStart,
