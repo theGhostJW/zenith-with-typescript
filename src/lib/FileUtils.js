@@ -435,13 +435,17 @@ export function seekFolder(startFileOrFolder : string, pathPredicate : (path : s
 
 export function pathExists(path : string) : boolean {return fs.existsSync(path);}
 
-const SENTINAL_PROJECT_FILE: string = 'package.json';
+export function frameworkTestingSetSentinalProjectFile(){
+  sentinalProjectFile = 'package.json';
+}
+
+let sentinalProjectFile: string = 'ZwtfProjectBase.txt';
 
 export function projectDir() : string {
 
   let tried = [];
   function isProjectDir(dir : string): boolean {
-    let fullPath = combine(dir, SENTINAL_PROJECT_FILE);
+    let fullPath = combine(dir, sentinalProjectFile);
     tried.push(fullPath);
     return pathExists(fullPath);
   }

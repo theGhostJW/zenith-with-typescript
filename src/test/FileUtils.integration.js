@@ -18,7 +18,9 @@ import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDa
          deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
          fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
          clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders,
-         fileToLines, linesToFile, stringToLogFile, zipAll, unzipAll, relativePath, copyFile, fileLastModified } from '../lib/FileUtils';
+         fileToLines, linesToFile, stringToLogFile, zipAll, unzipAll, relativePath, copyFile, fileLastModified,
+         frameworkTestingSetSentinalProjectFile
+        } from '../lib/FileUtils';
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
@@ -26,6 +28,10 @@ const PROJECT_PATH : string = 'C:\\ZWTF',
 
 
 describe('fileLastModified', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('simple', () => {
     let time = now(),
@@ -79,6 +85,10 @@ describe('copyFile', () => {
 
 describe('zipAll / unzipAll', () => {
 
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
+
   let dir = '',
       childDir = '',
       zipOut = '',
@@ -129,9 +139,13 @@ describe('zipAll / unzipAll', () => {
 
 });
 
-
 describe('fileToLines / fromLines', () => {
 
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
+
+  frameworkTestingSetSentinalProjectFile();
   let path: string = tempFile('lines.txt');
 
   function roundTripTest(arr: Array<string>) {
@@ -158,6 +172,10 @@ describe('fileToLines / fromLines', () => {
 
 
 describe('list files / folders', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   let parent = combine(tempFile(), createGuidTruncated(5)),
       child = combine(parent, createGuidTruncated(5) + '_child_txt'),
@@ -189,6 +207,10 @@ describe('list files / folders', () => {
 });
 
 describe('eachPathNonRecursive', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   let parent = combine(tempFile(), createGuidTruncated(5)),
       child = combine(parent, createGuidTruncated(5) + '_child_txt'),
@@ -228,6 +250,10 @@ describe('eachPathNonRecursive', () => {
 
 
 describe('eachFile / eachFolder', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   let parent = combine(tempFile(), createGuidTruncated(5) + 'yaml'),
       child = combine(parent, createGuidTruncated(5) + '_child_txt'),
@@ -293,6 +319,10 @@ describe('eachFile / eachFolder', () => {
 
   describe('eachFolder', () => {
 
+    before(function() {
+      frameworkTestingSetSentinalProjectFile();
+    });
+
     const listFolder = (folderName, fullPath) => {
         pathList.push(fullPath);
     };
@@ -315,6 +345,10 @@ describe('eachFile / eachFolder', () => {
 });
 
 describe('deleteDirectory', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('deleteDirectory', () => {
     let parent = combine(tempFile(), createGuidTruncated(5)),
@@ -351,6 +385,10 @@ describe('deleteDirectory', () => {
 
 describe('clearDirectory', () => {
 
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
+
   it('clearDirectory', () => {
     let parent = combine(tempFile(), createGuidTruncated(5)),
         child = combine(parent, createGuidTruncated(5)),
@@ -377,6 +415,10 @@ describe('clearDirectory', () => {
 
 describe('forceDirectory', () => {
 
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
+
   it('forceDirectory', () => {
     let target = combine(tempFile(), createGuidTruncated(5), createGuidTruncated(5));
     let path = forceDirectory(target);
@@ -386,6 +428,10 @@ describe('forceDirectory', () => {
 });
 
 describe('fileToObj', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('round trip', () => {
     let obj = {hi: 'hi'},
@@ -399,6 +445,10 @@ describe('fileToObj', () => {
 });
 
 describe('special dirs / round trip', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   function roundTripTest<T>(save: (any, string) => string, load: (string) => T, pathFragment: string, extension: ?string) {
     let obj = {
@@ -439,6 +489,10 @@ describe('special dirs / round trip', () => {
 
 describe('delete file', () => {
 
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
+
   let tempPath = tempFile('blah.txt');
   it('simple delete', () => {
     stringToFile('blah', tempPath);
@@ -454,6 +508,10 @@ describe('delete file', () => {
 });
 
 describe('<to / from>TestDataString round trip', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('simple round trip', () => {
     toTestDataString('blah', 'blah');
@@ -473,6 +531,10 @@ describe('<to / from>TestDataString round trip', () => {
 });
 
 describe('from / to tempString', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('simple round trip full defaults', () => {
     let targ = 'ddasdasqwfcvufts Hi De Hi';
@@ -549,6 +611,10 @@ describe('from / to tempString', () => {
 
 describe('stringToLogFile', () => {
 
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
+
   it('simple', () => {
     let fileName = createGuidTruncated(8) + '.txt';
     stringToLogFile('Blahhhhh', fileName);
@@ -559,6 +625,10 @@ describe('stringToLogFile', () => {
 });
 
 describe('stringToFile / fileToString round trips', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   let DEST_FILE : string = tempFile('hello.txt');
   it('happy simple - round trip', () => {
@@ -594,6 +664,10 @@ describe('stringToFile / fileToString round trips', () => {
 });
 
 describe('projectSubPathFuncs', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('tempFile', () => {
     chkEq(combine(PROJECT_PATH, 'temp', 'myFile.txt'), tempFile('myFile.txt'));
@@ -640,6 +714,10 @@ describe('projectSubPathFuncs', () => {
 
 describe('projectrDir', () => {
 
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
+
   it('simple check', () => {
     chkEq(PROJECT_PATH, projectDir());
   });
@@ -647,6 +725,10 @@ describe('projectrDir', () => {
 });
 
 describe('Integration - seekFolder', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('project folder - exists', () => {
 
@@ -673,6 +755,10 @@ describe('Integration - seekFolder', () => {
 });
 
 describe('Integration - pathExists', () => {
+
+  before(function() {
+    frameworkTestingSetSentinalProjectFile();
+  });
 
   it('known file', () => {
     const BASE_DIR: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
