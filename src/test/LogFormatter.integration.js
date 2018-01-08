@@ -1,5 +1,6 @@
 // @flow
 
+import {test, describe} from 'mocha'
 import { testPrivate, iteration, outOfTestError} from '../lib/LogFormatter';
 import {  chkEq, chkExceptionText } from '../lib/AssertionUtils';
 import { fromTestData, toTempString, fromTestDataString } from '../lib/FileUtils';

@@ -4,6 +4,7 @@ import {
         chk, chkEq, chkEqJson, chkFalse, chkHasText,
         chkWithMessage
       } from '../lib/AssertionUtils';
+import {test, describe} from 'mocha'
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { debug, areEqual } from '../lib/SysUtils';

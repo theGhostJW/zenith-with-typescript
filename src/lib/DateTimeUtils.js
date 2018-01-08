@@ -16,13 +16,13 @@ export function testFormatter(year: number, month: number, day: number, hr24: nu
   return time(year, month, day, hr24, minute, second, milliSecond).format(formatString);
 }
 
-export function duration(from: moment$Moment | string, to: moment$Moment | string, format: ?string): moment$MomentDuration {
+export function duration(from: moment$Moment | string, to: moment$Moment | string, format?: string): moment$MomentDuration {
   const forceToMoment = (val: moment$Moment | string): moment$Moment => typeof val == 'string' ? strToMoment(val, format) : val;
   return moment.duration(forceToMoment(to).diff(forceToMoment(from)));
 }
 
 // returns duration as Hrs:Mins:Secs.Ms
-export function durationFormatted(from: moment$Moment | string, to: moment$Moment | string, wantMS: bool = false, formatIn: ?string  ): string {
+export function durationFormatted(from: moment$Moment | string, to: moment$Moment | string, wantMS: bool = false, formatIn?: string  ): string {
   let dur = duration(from, to, formatIn),
       zPad = (n: number, l: number = 2) => Math.abs(n).toString().padStart(l, '0');
 
@@ -55,7 +55,7 @@ export function toMoment(jsDateTime: Date): moment$Moment {
   return moment(jsDateTime);
 }
 
-export function strToMoment(dateTimeStr: string, format: ?string): moment$Moment {
+export function strToMoment(dateTimeStr: string, format: string = LOG_FILE_MS_SEC_FORMAT): moment$Moment {
   return moment(dateTimeStr, format);
 }
 

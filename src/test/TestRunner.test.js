@@ -1,3 +1,4 @@
+import {test, describe} from 'mocha';
 import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
 import { allItems, filterTestItems, filterTests, idFilter, lastItem, matchesProps } from '../lib/TestRunner';
 

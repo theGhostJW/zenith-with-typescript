@@ -1,5 +1,6 @@
 // @flow
 
+import {test, describe} from 'mocha'
 import { testPrivate} from '../lib/LogFormatter';
 import { toTempString } from '../lib/FileUtils';
 import { newLine } from '../lib/StringUtils';
