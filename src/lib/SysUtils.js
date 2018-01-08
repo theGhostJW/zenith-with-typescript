@@ -746,7 +746,7 @@ export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...oth
   return result == null ? undefined : result.value;
 }
 
-export const seekManyInObj = _.flowRight(getResultValues, seekManyInObjWithInfo);
+export const seekManyInObj = _.flowRight([getResultValues, seekManyInObjWithInfo]); // flowIssues _.flowRight(getResultValues, seekManyInObjWithInfo);
 
 function addressOfSeekResult(seekResult: SeekInObjResultItem) : string {
   let strKey = toString(seekResult.key);
@@ -785,7 +785,7 @@ export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ..
   return seekInObjBase(target, 'includeNested', specifier, ...otherSpecifiers);
 }
 
-export const seekAllInObj = _.flowRight(getResultValues, seekAllInObjWithInfo);
+export const seekAllInObj = _.flowRight([getResultValues, seekAllInObjWithInfo]); // flow issues _.flowRight(getResultValues, seekAllInObjWithInfo);
 
 export function seekManyInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
   return seekInObjBase(target, 'eachBranch', specifier, ...otherSpecifiers);

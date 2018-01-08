@@ -436,7 +436,8 @@ function makeSplitTrimFunction(spaceCountToTab){
   }
 
   return function splitTrim(str){
-    return _.flowRight(trimElements, splitLine, tabReplace)(str);
+     return _.flowRight([trimElements, splitLine, tabReplace])(str);
+    // flow issues: return _.flowRight(trimElements, splitLine, tabReplace)(str);
   }
 }
 

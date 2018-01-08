@@ -726,7 +726,11 @@ describe('seekInObjxxx - derived functions', () => {
   };
 
   describe('seekAllInObj', () => {
-    chkEq(["homi","fiction","fun","stuff cat"], seekAllInObj(EG_OBJ, 'category'));
+
+    it('basic find all', () => {
+      chkEq(["homi","fiction","fun","stuff cat"], seekAllInObj(EG_OBJ, 'category'));
+    });
+    
   });
 
   describe('seekManyInObj', () => {

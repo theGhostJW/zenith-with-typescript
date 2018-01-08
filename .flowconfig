@@ -1,5 +1,6 @@
 [ignore]
 .*\*NoFlow\.js
+.*/dist/.*
 
 [include]
 
