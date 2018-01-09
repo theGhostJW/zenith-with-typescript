@@ -3,7 +3,7 @@
 import { def, debug, objToYaml, ensure, yamlToObj,
          seekInObj, forceArray, areEqual, reorderProps } from '../lib/SysUtils';
 import type { MixedSpecifier } from '../lib/SysUtils';
-import { newLine, trimChars, toString, transformGroupedTable, replace, sameText, hasText } from '../lib/StringUtils';
+import { newLine, trimChars, toString, transformGroupedTable, replaceAll, sameText, hasText } from '../lib/StringUtils';
 import { durationFormatted } from '../lib/DateTimeUtils';
 import { fileOrFolderName } from '../lib/FileUtils';
 import type { LogEntry } from '../lib/Logging';
@@ -197,7 +197,7 @@ function issueTypes(issues: IssuesList | ErrorsWarningsDefects) {
 }
 
 function deUnderscore(str: string): string {
-  return replace(str, '_', ' ')
+  return replaceAll(str, '_', ' ')
 }
 
 export function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects> }): string {
@@ -216,7 +216,7 @@ export function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects
 
     function combineProps(obj) {
       function makeRec(key) {
-        return key + ':' + newLine() + replace(obj[key].join(newLine()).replace('???', '-'), '???', ' ');
+        return key + ':' + newLine() + replaceAll(obj[key].join(newLine()).replace('???', '-'), '???', ' ');
       }
 
       let keys = _.keys(obj).filter(k => obj[k] != null),
@@ -232,7 +232,7 @@ export function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects
 
 function toStringPairs(obj): Array<[string, string]> {
 
-  let toStr = (val) => typeof val == 'object' ? replace(toString(val), newLine(), '') : toString(val);
+  let toStr = (val) => typeof val == 'object' ? replaceAll(toString(val), newLine(), '') : toString(val);
 
   return _.chain(obj)
           .toPairs()

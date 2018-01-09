@@ -3,7 +3,7 @@
 import * as _ from 'lodash';
 import * as deep from 'lodash-deep';
 import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
-      subStrBetween, stringToArray, replace, newLine, lwrFirst} from '../lib/StringUtils';
+      subStrBetween, stringToArray, replaceAll, newLine, lwrFirst} from '../lib/StringUtils';
 import * as os from 'os';
 import * as yaml from 'js-yaml';
 import moment from 'moment';
@@ -128,7 +128,7 @@ export function _parseTaskList(taskList: string): Array<TaskListItem>{
       pid: parseInt(s.slice(headerLineIdxs[0], headerLineIdxs[1])),
       sessionName: s.slice(headerLineIdxs[1], headerLineIdxs[2]).trim(),
       session: parseInt(s.slice(headerLineIdxs[2], headerLineIdxs[3])),
-      memUsage: parseInt(replace(s.slice(headerLineIdxs[3], headerLineIdxs[4]), ',', ''))
+      memUsage: parseInt(replaceAll(s.slice(headerLineIdxs[3], headerLineIdxs[4]), ',', ''))
     }
   }
   return processLines.map(convertLine);

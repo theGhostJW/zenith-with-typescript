@@ -2,7 +2,7 @@
 
 import { def, debug, hasValue, areEqual, objToYaml} from '../lib/SysUtils';
 import { appendDelim, createGuidTruncated, newLine, toString, hasText,
-         replace, standardiseLineEndings, wildCardMatch} from '../lib/StringUtils';
+         replaceAll, standardiseLineEndings, wildCardMatch} from '../lib/StringUtils';
 import { logCheckFailure, logCheckPassed } from '../lib/Logging';
 import { tempFile, stringToLogFile } from '../lib/FileUtils';
 import * as _ from 'lodash';
@@ -21,9 +21,9 @@ export const checkEqual = (expected: any, actual: any, message: string, addition
 export function checkTextContainsFragments(targetString: string, searchPattern: string, caseSensitive: boolean = true): boolean {
   function standardisNewLines(str){
     str = standardiseLineEndings(str);
-    str = replace(str, newLine() + ' ', ' ');
-    str = replace(str, ' ' + newLine(), ' ');
-    return replace(str, newLine(), ' ');
+    str = replaceAll(str, newLine() + ' ', ' ');
+    str = replaceAll(str, ' ' + newLine(), ' ');
+    return replaceAll(str, newLine(), ' ');
   }
 
   let expectedContent = standardisNewLines(searchPattern),

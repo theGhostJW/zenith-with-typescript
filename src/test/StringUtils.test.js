@@ -6,7 +6,7 @@ import {datePlus, now, strToMoment, timeToSQLDateTimeSec, today} from '../lib/Da
 import { toTemp, toTempString } from '../lib/FileUtils';
 import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate, createGuid, createGuidTruncated, endsWith, hasText,
   loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv, propsObjectStringFromXml,
-  removeSection, replace, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
+  removeSection, replaceAll, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
   stringToGroupedTableLooseTyped, stringToGroupedTableLooseTypedDefinedTabSize, stringToGroupedTableMap, stringToTable,
   stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, toString,
   trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
@@ -753,11 +753,11 @@ describe('appendDelim', () => {
 
 describe('replace', () => {
   it('case insensitive', () => {
-    chkEq('the quick red fox jumps over the lazy red dog', replace('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red'));
+    chkEq('the quick red fox jumps over the lazy red dog', replaceAll('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red'));
   });
 
   it('case sensitive', () => {
-    chkEq('the quick red fox jumps over the lazy Brown dog', replace('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red', true));
+    chkEq('the quick red fox jumps over the lazy Brown dog', replaceAll('the quick brown fox jumps over the lazy Brown dog', 'brown', 'red', true));
   });
 
 });

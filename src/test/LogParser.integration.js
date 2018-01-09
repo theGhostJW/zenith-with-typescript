@@ -6,7 +6,7 @@ import { logSplitter, defaultLogParser, elementsToFullMock,  } from '../lib/LogP
 import { testDataFile, logFile, toTemp, fromTestData, fileOrFolderNameNoExt } from '../lib/FileUtils';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
-import { replace, toString } from '../lib/StringUtils';
+import { replaceAll, toString } from '../lib/StringUtils';
 
 const mockFileNameUseEnvironment =
                   (itemId, testName, runConfig) => fileOrFolderNameNoExt(testName) + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
@@ -30,7 +30,7 @@ describe('file Parsing', () => {
     });
 
     it('elements', () => {
-     chkEq(replace(rawPath, '.raw', '.elements'), summary.elementsFile)
+     chkEq(replaceAll(rawPath, '.raw', '.elements'), summary.elementsFile)
     });
 
   });

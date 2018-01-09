@@ -150,7 +150,7 @@ export {
   upperCase,
   lowerCase,
   appendDelim,
-  replace,
+  replaceAll,
   wildCardMatch,
   toString,
   startsWith,

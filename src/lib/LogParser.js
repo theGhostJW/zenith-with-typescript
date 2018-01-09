@@ -3,7 +3,7 @@
 import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING, timeStampedRawPath } from '../lib/Logging';
-import { newLine, toString, subStrBefore, replace, hasText, appendDelim} from '../lib/StringUtils';
+import { newLine, toString, subStrBefore, replaceAll, hasText, appendDelim} from '../lib/StringUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString, toMock } from '../lib/FileUtils';
@@ -343,7 +343,7 @@ function destPath(rawPath: string, sourceFilePart: string, destFilePart: string,
 
   ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
 
-  let resultPath = replace(rawPath, sourceFilePart, '.' + destFilePart + '.');
+  let resultPath = replaceAll(rawPath, sourceFilePart, '.' + destFilePart + '.');
 
   return destDir== null ? resultPath : combine(logFile(), fileOrFolderName(resultPath));
 }

@@ -12,7 +12,7 @@ import {
   yamlToObj,
   forceArray
 } from '../lib/SysUtils';
-import {newLine, toString, replace} from '../lib/StringUtils';
+import {newLine, toString, replaceAll} from '../lib/StringUtils';
 import {logWarning, log, logError, timeStampedLogDir} from '../lib/Logging';
 import {parse, join, relative } from 'path';
 import * as path from 'path';
@@ -72,8 +72,8 @@ export function relativeToAbsolute (relativePath: string, basePath: string): str
   let nUpLn, sDir = "",
       sPath = basePath;
 
-  sPath = replace(sPath, path.sep, '/');
-  relativePath = replace(relativePath, path.sep, '/');
+  sPath = replaceAll(sPath, path.sep, '/');
+  relativePath = replaceAll(relativePath, path.sep, '/');
 
   sPath = sPath.replace(/[^\/]*$/, relativePath.replace(/(\/|^)(?:\.?\/+)+/g, "$1"));
 
@@ -81,7 +81,7 @@ export function relativeToAbsolute (relativePath: string, basePath: string): str
     nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))[0].length;
     sDir = (sDir + sPath.substring(nStart, nEnd)).replace(new RegExp("(?:\\\/+[^\\\/]*){0," + ((nUpLn - 1) / 3) + "}$"), "/");
   }
-  return replace(sDir + sPath.substr(nStart), '/', path.sep) ;
+  return replaceAll(sDir + sPath.substr(nStart), '/', path.sep) ;
 }
 
 export const relativePath = relative;

@@ -45,9 +45,9 @@ export function objToJson(obj: any) {
 }
 
 // used to generate properties object for templating from xml
-export function propsObjectStringFromXml(xmlStr: string){
+export function propsObjectStringFromXml(xmlStr: string): string {
   var xmlObj = xmlToObj(xmlStr);
-  return replace(replace(objToJson(deepMapValues(xmlObj, () => null)), '""', 'null'), '"', '');
+  return replaceAll(replaceAll(objToJson(deepMapValues(xmlObj, () => null)), '""', 'null'), '"', '');
 }
 
 
@@ -61,7 +61,7 @@ export function convertXmlToSimpleTemplate(xml: string){
         result = str;
 
     if (hasValue(tagName) && hasText(str, '</' + tagName)) {
-      let propName = lowerFirst(replace(tagName, ' ', '')),
+      let propName = lowerFirst(replaceAll(tagName, ' ', '')),
           prefix = subStrBefore(str, '>') + '>',
           suffix = '</' + subStrAfter(str, '</');
       result = prefix + '{{' + propName + '}}' + suffix;
@@ -162,7 +162,7 @@ export function loadTemplatePositional(templateString: string, ...data: any): st
   // note lodays does not work with numeric keys so can't use lodash templating for this
   function applyKey(accum, val, idx) {
     let tag = '{{' + toString(idx) + '}}'
-    return replace(accum, tag, toString(val))
+    return replaceAll(accum, tag, toString(val))
   }
   return data.reduce(applyKey, templateString);
 }
@@ -424,7 +424,7 @@ function headerAndRemainingLines(lines: Array<string>, spaceCountToTab: number){
 
 function makeSplitTrimFunction(spaceCountToTab){
   function tabReplace(txt){
-    return spaceCountToTab < 1 ? txt : replace(txt, ' '.repeat(spaceCountToTab), '\t');
+    return spaceCountToTab < 1 ? txt : replaceAll(txt, ' '.repeat(spaceCountToTab), '\t');
   }
 
   function splitLine(line){
@@ -448,7 +448,7 @@ function dedupeTabSpaces(str: string): string {
 }
 
 function replaceWithTabs(str: string, strToReplace: string, lastLength: number = 0): string {
-  str = replace(str, strToReplace, '\t');
+  str = replaceAll(str, strToReplace, '\t');
   var len = str.length;
   return len === lastLength ? str : replaceWithTabs(str, strToReplace, len);
 }
@@ -524,12 +524,12 @@ function splitOnPropName(txt: string) : {[string]: string}{
 // from https://codepen.io/avesus/pen/wgQmaV?editors=0012
 export const createGuid = () => formatUuid(getRandomValuesFunc());
 
-export const createGuidTruncated = (length: number) => replace(createGuid(), '-', '').slice(0, length);
+export const createGuidTruncated = (length: number) => replaceAll(createGuid(), '-', '').slice(0, length);
 
 export function standardiseLineEndings(str: string): string {
-  var result = replace(str, '\n\r', '\n');
-  result = replace(result, '\r\n', '\n');
-  result = replace(result, '\r', '\n');
+  var result = replaceAll(str, '\n\r', '\n');
+  result = replaceAll(result, '\r\n', '\n');
+  result = replaceAll(result, '\r', '\n');
   return result;
 }
 
@@ -557,7 +557,7 @@ export function appendDelim(str1: ?string, delim: string, str2: ?string){
    return (str1 === "" || str2 === "") ? str1 + str2 : str1 + delim + str2;
  };
 
-export function replace(hayStack: string, needle: string, replacement: string, caseSensitive: boolean = false): string {
+export function replaceAll(hayStack: string, needle: string, replacement: string, caseSensitive: boolean = false): string {
    // https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
    let esc = needle.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),
        reg = new RegExp(esc, (caseSensitive ? 'g' : 'ig'));
