@@ -323,21 +323,40 @@ function logFileBaseDuplicate(fileName: string = ''): string {
   return path.join(projectDirDuplicate(), 'logs', fileName);
 }
 
-function projectDirDuplicate() : string {
-  const SENTINAL_PROJECT_FILE_DUPLICATE: string = 'package.json';
+function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string, Array<string>] {
+
   let tried = [];
   function isProjectDir(dir : string): boolean {
-    let fullPath = path.join(dir, SENTINAL_PROJECT_FILE_DUPLICATE);
+    let fullPath =  path.join(dir, sentinalProjectFile);
     tried.push(fullPath);
     return fs.existsSync(fullPath);
   }
 
-  let seedName = module.filename,
-    projFolder = seekFolderDuplicate(seedName, isProjectDir);
-
-  return ensureHasVal(projFolder, `Cannot find project file path when searching up from: ${seedName} - tried: ${tried.join(', ')}`);
+  let projFolder = seekFolderDuplicate(seedName, isProjectDir);
+  return [projFolder, tried];
 }
 
+let projectDirSingleton: ?string = null;
+export function projectDirDuplicate() : string {
+
+  if (projectDirSingleton == null){
+    let seedName = module.filename,
+        try1 = projectDirTry(seedName, 'ZwtfProjectBase.txt'),
+        dir1 = try1[0];
+
+    if (dir1 != null){
+      return dir1;
+    }
+
+    // assume framework testing fall back to package.json
+    let try2 = projectDirTry(seedName, 'package.json'),
+        dir2 = try2[0];
+
+    projectDirSingleton = ensureHasVal(dir2, `Cannot find project file path when searching up from: ${seedName} - tried: ${try1[1].concat(try2[1]).join(', ')}`);
+  }
+
+  return projectDirSingleton;
+}
 
 function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePath : string) => boolean) :
   ? string {
