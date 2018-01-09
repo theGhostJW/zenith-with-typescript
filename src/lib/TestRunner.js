@@ -116,7 +116,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
       testCase.testConfig = ((testConfig: any): T);
 
       logStartTest(name, testConfig.when, testConfig.then, testConfig);
-      // dodgy cast for itemRunnerI think the type issue is because the
+      // dodgy cast for itemRunner I think the type issue is because the
       // TestItem type changes on every test
       testRunner(testCase, cast(runConfig), cast(itemRunner), mockFileNameGenerator);
       logEndTest(name);

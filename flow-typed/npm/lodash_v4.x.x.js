@@ -1,6 +1,8 @@
 // flow-typed signature: 2dd8d1514139c8fd860b97b1adfcb4a8
 // flow-typed version: 0211ce08b2/lodash_v4.x.x/flow_>=v0.55.x
 
+function Comparator() {/* this is a filler function to get rid of Nuclide AutoImport warning added by JW */}
+
 declare module "lodash" {
   declare type __CurriedFunction1<A, R, AA: A> = (...r: [AA]) => R;
   declare type CurriedFunction1<A, R> = __CurriedFunction1<A, R, *>;

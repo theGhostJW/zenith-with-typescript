@@ -15,5 +15,8 @@ zsol commented on Sep 17, 2016
 
 @subtleGradient this is probably because flow is either not on your path, or it's found multiple times. Try running where.exe flow in a cmd/powershell (.exe is important for the latter) and manually copy one of the paths into nuclide settings. I'm working on a PR to fix this
 
-# bluebird flow-type workaround
+# bluebird flow-typed workaround
   * https://github.com/flowtype/flow-typed/issues/1272
+
+# Lodash flow-typed work Workaround
+  * add this to the top of the lodash_.. flowTyped file if getting imports warning in diagnostics
