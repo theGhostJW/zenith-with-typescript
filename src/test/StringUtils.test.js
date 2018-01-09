@@ -3,7 +3,7 @@
 import {test, describe} from 'mocha'
 import {chk, chkEq, chkEqJson, chkException, chkExceptionText, chkFalse, chkHasText} from '../lib/AssertionUtils';
 import {datePlus, now, strToMoment, timeToSQLDateTimeSec, today} from '../lib/DateTimeUtils';
-import { toTemp, toTempString, frameworkTestingSetSentinalProjectFile } from '../lib/FileUtils';
+import { toTemp, toTempString } from '../lib/FileUtils';
 import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate, createGuid, createGuidTruncated, endsWith, hasText,
   loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv, propsObjectStringFromXml,
   removeSection, replace, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
@@ -27,7 +27,6 @@ describe('propsObjectStringFromXml', () => {
 describe('convertXmlToSimpleTemplate', () => {
 
   it('simple', () => {
-    frameworkTestingSetSentinalProjectFile();
     let result = convertXmlToSimpleTemplate(SAMPLE_XML);
     toTempString(result)
   });
