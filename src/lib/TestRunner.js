@@ -116,7 +116,9 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
       testCase.testConfig = ((testConfig: any): T);
 
       logStartTest(name, testConfig.when, testConfig.then, testConfig);
-      testRunner(testCase, cast(runConfig), itemRunner, mockFileNameGenerator);
+      // dodgy cast for itemRunnerI think the type issue is because the
+      // TestItem type changes on every test
+      testRunner(testCase, cast(runConfig), cast(itemRunner), mockFileNameGenerator);
       logEndTest(name);
     }
 
@@ -140,7 +142,7 @@ export type BaseRunConfig = {
 
 export type TestFilter<FR, FT> = (string, FT, FR) => boolean;
 
-export type RunParams<R: BaseRunConfig, FR, T: BaseTestConfig, FT> = {|
+export type RunParams<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> = {|
   testList: Array<NamedCase<R, T, *, *, *>>,
   runConfig: R,
   testConfigDefaulter: T => FT,
