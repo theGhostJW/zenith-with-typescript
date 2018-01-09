@@ -2,10 +2,10 @@
 import {it, describe} from 'mocha'
 import { loadAll } from '../lib/TestRunner';
 
-
-describe('loadAll', () => {
-
-  it('simple', () => {
-    loadAll();
-  });
-});
+// no longer relevant since removed testCases dir
+// describe('loadAll', () => {
+//
+//   it('simple', () => {
+//     loadAll();
+//   });
+// });
