@@ -7,10 +7,14 @@ import { testDataFile, logFile, toTemp, fromTestData } from '../lib/FileUtils';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import { mockFileNameUseEnvironment } from '../../testCases/ProjectConfig';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
+<<<<<<< HEAD
 import { replaceAll, toString } from '../lib/StringUtils';
 
 const mockFileNameUseEnvironment =
                   (itemId, testName, runConfig) => fileOrFolderNameNoExt(testName) + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
+=======
+import { replace } from '../lib/StringUtils';
+>>>>>>> parent of ced1e65... Removed Demo Test project files from template
 
 describe('file Parsing', () => {
 

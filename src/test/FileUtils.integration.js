@@ -7,7 +7,7 @@ import {
 import {test, describe} from 'mocha'
 import * as _ from 'lodash';
 import * as fs from 'fs';
-import { debug, areEqual, waitRetry } from '../lib/SysUtils';
+import { debug, areEqual } from '../lib/SysUtils';
 import type { LogAttributes } from '../lib/Logging';
 import type { FileFilterFunc, FileFilterGlobs  } from '../lib/FileUtils';
 import { createGuidTruncated, hasText } from '../lib/StringUtils';
@@ -123,23 +123,9 @@ describe('zipAll / unzipAll', () => {
     chkEq(FILE_TWO_CONTENT, fileToString(decompressedFile2Path()));
   });
 
-  function deleteDirs() {
+  afterEach(() => {
     deleteDirectory(dir);
     deleteDirectory(destDir);
-  }
-
-  afterEach(() => {
-
-    let deleted = false;
-    function deleteDirs() {
-      deleteDirectory(dir);
-      deleteDirectory(destDir);
-      deleted = true;
-    }
-
-    waitRetry(() => deleted, 10, deleteDirs);
-
-
   });
 
 });
