@@ -76,7 +76,7 @@ export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 1
   return result;
 }
 
-function delay(ms) {
+export function delay(ms: number) {
   if (ms != 0){
     waitRetry(() => false,  ms,  () => {}, 0);
   }

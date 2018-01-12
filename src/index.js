@@ -211,7 +211,8 @@ stringConvertableToNumber,
 xOr,
 areEqualWithTolerance,
 reorderProps,
-fillArray
+fillArray,
+delay
 }  from './lib/SysUtils';
 
 export type {
