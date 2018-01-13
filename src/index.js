@@ -47,7 +47,6 @@ export {
 } from './lib/DateTimeUtils';
 
 export type {
-  FileEncoding,
   FileFilterFunc,
   FileFilterGlobs
 } from './lib/FileUtils';
@@ -155,7 +154,12 @@ export {
   toString,
   startsWith,
   endsWith,
-  hasText
+  hasText,
+  tryEncodings
+}  from './lib/StringUtils';
+
+export type {
+  CharacterEncoding
 }  from './lib/StringUtils';
 
 export {
