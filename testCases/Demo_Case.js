@@ -10,9 +10,6 @@ import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from
 import { register } from '../testCases/ProjectConfig';
 import { check, checkFalse} from '../src/lib/CheckUtils';
 import moment from 'moment';
-import unirest from 'unirest';
-import "babel-polyfill";
-import deasync from 'deasync';
 
 
 var config: TestConfig = {
@@ -29,18 +26,6 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
     fail('I do not like 4');
   }
 
-  debug('before test');
-//  test();
-  debug('after test');
-
-  // while(gi < 8) {
-  //   deasync.sleep(100);
-  // }
-  //
-
-  waitRetry(() => gi > 8)
-  debug(gi)
-
   return {
     id: item.id,
     observation: 'blahh'
@@ -50,38 +35,6 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
 function wait(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
-
-let gi = 0;
-
-// const test = async function() {
-//   for (let i = 0; i < 10; ++i) {
-//     await wait(1000);
-//     // Prints out "Hello, World!" once per second and then exits
-//     gi++;
-//     console.log('Hello, World!');
-//   }
-// }
-
-// function callRest(): {} {
-//
-//   let response = request('POST', 'https://jsonplaceholder.typicode.com/posts',
-//     {
-//       headers: {
-//         'Content-type': 'application/json',
-//         'charset': 'UTF-8'
-//       },
-//       body: JSON.stringify({
-//           title: 'foo',
-//           body: 'bar',
-//           userId: 1
-//         })
-//     }
-//
-//   );
-//
-//   response.body = JSON.parse(response.body.toString('UTF-8'));
-//   return response;
-// }
 
 type ApState = {|
   id: number,
