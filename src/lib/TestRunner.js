@@ -207,6 +207,7 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
   function isTestCaseFile(path: string, name: string) {
     return !hasText(name, 'testfilters.js') &&
            !hasText(name, '.integration.') &&
+           !hasText(name, '.endpoint.') &&
            !hasText(name, 'ProjectConfig.js')
   }
 
