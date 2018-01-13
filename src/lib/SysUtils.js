@@ -475,7 +475,9 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
 
 // a fudge to keep the type checker happy
 export function fail<T>(description: string): T {
-  throw failInfoObj(description);
+  let err = failInfoObj(description);
+  logException(description, err);
+  throw err;
 }
 
 export function failInfoObj(description: string) {
