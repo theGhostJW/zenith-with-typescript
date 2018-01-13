@@ -29,9 +29,10 @@
     "psnode": "^0.0.1",
     "sqlite3": "^3.1.13",
     "string": "^3.3.3",
+    "sync-request": "^4.1.0",
     "tedious": "^2.1.5",
-    "unirest": "^0.5.1",
     "winston": "^2.3.1",
+    "xml-formatter": "^1.0.1",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
@@ -54,10 +55,10 @@
     "debug": "yarn run prepublish && node inspect ./dist/test/sum.test.js",
     "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
     "testWatch": "node ./scripts/yarnWatch.js test",
-    "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js --grep endPoint --invert",
-    "endPoint": "mocha --compilers js:babel-core/register ./src/test/**/*.integration.js ./testCases/**/*.integration.js --grep endPoint",
+    "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
+    "endPoints": "mocha --compilers js:babel-core/register ./src/test/**/*.endpoints.js ./testCases/**/*.endpoints.js",
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
-    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js --grep endPoint --invert",
+    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "fixBuild": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node gaze flow-bin nyc istanbul-reports flow-copy-source --dev"
   },
   "nyc": {

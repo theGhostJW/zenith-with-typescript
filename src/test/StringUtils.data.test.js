@@ -402,3 +402,55 @@ export const SAMPLE_XML: string = `
                                 </Accounts>
                               </CRAReportBatch>
 `;
+
+export const UNFORMATTED_XML = `<?xml version="1.0" encoding="utf-8"?><soap:Envelope
+    xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Body><AddJobSynchronousResponse
+    xmlns="http://identicheck.fcsonline.com.au/IdenticheckWS2.8/Identicheck.asmx"><AddJobSynchronousResult><Status>Finished</Status><Result>Success</Result><Reason
+    /><Applicant><DFATValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ScoreWeightPercentage>0</ScoreWeightPercentage></DFATValidation><OFACValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ScoreWeightPercentage>0</ScoreWeightPercentage></OFACValidation><PhoneValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><SuppliedLand><AD1 /><Locality /><State /><Postcode /><Surname
+    /><GivenName1 /><GivenName2
+    /><TraceMatch>CURPHONE_PHONE_DIFFSURNAME_DIFFADR</TraceMatch><AlphaScore>Z3</AlphaScore><ScorePoints>0</ScorePoints><MaxScorePoints>0</MaxScorePoints></SuppliedLand><SuppliedMobile><AD1
+    /><Locality /><State /><Postcode /><Surname /><GivenName1 /><GivenName2
+    /><TraceMatch>CURPHONE_PHONE_MOBILE_DISCONNECTED</TraceMatch><AlphaScore>Z4</AlphaScore><ScorePoints>0</ScorePoints><MaxScorePoints>0</MaxScorePoints></SuppliedMobile><OtherLand><AD1
+    /><Locality /><State /><Postcode /><Surname /><GivenName1 /><GivenName2
+    /><TraceMatch /><AlphaScore
+    /><ScorePoints>0</ScorePoints><MaxScorePoints>0</MaxScorePoints></OtherLand><OtherMobile><AD1
+    /><Locality /><State /><Postcode /><Surname /><GivenName1 /><GivenName2
+    /><TraceMatch /><AlphaScore
+    /><ScorePoints>0</ScorePoints><MaxScorePoints>0</MaxScorePoints></OtherMobile></ItemData></PhoneValidation><CurrentAddress><AddressValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><AddressScore>100</AddressScore></ItemData></AddressValidation><NADValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><AddressLine /><Locality /><State /><Postcode /><Surname
+    /><GivenName1 /><GivenName2 /><TraceMatch /><AlphaScore
+    /><ScorePoints>0</ScorePoints><MaxScorePoints>0</MaxScorePoints></ItemData></NADValidation></CurrentAddress><PreviousAddress><AddressValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><AddressScore>0</AddressScore></ItemData></AddressValidation><NADValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><AddressLine /><Locality /><State /><Postcode /><Surname
+    /><GivenName1 /><GivenName2 /><TraceMatch /><AlphaScore
+    /><ScorePoints>0</ScorePoints><MaxScorePoints>0</MaxScorePoints></ItemData></NADValidation></PreviousAddress><PassportValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><DetailsVerified>N</DetailsVerified><Error>Input field missing or
+    invalid. Field Passport number was not supplied.</Error><ExpiryDate
+    /><VisaStatus /><WorkEntitlements
+    /></ItemData></PassportValidation><AusPassportValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><DetailsVerified>false</DetailsVerified><StatusCode>SiteUnavailable</StatusCode></ItemData></AusPassportValidation><UDSValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><StatusCode>PROC00001</StatusCode><StatusMessage
+    /><SafeHarbourFlag>M1</SafeHarbourFlag><DoBTxn>Y</DoBTxn><PrimarySource>PS</PrimarySource></ItemData></UDSValidation><CCBValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><VerificationResult>Successful -
+    Contributed</VerificationResult><EVFileNumber>S5a82e628-6265-4cfd-b6c2-d4b827181be6</EVFileNumber></ItemData></CCBValidation><ASICDirectorshipValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><VerificationResult>N</VerificationResult><TraceMatch
+    /></ItemData></ASICDirectorshipValidation><TenancyValidation><Status>Finished</Status><Result>Success</Result><Reason
+    /><ItemData><VerificationResult>N</VerificationResult></ItemData></TenancyValidation><TotalScorePoints>0</TotalScorePoints><MaxScorePoints>100</MaxScorePoints><TotalScorePercentage>0</TotalScorePercentage><ScoreRating>CCBNZ:
+    Not contributed</ScoreRating><ScoreOverrideReason
+    /></Applicant><InputData><FirstName>John</FirstName><SecondName>Peter</SecondName><Surname>Citizen</Surname><AddressLine1
+    /><UnitNumber /><StreetNumber>479</StreetNumber><StreetName>St Kilda</StreetName><StreetType>Road</StreetType><StreetDirection
+    /><Suburb>Melbourne</Suburb><State>VIC</State><Postcode>3004</Postcode><CountryCode>au</CountryCode><PrevAddressLine1
+    /><PrevUnitNumber /><PrevStreetNumber /><PrevStreetName /><PrevStreetType
+    /><PrevStreetDirection /><PrevSuburb /><PrevState /><PrevPostcode
+    /><PrevCountryCode
+    /><PhoneNumber>0398283000</PhoneNumber><MobileNumber>0414123456</MobileNumber><DOB>19/02/1973</DOB><PassportNumber
+    /><PassportCountry /><PassportCountryOfBirth /><PlaceOfBirth /><SurnameAtBirth
+    /><SurnameAtCitizenship /><MedicareCardNumber /><MedicareReferenceNumber
+    /><CustomerReference
+    /><SearchApplicantPhoneNumber>true</SearchApplicantPhoneNumber><SearchPreviousAddress>true</SearchPreviousAddress><SearchDFAT_OFAC>true</SearchDFAT_OFAC><SearchAEC>true</SearchAEC><SearchNAD>true</SearchNAD><SearchApplicantWPDA>false</SearchApplicantWPDA><SearchPassport>true</SearchPassport><SearchAusPassport>true</SearchAusPassport><SearchMedicare>false</SearchMedicare><SearchUDS>true</SearchUDS><SearchCCB>true</SearchCCB><SearchASICDirectorship>true</SearchASICDirectorship><SearchPEP>false</SearchPEP><SearchTenancy>true</SearchTenancy><SearchCCBNZ>true</SearchCCBNZ><SearchGreaterData>false</SearchGreaterData></InputData></AddJobSynchronousResult></AddJobSynchronousResponse></soap:Body></soap:Envelope>`

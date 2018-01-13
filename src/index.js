@@ -47,7 +47,6 @@ export {
 } from './lib/DateTimeUtils';
 
 export type {
-  FileEncoding,
   FileFilterFunc,
   FileFilterGlobs
 } from './lib/FileUtils';
@@ -155,7 +154,14 @@ export {
   toString,
   startsWith,
   endsWith,
-  hasText
+  hasText,
+  tryEncodings,
+  formatXml
+}  from './lib/StringUtils';
+
+export type {
+  CharacterEncoding,
+  XmlFormatOptions
 }  from './lib/StringUtils';
 
 export {
@@ -211,7 +217,8 @@ stringConvertableToNumber,
 xOr,
 areEqualWithTolerance,
 reorderProps,
-fillArray
+fillArray,
+delay
 }  from './lib/SysUtils';
 
 export type {

@@ -13,6 +13,7 @@ import {
   forceArray
 } from '../lib/SysUtils';
 import {newLine, toString, replaceAll} from '../lib/StringUtils';
+import type { CharacterEncoding } from '../lib/StringUtils';
 import {logWarning, log, logError, timeStampedLogDir} from '../lib/Logging';
 import {parse, join, relative } from 'path';
 import * as path from 'path';
@@ -25,7 +26,6 @@ import nodeZip from 'node-zip';
 import { toMoment } from '../lib/DateTimeUtils'
 import lineByLine from 'n-readlines';
 
-export type FileEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
 
 const TEMP_STR_FILES : {
   [string] : boolean
@@ -320,7 +320,7 @@ export function toLogDir < T > (val : T, fileName : string) : string {
   return toSpecialDir(val, fileName, logFile);
 }
 
-export function stringToLogFile(str : string, fileNameNoPath : string, encoding : FileEncoding = 'utf8') : string {
+export function stringToLogFile(str : string, fileNameNoPath : string, encoding : CharacterEncoding = 'utf8') : string {
   return stringToFile(str, logFile(fileNameNoPath), encoding);
 }
 
@@ -367,20 +367,20 @@ export function changeExtension(path : string, newExt : string) : string {
 
 export function fileExtension(path : string) : string {return parse(path).ext;}
 
-export function fileToString(path : string, encoding : FileEncoding = 'utf8') : string {
+export function fileToString(path : string, encoding : CharacterEncoding = 'utf8') : string {
   return fs.readFileSync(path, encoding);
 }
 
-export function stringToFile(str : string, path : string, encoding : FileEncoding = 'utf8'): string {
+export function stringToFile(str : string, path : string, encoding : CharacterEncoding = 'utf8'): string {
   fs.writeFileSync(path, str, encoding);
   return path;
 }
 
-export function fileToLines(path : string, encoding : FileEncoding = 'utf8') : Array<string> {
+export function fileToLines(path : string, encoding : CharacterEncoding = 'utf8') : Array<string> {
   return fs.readFileSync(path, encoding).split(newLine());
 }
 
-export function linesToFile(lines : Array<string>, path : string, encoding : FileEncoding = 'utf8') {
+export function linesToFile(lines : Array<string>, path : string, encoding : CharacterEncoding = 'utf8') {
   fs.writeFileSync(path, lines.join(newLine()), encoding);
 }
 

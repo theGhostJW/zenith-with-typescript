@@ -11,8 +11,8 @@ import child_process from 'child_process';
 import { now } from '../lib/DateTimeUtils';
 import { log, logException } from '../lib/Logging';
 import { runTimeFile, pathExists } from '../lib/FileUtils';
-import { parseString } from 'xml2js';
-import deasync from 'deasync';
+import { parseString } from 'xml2js'
+import deasync from 'deasync'
 
 export function xmlToObj(xml: string): {} {
 
@@ -77,8 +77,8 @@ export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 1
   return result;
 }
 
-function delay(ms) {
-  require('deasync').sleep(ms);
+export function delay(ms: number) {
+  deasync.sleep(ms);
 }
 
 export function waitRetry(isCompleteFunction: () => boolean, timeoutMs: number = 10000, retryFuction: () => void = () => {}, retryPauseMs: number = 100){
@@ -475,7 +475,9 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
 
 // a fudge to keep the type checker happy
 export function fail<T>(description: string): T {
-  throw failInfoObj(description);
+  let err = failInfoObj(description);
+  logException(description, err);
+  throw err;
 }
 
 export function failInfoObj(description: string) {

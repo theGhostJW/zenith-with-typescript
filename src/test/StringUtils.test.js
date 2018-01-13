@@ -9,10 +9,34 @@ import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate
   removeSection, replaceAll, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
   stringToGroupedTableLooseTyped, stringToGroupedTableLooseTypedDefinedTabSize, stringToGroupedTableMap, stringToTable,
   stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, toString,
-  trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
-import {areEqual, debug, deepMapValues, def, flattenObj, forceArray} from '../lib/SysUtils';
-import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES } from '../test/StringUtils.data.test';
+  trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, tryEncodings, formatXml,
+  DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
+import {areEqual, debug, deepMapValues, def, flattenObj, forceArray } from '../lib/SysUtils';
+import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, UNFORMATTED_XML } from '../test/StringUtils.data.test';
 import * as _ from 'lodash'
+
+
+describe.only('formatXml', () => {
+
+  it('large xml', () => {
+    let formatted = formatXml(UNFORMATTED_XML);
+    chkHasText(formatted, '     St Kilda');
+  });
+
+});
+
+describe('tryEncodings', () => {
+
+  it('basic', () => {
+    let str = 'HEllo there I am a string',
+        buff = Buffer.from(str, 'ascii'),
+        venc = tryEncodings(buff);
+
+    //debug(venc);
+    chkEq(venc['ascii'], str);
+  });
+
+});
 
 describe('propsObjectStringFromXml', () => {
 
