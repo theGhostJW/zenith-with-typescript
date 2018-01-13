@@ -11,7 +11,8 @@ import child_process from 'child_process';
 import { now } from '../lib/DateTimeUtils';
 import { log, logException } from '../lib/Logging';
 import { runTimeFile, pathExists } from '../lib/FileUtils';
-import { parseString } from 'xml2js'
+import { parseString } from 'xml2js';
+import deasync from 'deasync';
 
 export function xmlToObj(xml: string): {} {
 
@@ -77,12 +78,10 @@ export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 1
 }
 
 function delay(ms) {
-  if (ms != 0){
-    waitRetry(() => false,  ms,  () => {}, 0);
-  }
+  require('deasync').sleep(ms);
 }
 
-export function waitRetry(isCompleteFunction: () => boolean, timeoutMs: number = 10000, retryFuction: () => void = () => {}, retryPauseMs: number = 0){
+export function waitRetry(isCompleteFunction: () => boolean, timeoutMs: number = 10000, retryFuction: () => void = () => {}, retryPauseMs: number = 100){
 
   let endTime = now().add(timeoutMs, 'ms'),
       complete = false;

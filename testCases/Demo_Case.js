@@ -2,7 +2,7 @@
 
 import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
-import { debug, fail } from '../src/lib/SysUtils';
+import { debug, fail, waitRetry } from '../src/lib/SysUtils';
 import { log, expectDefect, endDefect, logException } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
 import child_process from 'child_process'
@@ -10,6 +10,10 @@ import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from
 import { register } from '../testCases/ProjectConfig';
 import { check, checkFalse} from '../src/lib/CheckUtils';
 import moment from 'moment';
+import unirest from 'unirest';
+import "babel-polyfill";
+import deasync from 'deasync';
+
 
 var config: TestConfig = {
   when: 'I cannot think of anything ~ Demo_Case',
@@ -25,11 +29,59 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
     fail('I do not like 4');
   }
 
+  debug('before test');
+//  test();
+  debug('after test');
+
+  // while(gi < 8) {
+  //   deasync.sleep(100);
+  // }
+  //
+
+  waitRetry(() => gi > 8)
+  debug(gi)
+
   return {
     id: item.id,
     observation: 'blahh'
   }
 }
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(() => resolve(), ms));
+}
+
+let gi = 0;
+
+// const test = async function() {
+//   for (let i = 0; i < 10; ++i) {
+//     await wait(1000);
+//     // Prints out "Hello, World!" once per second and then exits
+//     gi++;
+//     console.log('Hello, World!');
+//   }
+// }
+
+// function callRest(): {} {
+//
+//   let response = request('POST', 'https://jsonplaceholder.typicode.com/posts',
+//     {
+//       headers: {
+//         'Content-type': 'application/json',
+//         'charset': 'UTF-8'
+//       },
+//       body: JSON.stringify({
+//           title: 'foo',
+//           body: 'bar',
+//           userId: 1
+//         })
+//     }
+//
+//   );
+//
+//   response.body = JSON.parse(response.body.toString('UTF-8'));
+//   return response;
+// }
 
 type ApState = {|
   id: number,
