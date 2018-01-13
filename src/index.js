@@ -155,11 +155,13 @@ export {
   startsWith,
   endsWith,
   hasText,
-  tryEncodings
+  tryEncodings,
+  formatXml
 }  from './lib/StringUtils';
 
 export type {
-  CharacterEncoding
+  CharacterEncoding,
+  XmlFormatOptions
 }  from './lib/StringUtils';
 
 export {

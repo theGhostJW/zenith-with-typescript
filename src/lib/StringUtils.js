@@ -7,6 +7,24 @@ import S from 'string';
 import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
+import xmlFormatter from 'xml-formatter';
+
+
+export type XmlFormatOptions = {
+    stripComments?: boolean,
+    indentation?: string,
+    debug?: boolean
+}
+
+const XML_DEF_OPTS: XmlFormatOptions  =  {
+    stripComments: true,
+    indentation: ' ',
+    debug: false
+}
+
+export function formatXml(xml: string, options: XmlFormatOptions = XML_DEF_OPTS) : string {
+  return xmlFormatter(xml, options); 
+}
 
 /*
 The character encodings currently supported by Node.js include:
