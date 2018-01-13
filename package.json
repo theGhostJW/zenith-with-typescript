@@ -55,10 +55,10 @@
     "debug": "yarn run prepublish && node inspect ./dist/test/sum.test.js",
     "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
     "testWatch": "node ./scripts/yarnWatch.js test",
-    "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js --grep endPoint --invert",
-    "endPoint": "mocha --compilers js:babel-core/register ./src/test/**/*.integration.js ./testCases/**/*.integration.js --grep endPoint",
+    "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
+    "endPoints": "mocha --compilers js:babel-core/register ./src/test/**/*.endpoints.js ./testCases/**/*.endpoints.js",
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
-    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js --grep endPoint --invert",
+    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "fixBuild": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node gaze flow-bin nyc istanbul-reports flow-copy-source --dev"
   },
   "nyc": {
