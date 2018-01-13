@@ -1,4 +1,4 @@
-// flow-typed signature: f2684c4ee1f71d317cb6ed1161aaf0c0
+// flow-typed signature: fc77af4cb89956f89de3091d51724605
 // flow-typed version: <<STUB>>/csv-parse_v^1.2.1/flow_v0.62.0
 
 /**
@@ -66,10 +66,6 @@ declare module 'csv-parse/samples/tsv' {
   declare module.exports: any;
 }
 
-declare module 'csv-parse/test' {
-  declare module.exports: any;
-}
-
 // Filename aliases
 declare module 'csv-parse/lib/index.js' {
   declare module.exports: $Exports<'csv-parse/lib/index'>;
@@ -103,7 +99,4 @@ declare module 'csv-parse/samples/sync.js' {
 }
 declare module 'csv-parse/samples/tsv.js' {
   declare module.exports: $Exports<'csv-parse/samples/tsv'>;
-}
-declare module 'csv-parse/test.js' {
-  declare module.exports: $Exports<'csv-parse/test'>;
 }
