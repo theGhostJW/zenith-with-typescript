@@ -208,6 +208,7 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
     return !hasText(name, 'testfilters.js') &&
            !hasText(name, '.integration.') &&
            !hasText(name, '.endpoint.') &&
+           !hasText(name, '.endpoints.') &&
            !hasText(name, 'ProjectConfig.js')
   }
 
