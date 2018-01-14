@@ -1,15 +1,19 @@
 // @flow
 
-import {it, describe} from 'mocha';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import { debug } from '../lib/SysUtils';
-import { toTemp, toTempString } from '../lib/FileUtils';
-import * as _ from 'lodash';
+import { Selector } from 'testcafe';
 
-describe.only('test cafe play', () => {
+fixture `Getting Started`
+    .page `http://devexpress.github.io/testcafe/example`;
 
-  it('', () => {
+test('My first test', async t => {
+    await t
+     .typeText('#developer-name', 'John Smith')
+     .click('#submit-button');
 
-  });
+     const articleHeader = await Selector('.result-content').find('h1');
 
+     // Obtain the text of the article header
+     let headerText = await articleHeader.innerText;
+
+     await t.expect(headerText).eql('Thank you, John Smith!!');
 });

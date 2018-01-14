@@ -19,4 +19,8 @@ zsol commented on Sep 17, 2016
   * https://github.com/flowtype/flow-typed/issues/1272
 
 # Lodash flow-typed work Workaround
-  * add this to the top of the lodash_.. flowTyped file if getting imports warning in diagnostics
+  * add this to the top of the lodash_.. flowTyped file if getting imports warning in diagnostics:
+      function Comparator() {/* this is a filler function to get rid of Nuclide AutoImport warning added by JW */}
+
+# TestCafe
+  * fixes - as per checked in file if needed ~ there is around 40
