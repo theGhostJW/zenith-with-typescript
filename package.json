@@ -59,7 +59,8 @@
     "endPoints": "mocha --compilers js:babel-core/register ./src/test/**/*.endpoints.js ./testCases/**/*.endpoints.js",
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
     "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
-    "fixBuild": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node gaze flow-bin nyc istanbul-reports --dev"
+    "fixBuild": "yarn add babel-cli babel-preset-flow babel-preset-env babel-preset-node gaze flow-bin nyc istanbul-reports --dev",
+		"updateExternalFlowDefs": "yarn install && yarn flow-typed install"
   },
   "nyc": {
     "exclude": [
