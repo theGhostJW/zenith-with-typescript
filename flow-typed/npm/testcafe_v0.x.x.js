@@ -202,11 +202,11 @@ declare interface TestCafe$SelectorPromise extends TestCafe$SelectorAPI, Promise
 
 }
 
-declare interface TestCafe$CustomMethodsSelectorPromiseI<T> extends TestCafe$SelectorAPI, Promise<TestCafe$NodeSnapshot & $ObjMap<T, TestCafe$CustomMethodsTypeTransform>> {
+declare interface TestCafe$CustomMethodsSelectorPromiseI<T> extends TestCafe$SelectorAPI, Promise<TestCafe$NodeSnapshot & $ObjMap<T, TestCafe$CustomMethodsSelectorTypeTransform>> {
 
 }
 
-declare type TestCafe$CustomMethodsSelectorPromise<T> = TestCafe$CustomMethodsSelectorPromiseI<T> & $ObjMap<T, TestCafe$CustomMethodsTypeTransform>;
+declare type TestCafe$CustomMethodsSelectorPromise<T> = TestCafe$CustomMethodsSelectorPromiseI<T> & $ObjMap<T, TestCafe$CustomMethodsSelectorTypeTransform>;
 
 declare interface TestCafe$CustomPropsSelectorPromiseI<T> extends TestCafe$SelectorAPI, Promise<TestCafe$NodeSnapshot & $ObjMap<T, TestCafe$CustomPropsSnapshotTypeTransform>> {
 
@@ -263,7 +263,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*> | HTMLCollection<*>),
         options?: TestCafe$ClickActionOptions): TestCafe$TestControllerPromise,
 
     rightClick(
@@ -271,7 +271,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*> | HTMLCollection<*>),
         options?: TestCafe$ClickActionOptions): TestCafe$TestControllerPromise,
 
     doubleClick(
@@ -279,7 +279,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*> | HTMLCollection<*>),
         options?: TestCafe$ClickActionOptions): TestCafe$TestControllerPromise,
 
     hover(
@@ -287,7 +287,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         options?: TestCafe$MouseActionOptions): TestCafe$TestControllerPromise,
 
     drag(
@@ -295,7 +295,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         dragOffsetX: number,
         dragOffsetY: number,
         options?: TestCafe$MouseActionOptions): TestCafe$TestControllerPromise,
@@ -305,12 +305,12 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         destinationSelector: string |
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         options?: TestCafe$MouseActionOptions): TestCafe$TestControllerPromise,
 
     typeText(
@@ -318,7 +318,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         text: string,
         options?: TypeActionOptions): TestCafe$TestControllerPromise,
 
@@ -327,7 +327,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         startPos: number,
         endPos: number,
         options?: TestCafe$ActionOptions): TestCafe$TestControllerPromise,
@@ -337,7 +337,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         startLine: number,
         startPos: number,
         endLine: number,
@@ -349,12 +349,12 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         endSelector: string |
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ),
         options?: TestCafe$ActionOptions): TestCafe$TestControllerPromise,
 
     pressKey(keys: string, options?: TestCafe$ActionOptions): TestCafe$TestControllerPromise,
@@ -368,7 +368,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection),
+        ((...args: any[]) => Node | Node[] | NodeList<*> | HTMLCollection<*> ),
         filePath: string | string[]): TestCafe$TestControllerPromise,
 
     clearUpload(
@@ -376,7 +376,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection)): TestCafe$TestControllerPromise,
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> )): TestCafe$TestControllerPromise,
 
     takeScreenshot(path?: string): TestCafe$TestControllerPromise,
 
@@ -391,7 +391,7 @@ declare interface TestCafe$TestController {
         TestCafe$SelectorFn |
         TestCafe$NodeSnapshot |
         TestCafe$SelectorPromise |
-        ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection)): TestCafe$TestControllerPromise,
+        ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> )): TestCafe$TestControllerPromise,
 
     switchToMainWindow(): TestCafe$TestControllerPromise,
 
@@ -399,7 +399,7 @@ declare interface TestCafe$TestController {
 
     setNativeDialogHandler(
         fn: ((
-            type: alert | confirm | beforeunload | prompt,
+            type: 'alert' | 'confirm' | 'beforeunload' | 'prompt',
             text: string,
             url: string) => any) | null,
         options?: TestCafe$ClientFunctionOptions): TestCafe$TestControllerPromise,
@@ -585,7 +585,7 @@ declare interface TestCafe$CustomSelectorFnI<T> extends TestCafe$SelectorAPI, Te
 
 declare type TestCafe$CustomPropsSelectorFn<T> = TestCafe$CustomSelectorFnI<TestCafe$CustomPropsSelectorPromise<T>> & $ObjMap<T, TestCafe$CustomPropsSelectorTypeTransform>;
 
-declare type TestCafe$CustomMethodsSelectorFn<T> = TestCafe$CustomSelectorFnI<TestCafe$CustomMethodsSelectorPromise<T>> & $ObjMap<T, TestCafe$CustomMethodsTypeTransform>;
+declare type TestCafe$CustomMethodsSelectorFn<T> = TestCafe$CustomSelectorFnI<TestCafe$CustomMethodsSelectorPromise<T>> & $ObjMap<T, TestCafe$CustomMethodsSelectorTypeTransform>;
 
 declare interface TestCafe$ClientFunctionFn {
     (...args: any[]): Promise<any>,
@@ -646,7 +646,7 @@ declare module 'testcafe' {
     declare module.exports: {
         (hostname: string, port1: number, port2: number): Promise<TestCafe>,
 
-        Selector(init: string | ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection) | TestCafe$SelectorFn | TestCafe$NodeSnapshot | TestCafe$SelectorPromise,
+        Selector(init: string | ((...args: any[]) => Node | Node[] | NodeList<*>  | HTMLCollection<*> ) | TestCafe$SelectorFn | TestCafe$NodeSnapshot | TestCafe$SelectorPromise,
                                      options?: TestCafe$SelectorOptions): TestCafe$SelectorFn,
         ClientFunction(fn: Function, options?: TestCafe$ClientFunctionOptions): TestCafe$ClientFunctionFn,
 
