@@ -16,7 +16,7 @@ import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TA
 import * as _ from 'lodash'
 
 
-describe.only('formatXml', () => {
+describe('formatXml', () => {
 
   it('large xml', () => {
     let formatted = formatXml(UNFORMATTED_XML);
