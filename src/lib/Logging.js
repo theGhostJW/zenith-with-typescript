@@ -1,6 +1,5 @@
 // @flow
 
-import Color from "color";
 import * as _ from 'lodash';
 import * as winston from 'winston';
 import * as util from 'util'
