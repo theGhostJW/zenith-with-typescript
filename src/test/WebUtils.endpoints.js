@@ -1,19 +1,34 @@
 // @flow
 
-import { Selector } from 'testcafe';
+import {it, describe} from 'mocha';
+import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
+import { debug, waitRetry, cast } from '../lib/SysUtils';
+import { toTemp, toTempString } from '../lib/FileUtils';
+import { toString } from '../lib/StringUtils';
+import * as _ from 'lodash';
+import * as wd from 'webdriverio';
 
-fixture `Getting Started`
-    .page `http://devexpress.github.io/testcafe/example`;
+describe.only('', () => {
 
-test('My first test', async t => {
-    await t
-     .typeText('#developer-name', 'John Smith')
-     .click('#submit-button');
+  it('', () => {
+    //$FlowFixMe
+    var wdio = new wd.Launcher('.\\wdio.conf.js', {});
 
-     const articleHeader = await Selector('.result-content').find('h1');
+    let done = false;
+    wdio.run().then(function (code) {
+        //process.exit(code);
+        console.log(`test run: ${code}`);
+        done = true;
+    }, function (error) {
+        console.error('Launcher failed to start the test', error.stacktrace);
+        done = true;
+      //  process.exit(1);
+    });
 
-     // Obtain the text of the article header
-     let headerText = await articleHeader.innerText;
+    waitRetry(() => done, 10000000);
+    console.log(`test run done`);
+    console.log('calling PID:  ' + toString(process.pid));
 
-     await t.expect(headerText).eql('Thank you, John Smith!!');
+  });
+
 });
