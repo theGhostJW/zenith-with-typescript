@@ -30,7 +30,7 @@ export function uiInteraction(url: ?string): void {
 
 let done = false;
 
-describe.only('', () => {
+describe('', () => {
 
   it('', () => {
     startServer();

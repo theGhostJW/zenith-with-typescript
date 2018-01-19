@@ -5,10 +5,12 @@ import * as _ from 'lodash';
 import { debug, fail, waitRetry } from '../src/lib/SysUtils';
 import { log, expectDefect, endDefect, logException } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
+import { toString } from '../src/lib/StringUtils';
 import child_process from 'child_process'
 import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
 import { register } from '../testCases/ProjectConfig';
 import { check, checkFalse} from '../src/lib/CheckUtils';
+import * as wd from 'webdriverio';
 import moment from 'moment';
 
 
@@ -26,6 +28,18 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
     fail('I do not like 4');
   }
 
+  try {
+    let obs = 'NO URL IN ITEM',
+        url = item.url;
+    if (url != null){
+      browser.url(url);
+      let title = browser.getTitle();
+      console.log('!!!!!!!!!! ' + title + ' PID:' + toString(process.pid));
+    }
+  } catch (e) {
+   fail(e);
+  }
+
   return {
     id: item.id,
     observation: 'blahh'
@@ -35,6 +49,15 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
 function wait(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
+
+type Item = {|
+  id: number,
+  url?: string,
+  when: string,
+  then: string,
+  data?: string,
+  validators: Validators<ValState, Item>
+|}
 
 type ApState = {|
   id: number,
@@ -60,14 +83,6 @@ function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState:
 function mockFilename(item: Item, runConfig: RunConfig) {
   return '';
 }
-
-type Item = {|
-  id: number,
-  when: string,
-  then: string,
-  data?: string,
-  validators: Validators<ValState, Item>
-|}
 
 function check_less_than_2(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
   expectDefect('should fail');
@@ -101,6 +116,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       id: 1,
       when: 'I run a test',
       then: 'i get the result',
+      url: 'http://google.com',
       validators: [
         check_less_than_2,
         check_with_disabled_expectation,
@@ -112,6 +128,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       id: 2,
       when: 'I run another test',
       then: 'i get another result',
+      url: 'http://webdriver.io/api.html',
       validators: [
         check_less_than_2,
         check_less_than_3
