@@ -228,9 +228,7 @@ let cfg = {
    // Make sure you have the wdio adapter package for the specific framework installed
    // before running any tests.
    framework: 'mocha',
-   mochaOpts: {
-       timeout: 100000000
-   },
+
    //
    // Test reporter for stdout.
    // The only one supported by default is 'dot'
@@ -241,7 +239,8 @@ let cfg = {
    // Options to be passed to Mocha.
    // See the full list at http://mochajs.org/
    mochaOpts: {
-       ui: 'bdd'
+      timeout: 100000000,
+      ui: 'bdd'
    },
    //
    // =====
