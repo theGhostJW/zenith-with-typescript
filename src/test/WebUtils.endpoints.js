@@ -9,22 +9,22 @@ import * as _ from 'lodash';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 
+
+let done = false;
+
 describe.only('', () => {
 
   it('', () => {
     startServer();
 
     //$FlowFixMe
-    let wdio = new wd.Launcher('.\\wdio.conf.js', cfg),
-        done = false;
+    let wdio = new wd.Launcher('.\\wdio.conf.js', cfg);
 
     wdio.run().then(function (code) {
         //process.exit(code);
         console.log(`test run: ${code}`);
-        done = true;
     }, function (error) {
         console.error('Launcher failed to start the test', error.stacktrace);
-        done = true;
       //  process.exit(1);
     });
 
@@ -41,24 +41,33 @@ function startServer() {
   ipc.config.retry= 50;
   ipc.config.sync= true;
 
+  let urls = ['http://google.com', 'http://webdriver.io/api.html'],
+      idx = 0;
+
+
   ipc.serve(
       function(){
           ipc.server.on(
               'app.message',
-              function(data,socket){
-                  setTimeout(
-                      function(){
-                          ipc.server.emit(
-                              socket,
-                              'app.message',
-                              {
-                                  id      : ipc.config.id,
-                                  message : data.message+' world!'
+              function(data, socket){
+                         debug('!!!!!!! SERVER ON AP MESSAGE  !!!!!!!');
+                         if (idx > urls.length - 1){
+                          // ipc.disconnect('uiInt');
+                           debug('!!!!!!! SERVER ON AP i am done  !!!!!!!');
+                            ipc.disconnect('uiInt');
+                           done = true;
+                         }
+                         else {
+                           debug('!!!!!!! SERVER dispatching !!!!!!!');
+                           ipc.server.emit(
+                               socket,
+                               'app.message',
+                               {
+                                 id: ipc.config.id,
+                                 message: urls[idx++]
                               }
-                          );
-                      },
-                      2000
-                  );
+                           );
+                         }
               }
           );
       }
