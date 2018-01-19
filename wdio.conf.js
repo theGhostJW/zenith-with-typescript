@@ -1,8 +1,8 @@
 exports.config = {
-  framework: 'mocha',
-  mochaOpts: {
-      timeout: 100000000
-  }
+  // framework: 'mocha',
+  // mochaOpts: {
+  //     timeout: 100000000
+  // }
 }
 
 // Cause all of our Selenium scripts to get transpiled by Babel in real-time into full ES6,
