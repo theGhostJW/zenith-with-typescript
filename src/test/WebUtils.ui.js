@@ -7,6 +7,7 @@ import { toTemp, toTempString } from '../lib/FileUtils';
 import * as _ from 'lodash';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
+import { uiInteraction } from '../test/WebUtils.endpoints'
 
 let title,
     connected = false,
@@ -14,34 +15,12 @@ let title,
     url = null;
 
 
-function uiInteraction() {
-  if (url != null){
-    debug(url, 'UI Interaction !!!!!!!!!!!!!');
-    browser.url(url);
-    title = browser.getTitle();
-    console.log('!!!!!!!!!! ' + title + ' PID:' + toString(process.pid));
-    url = null;
-    ipc.of.uiInt.emit(
-      'app.message',
-      {
-          id      : ipc.config.id,
-          message : 'hello again'
-        }
-    );
-  }
-  else {
-    debug('uiInteraction null url');
-  }
-}
-
-
-
 describe.only('test cafe play', () => {
 
   function runIt() {
     runClient();
     debug('Run client finished');
-    waitRetry(() => done, 60000, uiInteraction);
+    waitRetry(() => done, 60000, () => {uiInteraction(url); url = null;});
   }
 
   it('interact', () => {
@@ -92,7 +71,15 @@ describe.only('test cafe play', () => {
                     ipc.log('going to: ', data);
                     url = data.message;
                 }
-            );
+            ),
+
+            ipc.of.uiInt.on(
+                'ServerDone',
+                () => {
+                  ipc.of.uiInt.emit('ClientDone');
+                  done = true;
+                }
+            ),
 
             console.log(ipc.of.uiInt.destroy);
         }

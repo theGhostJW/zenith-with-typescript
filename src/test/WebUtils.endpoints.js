@@ -1,6 +1,5 @@
 // @flow
 
-import {it, describe} from 'mocha';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import { debug, waitRetry, cast } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
@@ -9,6 +8,25 @@ import * as _ from 'lodash';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 
+
+export function uiInteraction(url: ?string): void {
+  if (url != null){
+    debug(url, 'UI Interaction !!!!!!!!!!!!!');
+    browser.url(url);
+    let title = browser.getTitle();
+    console.log('!!!!!!!!!! ' + title + ' PID:' + toString(process.pid));
+    ipc.of.uiInt.emit(
+      'app.message',
+      {
+          id      : ipc.config.id,
+          message : 'hello again'
+        }
+    );
+  }
+  else {
+    debug('uiInteraction null url');
+  }
+}
 
 let done = false;
 
@@ -52,10 +70,11 @@ function startServer() {
               function(data, socket){
                          debug('!!!!!!! SERVER ON AP MESSAGE  !!!!!!!');
                          if (idx > urls.length - 1){
-                          // ipc.disconnect('uiInt');
-                           debug('!!!!!!! SERVER ON AP i am done  !!!!!!!');
-                            ipc.disconnect('uiInt');
-                           done = true;
+                           ipc.server.emit(
+                               socket,
+                               'ServerDone',
+                               {}
+                           );
                          }
                          else {
                            debug('!!!!!!! SERVER dispatching !!!!!!!');
@@ -69,7 +88,18 @@ function startServer() {
                            );
                          }
               }
-          );
+            ),
+
+            ipc.server.on(
+                'ClientDone',
+                function(data, socket){
+                     debug('!!!!!!! SERVER ON AP MESSAGE - CLIENT DONE  !!!!!!!');
+                      // ipc.disconnect('uiInt');
+                     debug('!!!!!!! SERVER ON AP i am done  !!!!!!!');
+                     ipc.disconnect('uiInt');
+                     done = true;
+                }
+          )
       }
   );
 
