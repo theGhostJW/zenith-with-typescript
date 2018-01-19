@@ -5,11 +5,9 @@ import { debug, seekInObj } from '../lib/SysUtils';
 import { logSplitter, defaultLogParser, elementsToFullMock,  } from '../lib/LogParser';
 import { testDataFile, logFile, toTemp, fromTestData, fileOrFolderNameNoExt } from '../lib/FileUtils';
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
+import { mockFileNameUseEnvironment } from '../../testCases/ProjectConfig';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
 import { replaceAll, toString } from '../lib/StringUtils';
-
-const mockFileNameUseEnvironment =
-                  (itemId, testName, runConfig) => fileOrFolderNameNoExt(testName) + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
 
 describe('file Parsing', () => {
 
