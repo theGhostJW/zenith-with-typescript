@@ -13,17 +13,37 @@ import moment from 'moment';
 import { now, strToMoment } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
 import { defaultLogParser } from '../lib/LogParser'
+import * as webLauncher from '../lib/WebLauncher';
 
 export type MockFileNameFunction<R> = (itemId: ?number, testName: string, runConfig: R) => string
 
-export function runTest(itemFilter?: ItemFilter<*>){
+export function defaultTestRunner(itemFilter?: ItemFilter<*>){
   return function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>, mockFileNameFunc: MockFileNameFunction<R>) : void {
     log('Loading Test Items');
     let itemList = testCase.testItems(runConfig);
     if (itemFilter != null){
       itemList = filterTestItems(itemList, itemFilter);
     }
-    itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
+
+    let webUI = true;
+    if (webUI) {
+      debug('launchWebInteractor from test runner');
+      webLauncher.launchWebInteractor();
+      debug('Launched!!!! ');
+      try {
+        itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
+      } catch (e) {
+        debug(e, '--- BANG ---');
+        fail(e);
+      } finally {
+        webLauncher.stopServer();
+      }
+
+
+    } else {
+      itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
+    }
+
   }
 }
 
@@ -272,7 +292,8 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
         mockFileName = mockFileNameFunc(item.id, baseCase.name, runConfig),
         mockPath = mockFile(mockFileName),
         useMock = mocked && pathExists(mockPath),
-        valTime;
+        valTime,
+        isWebUi = true;
 
     function interactOrMock() {
       if (useMock) {
@@ -282,7 +303,7 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
       }
       else {
         valTime = now();
-        apState =  baseCase.interactor(item, runConfig);
+        apState = isWebUi ? cast(webLauncher.interact(item, runConfig)) : baseCase.interactor(item, runConfig);
       }
     }
 

@@ -4,7 +4,7 @@ import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
               GenericValidator, RunParams, NamedCase, TestFilter,
               EndPointInfo, MockFileNameFunction
             } from '../src/lib/TestRunner';
-import { runTestItem, runTest, testRun, loadAll, itemFilter} from '../src/lib/TestRunner';
+import { runTestItem, defaultTestRunner, testRun, loadAll, itemFilter} from '../src/lib/TestRunner';
 import { forceArray, cast, debug, areEqual, def } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from '../testCases/TestFilters';
@@ -31,7 +31,7 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
   runConfig.name = `Test Case EndPoint ~ ${testCase.name}`;
 
   let runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig> = setRunParamsDefaults(runConfig, testCases);
-  runParams.testRunner = runTest(itemFilter(endPointConfig.selector));
+  runParams.testRunner = defaultTestRunner(itemFilter(endPointConfig.selector));
   testRun(runParams);
 }
 
@@ -139,7 +139,7 @@ function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<Ru
     testList: testList,
     runConfigDefaulter: setRunConfigDefaults,
     testConfigDefaulter: setTestConfigDefaults,
-    testRunner: runTest(),
+    testRunner: defaultTestRunner(),
     itemRunner: runTestItem,
     testFilters: filters,
     mockFileNameGenerator: mockFileNameUseEnvironment

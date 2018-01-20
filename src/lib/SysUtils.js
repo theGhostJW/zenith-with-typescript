@@ -81,7 +81,7 @@ export function delay(ms: number) {
   deasync.sleep(ms);
 }
 
-export function waitRetry(isCompleteFunction: () => boolean, timeoutMs: number = 10000, retryFuction: () => void = () => {}, retryPauseMs: number = 100){
+export function waitRetry(isCompleteFunction: () => boolean, timeoutMs: number = 10000, retryFuction: () => void = () => {}, retryPauseMs: number = 100): boolean {
 
   let endTime = now().add(timeoutMs, 'ms'),
       complete = false;

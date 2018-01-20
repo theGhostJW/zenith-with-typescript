@@ -286,7 +286,7 @@ export {
 /* ====================================================================== */
 
 export {
-  runTest,
+  defaultTestRunner,
   filterTestItems,
   itemFilter,
   lastItem,

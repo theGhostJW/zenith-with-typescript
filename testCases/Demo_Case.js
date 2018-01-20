@@ -22,23 +22,43 @@ var config: TestConfig = {
   countries: ['New Zealand', 'Australia']
 }
 
+export type Item = {|
+  id: number,
+  url?: string,
+  when: string,
+  then: string,
+  data?: string,
+  validators: Validators<ValState, Item>
+|}
+
+export type ApState = {|
+  id: number,
+  observation: string
+|}
+
+type ValState = {|
+  id: number,
+  someWords: string
+|}
+
 function interactor(item: Item, runConfig: RunConfig): ApState {
 
   if (item.id == 4){
     fail('I do not like 4');
   }
 
-  try {
-    let obs = 'NO URL IN ITEM',
-        url = item.url;
-    if (url != null){
-      browser.url(url);
-      let title = browser.getTitle();
-      console.log('!!!!!!!!!! ' + title + ' PID:' + toString(process.pid));
-    }
-  } catch (e) {
-   fail(e);
+  // try {
+  let obs = 'NO URL IN ITEM',
+      url = item.url;
+
+  if (url != null){
+    browser.url(url);
+    let title = browser.getTitle();
+    console.log('!!!!!!!!!! ' + title + ' PID:' + toString(process.pid));
   }
+  // } catch (e) {
+  //  fail(e);
+  // }
 
   return {
     id: item.id,
@@ -49,25 +69,6 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
 function wait(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
-
-type Item = {|
-  id: number,
-  url?: string,
-  when: string,
-  then: string,
-  data?: string,
-  validators: Validators<ValState, Item>
-|}
-
-type ApState = {|
-  id: number,
-  observation: string
-|}
-
-type ValState = {|
-  id: number,
-  someWords: string
-|}
 
 function prepState(apState: ApState): ValState {
   return {
