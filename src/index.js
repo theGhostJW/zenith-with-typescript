@@ -296,7 +296,6 @@ export {
   testRun,
   register,
   loadAll,
-  itemRunner,
   runTestItem,
   filterTests
 }  from './lib/TestRunner';

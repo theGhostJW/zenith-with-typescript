@@ -261,10 +261,6 @@ function validatorsToString(item): {} {
   return result;
 }
 
-export function itemRunner() {
-
-}
-
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) {
 
  logStartIteration(item.id, baseCase.name, item.when, item.then, validatorsToString(item));
