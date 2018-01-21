@@ -20,7 +20,7 @@ let waitNo = 0;
 function uiInteraction(): void {
     // exception handling / logging pending
     if (interactInfo == null) {
-      if (waitNo > 60){
+      if (waitNo > 20){
         fail('uiInteraction ~ NO interaction info recieved');
       }
       debug(`uiInteraction ~ waiting for item info ${waitNo++} ~ PID: ${toString(process.pid)}`);

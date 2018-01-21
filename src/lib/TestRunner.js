@@ -29,7 +29,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
     if (webUI) {
       debug('launchWebInteractor from test runner');
       webLauncher.launchWebInteractor();
-      debug('Launched!!!! ');
+      debug('Launched from test runner !!!! ');
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {

@@ -7,6 +7,7 @@ import { debug } from '../src/lib/SysUtils';
 import { toTemp, toTempString } from '../src/lib/FileUtils';
 import * as _ from 'lodash';
 
+import { allItems } from '../src/lib/TestRunner';
 import { testCase } from '../testCases/Demo_Case';
 import { testCaseEndPoint } from '../testCases/ProjectConfig';
 
@@ -16,7 +17,7 @@ describe('endPoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
-       selector: 1,
+       selector: allItems,
        mocked: false
      }
     );

@@ -1,6 +1,6 @@
 // @flow
 
-import { waitRetry, debug, fail  } from './SysUtils';
+import { waitRetry, debug, fail, ensure, ensureHasVal } from './SysUtils';
 import { toString  } from './StringUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
 import * as wd from 'webdriverio';
@@ -9,37 +9,32 @@ import * as _ from 'lodash';
 
 let ready = false,
     apState = null,
-    done = false;
+    done = false,
+    webDriverIOSocket = null
 
 export function interact(item: any, runConfig: any) {
+  debug('!!!!!!!!!!!!!!!!!!!!!!!  CALLED INTERACT !!!!!!!!!!!!!!!!!');
   try {
+    ensureHasVal(webDriverIOSocket, 'socket not assigned')
     apState = null;
-    debug('!!!!!!!!!!!!!!!!!!!!!!!  CALLED INTERACT !!!!!!!!!!!!!!!!!');
-      ipc.server.emit(
-       socket,
-      'iteration',
-      {
-          id      : ipc.config.id,
-          message : {item: item, runConfig: runConfig}
-        }
-    );
-
-    let complete = waitRetry(() => apState != null, 600000, () => {}, 500);
+    sendIteration(item, runConfig, webDriverIOSocket);
+    let complete = waitRetry(() => apState != null, 600000, () => {debug('waiting apState')}, 500);
     return complete ? apState : new Error('Interactor Timeout Error');
   } catch (e) {
     fail(e);
   }
-
 }
 
 export function stopServer() {
-  ipc.of.uiInt.emit('serverDone');
-  waitRetry(() => done == true, 60000);
-  ipc.server.stop();
+  done = true;
 }
 
 export function launchWebInteractor(){
   try {
+    ready = false,
+    apState = null,
+    done = false;
+
     debug(`start server ~ PID: ${toString(process.pid)}`);
 
     startServer();
@@ -56,10 +51,46 @@ export function launchWebInteractor(){
       //  process.exit(1);
     });
 
-    waitRetry(() => ready, 10000000, () => {debug('waiting on launcher')});
+    waitRetry(() => webDriverIOSocket != null, 10000000, () => {debug('waiting on launcher')});
+    debug('LAUNCHED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   } catch (e) {
     fail(e);
   }
+}
+
+function sendIteration(item: any, runConfig: any, socket: any) {
+  let iterationInput = {item: item, runConfig: runConfig};
+  ipc.server.emit(
+     socket,
+    'iteration',
+     {
+        id      : ipc.config.id,
+        message : iterationInput
+     }
+    );
+}
+
+function nextIteration(socket) {
+  webDriverIOSocket = socket;
+  // let finished = waitRetry(() => iterationInput != null || done, 600000000, () => {debug('waiting for input')}, 1000);
+  // ensure(finished, 'nextIteration - timeout error');
+  //
+  // if (iterationInput != null ){
+  //   ipc.server.emit(
+  //    socket,
+  //   'iteration',
+  //    {
+  //       id      : ipc.config.id,
+  //       message : iterationInput
+  //    }
+  //   );
+  //   iterationInput = null;
+  // }
+  // else {
+  //   ipc.server.emit('serverDone');
+  //   waitRetry(() => done == true, 60000);
+  //   ipc.server.stop();
+  // }
 }
 
 function startServer() {
@@ -67,20 +98,22 @@ function startServer() {
   ipc.config.retry = 50;
   ipc.config.sync = true;
 
-
   ipc.serve(
       function(){
           ipc.server.on('ready',
-                        function(data, socket){
-                          ready = true
+                        (data, socket) => {
+                          ready = true;
+                          debug(ready, 'Server ready response ready set')
+                          webDriverIOSocket = socket;
                         }
                       ),
 
           ipc.server.on(
               'apState',
-              function(data, socket) {
+              (data, socket) => {
                 debug('!!!!!!! SERVER ON APSTATE MESSAGE  !!!!!!!');
                 apState = data.message;
+              //  nextIterationPromise(socket);
               }
             ),
 
@@ -88,7 +121,6 @@ function startServer() {
                 'ClientDone',
                 function(data, socket){
                      debug('!!!!!!! SERVER ON AP MESSAGE - CLIENT DONE - Going Home !!!!!!!');
-                     done = true;
                      ipc.disconnect('uiInt');
                 }
           ),
@@ -99,10 +131,9 @@ function startServer() {
                   console.log('!!!!! SERVER DISCONNECTED !!!!!');
               }
           );
-
-
       }
   );
 
   ipc.server.start();
+  debug('server started');
 }
