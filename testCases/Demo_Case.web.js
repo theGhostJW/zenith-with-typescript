@@ -43,9 +43,9 @@ type ValState = {|
 
 function interactor(item: Item, runConfig: RunConfig): ApState {
 
-  if (item.id == 4){
-    fail('I do not like 4');
-  }
+  // if (item.id == 4){
+  //   fail('I do not like 4');
+  // }
 
   // try {
   let obs = 'NO URL IN ITEM',

@@ -1,6 +1,6 @@
 // @flow
 
-import { testCase } from '../../testCases/Demo_Case';
+import { testCase } from '../../testCases/Demo_Case.web';
 //import type { Item, ApState } from '../../testCases/Demo_Case'; // delete these later
 //import type { RunConfig } from '../../testCases/ProjectConfig'; // delete these later
 

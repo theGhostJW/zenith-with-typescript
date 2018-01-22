@@ -17,6 +17,7 @@ import * as webLauncher from '../lib/WebLauncher';
 
 export type MockFileNameFunction<R> = (itemId: ?number, testName: string, runConfig: R) => string
 
+const WEB_FILE_FRAGMENT = '.web.';
 export function defaultTestRunner(itemFilter?: ItemFilter<*>){
   return function runTest<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: NamedCase<R, T, I, S, V>, runConfig: R, itemRunner: ItemRunner<R, I>, mockFileNameFunc: MockFileNameFunction<R>) : void {
     log('Loading Test Items');
@@ -25,7 +26,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
       itemList = filterTestItems(itemList, itemFilter);
     }
 
-    let webUI = true;
+    let webUI = hasText(testCase.name, WEB_FILE_FRAGMENT);
     if (webUI) {
       debug('launchWebInteractor from test runner');
       webLauncher.launchWebInteractor();
@@ -283,7 +284,8 @@ function validatorsToString(item): {} {
 
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) {
 
- logStartIteration(item.id, baseCase.name, item.when, item.then, validatorsToString(item));
+  let testName = baseCase.name;
+ logStartIteration(item.id, testName, item.when, item.then, validatorsToString(item));
  try {
     let apState: S,
         valState: V,
@@ -293,7 +295,7 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
         mockPath = mockFile(mockFileName),
         useMock = mocked && pathExists(mockPath),
         valTime,
-        isWebUi = true;
+        isWebUi = hasText(testName, WEB_FILE_FRAGMENT);
 
     function interactOrMock() {
       if (useMock) {
