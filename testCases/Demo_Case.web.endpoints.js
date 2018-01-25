@@ -13,7 +13,7 @@ import { testCaseEndPoint } from '../testCases/ProjectConfig';
 
 describe('endPoint', () => {
 
-  it('demo endpoint', () => {
+  it.only('demo endpoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
