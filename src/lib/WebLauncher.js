@@ -50,7 +50,7 @@ export function launchWebInteractor(){
 
     wdio.run().then(function (code) {
         if (code != 0){
-          logError(`webDriver test launcher returned non zero response code ${toString(code)}`);
+          logError(`WebDriver test launcher returned non zero response code ${toString(code)}`);
         }
         webRunComplete = true;
     }, function (error) {
