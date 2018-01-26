@@ -270,6 +270,7 @@ export {
   logCheckPassed,
   PLAIN_CONSOLE_LOGGING_FUNCTIONS,
   logger,
+  lowLevelLogging,
   latestRawPath,
   timeStampedRawPath,
   timeStampedLogDir,
