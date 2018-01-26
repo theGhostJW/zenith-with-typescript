@@ -1,7 +1,7 @@
 // @flow
 
 import { eachFile, testCaseFile, fileOrFolderName, logFile, pathExists, mockFile, fromMock } from '../lib/FileUtils';
-import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail} from '../lib/SysUtils';
+import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail, translateErrorObj} from '../lib/SysUtils';
 import { toString, newLine, hasText} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
@@ -32,7 +32,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {
-        fail(e);
+        fail('item runner failed', e);
       } finally {
         webLauncher.stopServer();
       }
@@ -143,7 +143,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
     testList.forEach(runTestInstance);
 
   } catch (e) {
-    logException(`Exception thrown in test run`, e);
+    logException(`Exception thrown in test run`, translateErrorObj(e));
   } finally {
     logEndRun(runName);
   }
@@ -253,20 +253,19 @@ function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(vali
 type Action = () => void;
 
 function exStage(stage: Action, stageName: string, preLog: Action, postLog: Action, continu: boolean) : boolean {
-  if (!continu){
-    return continu;
+  if (continu){
+    preLog();
+    try {
+      stage();
+    }
+    catch (e) {
+      logException(`Exception Thrown ${stageName}`, translateErrorObj(e));
+      continu = false;
+    } finally {
+      postLog();
+    }
   }
 
-  preLog();
-  try {
-    stage();
-  }
-  catch (e) {
-    logException(`Exception Thrown ${stageName}`, e);
-    continu = false;
-  } finally {
-    postLog();
-  }
   return continu;
 }
 

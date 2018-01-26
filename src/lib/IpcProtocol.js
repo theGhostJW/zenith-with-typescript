@@ -8,6 +8,7 @@ export type Protocol = 'Ready' |
                           'Iteration' |
                           'EndOfItems' |
                           'Log' |
+                          'Exception' |
                           // ipc-native
                           'disconnect' |
                           'connect' ;

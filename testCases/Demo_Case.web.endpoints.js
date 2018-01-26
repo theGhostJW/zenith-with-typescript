@@ -17,7 +17,7 @@ describe('endPoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
-       selector: allItems,
+       selector: 1,
        mocked: false
      }
     );

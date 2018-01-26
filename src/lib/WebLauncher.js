@@ -85,11 +85,19 @@ function startServer() {
                         }
                       );
 
-          when('ApState',
+        when('ApState',
                         (data, socket) => {
                           apState = data;
                         }
                       );
+
+
+        when('Exception',
+                      (data, socket) => {
+                        throw data;
+                      }
+                    );
+
 
         when('Log',
                       (data, socket) => {

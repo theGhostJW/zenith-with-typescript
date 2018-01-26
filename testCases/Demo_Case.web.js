@@ -51,11 +51,6 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
   let obs = 'NO URL IN ITEM',
       url = item.url;
 
-  console.log('demo error about to be logged');
-  logError('demo error');
-
-//  let bad = item.boom.boom;
-
   if (url != null){
     browser.url(url);
     let title = browser.getTitle();

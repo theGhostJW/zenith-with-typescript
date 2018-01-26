@@ -35,6 +35,21 @@ export function randomInt0(upperBound: number) {
   return randomInt(0, upperBound);
 }
 
+export function translateErrorObj(e: any) : any {
+  let errObj;
+  if (_.isObject(e) && hasValue(e.stack)) {
+    errObj = {
+      name: e.name,
+      message: e.message,
+      stack: e.stack
+    }
+  }
+  else {
+    errObj = e;
+  }
+  return errObj;
+}
+
 
 export type TaskListItem = {
   imageName: string,
@@ -474,8 +489,8 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
 }
 
 // a fudge to keep the type checker happy
-export function fail<T>(description: string): T {
-  let err = failInfoObj(description);
+export function fail<T>(description: string, e: any): T {
+  let err = e == null ? failInfoObj(description) : translateErrorObj(e);
   logException(description, err);
   throw err;
 }

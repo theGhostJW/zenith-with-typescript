@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import * as winston from 'winston';
 import * as util from 'util'
 import {appendDelim, newLine, capFirst, subStrAfter, toString, hasText } from '../lib/StringUtils';
-import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
+import {fail, objToYaml, debug, def, ensureHasVal, hasValue, translateErrorObj} from '../lib/SysUtils';
 import { nowAsLogFormat, nowFileFormatted, timeToShortDateTimeHyphenatedMs} from '../lib/DateTimeUtils';
 import { changeExtension } from '../lib/FileUtils';
 // force loading of module
@@ -90,16 +90,18 @@ export const logValidationEnd = () => specialMessage('ValidationEnd', 'PopFolder
 export const logStartValidator = (name: string) => specialMessage('ValidatorStart', 'PushFolder')(name);
 export const logEndValidator = (name: string) => specialMessage('ValidatorEnd', 'PopFolder')(name);
 
-export const logException = (message: string, exceptionObj: any) =>
-                                                                  logError(message,
-                                                                      toString(exceptionObj),
-                                                                      {
-                                                                       additionalInfo: toString(exceptionObj),
-                                                                       subType: 'Exception',
-                                                                       popControl: 'NoAction',
-                                                                       callstack: exceptionObj.stack
-                                                                     }
-                                                                    );
+export const logException = (message: string, exceptionObj: any) => {
+  let errobj = translateErrorObj(exceptionObj);
+  logError(message,
+      toString(exceptionObj),
+      {
+       additionalInfo: toString(exceptionObj),
+       subType: 'Exception',
+       popControl: 'NoAction',
+       callstack: _.isObject(errobj) ? errobj.stack : undefined
+     }
+    );
+}
 
 export const logFilterLog = (filterLog: {[string]: string}) => specialMessage('FilterLog')('Filter Log', objToYaml(filterLog));
 export const logStartRun = (runName: string, runConfig: mixed) => specialMessage('RunStart', 'PushFolder')(

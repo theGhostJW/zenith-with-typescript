@@ -4,13 +4,14 @@ import { testCase } from '../../testCases/Demo_Case.web';
 //import type { Item, ApState } from '../../testCases/Demo_Case'; // delete these later
 //import type { RunConfig } from '../../testCases/ProjectConfig'; // delete these later
 
-import { waitRetry, debug, fail  } from './SysUtils';
+import { waitRetry, debug, fail, hasValue, translateErrorObj  } from './SysUtils';
 import { toString  } from './StringUtils';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import type { Protocol } from './IpcProtocol';
 import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
-import { log, logError } from './Logging';
+import { log, logError, logException } from './Logging';
+import * as _ from 'lodash';
 
 let title,
     done = false,
@@ -18,16 +19,20 @@ let title,
 
 const emit = clientEmit;
 
-let waitNo = 0;
 function uiInteraction(): void {
     // exception handling / logging pending
     if (interactInfo != null) {
-      waitNo = 0;
-
-      let apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
-
-      interactInfo = null;
-      emit('ApState', apState);
+      try {
+        let apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
+        interactInfo = null;
+        emit('ApState', apState);
+      } catch (e) {
+        let err = translateErrorObj(e);
+        logException('Failed in Selenium Interaction', err);
+        emit('Exception', err);
+      } finally {
+        interactInfo = null;
+      }
     }
 }
 
@@ -35,7 +40,7 @@ describe.only('runner', () => {
 
   it('interact', () => {
     runClient();
-    waitRetry(() => done, 6000000, () => uiInteraction());
+    waitRetry(() => done, 90000000, () => uiInteraction());
   });
 
   function runClient() {
@@ -53,7 +58,6 @@ describe.only('runner', () => {
         function(){
 
            when('connect', () => {
-                    //queue up a bunch of requests to be sent synchronously
                     emit('Ready');
                 });
 
