@@ -13,7 +13,6 @@ import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
 import { log, logError } from './Logging';
 
 let title,
-    connected = false,
     done = false,
     interactInfo = null;
 
@@ -22,18 +21,11 @@ const emit = clientEmit;
 let waitNo = 0;
 function uiInteraction(): void {
     // exception handling / logging pending
-    if (interactInfo == null) {
-      if (waitNo > 20){
-        fail('uiInteraction ~ NO interaction info recieved');
-      }
-      debug(`uiInteraction ~ waiting for item info ${waitNo++} ~ PID: ${toString(process.pid)}`);
-    }
-    else {
+    if (interactInfo != null) {
       waitNo = 0;
-      debug(interactInfo, 'UI Interaction !!!!!!!!!!!!!');
-      log('Logged from client', 'with some extra info :-) !!');
-      logError('sample log error');
+
       let apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
+
       interactInfo = null;
       emit('ApState', apState);
     }
@@ -43,15 +35,14 @@ describe.only('runner', () => {
 
   it('interact', () => {
     runClient();
-    debug('Run client finished');
     waitRetry(() => done, 6000000, () => uiInteraction(), 1000);
-    debug('========= it complete =============');
   });
 
   function runClient() {
     ipc.config.id = 'uiTest';
     ipc.config.retry = 1000;
     ipc.config.sync = false;
+    ipc.config.silent = true;
 
     function when(msg: Protocol, action: (data: any) => void) {
       ipc.of[INTERACT_SOCKET_NAME].on(msg, action);
@@ -62,10 +53,6 @@ describe.only('runner', () => {
         function(){
 
            when('connect', () => {
-                    console.log('!!!!! CLIENT CONNECTED !!!!!');
-                    ipc.log('## started ##', ipc.config.delay);
-                    connected = true;
-
                     //queue up a bunch of requests to be sent synchronously
                     emit('Ready');
                 });
@@ -73,10 +60,6 @@ describe.only('runner', () => {
             when(
                 'disconnect',
                   () => {
-                    console.log('!!!!! CLIENT DISCONNECTED !!!!!');
-                    console.log('DONE');
-                    ipc.disconnect('uiInt');
-                    ipc.log('client disconnected');
                     done = true;
                 }
             );

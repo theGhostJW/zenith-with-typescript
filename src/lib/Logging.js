@@ -311,9 +311,6 @@ function newWinstton() {
   rawTimeStampLogFilePath = combineDuplicate(subDir, `log ${rightNow}.raw.yaml`);
   forceDirectoryDuplicate(subDir);
 
-
-  console.log('!!!!!!! Here Comes Winston !!!!!!!!! ' + process.mainModule.filename);
-
   let isWebDriverProcess = hasText(process.mainModule.filename, 'webdriverio');
   return new (winston.Logger)({
     transports: isWebDriverProcess ? [ ipcLogger() ] : [

@@ -28,16 +28,12 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
 
     let webUI = hasText(testCase.name, WEB_FILE_FRAGMENT);
     if (webUI) {
-      debug('launchWebInteractor from test runner');
       webLauncher.launchWebInteractor();
-      debug('Launched from test runner !!!! ');
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {
-        debug(e, '--- BANG ---');
         fail(e);
       } finally {
-        debug('==== STOPPING SERVER ====');
         webLauncher.stopServer();
       }
 

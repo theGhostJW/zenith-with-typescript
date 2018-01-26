@@ -4,7 +4,7 @@ import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug } from '../src/lib/SysUtils';
 import { hasText } from '../src/lib/StringUtils';
-import { log } from '../src/lib/Logging';
+import { log, logError } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
 import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
 import { register } from '../testCases/ProjectConfig';

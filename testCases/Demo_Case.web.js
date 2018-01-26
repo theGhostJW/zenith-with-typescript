@@ -3,7 +3,7 @@
 import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug, fail, waitRetry } from '../src/lib/SysUtils';
-import { log, expectDefect, endDefect, logException } from '../src/lib/Logging';
+import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
 import { toString } from '../src/lib/StringUtils';
 import child_process from 'child_process'
@@ -50,6 +50,11 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
   // try {
   let obs = 'NO URL IN ITEM',
       url = item.url;
+
+  console.log('demo error about to be logged');
+  logError('demo error');
+
+//  let bad = item.boom.boom;
 
   if (url != null){
     browser.url(url);

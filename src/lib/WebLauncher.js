@@ -15,12 +15,12 @@ let apState = null,
     webDriverIOSocket = null;
 
 export function interact(item: any, runConfig: any) {
-  debug('!!!!!!!!!!!!!!!!!!!!!!!  CALLED INTERACT !!!!!!!!!!!!!!!!!');
   try {
     ensureHasVal(webDriverIOSocket, 'socket not assigned')
     apState = null;
     sendIteration(item, runConfig, webDriverIOSocket);
-    let complete = waitRetry(() => apState != null, 600000, () => {debug('waiting apState')}, 500);
+    console.log('waiting web apState');
+    let complete = waitRetry(() => apState != null, 600000, () => {});
     return complete ? apState : new Error('Interactor Timeout Error');
   } catch (e) {
     fail(e);
@@ -40,14 +40,11 @@ export function launchWebInteractor(){
     apState = null,
     done = false;
 
-    debug(`start server ~ PID: ${toString(process.pid)}`);
-
     startServer();
 
     //$FlowFixMe
     let wdio = new wd.Launcher('.\\wdio.conf.js', defaultConfig());
 
-    debug(`About to launch: ${toString(process.pid)}`);
     wdio.run().then(function (code) {
         //process.exit(code);
         console.log(`test run: ${code}`);
@@ -56,8 +53,7 @@ export function launchWebInteractor(){
       //  process.exit(1);
     });
 
-    waitRetry(() => webDriverIOSocket != null, 10000000, () => {debug('waiting on launcher')});
-    debug('LAUNCHED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    waitRetry(() => webDriverIOSocket != null, 10000000, () => {});
   } catch (e) {
     fail(e);
   }
@@ -75,6 +71,7 @@ function startServer() {
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;
+  ipc.config.silent = true;
 
   function when(msg: Protocol, action: (data: any, socket: any) => void) {
     ipc.server.on(msg, action);
@@ -84,27 +81,24 @@ function startServer() {
       function(){
           when('Ready',
                         (data, socket) => {
-                          debug('Server ready response ready recieved from client');
                           webDriverIOSocket = socket;
                         }
                       );
 
           when('ApState',
                         (data, socket) => {
-                          debug('!!!!!!! SERVER ON APSTATE MESSAGE  !!!!!!!');
                           apState = data;
                         }
                       );
 
         when('Log',
                       (data, socket) => {
-                        lowLevelLogging(data.leve, data.message, data.meta);
+                        lowLevelLogging(data.level, data.message, data.meta);
                       }
                     );
 
           when('ClientDone',
                           (data, socket) => {
-                               debug('!!!!!!! SERVER ON AP MESSAGE - CLIENT DONE - Going Home !!!!!!!');
                                ipc.disconnect(INTERACT_SOCKET_NAME);
                                ipc.stop();
                           }
@@ -112,12 +106,10 @@ function startServer() {
 
           when('disconnect',
               (data, socket) => {
-                  console.log('!!!!! SERVER DISCONNECTED !!!!!');
               }
           );
       }
   );
 
   ipc.server.start();
-  debug('server started');
 }
