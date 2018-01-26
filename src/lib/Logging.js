@@ -11,6 +11,8 @@ import { changeExtension } from '../lib/FileUtils';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
+import type { Protocol } from './IpcProtocol';
+import { INTERACT_SOCKET_NAME } from './IpcProtocol';
 
 
 // may have issues loading so duplicated from FileUtils
@@ -201,7 +203,7 @@ export type LogEntry = {
 
 
 
- var CustomLogger = winston.transports.CustomLogger = function (options: {}) {
+ var SynchFileLogger = winston.transports.SynchFileLogger = function (options: {}) {
    //
    // Name this logger
 
@@ -226,9 +228,9 @@ export type LogEntry = {
  // Inherit from `winston.Transport` so you can take advantage
  // of the base functionality and `.handleExceptions()`.
  //
- util.inherits(CustomLogger, winston.Transport);
+ util.inherits(SynchFileLogger, winston.Transport);
 
- CustomLogger.prototype.log = function (level, msg, meta, callback) {
+ SynchFileLogger.prototype.log = function (level, msg, meta, callback) {
    //
    // Store this message and metadata, maybe use some custom logic
    // then callback indicating success.
@@ -245,6 +247,7 @@ export type LogEntry = {
     // => [Error: EISDIR: illegal operation on a directory, open <directory>]
    });
 
+   // not sure wha
    callback(null, true);
  };
 
@@ -266,6 +269,10 @@ function newWinstton() {
       subDir = combineDuplicate(logFileBaseDuplicate(), rightNow);
   rawTimeStampLogFilePath = combineDuplicate(subDir, `log ${rightNow}.raw.yaml`);
   forceDirectoryDuplicate(subDir);
+
+
+  console.log('!!!!!!! Here Comes Winston !!!!!!!!! ' + process.mainModule.filename);
+
   return new (winston.Logger)({
     transports: [
       consoleLogger(),
@@ -301,7 +308,7 @@ function fileOrFolderNameDuplicate(fullPath: string): string {
 }
 
 export function fileLogger(filePath: string) {
-  return new (winston.transports.CustomLogger)({
+  return new (winston.transports.SynchFileLogger)({
       name: fileOrFolderNameDuplicate(filePath),
       timestamp: nowAsLogFormat,
       filename: filePath,

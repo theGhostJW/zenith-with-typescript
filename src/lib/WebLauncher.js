@@ -7,6 +7,7 @@ import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import * as _ from 'lodash';
 import type { Protocol } from './IpcProtocol';
+import { INTERACT_SOCKET_NAME } from './IpcProtocol';
 
 let apState = null,
     done = false,
@@ -70,9 +71,9 @@ function sendIteration(item: any, runConfig: any, socket: any) {
 }
 
 function startServer() {
-  ipc.config.id = 'uiInt';
+  ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
-  ipc.config.sync = true;
+  ipc.config.sync = false;
 
   function when(msg: Protocol, action: (data: any, socket: any) => void) {
     ipc.server.on(msg, action);
@@ -94,10 +95,16 @@ function startServer() {
                         }
                       );
 
+          when('Log',
+                      (data, socket) => {
+                        debug(toString(data), 'LOG Received');
+                      }
+                    );
+
           when('ClientDone',
                           (data, socket) => {
                                debug('!!!!!!! SERVER ON AP MESSAGE - CLIENT DONE - Going Home !!!!!!!');
-                               ipc.disconnect('uiInt');
+                               ipc.disconnect(INTERACT_SOCKET_NAME);
                                ipc.stop();
                           }
                       );

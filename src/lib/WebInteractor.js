@@ -9,15 +9,14 @@ import { toString  } from './StringUtils';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import type { Protocol } from './IpcProtocol';
+import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
 
 let title,
     connected = false,
     done = false,
     interactInfo = null;
 
-function emit(msgType: Protocol, msg?: {} ) {
-  ipc.of.uiInt.emit(msgType, msg);
-}
+const emit = clientEmit;
 
 let waitNo = 0;
 function uiInteraction(): void {
@@ -31,6 +30,7 @@ function uiInteraction(): void {
     else {
       waitNo = 0;
       debug(interactInfo, 'UI Interaction !!!!!!!!!!!!!');
+      emit('Log', {msg: 'UI Interaction Logged'});
       let apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
       interactInfo = null;
       emit('ApState', apState);
@@ -49,14 +49,14 @@ describe.only('runner', () => {
   function runClient() {
     ipc.config.id = 'uiTest';
     ipc.config.retry = 1000;
-    ipc.config.sync = true;
+    ipc.config.sync = false;
 
     function when(msg: Protocol, action: (data: any) => void) {
-      ipc.of.uiInt.on(msg, action);
+      ipc.of[INTERACT_SOCKET_NAME].on(msg, action);
     }
 
     ipc.connectTo(
-        'uiInt',
+        INTERACT_SOCKET_NAME,
         function(){
 
            when('connect', () => {
