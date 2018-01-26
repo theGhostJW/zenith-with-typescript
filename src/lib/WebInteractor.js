@@ -8,13 +8,16 @@ import { waitRetry, debug, fail  } from './SysUtils';
 import { toString  } from './StringUtils';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
+import type { Protocol } from './IpcProtocol';
 
 let title,
     connected = false,
     done = false,
-    interactInfo, // {item: Item, runConfig: RunConfig},
-    apState; //: ?ApState
+    interactInfo = null;
 
+function emit(msgType: Protocol, msg?: {} ) {
+  ipc.of.uiInt.emit(msgType, msg);
+}
 
 let waitNo = 0;
 function uiInteraction(): void {
@@ -28,14 +31,9 @@ function uiInteraction(): void {
     else {
       waitNo = 0;
       debug(interactInfo, 'UI Interaction !!!!!!!!!!!!!');
-      apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
-      ipc.of.uiInt.emit(
-        'apState',
-        {
-            id      : ipc.config.id,
-            message : apState
-          }
-      );
+      let apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
+      interactInfo = null;
+      emit('ApState', apState);
     }
 }
 
@@ -44,7 +42,8 @@ describe.only('runner', () => {
   it('interact', () => {
     runClient();
     debug('Run client finished');
-    waitRetry(() => done, 6000000, () => {uiInteraction(); apState = null;}, 1000);
+    waitRetry(() => done, 6000000, () => uiInteraction(), 1000);
+    debug('========= it complete =============');
   });
 
   function runClient() {
@@ -52,48 +51,50 @@ describe.only('runner', () => {
     ipc.config.retry = 1000;
     ipc.config.sync = true;
 
+    function when(msg: Protocol, action: (data: any) => void) {
+      ipc.of.uiInt.on(msg, action);
+    }
+
     ipc.connectTo(
         'uiInt',
         function(){
-            ipc.of.uiInt.on(
-                'connect',
-                function(){
+
+           when('connect', () => {
                     console.log('!!!!! CLIENT CONNECTED !!!!!');
                     ipc.log('## started ##', ipc.config.delay);
                     connected = true;
 
                     //queue up a bunch of requests to be sent synchronously
-                    ipc.of.uiInt.emit('ready');
-                }
-            );
+                    emit('Ready');
+                });
 
-            ipc.of.uiInt.on(
+            when(
                 'disconnect',
-                function(){
+                  () => {
                     console.log('!!!!! CLIENT DISCONNECTED !!!!!');
                     console.log('DONE');
+                    ipc.disconnect('uiInt');
                     ipc.log('client disconnected');
                     done = true;
                 }
             );
 
-            ipc.of.uiInt.on(
-                'iteration',
-                function(data){
-                    console.log('!!!!! Next Iteration!!!!!');
-                    interactInfo = data.message;
+            when(
+                'Iteration',
+                (data) => {
+                    console.log(data, '!!!!! Next Iteration!!!!!');
+                    interactInfo = data;
                 }
-            ),
+            );
 
-            ipc.of.uiInt.on(
-                'serverDone',
+            when(
+                'EndOfItems',
                 () => {
-                  ipc.of.uiInt.emit('ClientDone');
+                  emit('ClientDone');
                   done = true;
+                  ipc.of.uiInt.stop();
                 }
-            ),
-
-            console.log(ipc.of.uiInt.destroy);
+            );
         }
     );
 

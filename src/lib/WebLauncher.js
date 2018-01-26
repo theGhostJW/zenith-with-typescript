@@ -6,11 +6,11 @@ import { defaultConfig  } from './WebDriverIOConfig';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import * as _ from 'lodash';
+import type { Protocol } from './IpcProtocol';
 
-let ready = false,
-    apState = null,
+let apState = null,
     done = false,
-    webDriverIOSocket = null
+    webDriverIOSocket = null;
 
 export function interact(item: any, runConfig: any) {
   debug('!!!!!!!!!!!!!!!!!!!!!!!  CALLED INTERACT !!!!!!!!!!!!!!!!!');
@@ -25,13 +25,16 @@ export function interact(item: any, runConfig: any) {
   }
 }
 
+function emit(socket: any, msgType: Protocol, msg?: {} ) {
+  ipc.server.emit(socket, msgType, msg);
+}
+
 export function stopServer() {
-  done = true;
+  sendEnd(webDriverIOSocket);
 }
 
 export function launchWebInteractor(){
   try {
-    ready = false,
     apState = null,
     done = false;
 
@@ -58,39 +61,12 @@ export function launchWebInteractor(){
   }
 }
 
-function sendIteration(item: any, runConfig: any, socket: any) {
-  let iterationInput = {item: item, runConfig: runConfig};
-  ipc.server.emit(
-     socket,
-    'iteration',
-     {
-        id      : ipc.config.id,
-        message : iterationInput
-     }
-    );
+function sendEnd(socket: any) {
+  emit(socket, 'EndOfItems');
 }
 
-function nextIteration(socket) {
-  webDriverIOSocket = socket;
-  // let finished = waitRetry(() => iterationInput != null || done, 600000000, () => {debug('waiting for input')}, 1000);
-  // ensure(finished, 'nextIteration - timeout error');
-  //
-  // if (iterationInput != null ){
-  //   ipc.server.emit(
-  //    socket,
-  //   'iteration',
-  //    {
-  //       id      : ipc.config.id,
-  //       message : iterationInput
-  //    }
-  //   );
-  //   iterationInput = null;
-  // }
-  // else {
-  //   ipc.server.emit('serverDone');
-  //   waitRetry(() => done == true, 60000);
-  //   ipc.server.stop();
-  // }
+function sendIteration(item: any, runConfig: any, socket: any) {
+  emit(socket, 'Iteration', {item: item, runConfig: runConfig});
 }
 
 function startServer() {
@@ -98,36 +74,36 @@ function startServer() {
   ipc.config.retry = 50;
   ipc.config.sync = true;
 
+  function when(msg: Protocol, action: (data: any, socket: any) => void) {
+    ipc.server.on(msg, action);
+  }
+
   ipc.serve(
       function(){
-          ipc.server.on('ready',
+          when('Ready',
                         (data, socket) => {
-                          ready = true;
-                          debug(ready, 'Server ready response ready set')
+                          debug('Server ready response ready recieved from client');
                           webDriverIOSocket = socket;
                         }
-                      ),
+                      );
 
-          ipc.server.on(
-              'apState',
+          when('ApState',
+                        (data, socket) => {
+                          debug('!!!!!!! SERVER ON APSTATE MESSAGE  !!!!!!!');
+                          apState = data;
+                        }
+                      );
+
+          when('ClientDone',
+                          (data, socket) => {
+                               debug('!!!!!!! SERVER ON AP MESSAGE - CLIENT DONE - Going Home !!!!!!!');
+                               ipc.disconnect('uiInt');
+                               ipc.stop();
+                          }
+                      );
+
+          when('disconnect',
               (data, socket) => {
-                debug('!!!!!!! SERVER ON APSTATE MESSAGE  !!!!!!!');
-                apState = data.message;
-              //  nextIterationPromise(socket);
-              }
-            ),
-
-            ipc.server.on(
-                'ClientDone',
-                function(data, socket){
-                     debug('!!!!!!! SERVER ON AP MESSAGE - CLIENT DONE - Going Home !!!!!!!');
-                     ipc.disconnect('uiInt');
-                }
-          ),
-
-          ipc.server.on(
-              'disconnect',
-              function(){
                   console.log('!!!!! SERVER DISCONNECTED !!!!!');
               }
           );

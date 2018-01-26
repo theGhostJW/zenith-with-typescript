@@ -37,6 +37,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
         debug(e, '--- BANG ---');
         fail(e);
       } finally {
+        debug('==== STOPPING SERVER ====');
         webLauncher.stopServer();
       }
 
