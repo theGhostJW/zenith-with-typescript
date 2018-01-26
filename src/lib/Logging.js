@@ -3,7 +3,7 @@
 import * as _ from 'lodash';
 import * as winston from 'winston';
 import * as util from 'util'
-import {appendDelim, newLine, capFirst, subStrAfter, toString } from '../lib/StringUtils';
+import {appendDelim, newLine, capFirst, subStrAfter, toString, hasText } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
 import { nowAsLogFormat, nowFileFormatted, timeToShortDateTimeHyphenatedMs} from '../lib/DateTimeUtils';
 import { changeExtension } from '../lib/FileUtils';
@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import type { Protocol } from './IpcProtocol';
-import { INTERACT_SOCKET_NAME } from './IpcProtocol';
+import { clientEmit } from './IpcProtocol';
 
 
 // may have issues loading so duplicated from FileUtils
@@ -203,7 +203,7 @@ export type LogEntry = {
 
 
 
- var SynchFileLogger = winston.transports.SynchFileLogger = function (options: {}) {
+ const SynchFileLogger = winston.transports.SynchFileLogger = function (options: {}) {
    //
    // Name this logger
 
@@ -224,27 +224,68 @@ export type LogEntry = {
    //
  };
 
+
+  //
+  // Inherit from `winston.Transport` so you can take advantage
+  // of the base functionality and `.handleExceptions()`.
+  //
+  util.inherits(SynchFileLogger, winston.Transport);
+
+  SynchFileLogger.prototype.log = function (level, msg, meta, callback) {
+    //
+    // Store this message and metadata, maybe use some custom logic
+    // then callback indicating success.
+
+    let logMessage = formatFileLog({
+      timestamp: this.timestamp,
+      level: level,
+      message: msg,
+      meta: meta
+    });
+
+    //$FlowFixMe
+    fs.write(this.fd, logMessage + newLine(), (err, fd) => {
+     // => [Error: EISDIR: illegal operation on a directory, open <directory>]
+    });
+
+    // not sure wha
+    callback(null, true);
+  };
+
+
+  const IPCLogger = winston.transports.IPCLogger = function (options: {}) {
+    //
+    // Name this logger
+
+    //$FlowFixMe
+    this.name = options.name;
+
+    //
+    // Set the level from your options
+    //
+    this.level = options.level || 'info';
+    this.timestamp = options.timestamp || nowAsLogFormat;
+
+    //
+    // Configure your storage backing as you see fit
+    //
+  };
+
  //
  // Inherit from `winston.Transport` so you can take advantage
  // of the base functionality and `.handleExceptions()`.
  //
- util.inherits(SynchFileLogger, winston.Transport);
+ util.inherits(IPCLogger, winston.Transport);
 
- SynchFileLogger.prototype.log = function (level, msg, meta, callback) {
+ IPCLogger.prototype.log = function (level, msg, meta, callback) {
    //
    // Store this message and metadata, maybe use some custom logic
    // then callback indicating success.
 
-   let logMessage = formatFileLog({
-     timestamp: this.timestamp,
+  clientEmit('Log', {
      level: level,
      message: msg,
      meta: meta
-   });
-
-   //$FlowFixMe
-   fs.write(this.fd, logMessage + newLine(), (err, fd) => {
-    // => [Error: EISDIR: illegal operation on a directory, open <directory>]
    });
 
    // not sure wha
@@ -273,12 +314,13 @@ function newWinstton() {
 
   console.log('!!!!!!! Here Comes Winston !!!!!!!!! ' + process.mainModule.filename);
 
+  let isWebDriverProcess = hasText(process.mainModule.filename, 'webdriverio');
   return new (winston.Logger)({
-    transports: [
-      consoleLogger(),
-      fileLogger(logFileBaseDuplicate('latest.raw.yaml')),
-      fileLogger(rawTimeStampLogFilePath)
-    ]
+    transports: isWebDriverProcess ? [ ipcLogger() ] : [
+                                                        consoleLogger(),
+                                                        fileLogger(logFileBaseDuplicate('latest.raw.yaml')),
+                                                        fileLogger(rawTimeStampLogFilePath)
+                                                      ]
   });
 }
 
@@ -312,6 +354,19 @@ export function fileLogger(filePath: string) {
       name: fileOrFolderNameDuplicate(filePath),
       timestamp: nowAsLogFormat,
       filename: filePath,
+      level: 'info',
+      colorize: true,
+      json: false,
+      options: {flags: 'a'},
+      formatter: formatFileLog
+    });
+}
+
+let ipcLogs = 0;
+export function ipcLogger() {
+  return new (winston.transports.IPCLogger)({
+      name: `ipc logger ${(ipcLogs++).toString()}`,
+      timestamp: nowAsLogFormat,
       level: 'info',
       colorize: true,
       json: false,
@@ -438,6 +493,13 @@ function logFunction(level: LogLevel, callStack: boolean) : LogFunction {
   }
 
 }
+
+
+export function lowLevelLogging(level: LogLevel, message?: string, meta: LogAttributes) {
+  logger.log(level, message, meta);
+}
+
+
 
 let globaLoggingFunctions: LoggingFunctions = DEFAULT_LOGGING_FUNCTIONS;
 

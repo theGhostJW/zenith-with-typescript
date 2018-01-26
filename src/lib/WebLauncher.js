@@ -3,6 +3,7 @@
 import { waitRetry, debug, fail, ensure, ensureHasVal } from './SysUtils';
 import { toString  } from './StringUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
+import { lowLevelLogging  } from './Logging';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import * as _ from 'lodash';
@@ -95,9 +96,9 @@ function startServer() {
                         }
                       );
 
-          when('Log',
+        when('Log',
                       (data, socket) => {
-                        debug(toString(data), 'LOG Received');
+                        lowLevelLogging(data.leve, data.message, data.meta);
                       }
                     );
 

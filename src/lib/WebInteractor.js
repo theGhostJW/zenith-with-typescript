@@ -10,6 +10,7 @@ import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import type { Protocol } from './IpcProtocol';
 import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
+import { log, logError } from './Logging';
 
 let title,
     connected = false,
@@ -30,7 +31,8 @@ function uiInteraction(): void {
     else {
       waitNo = 0;
       debug(interactInfo, 'UI Interaction !!!!!!!!!!!!!');
-      emit('Log', {msg: 'UI Interaction Logged'});
+      log('Logged from client', 'with some extra info :-) !!');
+      logError('sample log error');
       let apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
       interactInfo = null;
       emit('ApState', apState);
