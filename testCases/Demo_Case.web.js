@@ -51,6 +51,9 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
   let obs = 'NO URL IN ITEM',
       url = item.url;
 
+  // let caps = browser.session();
+  //     console.log(caps);
+
   if (url != null){
     browser.url(url);
     let title = browser.getTitle();

@@ -3,7 +3,7 @@
 import { waitRetry, debug, fail, ensure, ensureHasVal } from './SysUtils';
 import { toString  } from './StringUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
-import { lowLevelLogging  } from './Logging';
+import { lowLevelLogging, logError  } from './Logging';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import * as _ from 'lodash';
@@ -12,7 +12,8 @@ import { INTERACT_SOCKET_NAME } from './IpcProtocol';
 
 let apState = null,
     done = false,
-    webDriverIOSocket = null;
+    webDriverIOSocket = null,
+    webRunComplete = true;
 
 export function interact(item: any, runConfig: any) {
   try {
@@ -33,12 +34,14 @@ function emit(socket: any, msgType: Protocol, msg?: {} ) {
 
 export function stopServer() {
   sendEnd(webDriverIOSocket);
+  waitRetry(() => webRunComplete, 120000, () => {});
 }
 
 export function launchWebInteractor(){
   try {
     apState = null,
     done = false;
+    webRunComplete = false;
 
     startServer();
 
@@ -46,10 +49,13 @@ export function launchWebInteractor(){
     let wdio = new wd.Launcher('.\\wdio.conf.js', defaultConfig());
 
     wdio.run().then(function (code) {
-        //process.exit(code);
-        console.log(`test run: ${code}`);
+        if (code != 0){
+          logError(`webDriver test launcher returned non zero response code ${toString(code)}`);
+        }
+        webRunComplete = true;
     }, function (error) {
-        console.error('Launcher failed to start the test', error.stacktrace);
+        logError('Launcher failed to start the test', error.stacktrace);
+        webRunComplete = true;
       //  process.exit(1);
     });
 
@@ -68,6 +74,9 @@ function sendIteration(item: any, runConfig: any, socket: any) {
 }
 
 function startServer() {
+  // http://localhost:4444/wd/hub/status
+  //
+
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;
@@ -108,7 +117,6 @@ function startServer() {
           when('ClientDone',
                           (data, socket) => {
                                ipc.disconnect(INTERACT_SOCKET_NAME);
-                               ipc.stop();
                           }
                       );
 

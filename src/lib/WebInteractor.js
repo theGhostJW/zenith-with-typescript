@@ -81,7 +81,6 @@ describe.only('runner', () => {
                 () => {
                   emit('ClientDone');
                   done = true;
-                  ipc.of.uiInt.stop();
                 }
             );
         }
