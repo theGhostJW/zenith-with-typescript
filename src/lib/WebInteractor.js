@@ -35,7 +35,7 @@ describe.only('runner', () => {
 
   it('interact', () => {
     runClient();
-    waitRetry(() => done, 6000000, () => uiInteraction(), 1000);
+    waitRetry(() => done, 6000000, () => uiInteraction());
   });
 
   function runClient() {
