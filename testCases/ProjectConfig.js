@@ -52,10 +52,10 @@ export type Environment = "TST" | "UAT" | "PVT";
 export type Depth = $Keys<typeof depthMap>;
 export type Country = "Australia" | "New Zealand";
 
-
+// could be partly moved to testRunner plus filters
 export type TestCaseEndPointParams<R, T, I, S, V> = {|
   testCase: BaseCase<R, T, I, S, V>,
-  selector?: Number |  $Supertype<R> | (testItem: I, fullList: Array<I>) => boolean,
+  selector?: Number |  $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean,
   mocked?: boolean,
   country?: Country,
   environment?: Environment,
