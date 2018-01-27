@@ -24,3 +24,6 @@ zsol commented on Sep 17, 2016
 
 # TestCafe
   * fixes - as per checked in file if needed ~ there is around 40
+
+# git lfs
+  * activate from sourcetree

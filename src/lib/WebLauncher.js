@@ -4,6 +4,7 @@ import { waitRetry, debug, fail, ensure, ensureHasVal } from './SysUtils';
 import { toString  } from './StringUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
 import { lowLevelLogging, logError  } from './Logging';
+import { checkStartSelenium  } from './WebUtils';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import * as _ from 'lodash';
@@ -36,11 +37,20 @@ export function stopServer() {
   waitRetry(() => webRunComplete, 120000, () => {});
 }
 
+let seleniumLaunched = false;
+function startSeleniumServerOnce() {
+  if (!seleniumLaunched){
+    checkStartSelenium();
+  }
+  seleniumLaunched = true;
+}
+
 export function launchWebInteractor(){
   try {
     apState = null,
     webRunComplete = false;
 
+    startSeleniumServerOnce();
     startServer();
 
     //$FlowFixMe

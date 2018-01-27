@@ -54,10 +54,10 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
   // let caps = browser.session();
   //     console.log(caps);
 
+  let title = '?????';
   if (url != null){
     browser.url(url);
-    let title = browser.getTitle();
-    console.log('!!!!!!!!!! ' + title + ' PID:' + toString(process.pid));
+    title = browser.getTitle();
   }
   // } catch (e) {
   //  fail(e);
@@ -65,7 +65,7 @@ function interactor(item: Item, runConfig: RunConfig): ApState {
 
   return {
     id: item.id,
-    observation: 'blahh'
+    observation: title
   }
 }
 

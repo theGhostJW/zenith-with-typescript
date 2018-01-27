@@ -11,13 +11,13 @@ import { allItems } from '../src/lib/TestRunner';
 import { testCase } from '../testCases/Demo_Case.web';
 import { testCaseEndPoint } from '../testCases/ProjectConfig';
 
-describe('endPoint', () => {
+describe.only('endPoint', () => {
 
-  it.only('demo endpoint', () => {
+  it('demo endpoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
-       selector: 1,
+       selector: allItems,
        mocked: false
      }
     );
