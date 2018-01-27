@@ -11,7 +11,6 @@ import type { Protocol } from './IpcProtocol';
 import { INTERACT_SOCKET_NAME } from './IpcProtocol';
 
 let apState = null,
-    done = false,
     webDriverIOSocket = null,
     webRunComplete = true;
 
@@ -40,7 +39,6 @@ export function stopServer() {
 export function launchWebInteractor(){
   try {
     apState = null,
-    done = false;
     webRunComplete = false;
 
     startServer();
@@ -50,7 +48,7 @@ export function launchWebInteractor(){
 
     wdio.run().then(function (code) {
         if (code != 0){
-          logError(`WebDriver test launcher returned non zero response code ${toString(code)}`);
+          logError(`WebDriver test launcher returned non zero response code: ${toString(code)}`);
         }
         webRunComplete = true;
     }, function (error) {
@@ -59,7 +57,7 @@ export function launchWebInteractor(){
       //  process.exit(1);
     });
 
-    waitRetry(() => webDriverIOSocket != null, 10000000, () => {});
+    waitRetry(() => webDriverIOSocket != null || webRunComplete, 10000000, () => {});
   } catch (e) {
     fail(e);
   }
