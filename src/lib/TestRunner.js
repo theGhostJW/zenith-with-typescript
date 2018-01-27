@@ -26,8 +26,11 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
       itemList = filterTestItems(itemList, itemFilter);
     }
 
-    let webUI = hasText(testCase.name, WEB_FILE_FRAGMENT);
-    if (webUI) {
+    let webUI = hasText(testCase.name, WEB_FILE_FRAGMENT),
+        useMockForItem = (item) => canUseMock(testCase, runConfig, item, mockFileNameFunc),
+        canMockAllWebUi = webUI && itemList.every(useMockForItem);
+
+    if (webUI && !canMockAllWebUi) {
       webLauncher.launchWebInteractor();
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
@@ -278,24 +281,30 @@ function validatorsToString(item): {} {
   return result;
 }
 
+function canUseMock<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) : boolean {
+  if (runConfig.mocked){
+    let mockFileName = mockFileNameFunc(item.id, baseCase.name, runConfig),
+        mockPath = mockFile(mockFileName);
+    return pathExists(mockPath);
+  }
+  return false;
+}
+
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) {
 
-  let testName = baseCase.name;
+ let testName = baseCase.name;
  logStartIteration(item.id, testName, item.when, item.then, validatorsToString(item));
  try {
     let apState: S,
         valState: V,
         continu = true,
-        mocked = runConfig.mocked,
-        mockFileName = mockFileNameFunc(item.id, baseCase.name, runConfig),
-        mockPath = mockFile(mockFileName),
-        useMock = mocked && pathExists(mockPath),
+        useMock = canUseMock(baseCase, runConfig, item, mockFileNameFunc),
         valTime,
         isWebUi = hasText(testName, WEB_FILE_FRAGMENT);
 
     function interactOrMock() {
       if (useMock) {
-        let mockObj = fromMock(mockFileName);
+        let mockObj = fromMock(mockFileNameFunc(item.id, baseCase.name, runConfig));
         valTime = strToMoment(mockObj.valTime);
         apState =  mockObj.apState;
       }
