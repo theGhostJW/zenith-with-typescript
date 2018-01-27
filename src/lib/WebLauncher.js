@@ -2,14 +2,16 @@
 
 import { waitRetry, debug, fail, ensure, ensureHasVal } from './SysUtils';
 import { toString  } from './StringUtils';
+import { tempFile, toTempString, stringToFile } from './FileUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
-import { lowLevelLogging, logError  } from './Logging';
+import { lowLevelLogging, logError, log  } from './Logging';
 import { checkStartSelenium  } from './WebUtils';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
 import * as _ from 'lodash';
 import type { Protocol } from './IpcProtocol';
 import { INTERACT_SOCKET_NAME } from './IpcProtocol';
+import { dumpTestFile } from './WebInteractorGenerator';
 
 let apState = null,
     webDriverIOSocket = null,
@@ -45,7 +47,7 @@ function startSeleniumServerOnce() {
   seleniumLaunched = true;
 }
 
-export function launchWebInteractor(){
+export function launchWebInteractor(testName: string){
   try {
     apState = null,
     webRunComplete = false;
@@ -53,8 +55,20 @@ export function launchWebInteractor(){
     startSeleniumServerOnce();
     startServer();
 
+    // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
+    let internalTesting = false,
+        spec = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
+        webDriverConfig = defaultConfig();
+
+      webDriverConfig.specs = [spec];
+      log('Launching file: ' + spec);
+
+      if (!internalTesting){
+        dumpTestFile(testName, spec);
+      }
+
     //$FlowFixMe
-    let wdio = new wd.Launcher('.\\wdio.conf.js', defaultConfig());
+    let wdio = new wd.Launcher('.\\wdio.conf.js', webDriverConfig);
 
     wdio.run().then(function (code) {
         if (code != 0){
@@ -82,8 +96,7 @@ function sendIteration(item: any, runConfig: any, socket: any) {
 }
 
 function startServer() {
-  // http://localhost:4444/wd/hub/status
-  //
+  debug('Server starting')
 
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;

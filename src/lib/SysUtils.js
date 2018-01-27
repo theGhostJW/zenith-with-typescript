@@ -10,9 +10,14 @@ import moment from 'moment';
 import child_process from 'child_process';
 import { now } from '../lib/DateTimeUtils';
 import { log, logException } from '../lib/Logging';
-import { runTimeFile, pathExists } from '../lib/FileUtils';
+import { runTimeFile, pathExists, projectSubDir, TEMPLATE_BASE_FILE } from '../lib/FileUtils';
 import { parseString } from 'xml2js'
 import deasync from 'deasync'
+
+
+export function isFrameworkProject(): boolean {
+  return !pathExists(projectSubDir(TEMPLATE_BASE_FILE, false))
+}
 
 export function xmlToObj(xml: string): {} {
 

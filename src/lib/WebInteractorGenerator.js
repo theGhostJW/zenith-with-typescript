@@ -1,15 +1,50 @@
 // @flow
 
-import { testCase } from '../../testCases/Demo_Case.web';
+import { stringToFile } from './FileUtils';
+import { debug, isFrameworkProject } from './SysUtils';
+import { trimLines, newLine } from './StringUtils';
 
-import { waitRetry, debug, fail, hasValue, translateErrorObj  } from './SysUtils';
-import { toString  } from './StringUtils';
-import * as wd from 'webdriverio';
-import * as ipc from 'node-ipc';
-import type { Protocol } from './IpcProtocol';
-import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
-import { log, logError, logException } from './Logging';
-import * as _ from 'lodash';
+export function dumpTestFile(testName: string, destpath: string) {
+  stringToFile(fileContent(testName), destpath);
+}
+
+function fileContent(testName: string): string {
+  let fw = isFrameworkProject();
+  return targetRequires(testName) + newLine() +
+          (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +
+          NPM_USES + newLine() +
+          SOURCE_CODE;
+}
+
+function targetRequires(testName: string) : string {
+  return trimLines(`// @flow
+
+    import { testCase } from '../testCases/${testName}';`)
+}
+
+const FRAMEWORK_USES = trimLines(`
+  import { waitRetry, debug, fail, hasValue, translateErrorObj  } from '../src/lib/SysUtils';
+  import { toString  } from '../src/lib/StringUtils';
+  import type { Protocol } from '../src/lib/IpcProtocol';
+  import { INTERACT_SOCKET_NAME, clientEmit } from '../src/lib/IpcProtocol';
+  import { log, logError, logException } from '../src/lib/Logging';
+`);
+
+const ZWTF_USES = trimLines(`
+  import { waitRetry, debug, fail, hasValue, translateErrorObj, toString, INTERACT_SOCKET_NAME,
+          clientEmit, log, logError, logException
+   } from 'ZWFT';
+  import type { Protocol } from 'ZWFT';
+`);
+
+const NPM_USES = trimLines(`
+  import * as wd from 'webdriverio';
+  import * as ipc from 'node-ipc';
+  import * as _ from 'lodash';
+`);
+
+
+const SOURCE_CODE = `
 
 let title,
     done = false,
@@ -87,3 +122,4 @@ describe.only('runner', () => {
   }
 
 });
+`

@@ -1,5 +1,15 @@
 // @flow
 
+
+export {
+  INTERACT_SOCKET_NAME,
+  clientEmit
+} from './lib/IpcProtocol';
+
+export type {
+  Protocol
+} from './lib/IpcProtocol';
+
 export {
   chkWithMessage,
   chk,
@@ -103,7 +113,9 @@ export {
   combine,
   seekFolder,
   pathExists,
-  projectDir
+  projectDir,
+  projectSubDir,
+  TEMPLATE_BASE_FILE
 } from './lib/FileUtils';
 
 export {
@@ -218,7 +230,8 @@ xOr,
 areEqualWithTolerance,
 reorderProps,
 fillArray,
-delay
+delay,
+isFrameworkProject
 }  from './lib/SysUtils';
 
 export type {

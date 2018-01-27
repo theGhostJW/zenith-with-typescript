@@ -450,11 +450,14 @@ function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string
 }
 
 let projectDirSingleton: ?string = null;
+
+export const TEMPLATE_BASE_FILE: string  = 'ZwtfProjectBase.txt';
+
 export function projectDir() : string {
 
   if (projectDirSingleton == null){
     let seedName = module.filename,
-        try1 = projectDirTry(seedName, 'ZwtfProjectBase.txt'),
+        try1 = projectDirTry(seedName, TEMPLATE_BASE_FILE),
         dir1 = try1[0];
 
     if (dir1 != null){
@@ -471,7 +474,7 @@ export function projectDir() : string {
   return projectDirSingleton;
 }
 
-function projectSubDir(subDir : string) : string {
+export function projectSubDir(subDir : string, ensurePathExists: boolean = true) : string {
   let result = combine(projectDir(), subDir);
-  return ensureHasValAnd(result, pathExists, `Cannot find project file path when searching up from: ${result}`);
+  return ensureHasValAnd(result, p => !ensurePathExists || pathExists(p), `Cannot find project file path when searching up from: ${result}`);
 }
