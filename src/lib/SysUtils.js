@@ -15,6 +15,30 @@ import { parseString } from 'xml2js'
 import deasync from 'deasync'
 
 
+// https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
+export function getCallerString(): string {
+  let stack = getStackStrings();
+  // remove getCallerString
+  return stack[1];
+}
+
+// https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
+export function getStackStrings(): Array<string> {
+  // Save original Error.prepareStackTrace - don't know what this is
+  let origPrepareStackTrace = Error.prepareStackTrace,
+      stack = [];
+  try {
+    Error.prepareStackTrace = (_, stack) => stack;
+    // Create a new `Error`, which automatically gets `stack`
+    stack = cast(new Error().stack);
+    stack.shift();
+  }  finally {
+    Error.prepareStackTrace = origPrepareStackTrace;
+  }
+  return stack.map(s => s.toString())
+}
+
+
 export function isFrameworkProject(): boolean {
   return !pathExists(projectSubDir(TEMPLATE_BASE_FILE, false))
 }
