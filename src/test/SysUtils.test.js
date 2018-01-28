@@ -40,14 +40,37 @@ import {
   _parseTaskList,
   waitRetry,
   randomInt,
-  randomInt0
+  randomInt0,
+  getCallerString,
+  getStackStrings
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
+import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage, chkHasText} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
+
+
+describe('getCallerString', () => {
+
+
+  it('simple', function blahhh(){
+    let actual = getCallerString();
+    chkHasText(actual, 'blahhh');
+    chkHasText(actual, 'SysUtils.test.js');
+  });
+
+});
+
+describe('getStackStrings', () => {
+
+  it.only('simple', function blahhStrings() {
+    let actual = getStackStrings();
+    chkHasText(actual.join('\n'), 'blahhStrings');
+  });
+
+});
 
 describe('random ', () => {
 
@@ -730,7 +753,7 @@ describe('seekInObjxxx - derived functions', () => {
     it('basic find all', () => {
       chkEq(["homi","fiction","fun","stuff cat"], seekAllInObj(EG_OBJ, 'category'));
     });
-    
+
   });
 
   describe('seekManyInObj', () => {

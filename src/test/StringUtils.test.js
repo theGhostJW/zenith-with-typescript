@@ -15,7 +15,6 @@ import {areEqual, debug, deepMapValues, def, flattenObj, forceArray } from '../l
 import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, UNFORMATTED_XML } from '../test/StringUtils.data.test';
 import * as _ from 'lodash'
 
-
 describe('formatXml', () => {
 
   it('large xml', () => {
