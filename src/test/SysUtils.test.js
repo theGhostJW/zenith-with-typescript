@@ -62,7 +62,8 @@ describe('getCallerString', () => {
   });
 
 });
-getStackStrings
+
+
 describe('getStackStrings', () => {
 
   it.only('simple', function blahhStrings() {
