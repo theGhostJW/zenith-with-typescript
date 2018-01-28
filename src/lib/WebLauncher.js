@@ -1,17 +1,20 @@
 // @flow
 
-import { waitRetry, debug, fail, ensure, ensureHasVal } from './SysUtils';
-import { toString  } from './StringUtils';
-import { tempFile, toTempString, stringToFile } from './FileUtils';
-import { defaultConfig  } from './WebDriverIOConfig';
-import { lowLevelLogging, logError, log  } from './Logging';
-import { checkStartSelenium  } from './WebUtils';
-import * as wd from 'webdriverio';
-import * as ipc from 'node-ipc';
-import * as _ from 'lodash';
 import type { Protocol } from './IpcProtocol';
+
+import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './IpcProtocol';
+import { log, logError, lowLevelLogging  } from './Logging';
+import { toString } from './StringUtils';
+
+import {cast, debug, ensure, ensureHasVal, fail, waitRetry} from './SysUtils';
+import { defaultConfig  } from './WebDriverIOConfig';
 import { dumpTestFile } from './WebInteractorGenerator';
+
+import { checkStartSelenium  } from './WebUtils';
+import * as ipc from 'node-ipc';
+import * as wd from 'webdriverio';
+
 
 let apState = null,
     webDriverIOSocket = null,
@@ -47,12 +50,36 @@ function startSeleniumServerOnce() {
   seleniumLaunched = true;
 }
 
+
+export function launchWdioTestRun(config: {}, setFinished: bool => void, getFinished: void => bool) {
+  try {
+    setFinished(false);
+    startSeleniumServerOnce();
+
+    //$FlowFixMe
+    let wdio = new wd.Launcher('.\\wdio.conf.js', config);
+    log('Launching file: ' + cast(config).specs.join(', '));
+    wdio.run().then(function (code) {
+        if (code != 0){
+          logError(`WebDriver test launcher returned non zero response code: ${toString(code)}`);
+        }
+        setFinished(true);
+    }, function (error) {
+        logError('Launcher failed to start the test', error.stacktrace);
+        setFinished(true);
+      //  process.exit(1);
+    });
+
+    waitRetry(getFinished, 10000000, () => {});
+  } catch (e) {
+    fail(e);
+  }
+
+}
+
 export function launchWebInteractor(testName: string){
   try {
-    apState = null,
-    webRunComplete = false;
-
-    startSeleniumServerOnce();
+    apState = null;
     startServer();
 
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
@@ -61,30 +88,16 @@ export function launchWebInteractor(testName: string){
         webDriverConfig = defaultConfig();
 
       webDriverConfig.specs = [spec];
-      log('Launching file: ' + spec);
 
       if (!internalTesting){
         dumpTestFile(testName, spec);
       }
 
-    //$FlowFixMe
-    let wdio = new wd.Launcher('.\\wdio.conf.js', webDriverConfig);
-
-    wdio.run().then(function (code) {
-        if (code != 0){
-          logError(`WebDriver test launcher returned non zero response code: ${toString(code)}`);
-        }
-        webRunComplete = true;
-    }, function (error) {
-        logError('Launcher failed to start the test', error.stacktrace);
-        webRunComplete = true;
-      //  process.exit(1);
-    });
-
-    waitRetry(() => webDriverIOSocket != null || webRunComplete, 10000000, () => {});
+    launchWdioTestRun(webDriverConfig, b => {webRunComplete = b;}, () => webDriverIOSocket != null || webRunComplete);
   } catch (e) {
     fail(e);
   }
+
 }
 
 function sendEnd(socket: any) {

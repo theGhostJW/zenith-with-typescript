@@ -10,7 +10,7 @@ import { seleniumStatus, seleniumRunning, startSelenium, checkStartSelenium, web
 
 describe('webUtilsTestLoad', () => {
 
-  it.only('simple', () => {
+  it('simple', () => {
     webUtilsTestLoad();
   });
 
