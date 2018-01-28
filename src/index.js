@@ -115,7 +115,8 @@ export {
   pathExists,
   projectDir,
   projectSubDir,
-  TEMPLATE_BASE_FILE
+  TEMPLATE_BASE_FILE,
+  PATH_SEPARATOR
 } from './lib/FileUtils';
 
 export {
@@ -367,3 +368,11 @@ export {
   outOfTestError,
   summaryBlock
 }  from './lib/LogFormatter';
+
+export {
+  webUtilsTestLoad,
+  checkStartSelenium,
+  startSelenium,
+  seleniumRunning,
+  seleniumStatus
+} from './lib/WebUtils';

@@ -55,8 +55,12 @@ import { log } from '../lib/Logging';
 describe('getCallerString', () => {
 
 
+  function calledFunc() {
+    return getCallerString();
+  }
+
   it('simple', function blahhh(){
-    let actual = getCallerString();
+    let actual = calledFunc();
     chkHasText(actual, 'blahhh');
     chkHasText(actual, 'SysUtils.test.js');
   });
@@ -66,7 +70,7 @@ describe('getCallerString', () => {
 
 describe('getStackStrings', () => {
 
-  it.only('simple', function blahhStrings() {
+  it('simple', function blahhStrings() {
     let actual = getStackStrings();
     chkHasText(actual.join('\n'), 'blahhStrings');
   });

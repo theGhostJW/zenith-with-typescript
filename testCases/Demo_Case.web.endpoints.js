@@ -11,7 +11,7 @@ import { allItems } from '../src/lib/TestRunner';
 import { testCase } from '../testCases/Demo_Case.web';
 import { testCaseEndPoint } from '../testCases/ProjectConfig';
 
-describe.only('endPoint', () => {
+describe('endPoint', () => {
 
   it('demo endpoint', () => {
      testCaseEndPoint(

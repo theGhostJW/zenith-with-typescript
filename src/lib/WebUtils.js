@@ -1,13 +1,20 @@
 // @flow
 
 import request from 'sync-request';
-import { trimChars, hasText } from './StringUtils';
-import { debug, def, cast, seekInObj, translateErrorObj, executeRunTimeFile, waitRetry, ensure } from './SysUtils';
-import { runTimeFile } from './FileUtils';
+import { trimChars, hasText, subStrBetween, subStrAfter } from './StringUtils';
+import { debug, def, cast, seekInObj, translateErrorObj, executeRunTimeFile, waitRetry, ensure, getCallerString } from './SysUtils';
+import { runTimeFile, pathExists, PATH_SEPARATOR } from './FileUtils';
 import * as _ from 'lodash';
 
 export const SELENIUM_BASE_URL = 'http://localhost:4444/';
 export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
+
+export function webUtilsTestLoad(){
+  let callerStr = getCallerString(),
+      filePath = subStrBetween(callerStr, ' (', PATH_SEPARATOR) + PATH_SEPARATOR + subStrBetween(callerStr, PATH_SEPARATOR, ':');
+
+  debug(filePath);
+}
 
 
 export function checkStartSelenium() {

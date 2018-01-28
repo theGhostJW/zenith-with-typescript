@@ -19,7 +19,8 @@ import deasync from 'deasync'
 export function getCallerString(): string {
   let stack = getStackStrings();
   // remove getCallerString
-  return stack[1];
+  // remove caller
+  return stack[2];
 }
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js

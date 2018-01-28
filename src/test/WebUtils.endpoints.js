@@ -5,7 +5,16 @@ import { debug, waitRetry, cast } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { toString } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { seleniumStatus, seleniumRunning, startSelenium, checkStartSelenium } from '../lib/WebUtils';
+import { seleniumStatus, seleniumRunning, startSelenium, checkStartSelenium, webUtilsTestLoad } from '../lib/WebUtils';
+
+
+describe('webUtilsTestLoad', () => {
+
+  it.only('simple', () => {
+    webUtilsTestLoad();
+  });
+
+});
 
 describe('seleniumStatus', () => {
 

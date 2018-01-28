@@ -27,6 +27,8 @@ import { toMoment } from '../lib/DateTimeUtils'
 import lineByLine from 'n-readlines';
 
 
+export const PATH_SEPARATOR = path.sep;
+
 const TEMP_STR_FILES : {
   [string] : boolean
 } = {};
