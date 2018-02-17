@@ -1,10 +1,11 @@
 // @flow
 
 import type { Protocol } from './IpcProtocol';
+import { startServer, apState, setApState, activeSocket, sendIteration, sendEnd } from './IpcServer';
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './IpcProtocol';
-import { log, logError, lowLevelLogging  } from './Logging';
+import { log, logError, lowLevelLogging, logWarning } from './Logging';
 import { toString } from './StringUtils';
 
 import {cast, debug, ensure, ensureHasVal, fail, waitRetry} from './SysUtils';
@@ -16,29 +17,23 @@ import * as ipc from 'node-ipc';
 import * as wd from 'webdriverio';
 
 
-let apState = null,
-    webDriverIOSocket = null,
-    webRunComplete = true;
+let webRunComplete = true;
 
 export function interact(item: any, runConfig: any) {
   try {
-    ensureHasVal(webDriverIOSocket, 'socket not assigned')
-    apState = null;
-    sendIteration(item, runConfig, webDriverIOSocket);
+    ensureHasVal(activeSocket(), 'socket not assigned')
+    setApState(null);
+    sendIteration(item, runConfig, activeSocket());
     console.log('waiting web apState');
     let complete = waitRetry(() => apState != null, 600000, () => {});
-    return complete ? apState : new Error('Interactor Timeout Error');
+    return complete ? apState() : new Error('Interactor Timeout Error');
   } catch (e) {
     fail(e);
   }
 }
 
-function emit(socket: any, msgType: Protocol, msg?: {} ) {
-  ipc.server.emit(socket, msgType, msg);
-}
-
 export function stopServer() {
-  sendEnd(webDriverIOSocket);
+  sendEnd(activeSocket());
   waitRetry(() => webRunComplete, 120000, () => {});
 }
 
@@ -79,87 +74,24 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
 
 export function launchWebInteractor(testName: string){
   try {
-    apState = null;
+    setApState(null);
     startServer();
 
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
-    let internalTesting = false,
+    let internalTesting = true,
         spec = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
         webDriverConfig = defaultConfig();
 
       webDriverConfig.specs = [spec];
 
-      if (!internalTesting){
+      if (internalTesting){
+        logWarning('INTERNAL TESTING FLAG IS SET')
+      } else {
         dumpTestFile(testName, spec);
       }
 
-    launchWdioTestRun(webDriverConfig, b => {webRunComplete = b;}, () => webDriverIOSocket != null || webRunComplete);
+    launchWdioTestRun(webDriverConfig, b => {webRunComplete = b;}, () => activeSocket() != null || webRunComplete);
   } catch (e) {
     fail(e);
   }
-
-}
-
-function sendEnd(socket: any) {
-  emit(socket, 'EndOfItems');
-}
-
-function sendIteration(item: any, runConfig: any, socket: any) {
-  emit(socket, 'Iteration', {item: item, runConfig: runConfig});
-}
-
-function startServer() {
-  debug('Server starting')
-
-  ipc.config.id = INTERACT_SOCKET_NAME;
-  ipc.config.retry = 50;
-  ipc.config.sync = false;
-  ipc.config.silent = true;
-
-  function when(msg: Protocol, action: (data: any, socket: any) => void) {
-    ipc.server.on(msg, action);
-  }
-
-  ipc.serve(
-      function(){
-          when('Ready',
-                        (data, socket) => {
-                          webDriverIOSocket = socket;
-                        }
-                      );
-
-        when('ApState',
-                        (data, socket) => {
-                          apState = data;
-                        }
-                      );
-
-
-        when('Exception',
-                      (data, socket) => {
-                        throw data;
-                      }
-                    );
-
-
-        when('Log',
-                      (data, socket) => {
-                        lowLevelLogging(data.level, data.message, data.meta);
-                      }
-                    );
-
-          when('ClientDone',
-                          (data, socket) => {
-                               ipc.disconnect(INTERACT_SOCKET_NAME);
-                          }
-                      );
-
-          when('disconnect',
-              (data, socket) => {
-              }
-          );
-      }
-  );
-
-  ipc.server.start();
 }
