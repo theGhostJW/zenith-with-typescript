@@ -13,6 +13,9 @@ import * as ipc from 'node-ipc';
 
 var activeSocketSingleton = null;
 
+function emit(socket: any, msgType: Protocol, msg?: {} ) {
+  ipc.server.emit(socket, msgType, msg);
+}
 
 export function sendEnd(socket: any) {
   emit(socket, 'EndOfItems');
@@ -20,10 +23,6 @@ export function sendEnd(socket: any) {
 
 export function sendIteration(item: any, runConfig: any, socket: any) {
   emit(socket, 'Iteration', {item: item, runConfig: runConfig});
-}
-
-function emit(socket: any, msgType: Protocol, msg?: {} ) {
-  ipc.server.emit(socket, msgType, msg);
 }
 
 export function activeSocket() {

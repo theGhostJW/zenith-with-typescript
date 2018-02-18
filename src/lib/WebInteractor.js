@@ -2,7 +2,8 @@
 
 import { testCase } from '../../testCases/Demo_Case.web';
 
-import { waitRetry, debug, fail, hasValue, translateErrorObj  } from './SysUtils';
+import { runClient, interactInfo, done, setInteractorInfo  } from './IpcClient';
+import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
 import { toString  } from './StringUtils';
 import * as wd from 'webdriverio';
 import * as ipc from 'node-ipc';
@@ -11,25 +12,20 @@ import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
 import { log, logError, logException } from './Logging';
 import * as _ from 'lodash';
 
-let title,
-    done = false,
-    interactInfo = null;
-
-const emit = clientEmit;
-
 function uiInteraction(): void {
     // exception handling / logging pending
-    if (interactInfo != null) {
+    let intInfo = interactInfo();
+    if (intInfo != null) {
       try {
-        let apState = testCase.interactor(interactInfo.item, interactInfo.runConfig);
-        interactInfo = null;
-        emit('ApState', apState);
+        let apState = testCase.interactor(cast(intInfo).item, cast(intInfo).runConfig);
+        setInteractorInfo(null);
+        clientEmit('ApState', apState);
       } catch (e) {
         let err = translateErrorObj(e);
         logException('Failed in Selenium Interaction', err);
-        emit('Exception', err);
+        clientEmit('Exception', err);
       } finally {
-        interactInfo = null;
+        setInteractorInfo(null);
       }
     }
 }
@@ -38,52 +34,7 @@ describe.only('runner', () => {
 
   it('interact', () => {
     runClient();
-    waitRetry(() => done, 90000000, () => uiInteraction());
+    waitRetry(() => done(), 90000000, () => uiInteraction());
   });
-
-  function runClient() {
-    ipc.config.id = 'uiTest';
-    ipc.config.retry = 1000;
-    ipc.config.sync = false;
-    ipc.config.silent = true;
-
-    function when(msg: Protocol, action: (data: any) => void) {
-      ipc.of[INTERACT_SOCKET_NAME].on(msg, action);
-    }
-
-    ipc.connectTo(
-        INTERACT_SOCKET_NAME,
-        function(){
-
-           when('connect', () => {
-                    emit('Ready');
-                });
-
-            when(
-                'disconnect',
-                  () => {
-                    done = true;
-                }
-            );
-
-            when(
-                'Iteration',
-                (data) => {
-                    console.log(data, '!!!!! Next Iteration!!!!!');
-                    interactInfo = data;
-                }
-            );
-
-            when(
-                'EndOfItems',
-                () => {
-                  emit('ClientDone');
-                  done = true;
-                }
-            );
-        }
-    );
-
-  }
 
 });

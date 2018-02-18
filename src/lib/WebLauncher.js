@@ -85,7 +85,7 @@ export function launchWebInteractor(testName: string){
       webDriverConfig.specs = [spec];
 
       if (internalTesting){
-        logWarning('INTERNAL TESTING FLAG IS SET')
+        logWarning('INTERNAL TESTING FLAG IS SET');
       } else {
         dumpTestFile(testName, spec);
       }
