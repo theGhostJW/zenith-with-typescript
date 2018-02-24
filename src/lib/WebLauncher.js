@@ -3,6 +3,7 @@
 import type { Protocol } from './IpcProtocol';
 import { startServer, apState, setApState, activeSocket, sendIteration, sendEnd } from './IpcServer';
 
+
 import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './IpcProtocol';
 import { log, logError, lowLevelLogging, logWarning } from './Logging';
@@ -25,7 +26,7 @@ export function interact(item: any, runConfig: any) {
     setApState(null);
     sendIteration(item, runConfig, activeSocket());
     console.log('waiting web apState');
-    let complete = waitRetry(() => apState != null, 600000, () => {});
+    let complete = waitRetry(() => apState() != null, 600000);
     return complete ? apState() : new Error('Interactor Timeout Error');
   } catch (e) {
     fail(e);

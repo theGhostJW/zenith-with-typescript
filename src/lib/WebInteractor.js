@@ -5,11 +5,12 @@ import { testCase } from '../../testCases/Demo_Case.web';
 import { runClient, interactInfo, done, setInteractorInfo  } from './IpcClient';
 import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
 import { toString  } from './StringUtils';
-import * as wd from 'webdriverio';
-import * as ipc from 'node-ipc';
 import type { Protocol } from './IpcProtocol';
 import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
 import { log, logError, logException } from './Logging';
+
+import * as wd from 'webdriverio';
+import * as ipc from 'node-ipc';
 import * as _ from 'lodash';
 
 function uiInteraction(): void {

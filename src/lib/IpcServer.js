@@ -31,7 +31,7 @@ export function activeSocket() {
 
 var apStateSingleton = null;
 export function apState() {
-  return activeSocketSingleton;
+  return apStateSingleton;
 }
 
 export function setApState(apState: mixed): void {

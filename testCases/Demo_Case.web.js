@@ -38,30 +38,17 @@ export type ApState = {|
 
 type ValState = {|
   id: number,
-  someWords: string
+  title: string
 |}
 
 function interactor(item: Item, runConfig: RunConfig): ApState {
+  let url = item.url,
+      title = 'NO URL IN ITEM - TITLE IS N/A';
 
-  // if (item.id == 4){
-  //   fail('I do not like 4');
-  // }
-
-  // try {
-  let obs = 'NO URL IN ITEM',
-      url = item.url;
-
-  // let caps = browser.session();
-  //     console.log(caps);
-
-  let title = '?????';
   if (url != null){
-    browser.url(url);
+    browser.url(url),
     title = browser.getTitle();
   }
-  // } catch (e) {
-  //  fail(e);
-  // }
 
   return {
     id: item.id,
@@ -76,7 +63,7 @@ function wait(ms) {
 function prepState(apState: ApState): ValState {
   return {
     id: apState.id,
-    someWords: 'YES WE CAN'
+    title: apState.observation
   }
 }
 
