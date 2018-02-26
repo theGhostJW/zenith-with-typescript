@@ -2,11 +2,11 @@
 
 import { testCase } from '../../testCases/Demo_Case.web';
 
-import { runClient, interactInfo, done, setInteractorInfo  } from './IpcClient';
+import { startServer, interactInfo, done, setInteractorInfo  } from './SeleniumIpcServer';
 import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
 import { toString  } from './StringUtils';
-import type { Protocol } from './IpcProtocol';
-import { INTERACT_SOCKET_NAME, clientEmit } from './IpcProtocol';
+import type { Protocol } from './SeleniumIpcProtocol';
+import { INTERACT_SOCKET_NAME, clientEmit } from './SeleniumIpcProtocol';
 import { log, logError, logException } from './Logging';
 
 import * as wd from 'webdriverio';
@@ -32,9 +32,9 @@ function uiInteraction(): void {
 }
 
 describe.only('runner', () => {
-
+ 
   it('interact', () => {
-    runClient();
+    startServer();
     waitRetry(() => done(), 90000000, () => uiInteraction());
   });
 

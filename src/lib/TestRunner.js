@@ -32,12 +32,11 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
 
     if (webUI && !canMockAllWebUi) {
       webLauncher.launchWebInteractor(testCase.name);
+      debug('webLauncher Launched')
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {
         fail('item runner failed', e);
-      } finally {
-        webLauncher.stopServer();
       }
 
 

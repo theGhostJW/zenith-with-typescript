@@ -1,11 +1,11 @@
 // @flow
 
-import type { Protocol } from './IpcProtocol';
-import { startServer, apState, setApState, activeSocket, sendIteration, sendEnd } from './IpcServer';
+import type { Protocol } from './SeleniumIpcProtocol';
+import { runClient, apState, setApState, activeSocket, sendIteration, sendEnd } from './SeleniumIpcClient';
 
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
-import { INTERACT_SOCKET_NAME } from './IpcProtocol';
+import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging, logWarning } from './Logging';
 import { toString } from './StringUtils';
 
@@ -22,9 +22,10 @@ let webRunComplete = true;
 
 export function interact(item: any, runConfig: any) {
   try {
+    debug('Interact STARTED');
     ensureHasVal(activeSocket(), 'socket not assigned')
     setApState(null);
-    sendIteration(item, runConfig, activeSocket());
+    sendIteration(item, runConfig);
     console.log('waiting web apState');
     let complete = waitRetry(() => apState() != null, 600000);
     return complete ? apState() : new Error('Interactor Timeout Error');
@@ -33,10 +34,6 @@ export function interact(item: any, runConfig: any) {
   }
 }
 
-export function stopServer() {
-  sendEnd(activeSocket());
-  waitRetry(() => webRunComplete, 120000, () => {});
-}
 
 let seleniumLaunched = false;
 function startSeleniumServerOnce() {
@@ -51,6 +48,7 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
   try {
     setFinished(false);
     startSeleniumServerOnce();
+    runClient();
 
     //$FlowFixMe
     let wdio = new wd.Launcher('.\\wdio.conf.js', config);
@@ -63,7 +61,6 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
     }, function (error) {
         logError('Launcher failed to start the test', error.stacktrace);
         setFinished(true);
-      //  process.exit(1);
     });
 
     waitRetry(getFinished, 10000000, () => {});
@@ -76,7 +73,6 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
 export function launchWebInteractor(testName: string){
   try {
     setApState(null);
-    startServer();
 
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
     let internalTesting = true,

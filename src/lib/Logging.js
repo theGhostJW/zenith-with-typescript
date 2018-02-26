@@ -11,8 +11,8 @@ import { changeExtension } from '../lib/FileUtils';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
-import type { Protocol } from './IpcProtocol';
-import { clientEmit } from './IpcProtocol';
+import type { Protocol } from './SeleniumIpcProtocol';
+import { clientEmit } from './SeleniumIpcProtocol';
 
 
 // may have issues loading so duplicated from FileUtils

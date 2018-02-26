@@ -1,10 +1,10 @@
 // @flow
 
 import * as ipc from 'node-ipc';
+import { debug } from './SysUtils';
 
-export type Protocol = 'Ready' |
-                          'ApState' |
-                          'ClientDone' |
+export type Protocol =   'ApState' |
+                          'ServerDone' |
                           'Iteration' |
                           'EndOfItems' |
                           'Log' |
@@ -16,5 +16,6 @@ export type Protocol = 'Ready' |
 export const INTERACT_SOCKET_NAME = 'uiInt';
 
 export function clientEmit(msgType: Protocol, msg?: {} ) {
+  debug(msgType, 'From Client');
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }

@@ -4,11 +4,11 @@
 export {
   INTERACT_SOCKET_NAME,
   clientEmit
-} from './lib/IpcProtocol';
+} from './lib/SeleniumIpcProtocol';
 
 export type {
   Protocol
-} from './lib/IpcProtocol';
+} from './lib/SeleniumIpcProtocol';
 
 export {
   chkWithMessage,
