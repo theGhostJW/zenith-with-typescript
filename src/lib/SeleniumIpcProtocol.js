@@ -14,8 +14,3 @@ export type Protocol =   'ApState' |
                           'connect' ;
 
 export const INTERACT_SOCKET_NAME = 'uiInt';
-
-export function clientEmit(msgType: Protocol, msg?: {} ) {
-  debug(msgType, 'From Client');
-  ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
-}

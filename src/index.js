@@ -1,15 +1,5 @@
 // @flow
 
-
-export {
-  INTERACT_SOCKET_NAME,
-  clientEmit
-} from './lib/SeleniumIpcProtocol';
-
-export type {
-  Protocol
-} from './lib/SeleniumIpcProtocol';
-
 export {
   chkWithMessage,
   chk,

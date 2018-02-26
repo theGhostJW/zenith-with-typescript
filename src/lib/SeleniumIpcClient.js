@@ -4,13 +4,21 @@ import * as ipc from 'node-ipc';
 import type { Protocol } from './SeleniumIpcProtocol';
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
-import { INTERACT_SOCKET_NAME, clientEmit } from './SeleniumIpcProtocol';
+import { INTERACT_SOCKET_NAME} from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging  } from './Logging';
 import { debug } from './SysUtils';
 
 let
     apStateSingleton = null,
     serverReadySingleton = false;
+
+
+export function clientEmit(msgType: Protocol, msg?: {} ) {
+  debug(msgType, 'From Client');
+  debug(msg, 'From Client Date');
+  ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
+}
+
 
 export function serverReady() {
   return serverReadySingleton;

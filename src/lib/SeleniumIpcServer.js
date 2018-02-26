@@ -32,6 +32,14 @@ export function setInteractorInfo(interactInfo: mixed) {
   interactInfoSingleton = interactInfo;
 }
 
+let clientSocket = null;
+export function emitMessage(msgType: Protocol, msg?: {} ) {
+  debug(msgType, 'From SERVER emit message');
+  debug(msg, 'From SERVER emit message data');
+  ensureHasVal(clientSocket, 'clientSocket is unassigned');
+  emit(clientSocket, msgType, msg);
+}
+
 function emit(socket: any, msgType: Protocol, msg?: {} ) {
   debug(msgType, 'From SERVER');
   ipc.server.emit(socket, msgType, msg);
@@ -69,8 +77,11 @@ export function startServer() {
 
 
         when('connect',
-              (data) => {
-                   debug(data, 'CONNECTED RECEIVED server')
+              (data, socket) => {
+                up to here looks wrong
+                clientSocket = data;
+                debug(data, 'CONNECTED RECEIVED server data')
+                debug(socket, 'CONNECTED RECEIVED server socket')
               }
         );
    }
