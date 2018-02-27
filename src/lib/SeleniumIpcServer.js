@@ -78,7 +78,7 @@ export function startServer() {
 
         when('connect',
               (data, socket) => {
-                up to here looks wrong
+                //ToDo: up to here looks VERY wrong !!
                 clientSocket = data;
                 debug(data, 'CONNECTED RECEIVED server data')
                 debug(socket, 'CONNECTED RECEIVED server socket')
