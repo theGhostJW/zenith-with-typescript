@@ -22,7 +22,6 @@ let webRunComplete = true;
 
 export function interact(item: any, runConfig: any) {
   try {
-    debug('Interact STARTED');
     ensureHasVal(activeSocket(), 'socket not assigned')
     setApState(null);
     sendIteration(item, runConfig);
@@ -64,6 +63,7 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
     });
 
     waitRetry(getFinished, 10000000, () => {});
+    sendEnd();
   } catch (e) {
     fail(e);
   }
@@ -87,7 +87,9 @@ export function launchWebInteractor(testName: string){
         dumpTestFile(testName, spec);
       }
 
-    launchWdioTestRun(webDriverConfig, b => {webRunComplete = b;}, () => serverReady()  || webRunComplete);
+    launchWdioTestRun(webDriverConfig,
+                                    b => {webRunComplete = b},
+                                    () => serverReady() || webRunComplete);
   } catch (e) {
     fail(e);
   }

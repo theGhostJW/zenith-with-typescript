@@ -12,10 +12,7 @@ let
     apStateSingleton = null,
     serverReadySingleton = false;
 
-
 export function clientEmit(msgType: Protocol, msg?: {} ) {
-  debug(msgType, 'From Client');
-  debug(msg, 'From Client Date');
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
@@ -36,7 +33,7 @@ export function setApState(apState: mixed): void {
   apStateSingleton = apState;
 }
 
-export function sendEnd(socket: any) {
+export function sendEnd() {
   clientEmit('EndOfItems');
 }
 
@@ -50,7 +47,6 @@ export function activeSocket() {
 
 /// The Launcher runs from the client
 export function runClient() {
-  debug('Running CLIENT');
   ipc.config.id = 'uiTest';
   ipc.config.retry = 500;
   ipc.config.sync = false;
@@ -96,6 +92,4 @@ export function runClient() {
         );
       }
     )
-
-    debug('CLIENT Connected');
   }

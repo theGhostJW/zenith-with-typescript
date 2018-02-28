@@ -17,7 +17,7 @@ describe('xmlToObj', () => {
     let xml = fromTestDataString('books.xml'),
         obj = cast(xmlToObj(xml));
 
-        debug(obj)
+        //debug(obj)
         let recCount = obj.catalog.book.length;
 
      chkEq(12, recCount);

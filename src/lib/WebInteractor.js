@@ -20,9 +20,7 @@ function uiInteraction(): void {
       try {
         let apState = testCase.interactor(cast(intInfo).item, cast(intInfo).runConfig);
         setInteractorInfo(null);
-        debug(apState, 'Apstate Before')
         emitMessage('ApState', apState);
-        debug(apState, 'Apstate After Emit')
       } catch (e) {
         let err = translateErrorObj(e);
         logException('Failed in Selenium Interaction', err);

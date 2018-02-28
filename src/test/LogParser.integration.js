@@ -18,7 +18,6 @@ describe('file Parsing', () => {
   before(() => {
     summary = defaultLogParser(mockFileNameUseEnvironment)(rawPath);
     toTemp(summary, 'summary');
-    //debug(JSON.stringify(summary))
   });
 
   describe('file paths correct', () => {
@@ -53,7 +52,6 @@ describe('file Parsing', () => {
        outOfTestKnownDefects: 1
      },
      actual = seekInObj(summary, 'runSummary', 'stats');
-     //debug(summary);
      chkEq(expected, actual);
   });
 

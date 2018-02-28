@@ -34,20 +34,16 @@ export function setInteractorInfo(interactInfo: mixed) {
 
 let clientSocket = null;
 export function emitMessage(msgType: Protocol, msg?: {} ) {
-  debug(msgType, 'From SERVER emit message');
-  debug(msg, 'From SERVER emit message data');
   ensureHasVal(clientSocket, 'clientSocket is unassigned');
   emit(clientSocket, msgType, msg);
 }
 
 function emit(socket: any, msgType: Protocol, msg?: {} ) {
-  debug(msgType, 'From SERVER');
   ipc.server.emit(socket, msgType, msg);
 }
 
 /// The Interactor Runs the server
 export function startServer() {
-  debug('Server starting')
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;
@@ -80,13 +76,10 @@ export function startServer() {
               (data, socket) => {
                 //ToDo: up to here looks VERY wrong !!
                 clientSocket = data;
-                debug(data, 'CONNECTED RECEIVED server data')
-                debug(socket, 'CONNECTED RECEIVED server socket')
               }
         );
    }
  );
 
   ipc.server.start();
-  debug('Server Connected')
 }

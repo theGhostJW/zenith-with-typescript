@@ -1,6 +1,7 @@
 // @flow
 
-import {trimLines} from '../index';
+import { trimLines } from '../index';
+import { log } from './Logging';
 import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir, runTimeFile, testCaseFile, PATH_SEPARATOR,
           copyFile, parentDir, fileToString, stringToFile } from './FileUtils';
 import { hasText, subStrAfter, subStrBetween, trimChars, newLine } from './StringUtils';
@@ -63,6 +64,7 @@ export function webUtilsTestLoad(){
 export function checkStartSelenium() {
   let running = seleniumRunning();
   if (!running){
+    log('Starting Selenium WebDriver Server');
     startSelenium();
     let started = waitRetry(seleniumRunning, 60000, () => {}, 1000);
     ensure(started, 'checkStartSelenium - selenium stand alone server did not start');

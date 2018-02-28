@@ -31,7 +31,6 @@ describe('tryEncodings', () => {
         buff = Buffer.from(str, 'ascii'),
         venc = tryEncodings(buff);
 
-    //debug(venc);
     chkEq(venc['ascii'], str);
   });
 

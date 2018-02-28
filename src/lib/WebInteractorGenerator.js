@@ -46,8 +46,6 @@ const NPM_USES = trimLines(`
   import * as ipc from 'node-ipc';
   import * as _ from 'lodash';
 `);
-
-
 const SOURCE_CODE = `
 function uiInteraction(): void {
     // exception handling / logging pending
