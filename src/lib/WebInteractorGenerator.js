@@ -23,12 +23,12 @@ function targetRequires(testName: string) : string {
 }
 
 const FRAMEWORK_USES = trimLines(`
-  import { startServer, interactInfo, done, setInteractorInfo, emitMessage } from './SeleniumIpcServer';
-  import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
-  import { toString  } from './StringUtils';
-  import type { Protocol } from './SeleniumIpcProtocol';
-  import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
-  import { log, logError, logException } from './Logging';
+  import { startServer, interactInfo, done, setInteractorInfo, emitMessage } from '../src/lib/SeleniumIpcServer';
+  import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from '../src/lib/SysUtils';
+  import { toString  } from '../src/lib/StringUtils';
+  import type { Protocol } from '../src/lib/SeleniumIpcProtocol';
+  import { INTERACT_SOCKET_NAME } from '../src/lib/SeleniumIpcProtocol';
+  import { log, logError, logException } from '../src/lib/Logging';
 `);
 
 const ZWTF_USES = trimLines(`

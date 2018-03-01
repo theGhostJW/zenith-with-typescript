@@ -1,7 +1,7 @@
 // @flow
 
 import type { Protocol } from './SeleniumIpcProtocol';
-import { runClient, apState, setApState, activeSocket, sendIteration, sendEnd, 
+import { runClient, apState, setApState, activeSocket, sendIteration, sendEnd,
           serverReady } from './SeleniumIpcClient';
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
