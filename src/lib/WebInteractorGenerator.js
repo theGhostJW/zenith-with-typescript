@@ -23,20 +23,19 @@ function targetRequires(testName: string) : string {
 }
 
 const FRAMEWORK_USES = trimLines(`
-  import { runClient, interactInfo, done, setInteractorInfo  } from '../src/lib/IpcClient';
-  import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from '../src/lib/SysUtils';
-  import { toString  } from '../src/lib/StringUtils';
-  import type { Protocol } from '../src/lib/IpcProtocol';
-  import { INTERACT_SOCKET_NAME, clientEmit } from '../src/lib/IpcProtocol';
-  import { log, logError, logException } from '../src/lib/Logging';
+  import { startServer, interactInfo, done, setInteractorInfo, emitMessage } from './SeleniumIpcServer';
+  import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
+  import { toString  } from './StringUtils';
+  import type { Protocol } from './SeleniumIpcProtocol';
+  import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
+  import { log, logError, logException } from './Logging';
 `);
 
 const ZWTF_USES = trimLines(`
   import {
-            runClient, interactInfo, done, setInteractorInfo
-            waitRetry, debug, fail, hasValue, translateErrorObj, cast
-            toString, INTERACT_SOCKET_NAME, clientEmit,
-        	   log, logError, logException
+          startServer, interactInfo, done, setInteractorInfo, emitMessage,
+          waitRetry, debug, fail, hasValue, translateErrorObj, cast,
+          toString, INTERACT_SOCKET_NAME, log, logError, logException
    } from 'ZWFT';
   import type { Protocol } from 'ZWFT';
 `);
@@ -54,11 +53,11 @@ function uiInteraction(): void {
       try {
         let apState = testCase.interactor(cast(intInfo).item, cast(intInfo).runConfig);
         setInteractorInfo(null);
-        clientEmit('ApState', apState);
+        emitMessage('ApState', apState);
       } catch (e) {
         let err = translateErrorObj(e);
         logException('Failed in Selenium Interaction', err);
-        clientEmit('Exception', err);
+        emitMessage('Exception', err);
       } finally {
         setInteractorInfo(null);
       }
@@ -68,7 +67,7 @@ function uiInteraction(): void {
 describe.only('runner', () => {
 
   it('interact', () => {
-    runClient();
+    startServer();
     waitRetry(() => done(), 90000000, () => uiInteraction());
   });
 
