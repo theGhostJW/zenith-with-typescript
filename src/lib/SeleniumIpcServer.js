@@ -70,8 +70,6 @@ export function startServer() {
             }
           );
 
-
-
         when('connect',
               (data, socket) => {
                 //ToDo: up to here looks VERY wrong !!
