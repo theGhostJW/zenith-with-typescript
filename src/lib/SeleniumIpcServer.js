@@ -7,7 +7,7 @@ import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 
 import { toString } from './StringUtils';
 import {cast, debug, ensure, ensureHasVal, fail, waitRetry} from './SysUtils';
-import { dumpTestFile } from './WebInteractorGenerator';
+import { generateAndDumpTestFile } from './WebInteractorGenerator';
 
 import * as ipc from 'node-ipc';
 

@@ -5,12 +5,12 @@ import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage, chkHa
 import { debug } from '../lib/SysUtils';
 import { toTemp, toTempString, fromTempString } from '../lib/FileUtils';
 import * as _ from 'lodash';
-import { dumpTestFile } from '../lib/WebInteractorGenerator';
+import { generateAndDumpTestFile } from '../lib/WebInteractorGenerator';
 
-describe('dumpTestFile', () => {
+describe('generateAndDumpTestFile', () => {
 
   it('works', () => {
-    dumpTestFile('Demo_Case.web', 'C:\\ZWTF\\temp\\WebInteractor.js');
+    generateAndDumpTestFile('Demo_Case.web', 'C:\\ZWTF\\temp\\WebInteractor.js');
     let actual = fromTempString('WebInteractor.js', false);
     chkHasText(actual, 'runClient();');
   });

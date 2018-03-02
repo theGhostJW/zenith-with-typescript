@@ -11,7 +11,7 @@ import { toString } from './StringUtils';
 
 import {cast, debug, ensure, ensureHasVal, fail, waitRetry} from './SysUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
-import { dumpTestFile } from './WebInteractorGenerator';
+import { generateAndDumpTestFile } from './WebInteractorGenerator';
 
 import { checkStartSelenium  } from './WebUtils';
 import * as ipc from 'node-ipc';
@@ -84,7 +84,7 @@ export function launchWebInteractor(testName: string){
       if (internalTesting){
         logWarning('INTERNAL TESTING FLAG IS SET');
       } else {
-        dumpTestFile(testName, spec);
+        generateAndDumpTestFile(testName, spec);
       }
 
     launchWdioTestRun(webDriverConfig,

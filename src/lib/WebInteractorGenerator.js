@@ -4,7 +4,7 @@ import { stringToFile } from './FileUtils';
 import { debug, isFrameworkProject } from './SysUtils';
 import { trimLines, newLine } from './StringUtils';
 
-export function dumpTestFile(testName: string, destpath: string) {
+export function generateAndDumpTestFile(testName: string, destpath: string) {
   stringToFile(fileContent(testName), destpath);
 }
 
