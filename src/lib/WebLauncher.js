@@ -20,6 +20,8 @@ import * as wd from 'webdriverio';
 
 let webRunComplete = true;
 
+export const endSeleniumIpcSession = sendEnd;
+
 export function interact(item: any, runConfig: any) {
   try {
     ensureHasVal(activeSocket(), 'socket not assigned')
@@ -62,12 +64,10 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
         setFinished(true);
     });
 
-    waitRetry(getFinished, 10000000, () => {});
-    sendEnd();
+    waitRetry(getFinished, 10000000);
   } catch (e) {
     fail(e);
   }
-
 }
 
 export function launchWebInteractor(testName: string){

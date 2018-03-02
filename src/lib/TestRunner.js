@@ -36,6 +36,8 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {
         fail('item runner failed', e);
+      } finally {
+        webLauncher.endSeleniumIpcSession()
       }
 
 

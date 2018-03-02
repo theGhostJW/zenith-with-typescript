@@ -57,7 +57,6 @@ export function startServer() {
       function(){
         when('Iteration',
                         (data, socket) => {
-                          console.log(data, '!!!!! Next Iteration!!!!!');
                           setInteractorInfo(data);
                         }
                       );
