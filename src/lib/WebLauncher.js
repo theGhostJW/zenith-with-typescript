@@ -75,7 +75,7 @@ export function launchWebInteractor(testName: string){
     setApState(null);
 
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
-    let internalTesting = true,
+    let internalTesting = false,
         spec = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
         webDriverConfig = defaultConfig();
 
