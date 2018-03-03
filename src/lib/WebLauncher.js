@@ -1,7 +1,7 @@
 // @flow
 
 import type { Protocol } from './SeleniumIpcProtocol';
-import { runClient, apState, setApState, activeSocket, sendIteration, sendEnd,
+import { runClient, invocationResponse, setApState, activeSocket, sendIteration, sendEnd,
           serverReady } from './SeleniumIpcClient';
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
@@ -30,8 +30,8 @@ export function interact(item: any, runConfig: any) {
     setApState(null);
     sendIteration(item, runConfig);
     console.log('waiting web apState');
-    let complete = waitRetry(() => apState() != null, 600000);
-    return complete ? apState() : new Error('Interactor Timeout Error');
+    let complete = waitRetry(() => invocationResponse() != null, 600000);
+    return complete ? invocationResponse() : new Error('Interactor Timeout Error');
   } catch (e) {
     fail(e);
   }
@@ -75,7 +75,7 @@ export function launchWdioServer(config: {}) {
 export function launchWebIOSession(soucePath: string){
   try {
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
-    let internalTesting = false,
+    let internalTesting = true,
         destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
         webDriverConfig = defaultConfig();
 

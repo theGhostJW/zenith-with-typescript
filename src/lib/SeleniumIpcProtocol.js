@@ -5,7 +5,7 @@ import { debug } from './SysUtils';
 
 export type Protocol =   'ApState' |
                           'ServerDone' |
-                          'Iteration' |
+                          'InvocationParams' |
                           'EndOfItems' |
                           'Log' |
                           'Exception' |

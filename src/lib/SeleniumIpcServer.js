@@ -14,7 +14,7 @@ import * as ipc from 'node-ipc';
 /// STATE
 
 let doneSingleton = false,
-    interactInfoSingleton = null;
+    invocationParamsSingleton = null;
 
 export function done() {
   return doneSingleton;
@@ -24,12 +24,12 @@ export function setDone(done: boolean) {
   doneSingleton = done;
 }
 
-export function interactInfo() {
-  return interactInfoSingleton;
+export function invocationParams() {
+  return invocationParamsSingleton;
 }
 
-export function setInteractorInfo(interactInfo: mixed) {
-  interactInfoSingleton = interactInfo;
+export function setInvokationParams(invocationParams: mixed) {
+  invocationParamsSingleton = invocationParams;
 }
 
 let clientSocket = null;
@@ -55,9 +55,9 @@ export function startServer() {
 
   ipc.serve(
       function(){
-        when('Iteration',
+        when('InvocationParams',
                         (data, socket) => {
-                          setInteractorInfo(data);
+                          setInvokationParams(data);
                         }
                       );
 

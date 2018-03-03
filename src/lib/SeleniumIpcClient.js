@@ -9,7 +9,7 @@ import { log, logError, lowLevelLogging  } from './Logging';
 import { debug } from './SysUtils';
 
 let
-    apStateSingleton = null,
+    invocationResponseSingleton = null,
     serverReadySingleton = false;
 
 export function clientEmit(msgType: Protocol, msg?: {} ) {
@@ -24,12 +24,12 @@ export function setServerReady(ready: boolean) {
   return serverReadySingleton = ready;
 }
 
-export function apState() {
-  return apStateSingleton;
+export function invocationResponse() {
+  return invocationResponseSingleton;
 }
 
-export function setApState(apState: mixed): void {
-  apStateSingleton = apState;
+export function setApState(response: mixed): void {
+  invocationResponseSingleton = response;
 }
 
 export function sendEnd() {
@@ -37,7 +37,7 @@ export function sendEnd() {
 }
 
 export function sendIteration(item: any, runConfig: any) {
-  clientEmit('Iteration', {item: item, runConfig: runConfig});
+  clientEmit('InvocationParams', {item: item, runConfig: runConfig});
 }
 
 export function activeSocket() {

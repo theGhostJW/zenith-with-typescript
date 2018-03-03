@@ -2,7 +2,7 @@
 
 import { testCase } from '../../testCases/Demo_Case.web';
 
-import { startServer, interactInfo, done, setInteractorInfo, emitMessage } from './SeleniumIpcServer';
+import { startServer, invocationParams, done, setInvokationParams, emitMessage } from './SeleniumIpcServer';
 import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
 import { toString  } from './StringUtils';
 import type { Protocol } from './SeleniumIpcProtocol';
@@ -15,18 +15,17 @@ import * as _ from 'lodash';
 
 function uiInteraction(): void {
     // exception handling / logging pending
-    let intInfo = interactInfo();
+    let intInfo = invocationParams();
     if (intInfo != null) {
       try {
         let apState = testCase.interactor(cast(intInfo).item, cast(intInfo).runConfig);
-        setInteractorInfo(null);
         emitMessage('ApState', apState);
       } catch (e) {
         let err = translateErrorObj(e);
         logException('Failed in Selenium Interaction', err);
         emitMessage('Exception', err);
       } finally {
-        setInteractorInfo(null);
+        setInvokationParams(null);
       }
     }
 }

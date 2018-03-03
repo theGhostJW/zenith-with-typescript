@@ -28,7 +28,7 @@ function targetRequires(sourcePath: string, destPath: string) : string {
 }
 
 const FRAMEWORK_USES = trimLines(`
-  import { startServer, interactInfo, done, setInteractorInfo, emitMessage } from '../src/lib/SeleniumIpcServer';
+  import { startServer, interactInfo, done, setInvokationParams, emitMessage } from '../src/lib/SeleniumIpcServer';
   import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from '../src/lib/SysUtils';
   import { toString  } from '../src/lib/StringUtils';
   import type { Protocol } from '../src/lib/SeleniumIpcProtocol';
@@ -38,7 +38,7 @@ const FRAMEWORK_USES = trimLines(`
 
 const ZWTF_USES = trimLines(`
   import {
-          startServer, interactInfo, done, setInteractorInfo, emitMessage,
+          startServer, interactInfo, done, setInvokationParams, emitMessage,
           waitRetry, debug, fail, hasValue, translateErrorObj, cast,
           toString, INTERACT_SOCKET_NAME, log, logError, logException
    } from 'ZWFT';
@@ -57,14 +57,14 @@ function uiInteraction(): void {
     if (intInfo != null) {
       try {
         let apState = testCase.interactor(cast(intInfo).item, cast(intInfo).runConfig);
-        setInteractorInfo(null);
+        setInvokationParams(null);
         emitMessage('ApState', apState);
       } catch (e) {
         let err = translateErrorObj(e);
         logException('Failed in Selenium Interaction', err);
         emitMessage('Exception', err);
       } finally {
-        setInteractorInfo(null);
+        setInvokationParams(null);
       }
     }
 }
