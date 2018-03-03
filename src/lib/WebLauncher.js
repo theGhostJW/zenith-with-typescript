@@ -1,7 +1,7 @@
 // @flow
 
 import type { Protocol } from './SeleniumIpcProtocol';
-import { runClient, invocationResponse, setApState, activeSocket, sendIteration, sendEnd,
+import { runClient, invocationResponse, setInvocationResponse, activeSocket, sendIteration, sendEnd,
           serverReady } from './SeleniumIpcClient';
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
@@ -27,7 +27,7 @@ export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
 export function interact(item: any, runConfig: any) {
   try {
     ensureHasVal(activeSocket(), 'socket not assigned')
-    setApState(null);
+    setInvocationResponse(null);
     sendIteration(item, runConfig);
     console.log('waiting web apState');
     let complete = waitRetry(() => invocationResponse() != null, 600000);
@@ -45,7 +45,6 @@ function startSeleniumServerOnce() {
   }
   seleniumLaunched = true;
 }
-
 
 export function launchWdioServer(config: {}) {
   try {
@@ -95,7 +94,7 @@ export function launchWebIOSession(soucePath: string){
 }
 
 export function launchWebInteractor(soucePath: string){
-  setApState(null);
+  setInvocationResponse(null);
   launchWebIOSession(soucePath);
 }
 

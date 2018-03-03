@@ -15,11 +15,11 @@ import * as _ from 'lodash';
 
 function uiInteraction(): void {
     // exception handling / logging pending
-    let intInfo = invocationParams();
-    if (intInfo != null) {
+    let params = invocationParams();
+    if (params != null) {
       try {
-        let apState = testCase.interactor(cast(intInfo).item, cast(intInfo).runConfig);
-        emitMessage('ApState', apState);
+        let apState = testCase.interactor(...cast(params));
+        emitMessage('InvocationResponse', apState);
       } catch (e) {
         let err = translateErrorObj(e);
         logException('Failed in Selenium Interaction', err);

@@ -12,7 +12,7 @@ let
     invocationResponseSingleton = null,
     serverReadySingleton = false;
 
-export function clientEmit(msgType: Protocol, msg?: {} ) {
+export function clientEmit(msgType: Protocol, msg?: Array<mixed> ) {
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
@@ -28,7 +28,7 @@ export function invocationResponse() {
   return invocationResponseSingleton;
 }
 
-export function setApState(response: mixed): void {
+export function setInvocationResponse(response: mixed): void {
   invocationResponseSingleton = response;
 }
 
@@ -37,7 +37,7 @@ export function sendEnd() {
 }
 
 export function sendIteration(item: any, runConfig: any) {
-  clientEmit('InvocationParams', {item: item, runConfig: runConfig});
+  clientEmit('InvocationParams', [item, runConfig]);
 }
 
 export function activeSocket() {
@@ -59,9 +59,9 @@ export function runClient() {
       INTERACT_SOCKET_NAME,
       function(){
 
-        when('ApState',
+        when('InvocationResponse',
                       (data) => {
-                        setApState(data);
+                        setInvocationResponse(data);
                       }
                     );
 

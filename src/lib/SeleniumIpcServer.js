@@ -14,7 +14,7 @@ import * as ipc from 'node-ipc';
 /// STATE
 
 let doneSingleton = false,
-    invocationParamsSingleton = null;
+    invocationParamsSingleton: ?Array<mixed>;
 
 export function done() {
   return doneSingleton;
@@ -24,11 +24,11 @@ export function setDone(done: boolean) {
   doneSingleton = done;
 }
 
-export function invocationParams() {
+export function invocationParams() : ?Array<mixed> {
   return invocationParamsSingleton;
 }
 
-export function setInvokationParams(invocationParams: mixed) {
+export function setInvokationParams(invocationParams: ?Array<mixed>) {
   invocationParamsSingleton = invocationParams;
 }
 
