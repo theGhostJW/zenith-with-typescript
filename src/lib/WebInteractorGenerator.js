@@ -1,25 +1,30 @@
 // @flow
 
-import { stringToFile } from './FileUtils';
+import { relativePath, stringToFile, parentDir  } from './FileUtils';
+import { newLine, replaceAll, trimLines} from './StringUtils';
 import { debug, isFrameworkProject } from './SysUtils';
-import { trimLines, newLine } from './StringUtils';
 
-export function generateAndDumpTestFile(testName: string, destpath: string) {
-  stringToFile(fileContent(testName), destpath);
+
+
+export function generateAndDumpTestFile(sourcePath: string, destPath: string) {
+  stringToFile(fileContent(sourcePath, destPath), destPath);
 }
 
-function fileContent(testName: string): string {
+function fileContent(sourcePath: string, destPath: string): string {
   let fw = isFrameworkProject();
-  return targetRequires(testName) + newLine() +
+  return targetRequires(sourcePath, destPath) + newLine() +
           (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +
           NPM_USES + newLine() +
           SOURCE_CODE;
 }
 
-function targetRequires(testName: string) : string {
+function targetRequires(sourcePath: string, destPath: string) : string {
+  let destParentDir = parentDir(destPath),
+      targetPath = debug(replaceAll(relativePath(destParentDir, sourcePath), '\\', '/'));
+
   return trimLines(`// @flow
 
-    import { testCase } from '../testCases/${testName}';`)
+    import { testCase } from '${targetPath}';`)
 }
 
 const FRAMEWORK_USES = trimLines(`

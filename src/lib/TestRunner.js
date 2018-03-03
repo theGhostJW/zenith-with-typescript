@@ -31,7 +31,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
         canMockAllWebUi = webUI && itemList.every(useMockForItem);
 
     if (webUI && !canMockAllWebUi) {
-      webLauncher.launchWebInteractor(testCase.name);
+      webLauncher.launchWebInteractor(testCase.path);
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {
@@ -174,10 +174,13 @@ export type RunParams<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT
   mockFileNameGenerator: (itemId: ?number, testName: string, runConfig: R) => string
 |}
 
-let lastLoadedFileName = '??';
+let lastLoadedFileName = '??',
+    lastLoadedFilePath = '??';
+
 export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: BaseCase<R, T, I, S, V>): void {
   let namedCase: NamedCase<R, T, I, S, V> = ((testCase: any): NamedCase<R, T, I, S, V>);
   namedCase.name = lastLoadedFileName;
+  namedCase.path = lastLoadedFilePath;
   allCases.push(namedCase);
 }
 
@@ -207,10 +210,12 @@ export type BaseTestConfig = {
                     enabled: boolean
                   };
 
-export type NamedCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> =  NamedObj<BaseCase<R, T, I, S, V>>
+// test case with a name and a path property
+export type NamedCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = NamedPathedObj<BaseCase<R, T, I, S, V>>
 
-type NamedObj<T> = T & {
-  name: string
+type NamedPathedObj<T> = T & {
+  name: string,
+  path: string
 }
 
 export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<R, T, *, *, *>> {
@@ -220,6 +225,7 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
     delete require.cache[pth];
     // Load function from file.
     lastLoadedFileName = name;
+    lastLoadedFilePath = pth;
     var func = require(pth);
   }
 
@@ -351,11 +357,11 @@ export type FilterResult<C> = {
   log: {[string]: string}
 }
 
-export function filterTests<T, TC, R>(testCases: Array<NamedObj<T>>, configExtractor: T => TC, predicates: Array<(string, TC, R) => boolean>, runConfig: R): FilterResult<T> {
+export function filterTests<T, TC, R>(testCases: Array<NamedPathedObj<T>>, configExtractor: T => TC, predicates: Array<(string, TC, R) => boolean>, runConfig: R): FilterResult<T> {
 
   let predicateNames = predicates.map(functionNameFromFunction);
 
-  function pushLog(accum, testCase: NamedObj<T>) {
+  function pushLog(accum, testCase: NamedPathedObj<T>) {
     let caseName = testCase.name,
         failIdx = predicates.findIndex(p => !p(caseName, configExtractor(testCase), runConfig)),
         accepted = failIdx < 0;

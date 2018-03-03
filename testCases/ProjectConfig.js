@@ -24,6 +24,7 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
       namedCase = allTestCases.find(tc => areEqual(tc.testConfig, testCaseConfig));
 
   testCase.name = cast(def(namedCase, {})).name;
+  testCase.path = cast(def(namedCase, {})).path;
 
   let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = [testCase],
       runConfig = _.omit(endPointConfig,  'testCase', 'selector');

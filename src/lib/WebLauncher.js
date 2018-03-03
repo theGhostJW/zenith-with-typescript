@@ -70,10 +70,8 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
   }
 }
 
-export function launchWebInteractor(testName: string){
+export function launchWebIOSession(soucePath: string){
   try {
-    setApState(null);
-
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
     let internalTesting = false,
         destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
@@ -84,7 +82,7 @@ export function launchWebInteractor(testName: string){
       if (internalTesting){
         logWarning('INTERNAL TESTING FLAG IS SET');
       } else {
-        generateAndDumpTestFile(testName, destPath);
+        generateAndDumpTestFile(soucePath, destPath);
       }
 
     launchWdioTestRun(webDriverConfig,
@@ -93,4 +91,9 @@ export function launchWebInteractor(testName: string){
   } catch (e) {
     fail(e);
   }
+}
+
+export function launchWebInteractor(soucePath: string){
+  setApState(null);
+  launchWebIOSession(soucePath);
 }
