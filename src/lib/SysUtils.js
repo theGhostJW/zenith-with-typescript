@@ -16,6 +16,7 @@ import deasync from 'deasync'
 
 // https://stackoverflow.com/questions/30579940/reliable-way-to-check-if-objects-is-serializable-in-javascript
 export function isSerialisable(obj: mixed): boolean {
+
   const nestedSerialisable = ob => (_.isPlainObject(ob) || _.isArray(ob))  &&
                                     _.every(cast(ob), isSerialisable);
 
@@ -27,7 +28,7 @@ export function isSerialisable(obj: mixed): boolean {
             _.isString,
             nestedSerialisable
           ])(obj)
-};
+}
 
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js

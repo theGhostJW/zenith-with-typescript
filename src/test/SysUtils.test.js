@@ -53,7 +53,7 @@ import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
 
 
-describe.only('isSerialisable', () => {
+describe('isSerialisable', () => {
 
   it('string', () => {
     chk(isSerialisable('HI'));

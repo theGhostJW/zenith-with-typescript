@@ -222,7 +222,8 @@ areEqualWithTolerance,
 reorderProps,
 fillArray,
 delay,
-isFrameworkProject
+isFrameworkProject,
+isSerialisable
 }  from './lib/SysUtils';
 
 export type {

@@ -6,7 +6,7 @@ import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir, runTi
           copyFile, parentDir, fileToString, stringToFile } from './FileUtils';
 import { hasText, subStrAfter, subStrBetween, trimChars, newLine } from './StringUtils';
 import { cast, debug, def, delay, ensure, ensureHasVal, executeRunTimeFile, getCallerString, seekInObj,
-          translateErrorObj, waitRetry, functionNameFromFunction } from './SysUtils';
+          translateErrorObj, waitRetry, functionNameFromFunction, isSerialisable } from './SysUtils';
 import * as _ from 'lodash';
 import request from 'sync-request';
 
