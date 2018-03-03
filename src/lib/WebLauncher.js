@@ -17,9 +17,6 @@ import { checkStartSelenium  } from './WebUtils';
 import * as ipc from 'node-ipc';
 import * as wd from 'webdriverio';
 
-
-let webRunComplete = true;
-
 export const endSeleniumIpcSession = sendEnd;
 
 export function interact(item: any, runConfig: any) {
@@ -45,9 +42,9 @@ function startSeleniumServerOnce() {
 }
 
 
-export function launchWdioTestRun(config: {}, setFinished: bool => void, getFinished: void => bool) {
+export function launchWdioServer(config: {}) {
   try {
-    setFinished(false);
+    let failed = false;
     startSeleniumServerOnce();
     runClient();
 
@@ -58,13 +55,13 @@ export function launchWdioTestRun(config: {}, setFinished: bool => void, getFini
         if (code != 0){
           logError(`WebDriver test launcher returned non zero response code: ${toString(code)}`);
         }
-        setFinished(true);
+        failed = true;
     }, function (error) {
         logError('Launcher failed to start the test', error.stacktrace);
-        setFinished(true);
+        failed = true;
     });
 
-    waitRetry(getFinished, 10000000);
+    waitRetry(() => serverReady() || failed, 10000000);
   } catch (e) {
     fail(e);
   }
@@ -85,9 +82,8 @@ export function launchWebIOSession(soucePath: string){
         generateAndDumpTestFile(soucePath, destPath);
       }
 
-    launchWdioTestRun(webDriverConfig,
-                                    b => {webRunComplete = b},
-                                    () => serverReady() || webRunComplete);
+    launchWdioServer(webDriverConfig);
+
   } catch (e) {
     fail(e);
   }
