@@ -7,17 +7,22 @@ import { runClient, apState, setApState, activeSocket, sendIteration, sendEnd,
 import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging, logWarning } from './Logging';
-import { toString } from './StringUtils';
+import { toString, trimChars } from './StringUtils';
 
-import {cast, debug, ensure, ensureHasVal, fail, waitRetry} from './SysUtils';
+import {cast, debug, ensure, ensureHasVal, fail, waitRetry, translateErrorObj,
+        def,  seekInObj, executeRunTimeFile } from './SysUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
 import { generateAndDumpTestFile } from './WebInteractorGenerator';
+import * as _ from 'lodash';
+import request from 'sync-request';
 
-import { checkStartSelenium  } from './WebUtils';
 import * as ipc from 'node-ipc';
 import * as wd from 'webdriverio';
 
 export const endSeleniumIpcSession = sendEnd;
+
+export const SELENIUM_BASE_URL = 'http://localhost:4444/';
+export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
 
 export function interact(item: any, runConfig: any) {
   try {
@@ -92,4 +97,46 @@ export function launchWebIOSession(soucePath: string){
 export function launchWebInteractor(soucePath: string){
   setApState(null);
   launchWebIOSession(soucePath);
+}
+
+
+export function checkStartSelenium() {
+  let running = seleniumRunning();
+  if (!running){
+    log('Starting Selenium WebDriver Server');
+    startSelenium();
+    let started = waitRetry(seleniumRunning, 60000, () => {}, 1000);
+    ensure(started, 'checkStartSelenium - selenium stand alone server did not start');
+  }
+}
+
+export function startSelenium() {
+  executeRunTimeFile('startSelenium.bat', false);
+}
+
+function seleniumSubUrl(subPath: string) {
+  return SELENIUM_BASE_URL + trimChars(subPath, ['/']);
+}
+
+export function seleniumStatus(): {} {
+
+  let response;
+  try {
+    response = request('GET', seleniumSubUrl('/wd/hub/status'));
+  } catch (e) {
+    response = translateErrorObj(e);
+    response.ready = false;
+  }
+
+  if (_.isObject(response) && response.body != null){
+    return JSON.parse(response.body.toString('UTF-8'));
+  }
+  else {
+    return def(response, {});
+  }
+}
+
+export function seleniumRunning(): boolean {
+  let status = seleniumStatus();
+  return def(seekInObj(status, 'ready'), false);
 }

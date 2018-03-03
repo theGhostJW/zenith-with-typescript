@@ -16,7 +16,6 @@ export function clientEmit(msgType: Protocol, msg?: {} ) {
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
-
 export function serverReady() {
   return serverReadySingleton;
 }

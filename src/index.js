@@ -365,4 +365,4 @@ export {
   startSelenium,
   seleniumRunning,
   seleniumStatus
-} from './lib/WebUtils';
+} from './lib/WebLauncher';

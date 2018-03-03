@@ -2,17 +2,13 @@
 
 import { trimLines } from '../index';
 import { log } from './Logging';
-import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir, runTimeFile, testCaseFile, PATH_SEPARATOR,
-          copyFile, parentDir, fileToString, stringToFile } from './FileUtils';
+import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir, runTimeFile, testCaseFile,
+          PATH_SEPARATOR, copyFile, parentDir, fileToString, stringToFile } from './FileUtils';
 import { hasText, subStrAfter, subStrBetween, trimChars, newLine } from './StringUtils';
-import { cast, debug, def, delay, ensure, ensureHasVal, executeRunTimeFile, getCallerString, seekInObj,
-          translateErrorObj, waitRetry, functionNameFromFunction, isSerialisable, ensureReturn } from './SysUtils';
+import { cast, debug, def, delay, ensure, ensureHasVal, getCallerString,
+         waitRetry, functionNameFromFunction, isSerialisable, ensureReturn } from './SysUtils';
 import * as _ from 'lodash';
-import request from 'sync-request';
-
-
-export const SELENIUM_BASE_URL = 'http://localhost:4444/';
-export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
+import {} from './WebLauncher'
 
 export function test() {
   debug('test');
@@ -48,45 +44,4 @@ export function findMatchingSourceFile(callerPath: string): string {
   tried: ${candidatePaths.join(', ')}`));
 
    return sourcePath;
-}
-
-export function checkStartSelenium() {
-  let running = seleniumRunning();
-  if (!running){
-    log('Starting Selenium WebDriver Server');
-    startSelenium();
-    let started = waitRetry(seleniumRunning, 60000, () => {}, 1000);
-    ensure(started, 'checkStartSelenium - selenium stand alone server did not start');
-  }
-}
-
-export function startSelenium() {
-  executeRunTimeFile('startSelenium.bat', false);
-}
-
-function seleniumSubUrl(subPath: string) {
-  return SELENIUM_BASE_URL + trimChars(subPath, ['/']);
-}
-
-export function seleniumStatus(): {} {
-
-  let response;
-  try {
-    response = request('GET', seleniumSubUrl('/wd/hub/status'));
-  } catch (e) {
-    response = translateErrorObj(e);
-    response.ready = false;
-  }
-
-  if (_.isObject(response) && response.body != null){
-    return JSON.parse(response.body.toString('UTF-8'));
-  }
-  else {
-    return def(response, {});
-  }
-}
-
-export function seleniumRunning(): boolean {
-  let status = seleniumStatus();
-  return def(seekInObj(status, 'ready'), false);
 }
