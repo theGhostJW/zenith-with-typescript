@@ -28,7 +28,7 @@ export function invocationParams() : ?Array<mixed> {
   return invocationParamsSingleton;
 }
 
-export function setInvokationParams(invocationParams: ?Array<mixed>) {
+export function setInvocationParams(invocationParams: ?Array<mixed>) {
   invocationParamsSingleton = invocationParams;
 }
 
@@ -57,7 +57,7 @@ export function startServer() {
       function(){
         when('InvocationParams',
                         (data, socket) => {
-                          setInvokationParams(data);
+                          setInvocationParams(data);
                         }
                       );
 

@@ -1,7 +1,7 @@
 // @flow
 
 import type { Protocol } from './SeleniumIpcProtocol';
-import { runClient, invocationResponse, clearInvocationResponse, activeSocket, sendIteration, sendClientDone,
+import { runClient, invocationResponse, clearInvocationResponse, activeSocket, sendInvocationParams, sendClientDone,
           serverReady } from './SeleniumIpcClient';
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
@@ -24,19 +24,18 @@ export const endSeleniumIpcSession = sendClientDone;
 export const SELENIUM_BASE_URL = 'http://localhost:4444/';
 export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
 
-export function interact(item: any, runConfig: any) {
+export function interact(...params?: Array<mixed>) {
   try {
     ensureHasVal(activeSocket(), 'socket not assigned')
     clearInvocationResponse();
-    sendIteration(item, runConfig);
-    console.log('waiting web apState');
+    sendInvocationParams(...params);
+    log('Waiting interaction response');
     let complete = waitRetry(() => invocationResponse() != null, 600000);
     return complete ? invocationResponse() : new Error('Interactor Timeout Error');
   } catch (e) {
     fail(e);
   }
 }
-
 
 let seleniumLaunched = false;
 function startSeleniumServerOnce() {
@@ -75,7 +74,7 @@ export function launchWebInteractor(soucePath: string, functionName: string){
   try {
     clearInvocationResponse();
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
-    let internalTesting = true,
+    let internalTesting = false,
         destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
         webDriverConfig = defaultConfig();
 

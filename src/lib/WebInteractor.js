@@ -2,7 +2,7 @@
 
 import { interactor } from '../../testCases/Demo_Case.web';
 
-import { startServer, invocationParams, done, setInvokationParams, emitMessage } from './SeleniumIpcServer';
+import { startServer, invocationParams, done, setInvocationParams, emitMessage } from './SeleniumIpcServer';
 import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
 import { toString  } from './StringUtils';
 import type { Protocol } from './SeleniumIpcProtocol';
@@ -25,7 +25,7 @@ function uiInteraction(): void {
         logException('Failed in Selenium Interaction', err);
         emitMessage('Exception', err);
       } finally {
-        setInvokationParams(null);
+        setInvocationParams(null);
       }
     }
 }

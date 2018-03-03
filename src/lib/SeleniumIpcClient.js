@@ -43,8 +43,8 @@ export function sendClientDone() {
   clientEmit('ClientSessionDone');
 }
 
-export function sendIteration(item: any, runConfig: any) {
-  clientEmit('InvocationParams', [item, runConfig]);
+export function sendInvocationParams(...params?: Array<mixed>) {
+  clientEmit('InvocationParams', params);
 }
 
 export function activeSocket() {
