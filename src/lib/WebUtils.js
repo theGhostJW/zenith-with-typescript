@@ -6,13 +6,24 @@ import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir, runTi
           copyFile, parentDir, fileToString, stringToFile } from './FileUtils';
 import { hasText, subStrAfter, subStrBetween, trimChars, newLine } from './StringUtils';
 import { cast, debug, def, delay, ensure, ensureHasVal, executeRunTimeFile, getCallerString, seekInObj,
-          translateErrorObj, waitRetry } from './SysUtils';
+          translateErrorObj, waitRetry, functionNameFromFunction } from './SysUtils';
 import * as _ from 'lodash';
 import request from 'sync-request';
 
 
 export const SELENIUM_BASE_URL = 'http://localhost:4444/';
 export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
+
+export function test() {
+  debug('test');
+}
+
+export function browserEx(func: (...any) => any, ...params: any) {
+  let funcName = functionNameFromFunction(func),
+      caller = getCallerString(),
+      sourcePath = findMatchingSourceFile(caller);
+ //ToDo: finish this
+}
 
 function copySourceAddIPCServer(srcPath: string, dstPath: string): void {
   let srcText = fileToString(srcPath),
@@ -24,7 +35,7 @@ function copySourceAddIPCServer(srcPath: string, dstPath: string): void {
   stringToFile(srcText, dstPath)
 }
 
-function sourceFileDestOfTestFile(callerPath: string): [string, string] {
+export function findMatchingSourceFile(callerPath: string): string {
   let callerFileName = fileOrFolderName(callerPath);
 
   const TEST_SUFFIXES = ['.endpoints.', '.integration.', '.test.'];
@@ -43,19 +54,16 @@ function sourceFileDestOfTestFile(callerPath: string): [string, string] {
     sourcePath = candidatePaths.find(pathExists);
 
   sourcePath = ensureHasVal(sourcePath, trimLines(`webUtilsTestLoad - target source file consistent with calling test file not found.
-  tried: ${TEST_SUFFIXES.join(', ')}`));
+  tried: ${candidatePaths.join(', ')}`));
 
-  let mockFileName = callerFileName.replace(suffix, '.uiRunner.'),
-    mockPath = combine(parentDir(sourcePath), mockFileName);
-
-   return [sourcePath, mockPath];
+   return sourcePath;
 }
 
 // Note very dependent on folder conventions
 export function webUtilsTestLoad(){
   let callerStr = getCallerString(),
       callerPath = subStrBetween(callerStr, ' (', PATH_SEPARATOR) + PATH_SEPARATOR + subStrBetween(callerStr, PATH_SEPARATOR, ':'),
-      [srcPath, dstPath] = sourceFileDestOfTestFile(callerPath);
+      [srcPath, dstPath] = findMatchingSourceFile(callerPath);
 
   copySourceAddIPCServer(srcPath, dstPath);
 }

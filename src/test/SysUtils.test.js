@@ -42,7 +42,8 @@ import {
   randomInt,
   randomInt0,
   getCallerString,
-  getStackStrings
+  getStackStrings,
+  isSerialisable
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
 import {toString, hasText} from '../lib/StringUtils';
@@ -51,6 +52,56 @@ import * as _ from 'lodash';
 import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
 
+
+describe.only('isSerialisable', () => {
+
+  it('string', () => {
+    chk(isSerialisable('HI'));
+  });
+
+  it('number', () => {
+    chk(isSerialisable(23454))
+  });
+
+  it('null', () => {
+    chk(isSerialisable(null))
+  });
+
+  it('undefined', () => {
+    chk(isSerialisable(undefined))
+  });
+
+
+  it('plain obj', () => {
+    chk(isSerialisable({p: 1, p2: 'hi'}))
+  });
+
+  it('plain obj with func', () => {
+    chkFalse(isSerialisable({p: 1, p2: () => {}}))
+  });
+
+
+  it('nested obj with func', () => {
+    chkFalse(isSerialisable({p: 1, p2: 'hi', n: { nn: { nnn: 1, nnm: () => {}}}}))
+  });
+
+  it('array', () => {
+    chk(isSerialisable([1, 2, 3, 5]))
+  });
+
+  it('array with func', () => {
+    chkFalse(isSerialisable([1, 2, 3, () => false]))
+  });
+
+  it('array with nested obj', () => {
+    chk(isSerialisable([1, 2, 3, { nn: { nnn: 1, nnm: 'Hi'}}]))
+  });
+
+  it('array with newsted obj with func', () => {
+    chkFalse(isSerialisable([1, 2, 3, { nn: { nnn: 1, nnm: () => {}}}]))
+  });
+
+});
 
 describe('getCallerString', () => {
 
