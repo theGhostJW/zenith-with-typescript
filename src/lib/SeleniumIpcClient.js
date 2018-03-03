@@ -6,7 +6,7 @@ import type { Protocol } from './SeleniumIpcProtocol';
 import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME} from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging  } from './Logging';
-import { debug } from './SysUtils';
+import { debug, waitRetry } from './SysUtils';
 
 let
     invocationResponseSingleton = null,
@@ -22,7 +22,7 @@ export function serverReady() {
 }
 
 export function setServerReady(ready: boolean) {
-  return serverReadySingleton = ready;
+  serverReadySingleton = ready;
 }
 
 export function invocationResponse() {
@@ -41,6 +41,7 @@ export function clearInvocationResponse(): void {
 
 export function sendClientDone() {
   clientEmit('ClientSessionDone');
+  waitRetry(() => !serverReady(), 30000);
 }
 
 export function sendInvocationParams(...params?: Array<mixed>) {
@@ -88,6 +89,7 @@ export function runClient() {
         when('ServerDone',
                         (data) => {
                              ipc.disconnect(INTERACT_SOCKET_NAME);
+                             setServerReady(false);
                         }
                     );
 

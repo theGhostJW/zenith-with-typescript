@@ -11,7 +11,7 @@ import {test, describe} from 'mocha';
 describe('endPoints ', () => {
 
   it('demo ', () => {
-    debug('this is an end point')
+    console.log('this is an end point')
   });
 
 });

@@ -20,7 +20,7 @@ function fileContent(functionName: string, sourcePath: string, destPath: string)
 
 function targetRequires(functionName: string, sourcePath: string, destPath: string) : string {
   let destParentDir = parentDir(destPath),
-      targetPath = debug(replaceAll(relativePath(destParentDir, sourcePath), '\\', '/'));
+      targetPath = replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
 
   return trimLines(`// @flow
 
@@ -40,7 +40,7 @@ const ZWTF_USES = trimLines(`
   import {
           startServer, invocationParams, done, setInvocationParams, emitMessage,
           waitRetry, debug, fail, hasValue, translateErrorObj, cast,
-          toString, 
+          toString,
           INTERACT_SOCKET_NAME,
           log, logError, logException
    } from 'ZWFT';

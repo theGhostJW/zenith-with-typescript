@@ -2,24 +2,38 @@
 
 import { trimLines } from '../index';
 import { log } from './Logging';
-import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir, runTimeFile, testCaseFile,
-          PATH_SEPARATOR, copyFile, parentDir, fileToString, stringToFile } from './FileUtils';
+import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir,
+          runTimeFile, testCaseFile, PATH_SEPARATOR, copyFile, parentDir,
+          fileToString, stringToFile } from './FileUtils';
 import { hasText, subStrAfter, subStrBetween, trimChars, newLine } from './StringUtils';
-import { cast, debug, def, delay, ensure, ensureHasVal, getCallerString,
-         waitRetry, functionNameFromFunction, isSerialisable, ensureReturn } from './SysUtils';
+import {
+        cast, debug, def, delay, ensure, ensureHasVal, getCallerString,
+         waitRetry, functionNameFromFunction, isSerialisable, ensureReturn,
+        fail
+      } from './SysUtils';
 import * as _ from 'lodash';
-import {} from './WebLauncher'
+import { launchWebInteractor, endSeleniumIpcSession, interact} from './WebLauncher'
 
-export function test() {
-  debug('test');
+export function zzzTestFunc() {
+  return 55;
 }
 
-export function browserEx(func: (...any) => any, ...params: Array<any>) {
+export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
   let funcName = functionNameFromFunction(func),
-      caller = getCallerString(),
+      caller = getCallerString(true),
       sourcePath = findMatchingSourceFile(caller),
       sendParams = ensureReturn(params.every(isSerialisable), params, 'browserEx optional params ~ unserailisable parameter passed in (like a function)');
- //ToDo: finish this
+
+
+   try {
+     launchWebInteractor(sourcePath, funcName);
+     return interact(...params);
+   } catch (e) {
+     fail(e);
+   } finally {
+     endSeleniumIpcSession();
+   }
+
 }
 
 export function findMatchingSourceFile(callerPath: string): string {

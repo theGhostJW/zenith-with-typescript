@@ -5,12 +5,12 @@ import { debug, waitRetry, cast  } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { toString } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { browserEx, test } from '../lib/WebUtils';
+import { browserEx, zzzTestFunc } from '../lib/WebUtils';
 
-describe('Play', () => {
+describe('browserEx', () => {
 
-  it('simple', function blahhh(){
-    browserEx(test)
+  it.only('simple', function blahhh(){
+    chkEq(55, browserEx(zzzTestFunc));
   });
 
 });

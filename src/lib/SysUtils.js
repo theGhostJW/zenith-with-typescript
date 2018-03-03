@@ -30,13 +30,14 @@ export function isSerialisable(obj: mixed): boolean {
           ])(obj)
 }
 
-
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
-export function getCallerString(): string {
+// assumes javascript extension .js
+export function getCallerString(filePathOnly: boolean = false): string {
   let stack = getStackStrings();
   // remove getCallerString
   // remove caller
-  return stack[2];
+  let result = stack[2];
+  return filePathOnly ? subStrBetween(result, ' (', '.js:', true) + '.js' : result;
 }
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js

@@ -5,12 +5,12 @@ import { debug, waitRetry, cast  } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { toString } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { browserEx, test, findMatchingSourceFile } from '../lib/WebUtils';
+import { browserEx, findMatchingSourceFile } from '../lib/WebUtils';
 
 describe.only('findMatchingSourceFile', () => {
 
   it('simple', function blahhh(){
-    debug(findMatchingSourceFile('C:\\ZWTF\\src\\test\\WebUtils.test.js'));
+    console.log(findMatchingSourceFile('C:\\ZWTF\\src\\test\\WebUtils.test.js'));
   });
 
 });

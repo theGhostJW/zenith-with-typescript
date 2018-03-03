@@ -33,12 +33,12 @@ export function setInvocationParams(invocationParams: ?Array<mixed>) {
 }
 
 let clientSocket = null;
-export function emitMessage(msgType: Protocol, msg?: {} ) {
+export function emitMessage(msgType: Protocol, msg?: mixed ) {
   ensureHasVal(clientSocket, 'clientSocket is unassigned');
   emit(clientSocket, msgType, msg);
 }
 
-function emit(socket: any, msgType: Protocol, msg?: {} ) {
+function emit(socket: any, msgType: Protocol, msg?: mixed ) {
   ipc.server.emit(socket, msgType, msg);
 }
 

@@ -10,7 +10,7 @@ import { seleniumStatus, seleniumRunning, startSelenium, checkStartSelenium } fr
 describe('seleniumStatus', () => {
 
   it('show', () => {
-    debug(seleniumStatus());
+    console.log(seleniumStatus());
   });
 
 });
