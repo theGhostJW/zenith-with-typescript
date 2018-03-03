@@ -6,7 +6,7 @@ import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir, runTi
           copyFile, parentDir, fileToString, stringToFile } from './FileUtils';
 import { hasText, subStrAfter, subStrBetween, trimChars, newLine } from './StringUtils';
 import { cast, debug, def, delay, ensure, ensureHasVal, executeRunTimeFile, getCallerString, seekInObj,
-          translateErrorObj, waitRetry, functionNameFromFunction, isSerialisable } from './SysUtils';
+          translateErrorObj, waitRetry, functionNameFromFunction, isSerialisable, ensureReturn } from './SysUtils';
 import * as _ from 'lodash';
 import request from 'sync-request';
 
@@ -18,21 +18,12 @@ export function test() {
   debug('test');
 }
 
-export function browserEx(func: (...any) => any, ...params: any) {
+export function browserEx(func: (...any) => any, ...params: Array<any>) {
   let funcName = functionNameFromFunction(func),
       caller = getCallerString(),
-      sourcePath = findMatchingSourceFile(caller);
+      sourcePath = findMatchingSourceFile(caller),
+      sendParams = ensureReturn(params.every(isSerialisable), params, 'browserEx optional params ~ unserailisable parameter passed in (like a function)');
  //ToDo: finish this
-}
-
-function copySourceAddIPCServer(srcPath: string, dstPath: string): void {
-  let srcText = fileToString(srcPath),
-      imports = trimLines(`import * as wdInjected from 'webdriverio';
-                           import * as ipcInjected from 'node-ipc';`);
-
-  srcText = imports + newLine(2) + srcText;
-
-  stringToFile(srcText, dstPath)
 }
 
 export function findMatchingSourceFile(callerPath: string): string {
@@ -58,16 +49,6 @@ export function findMatchingSourceFile(callerPath: string): string {
 
    return sourcePath;
 }
-
-// Note very dependent on folder conventions
-export function webUtilsTestLoad(){
-  let callerStr = getCallerString(),
-      callerPath = subStrBetween(callerStr, ' (', PATH_SEPARATOR) + PATH_SEPARATOR + subStrBetween(callerStr, PATH_SEPARATOR, ':'),
-      [srcPath, dstPath] = findMatchingSourceFile(callerPath);
-
-  copySourceAddIPCServer(srcPath, dstPath);
-}
-
 
 export function checkStartSelenium() {
   let running = seleniumRunning();

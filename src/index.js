@@ -361,7 +361,6 @@ export {
 }  from './lib/LogFormatter';
 
 export {
-  webUtilsTestLoad,
   checkStartSelenium,
   startSelenium,
   seleniumRunning,

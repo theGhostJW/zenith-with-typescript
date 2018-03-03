@@ -76,15 +76,15 @@ export function launchWebInteractor(testName: string){
 
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
     let internalTesting = false,
-        spec = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
+        destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
         webDriverConfig = defaultConfig();
 
-      webDriverConfig.specs = [spec];
+      webDriverConfig.specs = [destPath];
 
       if (internalTesting){
         logWarning('INTERNAL TESTING FLAG IS SET');
       } else {
-        generateAndDumpTestFile(testName, spec);
+        generateAndDumpTestFile(testName, destPath);
       }
 
     launchWdioTestRun(webDriverConfig,
