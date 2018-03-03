@@ -6,7 +6,7 @@ import { debug } from './SysUtils';
 export type Protocol =   'InvocationResponse' |
                           'ServerDone' |
                           'InvocationParams' |
-                          'EndOfItems' |
+                          'ClientSessionDone' |
                           'Log' |
                           'Exception' |
                           // ipc-native

@@ -20,7 +20,7 @@ var config: TestConfig = {
   countries: 'Australia'
 }
 
-function interactor(item: Item, runConfig: RunConfig): ApState {
+export function interactor(item: Item, runConfig: RunConfig): ApState {
 
   return {
     theWhen: item.when,

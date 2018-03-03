@@ -1,6 +1,6 @@
 // @flow
 
-import { testCase } from '../../testCases/Demo_Case.web';
+import { interactor } from '../../testCases/Demo_Case.web';
 
 import { startServer, invocationParams, done, setInvokationParams, emitMessage } from './SeleniumIpcServer';
 import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
@@ -18,8 +18,8 @@ function uiInteraction(): void {
     let params = invocationParams();
     if (params != null) {
       try {
-        let apState = testCase.interactor(...cast(params));
-        emitMessage('InvocationResponse', apState);
+        let response = interactor(...cast(params));
+        emitMessage('InvocationResponse', response);
       } catch (e) {
         let err = translateErrorObj(e);
         logException('Failed in Selenium Interaction', err);

@@ -1,7 +1,7 @@
 // @flow
 
 import type { Protocol } from './SeleniumIpcProtocol';
-import { runClient, invocationResponse, setInvocationResponse, activeSocket, sendIteration, sendEnd,
+import { runClient, invocationResponse, clearInvocationResponse, activeSocket, sendIteration, sendClientDone,
           serverReady } from './SeleniumIpcClient';
 
 import { stringToFile, tempFile, toTempString } from './FileUtils';
@@ -19,7 +19,7 @@ import request from 'sync-request';
 import * as ipc from 'node-ipc';
 import * as wd from 'webdriverio';
 
-export const endSeleniumIpcSession = sendEnd;
+export const endSeleniumIpcSession = sendClientDone;
 
 export const SELENIUM_BASE_URL = 'http://localhost:4444/';
 export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
@@ -27,7 +27,7 @@ export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
 export function interact(item: any, runConfig: any) {
   try {
     ensureHasVal(activeSocket(), 'socket not assigned')
-    setInvocationResponse(null);
+    clearInvocationResponse();
     sendIteration(item, runConfig);
     console.log('waiting web apState');
     let complete = waitRetry(() => invocationResponse() != null, 600000);
@@ -71,8 +71,9 @@ export function launchWdioServer(config: {}) {
   }
 }
 
-export function launchWebIOSession(soucePath: string){
+export function launchWebInteractor(soucePath: string, functionName: string){
   try {
+    clearInvocationResponse();
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
     let internalTesting = true,
         destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
@@ -83,7 +84,7 @@ export function launchWebIOSession(soucePath: string){
       if (internalTesting){
         logWarning('INTERNAL TESTING FLAG IS SET');
       } else {
-        generateAndDumpTestFile(soucePath, destPath);
+        generateAndDumpTestFile(functionName, soucePath, destPath);
       }
 
     launchWdioServer(webDriverConfig);
@@ -92,12 +93,6 @@ export function launchWebIOSession(soucePath: string){
     fail(e);
   }
 }
-
-export function launchWebInteractor(soucePath: string){
-  setInvocationResponse(null);
-  launchWebIOSession(soucePath);
-}
-
 
 export function checkStartSelenium() {
   let running = seleniumRunning();

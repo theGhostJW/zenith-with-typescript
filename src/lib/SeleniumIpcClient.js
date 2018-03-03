@@ -10,6 +10,7 @@ import { debug } from './SysUtils';
 
 let
     invocationResponseSingleton = null,
+    responseReceived = false,
     serverReadySingleton = false;
 
 export function clientEmit(msgType: Protocol, msg?: Array<mixed> ) {
@@ -25,15 +26,21 @@ export function setServerReady(ready: boolean) {
 }
 
 export function invocationResponse() {
-  return invocationResponseSingleton;
+  return responseReceived ? invocationResponseSingleton : undefined;
 }
 
-export function setInvocationResponse(response: mixed): void {
+function loadInvocationResponse(response: mixed): void {
+  responseReceived = true;
   invocationResponseSingleton = response;
 }
 
-export function sendEnd() {
-  clientEmit('EndOfItems');
+export function clearInvocationResponse(): void {
+  responseReceived = false;
+  invocationResponseSingleton = null;
+}
+
+export function sendClientDone() {
+  clientEmit('ClientSessionDone');
 }
 
 export function sendIteration(item: any, runConfig: any) {
@@ -61,7 +68,7 @@ export function runClient() {
 
         when('InvocationResponse',
                       (data) => {
-                        setInvocationResponse(data);
+                        loadInvocationResponse(data);
                       }
                     );
 

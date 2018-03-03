@@ -6,25 +6,25 @@ import { debug, isFrameworkProject } from './SysUtils';
 
 
 
-export function generateAndDumpTestFile(sourcePath: string, destPath: string) {
-  stringToFile(fileContent(sourcePath, destPath), destPath);
+export function generateAndDumpTestFile(functionName: string, sourcePath: string, destPath: string) {
+  stringToFile(fileContent(functionName, sourcePath, destPath), destPath);
 }
 
-function fileContent(sourcePath: string, destPath: string): string {
+function fileContent(functionName: string, sourcePath: string, destPath: string): string {
   let fw = isFrameworkProject();
-  return targetRequires(sourcePath, destPath) + newLine() +
+  return targetRequires(functionName, sourcePath, destPath) + newLine() +
           (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +
           NPM_USES + newLine() +
           SOURCE_CODE;
 }
 
-function targetRequires(sourcePath: string, destPath: string) : string {
+function targetRequires(functionName: string, sourcePath: string, destPath: string) : string {
   let destParentDir = parentDir(destPath),
       targetPath = debug(replaceAll(relativePath(destParentDir, sourcePath), '\\', '/'));
 
   return trimLines(`// @flow
 
-    import { testCase } from '${targetPath}';`)
+    import { ${functionName} } from '${targetPath}';`)
 }
 
 const FRAMEWORK_USES = trimLines(`

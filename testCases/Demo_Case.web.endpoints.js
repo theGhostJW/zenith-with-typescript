@@ -17,7 +17,7 @@ describe('endPoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
-       selector: 1
+       selector: allItems
      }
     );
   });

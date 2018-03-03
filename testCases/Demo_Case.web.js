@@ -14,7 +14,7 @@ import * as wd from 'webdriverio';
 import moment from 'moment';
 
 
-var config: TestConfig = {
+let config: TestConfig = {
   when: 'I cannot think of anything ~ Demo_Case',
   then: 'I just write something',
   owner: 'JW',
@@ -41,7 +41,7 @@ type ValState = {|
   title: string
 |}
 
-function interactor(item: Item, runConfig: RunConfig): ApState {
+export function interactor(item: Item, runConfig: RunConfig): ApState {
   let url = item.url,
       title = 'NO URL IN ITEM - TITLE IS N/A';
 

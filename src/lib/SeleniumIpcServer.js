@@ -62,7 +62,7 @@ export function startServer() {
                       );
 
         when(
-            'EndOfItems',
+            'ClientSessionDone',
             (data, socket) => {
               emit(socket, 'ServerDone');
               setDone(true);
