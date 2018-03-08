@@ -171,7 +171,8 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
 
 
          let issues: Array<ErrorsWarningsDefects> = forceArray(state.inTestIssues, state.validatorIssues);
-             issues = issues.filter(i => hasIssues(i));
+         issues = issues.filter(i => hasIssues(i));
+
 
          let iterationInfo = {
            summary: state.iterationSummary,

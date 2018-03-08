@@ -1,7 +1,10 @@
 // @flow
 
 import { eachFile, testCaseFile, fileOrFolderName, logFile, pathExists, mockFile, fromMock } from '../lib/FileUtils';
-import { forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail, translateErrorObj} from '../lib/SysUtils';
+import {
+          forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail,
+          translateErrorObj, def
+        } from '../lib/SysUtils';
 import { toString, newLine, hasText} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
@@ -184,13 +187,13 @@ export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>
   allCases.push(namedCase);
 }
 
-export type GenericValidator<V, I : BaseItem, R> = (valState: V, item: I, runconfig: R, valTime: moment$Moment) => void
+export type GenericValidator<V> = (valState: V, valTime: moment$Moment) => void
 
 export type BaseCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
   testConfig: T,
   interactor: (item: I, runConfig: R) => S,
-  prepState: (apState: S) => V,
-  summarise: (runConfig: R, item: I, apState: S, valState: V) => string,
+  prepState: (S, I, R) => V,
+  summarise: (runConfig: R, item: I, apState: S, valState: V) => string | null,
   mockFileName?: (item: I, runConfig: R) => string,
   testItems: (runConfig: R) => Array<I>
 }
@@ -201,7 +204,7 @@ export type ItemRequired = {
                     id: number,
                     when: string,
                     then: string,
-                    validators: GenericValidator<*, *, *> | Array<GenericValidator<*, *, *>>
+                    validators: GenericValidator<*> | Array<GenericValidator<*>>
                   };
 
 export type BaseTestConfig = {
@@ -244,13 +247,13 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
   return cast(allCases);
 }
 
-function runValidators<T: BaseTestConfig, R: BaseRunConfig, I: BaseItem, V>(validators: GenericValidator<V, I, R> | Array<GenericValidator<V, I, R>>, valState: V, item: I, runConfig: R, valTime: moment$Moment) {
+function runValidators<V>(validators: GenericValidator<V> | Array<GenericValidator<V>>, valState: V, valTime: moment$Moment) {
   validators = forceArray(validators);
   function validate(validator){
     let currentValidator = functionNameFromFunction(validator);
     logStartValidator(currentValidator);
     try {
-      validator(valState, item, runConfig, valTime);
+      validator(valState, valTime);
     } catch (e) {
       throw('Exception thrown in validator: ' + currentValidator + newLine() + toString(e));
     }
@@ -326,25 +329,28 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
                         () => logEndInteraction(apState, useMock),
                         continu);
 
-    continu = exStage(() => {valState = baseCase.prepState(apState)},
+    continu = exStage(() => {valState = baseCase.prepState(apState, item, runConfig)},
                               'Preparing Validation Info',
                               logPrepValidationInfoStart,
                               () => logPrepValidationInfoEnd(valState),
                               continu);
 
-    continu = exStage(() => runValidators(item.validators, valState, item, runConfig, valTime),
+    continu = exStage(() => runValidators(item.validators, valState, valTime),
                               'Running Validators',
                               () => logValidationStart(valTime, valState),
                               logValidationEnd,
                               continu);
 
     let summary = '';
-    continu = exStage(() => {summary = baseCase.summarise(runConfig, item, apState, valState)},
-                                'Generating Summary',
-                                logStartIterationSummary,
-                                () => logIterationSummary(summary),
-                                continu);
-  }
+    continu = exStage(() => {
+                              summary = def(baseCase.summarise(runConfig, item, apState, valState), 'NULL')
+                            },
+                            'Generating Summary',
+                            logStartIterationSummary,
+                            () => logIterationSummary(summary),
+                            continu
+                          );
+}
   catch (e) {
     logException('Exception thrown in iteration');
   } finally {

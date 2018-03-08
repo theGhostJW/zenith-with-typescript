@@ -64,18 +64,26 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
             (obj == null ? '  ' + nullText : padLines(toString(obj), '  '));
   }
 
+  let hasSummary = !sameText('null', iteration.summary),
+      summary = hasSummary ? iteration.summary : objToYaml(valState),
+      summaryTitle = hasSummary ? 'summary' : 'summary (valState)';
+
   return header + lineX2 +
                     itHeaderText +
                     lineX2 +
                     valText(iteration, mocked) +
                     lineX2 +
-                    titledText(iteration.summary, 'summary', 'Not Implemented') +
+                    titledText(summary, summaryTitle, 'Summary Not Implemented and Null ValState') +
                     subDivider +
                     titledText(issuesText(iteration.issues, iteration.valTime, valState), 'issues', 'No Issues') +
                     subDivider +
                     titledText(objToYaml(_.omit(seekInObj(iteration, 'item'), 'id', 'validators', 'when', 'then', 'notes')), 'item', 'Parse Error Item not Found') +
-                    subDivider +
-                    titledText(objToYaml(valState), 'valState', 'Parse Error valState not Found') +
+                    (
+                      hasSummary ? (
+                        subDivider +
+                        titledText(objToYaml(valState), 'valState', 'Parse Error valState not Found')
+                      ) : ''
+                    ) +
                     subDivider +
                     titledText(objToYaml(seekInObj(iteration, 'apState')), 'apState', 'Parse Error apState not Found');
 }

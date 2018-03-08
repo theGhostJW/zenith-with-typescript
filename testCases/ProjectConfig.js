@@ -105,9 +105,9 @@ export type FullTestConfig = {|
 
 export type TestCase<I: BaseItem, S, V> = BaseCase<RunConfig, TestConfig, I, S, V>
 
-export type Validator<V, I: BaseItem> = GenericValidator<V, I, RunConfig>
+export type Validator<V> = GenericValidator<V>
 
-export type Validators<V, I: BaseItem> = Validator<V, I> | Array<Validator<V, I>>
+export type Validators<V> = Validator<V> | Array<Validator<V>>
 
 export const register = <I: BaseItem, S, V>(testCase: TestCase<I, S, V>): void => caseRunner.register(testCase);
 

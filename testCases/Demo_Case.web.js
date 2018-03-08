@@ -28,7 +28,7 @@ export type Item = {|
   when: string,
   then: string,
   data?: string,
-  validators: Validators<ValState, Item>
+  validators: Validators<ValState>
 |}
 
 export type ApState = {|
@@ -60,42 +60,43 @@ function wait(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
 
-function prepState(apState: ApState): ValState {
+
+function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState {
   return {
     id: apState.id,
     title: apState.observation
   }
 }
 
-function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string {
-  return 'Summary not implemented'
+function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string | null {
+  return null;
 }
 
 function mockFilename(item: Item, runConfig: RunConfig) {
   return '';
 }
 
-function check_less_than_2(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+function check_less_than_2(valState: ValState, valTime: moment$Moment) {
   expectDefect('should fail');
   check(valState.id < 2, 'expect less than 2', `${valState.id} should be less than 2`);
   endDefect();
 }
 
-function check_less_than_3(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+function check_less_than_3(valState: ValState, valTime: moment$Moment) {
   check(valState.id < 3, 'expect less than 2')
 }
 
-function check_bad_validator(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+function check_bad_validator(valState: ValState, valTime: moment$Moment) {
   throw('ARGGGHHHHHH!!!')
 }
 
-function check_with_disabled_expectation(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+function check_with_disabled_expectation(valState: ValState, valTime: moment$Moment) {
   expectDefect('should not fail', false);
   check(true, 'true is true');
   endDefect();
 }
 
-function check_with_incorrect_disabled_expectation(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+function check_with_incorrect_disabled_expectation(valState: ValState, valTime: moment$Moment) {
   expectDefect('should fail', false);
   checkFalse(true, 'false is true');
   endDefect();

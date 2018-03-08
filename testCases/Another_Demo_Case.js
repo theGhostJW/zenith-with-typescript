@@ -37,14 +37,14 @@ type ValState = {|
   when: string
 |}
 
-function prepState(apState: ApState): ValState {
+function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState {
   return {
     when: apState.theWhen
   }
 }
 
-function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string {
-  return 'Summary not implemented'
+function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string | null {
+  return null;
 }
 
 function mockFilename(item: Item, runConfig: RunConfig) {
@@ -55,10 +55,10 @@ type Item = {|
   id: number,
   when: string,
   then: string,
-  validators: Validators<ValState, Item>
+  validators: Validators<ValState>
 |}
 
-function check_has_another(valState: ValState, item: Item, runConfig: RunConfig, valTime: moment$Moment) {
+function check_has_another(valState: ValState, valTime: moment$Moment) {
   checkTextContains(valState.when, 'another')
 }
 
