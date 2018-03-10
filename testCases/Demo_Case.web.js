@@ -56,11 +56,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   }
 }
 
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
-
-
 function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState {
   return {
     id: apState.id,

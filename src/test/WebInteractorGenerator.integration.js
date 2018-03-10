@@ -9,10 +9,10 @@ import { generateAndDumpTestFile } from '../lib/WebInteractorGenerator';
 
 describe('generateAndDumpTestFile', () => {
 
-  it('works', () => {
-    generateAndDumpTestFile('interactor', 'Demo_Case.web', 'C:\\ZWTF\\temp\\WebInteractor.js');
+  it.only('works', () => {
+    generateAndDumpTestFile('interactor', 'Demo_Case.web', 'C:\\ZWTF\\temp\\WebInteractor.js', true);
     let actual = fromTempString('WebInteractor.js', false);
-    chkHasText(actual, 'runClient();');
+    chkHasText(actual, 'startServer();');
   });
 
 });

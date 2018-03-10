@@ -70,7 +70,7 @@ export function launchWdioServer(config: {}) {
   }
 }
 
-export function launchWebInteractor(soucePath: string, functionName: string){
+export function launchWebInteractor(soucePath: string, functionName: string, dynamicModuleLoading: boolean){
   try {
     clearInvocationResponse();
     // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
@@ -83,7 +83,7 @@ export function launchWebInteractor(soucePath: string, functionName: string){
       if (internalTesting){
         logWarning('INTERNAL TESTING FLAG IS SET');
       } else {
-        generateAndDumpTestFile(functionName, soucePath, destPath);
+        generateAndDumpTestFile(functionName, soucePath, destPath, dynamicModuleLoading);
       }
 
     launchWdioServer(webDriverConfig);

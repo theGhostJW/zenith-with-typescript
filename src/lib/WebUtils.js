@@ -24,9 +24,8 @@ export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
       sourcePath = findMatchingSourceFile(caller),
       sendParams = ensureReturn(params.every(isSerialisable), params, 'browserEx optional params ~ unserailisable parameter passed in (like a function)');
 
-
    try {
-     launchWebInteractor(sourcePath, funcName);
+     launchWebInteractor(sourcePath, funcName, true);
      return interact(...params);
    } catch (e) {
      fail(e);
