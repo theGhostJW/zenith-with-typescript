@@ -1,6 +1,10 @@
 [ignore]
 .*\*NoFlow\.js
 .*/dist/.*
+.*/runTimeFiles/.*
+.*/node_modules/.*
+.*/mocks/.*
+.*/logs/.*
 
 [include]
 

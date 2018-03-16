@@ -1,6 +1,6 @@
 // @flow
 
-import { interactor } from '../../testCases/Demo_Case.web';
+import { zzzTestFunc } from './WebUtils';
 
 import { startServer, invocationParams, done, setInvocationParams, emitMessage } from './SeleniumIpcServer';
 import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from './SysUtils';
@@ -15,10 +15,11 @@ import * as _ from 'lodash';
 
 function uiInteraction(): void {
     // exception handling / logging pending
+    startServer();
     let params = invocationParams();
     if (params != null) {
       try {
-        let response = interactor(...cast(params));
+        let response = zzzTestFunc(...cast(params));
         emitMessage('InvocationResponse', response);
       } catch (e) {
         let err = translateErrorObj(e);

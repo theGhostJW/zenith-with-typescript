@@ -6,7 +6,7 @@ import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 
 import { toString } from './StringUtils';
-import {cast, debug, ensure, ensureHasVal, fail, waitRetry} from './SysUtils';
+import {cast, debug, ensure, ensureHasVal, fail, waitRetry, hasValue} from './SysUtils';
 import { generateAndDumpTestFile } from './WebInteractorGenerator';
 
 import * as ipc from 'node-ipc';
@@ -38,12 +38,23 @@ export function emitMessage(msgType: Protocol, msg?: mixed ) {
   emit(clientSocket, msgType, msg);
 }
 
+export function emitMessageIfSocketAssigned(msgType: Protocol, msg?: mixed ) {
+  if (hasValue(clientSocket)){
+     emit(clientSocket, msgType, msg);
+  }
+}
+
 function emit(socket: any, msgType: Protocol, msg?: mixed ) {
   ipc.server.emit(socket, msgType, msg);
 }
 
 /// The Interactor Runs the server
 export function startServer() {
+  if (ipc.server){
+    //debug('serber runnning')
+    return
+  }
+  debug('server starting PID:' + process.pid)
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;
@@ -57,6 +68,7 @@ export function startServer() {
       function(){
         when('InvocationParams',
                         (data, socket) => {
+                          debug('Server - InvocationParams');
                           setInvocationParams(data);
                         }
                       );
@@ -64,6 +76,7 @@ export function startServer() {
         when(
             'ClientSessionDone',
             (data, socket) => {
+                debug('Serve - ClientSessionDone');
               emit(socket, 'ServerDone');
               setDone(true);
             }
@@ -71,12 +84,18 @@ export function startServer() {
 
         when('connect',
               (data, socket) => {
-                //ToDo: up to here looks VERY wrong !!
+                debug('Serverconnect');
                 clientSocket = data;
               }
         );
-   }
- );
+
+        when('disconnect',
+              (data, socket) => {
+                debug('Server - disconnect');
+              }
+            );
+      }
+  );
 
   ipc.server.start();
 }

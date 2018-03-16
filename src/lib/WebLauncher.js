@@ -4,7 +4,8 @@ import type { Protocol } from './SeleniumIpcProtocol';
 import { runClient, invocationResponse, clearInvocationResponse, activeSocket, sendInvocationParams, sendClientDone,
           serverReady } from './SeleniumIpcClient';
 
-import { stringToFile, tempFile, toTempString } from './FileUtils';
+import { stringToFile, tempFile, toTempString, toTemp, fromTemp, projectDir,
+         logFile, combine } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging, logWarning } from './Logging';
 import { toString, trimChars } from './StringUtils';
@@ -18,6 +19,8 @@ import request from 'sync-request';
 
 import * as ipc from 'node-ipc';
 import * as wd from 'webdriverio';
+import * as fs from 'file-system';
+import child_process from 'child_process';
 
 export const endSeleniumIpcSession = sendClientDone;
 
@@ -45,23 +48,75 @@ function startSeleniumServerOnce() {
   seleniumLaunched = true;
 }
 
-export function launchWdioServer(config: {}) {
+export const rerunClient = runClient;
+
+/*
+  1. - DONE - get detached script call working
+  2. save config
+  3. populate
+  4. invoke
+  5. clean up initialise should only need prescript
+  6. test
+  7. update final project scripts
+  7. audit uses exp web utils
+  8. recompile project
+ */
+
+
+const weDriverTempConfigFileName = 'webdriverIO.config';
+export function launchDetachedWdioServerInstance() {
+  console.log('Before from temp');
+  // //toDo: whats the deal with ipclogger in logging
+  let config = fromTemp(weDriverTempConfigFileName, false);
+  console.log(config);
+  startWdioServer(config);
+  console.log('DONE');
+}
+
+export function launchWdioServerDetached(soucePath: string, beforeFunctionName: string | null, functionName: string, dynamicModuleLoading: boolean) {
+  let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeFunctionName, functionName, dynamicModuleLoading);
+  toTemp(webDriverConfig, weDriverTempConfigFileName);
+
+  const out = fs.openSync(logFile('launchWdioServerDetached-out.log'), 'w'),
+        err = fs.openSync(logFile('launchWdioServerDetached-err.log'), 'w'),
+        proDir = projectDir(),
+        //executeRunTimeFile('launchWebIOServer.bat', false);
+        child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
+                                                      cwd: proDir,
+                                                      detached: true,
+                                                      stdio: [ 'ignore', out, err]
+                                                    }
+                                                  );
+
+  debug('child process' + toString(child));
+  child.unref();
+}
+
+export function launchWdioClientAndServer(config: {}) {
+
+  try {
+    runClient();
+    startWdioServer(config)
+  } catch (e) {
+    fail(e);
+  }
+}
+
+export function startWdioServer(config: {}) {
   try {
     let failed = false;
     startSeleniumServerOnce();
-    runClient();
-
     //$FlowFixMe
     let wdio = new wd.Launcher('.\\wdio.conf.js', config);
     log('Launching file: ' + cast(config).specs.join(', '));
     wdio.run().then(function (code) {
-        if (code != 0){
-          logError(`WebDriver test launcher returned non zero response code: ${toString(code)}`);
-        }
-        failed = true;
+      if (code != 0){
+        logError(`WebDriver test launcher returned non zero response code: ${toString(code)}`);
+      }
+      failed = true;
     }, function (error) {
-        logError('Launcher failed to start the test', error.stacktrace);
-        failed = true;
+      logError('Launcher failed to start the test', error.stacktrace);
+      failed = true;
     });
 
     waitRetry(() => serverReady() || failed, 10000000);
@@ -70,24 +125,28 @@ export function launchWdioServer(config: {}) {
   }
 }
 
-export function launchWebInteractor(soucePath: string, functionName: string, dynamicModuleLoading: boolean){
+function generateWebDriverTestFileAndConfig(soucePath: string, beforeFunctionName: string | null, functionName: string, dynamicModuleLoading: boolean): {} {
+  // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
+  let internalTesting = false,
+      destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js');
+
+  if (internalTesting){
+    logWarning('INTERNAL TESTING FLAG IS SET');
+  } else {
+    generateAndDumpTestFile(beforeFunctionName, functionName, soucePath, destPath, dynamicModuleLoading);
+  }
+
+  let webDriverConfig = defaultConfig();
+  webDriverConfig.specs = [destPath];
+
+  return webDriverConfig;
+}
+
+export function launchWebInteractor(soucePath: string, beforeFunctionName: string | null, functionName: string, dynamicModuleLoading: boolean){
   try {
-    clearInvocationResponse();
-    // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
-    let internalTesting = false,
-        destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js'),
-        webDriverConfig = defaultConfig();
-
-      webDriverConfig.specs = [destPath];
-
-      if (internalTesting){
-        logWarning('INTERNAL TESTING FLAG IS SET');
-      } else {
-        generateAndDumpTestFile(functionName, soucePath, destPath, dynamicModuleLoading);
-      }
-
-    launchWdioServer(webDriverConfig);
-
+      clearInvocationResponse();
+      let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeFunctionName, functionName, dynamicModuleLoading);
+      launchWdioClientAndServer(webDriverConfig);
   } catch (e) {
     fail(e);
   }

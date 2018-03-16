@@ -5,12 +5,28 @@ import { debug, waitRetry, cast } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { toString } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { browserEx, zzzTestFunc } from '../lib/WebUtils';
+import { browserEx, zzzTestFunc, launchSession, rerunLoaded } from '../lib/WebUtils';
 
-describe.only('browserEx', () => {
+describe('browserEx', () => {
 
   it('simple', function blahhh(){
     chkEq(55, browserEx(zzzTestFunc));
+  });
+
+});
+
+describe('launchSession rerunClient', () => {
+
+  it('launchSession', () => {
+    launchSession(null, zzzTestFunc);
+  });
+
+});
+
+describe('rerunClient', () => {
+
+  it.only('rerunLoaded', () => {
+    rerunLoaded()
   });
 
 });

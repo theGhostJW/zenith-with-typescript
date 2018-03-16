@@ -7,6 +7,7 @@ import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME} from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging  } from './Logging';
 import { debug, waitRetry } from './SysUtils';
+import { createGuid } from './StringUtils';
 
 let
     invocationResponseSingleton = null,
@@ -14,6 +15,7 @@ let
     serverReadySingleton = false;
 
 export function clientEmit(msgType: Protocol, msg?: Array<mixed> ) {
+  debug('Client ' + msgType);
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
@@ -54,10 +56,12 @@ export function activeSocket() {
 
 /// The Launcher runs from the client
 export function runClient() {
-  ipc.config.id = 'uiTest';
+  ipc.config.id = createGuid();
   ipc.config.retry = 500;
   ipc.config.sync = false;
   ipc.config.silent = true;
+
+  debug(`client launched ${process.pid}`)
 
   function when(msg: Protocol, action: (data: any) => void) {
     ipc.of[INTERACT_SOCKET_NAME].on(msg, action);
@@ -98,6 +102,9 @@ export function runClient() {
                 setServerReady(true);
               }
         );
+        debug('Client - Connect to callback')
       }
     )
+
+    debug('Client - Run Client');
   }

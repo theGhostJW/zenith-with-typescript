@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import type { Protocol } from './SeleniumIpcProtocol';
-import { emitMessage } from './SeleniumIpcServer';
+import { emitMessageIfSocketAssigned } from './SeleniumIpcServer';
 
 
 // may have issues loading so duplicated from FileUtils
@@ -284,7 +284,7 @@ export type LogEntry = {
    // Store this message and metadata, maybe use some custom logic
    // then callback indicating success.
 
-  emitMessage('Log', {
+  emitMessageIfSocketAssigned('Log', {
      level: level,
      message: msg,
      meta: meta

@@ -14,7 +14,6 @@
     "debug": "^2.6.8",
     "del": "^3.0.0",
     "file-system": "^2.2.2",
-    "flow": "^0.2.3",
     "flow-copy-source": "^1.2.1",
     "flow-typed": "^2.1.5",
     "js-yaml": "^3.9.1",
@@ -56,8 +55,8 @@
   "scripts": {
     "run": "node ./dist/index.js",
     "build": "babel ./src --source-maps-inline -d ./dist && yarn flow-copy-source src dist",
-    "prepublish": "yarn run build",
-    "debug": "yarn run prepublish && node inspect ./dist/test/sum.test.js",
+    "debug": "yarn run build && node inspect ./dist/test/sum.test.js",
+    "launchDetachedWdioServerInstance": "yarn run build && node ./scripts/launchWebDriverIO.js",
     "test": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js",
     "testWatch": "node ./scripts/yarnWatch.js test",
     "testAll": "mocha --compilers js:babel-core/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",

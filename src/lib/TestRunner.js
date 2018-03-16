@@ -34,7 +34,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
         canMockAllWebUi = webUI && itemList.every(useMockForItem);
 
     if (webUI && !canMockAllWebUi) {
-      webLauncher.launchWebInteractor(testCase.path, 'interactor', false);
+      webLauncher.launchWebInteractor(testCase.path, null, 'interactor', false);
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {
