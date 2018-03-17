@@ -17,8 +17,6 @@ describe('browserEx', () => {
 
 /*
 TODO: rerunner
-   * dynamic loading
-   * test with webio
    * combine to one function (rerunner)
  */
 describe('launchSession', () => {
@@ -32,7 +30,7 @@ describe('launchSession', () => {
 describe('rerunClient', () => {
 
   it.only('rerunLoaded', () => {
-    chkEq(55, debug(rerunLoaded()))
+    chkEq('Google', rerunLoaded())
   });
 
 });

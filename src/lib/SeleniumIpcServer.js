@@ -51,10 +51,9 @@ function emit(socket: any, msgType: Protocol, msg?: mixed ) {
 /// The Interactor Runs the server
 export function startServer() {
   if (ipc.server){
-    //debug('serber runnning')
-    return
+    return;
   }
-  debug('server starting PID:' + process.pid)
+  debug ('server starting PID:' + process.pid)
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;
@@ -68,7 +67,6 @@ export function startServer() {
       function(){
         when('InvocationParams',
                         (data, socket) => {
-                          debug('Server - InvocationParams');
                           setInvocationParams(data);
                         }
                       );
@@ -76,7 +74,6 @@ export function startServer() {
         when(
             'ClientSessionDone',
             (data, socket) => {
-                debug('Serve - ClientSessionDone');
               emit(socket, 'ServerDone');
               setDone(true);
             }
@@ -84,14 +81,12 @@ export function startServer() {
 
         when('connect',
               (data, socket) => {
-                debug('Serverconnect');
                 clientSocket = data;
               }
         );
 
         when('disconnect',
               (data, socket) => {
-                debug('Server - disconnect');
               }
             );
       }

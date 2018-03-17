@@ -50,19 +50,6 @@ function startSeleniumServerOnce() {
 
 export const rerunClient = runClient;
 
-/*
-  1. - DONE - get detached script call working
-  2. save config
-  3. populate
-  4. invoke
-  5. clean up initialise should only need prescript
-  6. test
-  7. update final project scripts
-  7. audit uses exp web utils
-  8. recompile project
- */
-
-
 const weDriverTempConfigFileName = 'webdriverIO.config';
 export function launchDetachedWdioServerInstance() {
   console.log('Before from temp');
@@ -75,7 +62,7 @@ export function launchDetachedWdioServerInstance() {
 
 export function launchWdioServerDetached(soucePath: string, beforeFunctionName: string | null, functionName: string, dynamicModuleLoading: boolean) {
   let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeFunctionName, functionName, dynamicModuleLoading);
-  toTemp(webDriverConfig, weDriverTempConfigFileName);
+  toTemp(webDriverConfig, weDriverTempConfigFileName, false);
 
   const out = fs.openSync(logFile('launchWdioServerDetached-out.log'), 'w'),
         err = fs.openSync(logFile('launchWdioServerDetached-err.log'), 'w'),

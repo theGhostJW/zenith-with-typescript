@@ -14,12 +14,13 @@ import {
 import { endSeleniumIpcSession, interact, launchWdioServerDetached, launchWebInteractor,
           rerunClient } from './WebLauncher'
 
+import * as wd from 'webdriverio';
+
 import * as _ from 'lodash';
 
 
 export function zzzTestFunc() {
-  console.log('zzzTestFunc');
-  return 55;
+  return browser.getTitle();
 }
 
 export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
@@ -43,7 +44,6 @@ function firstTestModuleInStack(): string {
   );
 }
 
-//ToDo: remove second param
 export function launchSession(before: (() => void) | null, func: (...any) => any, ...params: Array<any>) {
    try {
      let caller = firstTestModuleInStack(),
@@ -71,11 +71,11 @@ export function rerunLoaded(...params: Array<any>) {
 
 
 function extractNamesAndSource(before: (() => void) | null, caller: string, func: (...any) => any) {
-  return debug ({
+  return {
     funcName: functionNameFromFunction(func),
     beforeFuncName: before == null ? null : functionNameFromFunction(before),
     sourcePath: findMatchingSourceFile(caller)
-  })
+  }
 }
 
 function browserExBase(before: (() => void) | null, caller: string, func: (...any) => any, ...params: Array<any>): mixed {

@@ -15,7 +15,6 @@ let
     serverReadySingleton = false;
 
 export function clientEmit(msgType: Protocol, msg?: Array<mixed> ) {
-  debug('Client ' + msgType);
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
@@ -61,7 +60,7 @@ export function runClient() {
   ipc.config.sync = false;
   ipc.config.silent = true;
 
-  debug(`client launched ${process.pid}`)
+//  debug (`client launched ${process.pid}`)
 
   function when(msg: Protocol, action: (data: any) => void) {
     ipc.of[INTERACT_SOCKET_NAME].on(msg, action);
@@ -102,9 +101,6 @@ export function runClient() {
                 setServerReady(true);
               }
         );
-        debug('Client - Connect to callback')
       }
     )
-
-    debug('Client - Run Client');
   }

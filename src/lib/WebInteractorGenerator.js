@@ -96,7 +96,6 @@ return   `
       startServer();
       ${beforeFuncName != null ? beforeFuncName + '();' : ''}
       waitRetry(() => done(), 90000000, () => uiInteraction());
-      debug('test case done');
     });
 
   });
