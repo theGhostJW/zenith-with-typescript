@@ -14,12 +14,12 @@ export function generateAndDumpTestFile(beforeFuncName: string | null, functionN
 function fileContent(beforeFuncName: string | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean): string {
   let fw = isFrameworkProject(),
       destParentDir = parentDir(destPath),
-      inFileRelativePath = replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
+      importFilePath = dynamicModuleLoad ? replaceAll(sourcePath, '\\', '\\\\') : replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
 
   return targetRequires(beforeFuncName, functionName, sourcePath, destPath, dynamicModuleLoad) + newLine() +
           (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +
           NPM_USES + newLine() +
-          sourceCode(beforeFuncName, functionName, inFileRelativePath, dynamicModuleLoad);
+          sourceCode(beforeFuncName, functionName, importFilePath, dynamicModuleLoad);
 }
 
 function targetRequires(beforeFuncName: string | null, functionName: string, sourcePath: string, targetPath: string, dynamicModuleLoad: boolean) : string {

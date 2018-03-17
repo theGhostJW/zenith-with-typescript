@@ -87,8 +87,6 @@ export function launchWdioServerDetached(soucePath: string, beforeFunctionName: 
                                                       stdio: [ 'ignore', out, err]
                                                     }
                                                   );
-
-  debug('child process' + toString(child));
   child.unref();
 }
 

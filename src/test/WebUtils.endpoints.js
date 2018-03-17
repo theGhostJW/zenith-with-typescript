@@ -15,7 +15,13 @@ describe('browserEx', () => {
 
 });
 
-describe('launchSession rerunClient', () => {
+/*
+TODO: rerunner
+   * dynamic loading
+   * test with webio
+   * combine to one function (rerunner)
+ */
+describe('launchSession', () => {
 
   it('launchSession', () => {
     launchSession(null, zzzTestFunc);
@@ -26,7 +32,7 @@ describe('launchSession rerunClient', () => {
 describe('rerunClient', () => {
 
   it.only('rerunLoaded', () => {
-    rerunLoaded()
+    chkEq(55, debug(rerunLoaded()))
   });
 
 });

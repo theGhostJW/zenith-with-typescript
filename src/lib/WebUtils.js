@@ -1,19 +1,21 @@
 // @flow
 
-import { trimLines } from '../index';
-import { log } from './Logging';
-import { combine, fileOrFolderName, pathExists, projectDir, projectSubDir,
-          runTimeFile, testCaseFile, PATH_SEPARATOR, copyFile, parentDir,
-          fileToString, stringToFile } from './FileUtils';
-import { hasText, subStrAfter, subStrBetween, trimChars, newLine } from './StringUtils';
+
+import {trimLines} from '../index';
+import { combine, copyFile, fileOrFolderName, fileToString, parentDir,
+          pathExists, projectDir, projectSubDir, runTimeFile, stringToFile,
+          testCaseFile, PATH_SEPARATOR } from './FileUtils';
+import { hasText, newLine, subStrAfter, subStrBetween, trimChars } from './StringUtils';
 import {
-        cast, debug, def, delay, ensure, ensureHasVal, getCallerString,
-         waitRetry, functionNameFromFunction, isSerialisable, ensureReturn,
-        fail
+        cast, debug, def, delay, ensure, ensureHasVal, ensureReturn,
+         fail, filePathFromCallStackLine, functionNameFromFunction,
+        getStackStrings, isSerialisable, waitRetry, TEST_SUFFIXES
       } from './SysUtils';
+import { endSeleniumIpcSession, interact, launchWdioServerDetached, launchWebInteractor,
+          rerunClient } from './WebLauncher'
+
 import * as _ from 'lodash';
-import { launchWebInteractor, endSeleniumIpcSession, interact, rerunClient,
-          launchWdioServerDetached } from './WebLauncher'
+
 
 export function zzzTestFunc() {
   console.log('zzzTestFunc');
@@ -22,7 +24,7 @@ export function zzzTestFunc() {
 
 export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
    try {
-     let caller = getCallerString(true);
+     let caller = firstTestModuleInStack();
      return browserExBase(null, caller, func, ...params);
    }
   catch (e) {
@@ -32,16 +34,25 @@ export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
    }
 }
 
+function firstTestModuleInStack(): string {
+  let fullStack = getStackStrings(),
+      line = fullStack.find(s => TEST_SUFFIXES.some(suffix => hasText(s, suffix)));
+
+  return filePathFromCallStackLine(
+      ensureHasVal(line, `Could not find test module in callstack the calling function can only be executed from a test module: ${fullStack.join(newLine())}`)
+  );
+}
+
 //ToDo: remove second param
 export function launchSession(before: (() => void) | null, func: (...any) => any, ...params: Array<any>) {
    try {
-     let caller = getCallerString(true);
-     let {
-         funcName,
-         beforeFuncName,
-         sourcePath
+     let caller = firstTestModuleInStack(),
+     {
+       funcName,
+       beforeFuncName,
+       sourcePath
      } = extractNamesAndSource(before, caller, func);
-     launchWdioServerDetached(caller, beforeFuncName, funcName, true);
+     launchWdioServerDetached(sourcePath, beforeFuncName, funcName, true);
    }
   catch (e) {
     fail('launchSession - fail', e)
@@ -60,11 +71,11 @@ export function rerunLoaded(...params: Array<any>) {
 
 
 function extractNamesAndSource(before: (() => void) | null, caller: string, func: (...any) => any) {
-  return {
+  return debug ({
     funcName: functionNameFromFunction(func),
     beforeFuncName: before == null ? null : functionNameFromFunction(before),
     sourcePath: findMatchingSourceFile(caller)
-  }
+  })
 }
 
 function browserExBase(before: (() => void) | null, caller: string, func: (...any) => any, ...params: Array<any>): mixed {
@@ -79,10 +90,8 @@ function browserExBase(before: (() => void) | null, caller: string, func: (...an
    return interact(...params);
 }
 
-
 export function findMatchingSourceFile(callerPath: string): string {
   let callerFileName = fileOrFolderName(callerPath);
-  const TEST_SUFFIXES = ['.endpoints.', '.integration.', '.test.'];
   let suffix = TEST_SUFFIXES.find(s => hasText(callerFileName, s, true));
 
   suffix = ensureHasVal(suffix, trimLines(`webUtilsTestLoad - calling file is not a standard test file.
@@ -96,7 +105,7 @@ export function findMatchingSourceFile(callerPath: string): string {
   let candidatePaths = [srcFile(sourceFileName), testCaseFile(sourceFileName)],
     sourcePath = candidatePaths.find(pathExists);
 
-  sourcePath = ensureHasVal(sourcePath, trimLines(`webUtilsTestLoad - target source file consistent with calling test file not found.
+  sourcePath = ensureHasVal(sourcePath, trimLines(`webUtilsTestLoad - target source file consistent with calling test file: ${callerPath} not found.
                                                    tried: ${candidatePaths.join(', ')}`));
   return sourcePath;
 }

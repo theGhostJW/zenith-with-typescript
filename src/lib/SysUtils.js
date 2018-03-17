@@ -14,6 +14,8 @@ import { runTimeFile, pathExists, projectSubDir, TEMPLATE_BASE_FILE } from '../l
 import { parseString } from 'xml2js'
 import deasync from 'deasync'
 
+export const TEST_SUFFIXES = ['.endpoints.', '.integration.', '.test.'];
+
 // https://stackoverflow.com/questions/30579940/reliable-way-to-check-if-objects-is-serializable-in-javascript
 export function isSerialisable(obj: mixed): boolean {
 
@@ -30,6 +32,8 @@ export function isSerialisable(obj: mixed): boolean {
           ])(obj)
 }
 
+export const filePathFromCallStackLine = (l : string) => subStrBetween(l, ' (', '.js:', true) + '.js';
+
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
 // assumes javascript extension .js
 export function getCallerString(filePathOnly: boolean = false): string {
@@ -37,7 +41,7 @@ export function getCallerString(filePathOnly: boolean = false): string {
   // remove getCallerString
   // remove caller
   let result = stack[2];
-  return filePathOnly ? subStrBetween(result, ' (', '.js:', true) + '.js' : result;
+  return filePathOnly ? filePathFromCallStackLine(result) : result;
 }
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
