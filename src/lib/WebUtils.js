@@ -1,10 +1,10 @@
 // @flow
 
-
 import {trimLines} from '../index';
 import { combine, copyFile, fileOrFolderName, fileToString, parentDir,
           pathExists, projectDir, projectSubDir, runTimeFile, stringToFile,
           testCaseFile, PATH_SEPARATOR } from './FileUtils';
+import { isConnected } from './SeleniumIpcClient';
 import { hasText, newLine, subStrAfter, subStrBetween, trimChars } from './StringUtils';
 import {
         cast, debug, def, delay, ensure, ensureHasVal, ensureReturn,
@@ -14,9 +14,7 @@ import {
 import { endSeleniumIpcSession, interact, launchWdioServerDetached, launchWebInteractor,
           rerunClient } from './WebLauncher'
 
-import * as wd from 'webdriverio';
 
-import * as _ from 'lodash';
 
 
 export function zzzTestFunc() {
@@ -62,6 +60,7 @@ export function launchSession(before: (() => void) | null, func: (...any) => any
 export function rerunLoaded(...params: Array<any>) {
    try {
      rerunClient();
+     isConnected();
      return interact(...params);
    }
   catch (e) {

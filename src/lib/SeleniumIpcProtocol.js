@@ -9,6 +9,8 @@ export type Protocol =   'InvocationResponse' |
                           'ClientSessionDone' |
                           'Log' |
                           'Exception' |
+                          'Ping' |
+                          'Pong' |
                           // ipc-native
                           'disconnect' |
                           'connect' ;

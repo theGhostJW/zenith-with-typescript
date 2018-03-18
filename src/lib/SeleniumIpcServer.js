@@ -79,6 +79,13 @@ export function startServer() {
             }
           );
 
+        when(
+            'Ping',
+            (data, socket) => {
+              emit(socket, 'Pong');
+            }
+          );
+
         when('connect',
               (data, socket) => {
                 clientSocket = data;
