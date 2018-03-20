@@ -53,7 +53,6 @@ export function startServer() {
   if (ipc.server){
     return;
   }
-  debug ('server starting PID:' + process.pid)
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;

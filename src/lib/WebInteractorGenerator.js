@@ -5,25 +5,31 @@ import { newLine, replaceAll, trimLines} from './StringUtils';
 import { debug, isFrameworkProject } from './SysUtils';
 import * as _ from 'lodash';
 
-
-
-export function generateAndDumpTestFile(beforeFuncName: string | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean) {
-  stringToFile(fileContent(beforeFuncName, functionName, sourcePath, destPath, dynamicModuleLoad), destPath);
+export type BeforeRunInfo = {
+  isUrl: boolean,
+  name: string
 }
 
-function fileContent(beforeFuncName: string | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean): string {
+
+export function generateAndDumpTestFile(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean) {
+  stringToFile(fileContent(beforeInfo, functionName, sourcePath, destPath, dynamicModuleLoad), destPath);
+}
+
+function fileContent(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean): string {
   let fw = isFrameworkProject(),
       destParentDir = parentDir(destPath),
       importFilePath = dynamicModuleLoad ? replaceAll(sourcePath, '\\', '\\\\') : replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
 
-  return targetRequires(beforeFuncName, functionName, sourcePath, destPath, dynamicModuleLoad) + newLine() +
+  return targetRequires(beforeInfo, functionName, sourcePath, destPath, dynamicModuleLoad) + newLine() +
           (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +
           NPM_USES + newLine() +
-          sourceCode(beforeFuncName, functionName, importFilePath, dynamicModuleLoad);
+          sourceCode(beforeInfo, functionName, importFilePath, dynamicModuleLoad);
 }
 
-function targetRequires(beforeFuncName: string | null, functionName: string, sourcePath: string, targetPath: string, dynamicModuleLoad: boolean) : string {
+function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, targetPath: string, dynamicModuleLoad: boolean) : string {
   let result = `// @flow \n\n`,
+      beforeFuncName = beforeInfo == null ? null :
+                                      beforeInfo.isUrl ? null : beforeInfo.name,
       funcs = _.compact([beforeFuncName, (dynamicModuleLoad ? null : functionName)]),
       hasFuncs = funcs.length > 0 ,
       importFuncs = hasFuncs ? funcs.join(', ') : '';
@@ -57,7 +63,7 @@ const NPM_USES = trimLines(`
   import * as _ from 'lodash';
 `);
 
-const sourceCode = (beforeFuncName: string | null, functionName: string, modulePath: string, dynamicModuleLoad: boolean) =>  {
+const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modulePath: string, dynamicModuleLoad: boolean) =>  {
   let responseBlock = dynamicModuleLoad ?
                                           trimLines(
                                             `// Delete cache entry to make sure the file is re-read from disk.
@@ -67,7 +73,10 @@ const sourceCode = (beforeFuncName: string | null, functionName: string, moduleP
 
                                             let response = modd.${functionName}(...cast(params));`
                                           )
-                                        : `let response = ${functionName}(...cast(params));`
+                                        : `let response = ${functionName}(...cast(params));`,
+      initCall = beforeInfo == null ? '' :
+                  beforeInfo.isUrl ? `browser.url('${beforeInfo.name}');`
+                                   : `${beforeInfo.name}());`
 
 
 
@@ -94,7 +103,7 @@ return   `
 
     it('interact', () => {
       startServer();
-      ${beforeFuncName != null ? beforeFuncName + '();' : ''}
+      ${initCall}
       waitRetry(() => done(), 90000000, () => uiInteraction());
     });
 

@@ -4,16 +4,35 @@ import {trimLines} from '../index';
 import { combine, copyFile, fileOrFolderName, fileToString, parentDir,
           pathExists, projectDir, projectSubDir, runTimeFile, stringToFile,
           testCaseFile, PATH_SEPARATOR } from './FileUtils';
-import { isConnected } from './SeleniumIpcClient';
-import { hasText, newLine, subStrAfter, subStrBetween, trimChars } from './StringUtils';
+import { hasText, newLine, subStrAfter, subStrBetween, trimChars, toString } from './StringUtils';
 import {
         cast, debug, def, delay, ensure, ensureHasVal, ensureReturn,
          fail, filePathFromCallStackLine, functionNameFromFunction,
         getStackStrings, isSerialisable, waitRetry, TEST_SUFFIXES
       } from './SysUtils';
-import { endSeleniumIpcSession, interact, launchWdioServerDetached, launchWebInteractor,
-          rerunClient } from './WebLauncher'
+import { endSeleniumIpcSession, interact, launchWdioServerDetached,
+          launchWebInteractor,  isConnected, sendClientDone,
+          runClient } from './WebLauncher';
+import type { BeforeRunInfo } from './WebLauncher';
+import * as wd from 'webdriverio';
+import * as _ from 'lodash';
 
+export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any, ...params: Array<any>): mixed {
+  runClient();
+  // Closing - if already closed will do nothing
+  if (func == null){
+    sendClientDone();
+    return null;
+  }
+  // Rerunning
+  else if (isConnected()) {
+    return rerunLoaded(...params);
+  }
+  // Starting
+  else {
+    return launchSession(beforeFuncOrUrl, func, ...params);
+  }
+}
 
 
 
@@ -42,25 +61,25 @@ function firstTestModuleInStack(): string {
   );
 }
 
-export function launchSession(before: (() => void) | null, func: (...any) => any, ...params: Array<any>) {
+function launchSession(before: (() => void) | null | string, func: (...any) => any, ...params: Array<any>) {
    try {
      let caller = firstTestModuleInStack(),
      {
        funcName,
-       beforeFuncName,
+       beforeFuncInfo,
        sourcePath
      } = extractNamesAndSource(before, caller, func);
-     launchWdioServerDetached(sourcePath, beforeFuncName, funcName, true);
+     launchWdioServerDetached(sourcePath, beforeFuncInfo, funcName, true);
+     ensure(waitRetry(() => isConnected(), 30000), 'Timed out waiting on interactor');
+     return interact(...params);
    }
   catch (e) {
     fail('launchSession - fail', e)
    }
 }
 
-export function rerunLoaded(...params: Array<any>) {
+function rerunLoaded(...params: Array<any>) {
    try {
-     rerunClient();
-     isConnected();
      return interact(...params);
    }
   catch (e) {
@@ -69,23 +88,27 @@ export function rerunLoaded(...params: Array<any>) {
 }
 
 
-function extractNamesAndSource(before: (() => void) | null, caller: string, func: (...any) => any) {
+function extractNamesAndSource(before: (() => void) | string | null, caller: string, func: (...any) => any) {
+  let beforeIsString = _.isString(before);
   return {
     funcName: functionNameFromFunction(func),
-    beforeFuncName: before == null ? null : functionNameFromFunction(before),
+    beforeFuncInfo: before == null ? null : {
+                                              isUrl: beforeIsString,
+                                              name: beforeIsString ? toString(before) : functionNameFromFunction(before)
+                                            },
     sourcePath: findMatchingSourceFile(caller)
   }
 }
 
-function browserExBase(before: (() => void) | null, caller: string, func: (...any) => any, ...params: Array<any>): mixed {
+function browserExBase(before: (() => void) | null | string, caller: string, func: (...any) => any, ...params: Array<any>): mixed {
   let {
       funcName,
-      beforeFuncName,
+      beforeFuncInfo,
       sourcePath
     } = extractNamesAndSource(before, caller, func);
 
    ensure(params.every(isSerialisable), 'browserEx optional params ~ unserailisable parameter passed in (like a function)');
-   launchWebInteractor(sourcePath, beforeFuncName, funcName, true);
+   launchWebInteractor(sourcePath, beforeFuncInfo, funcName, true);
    return interact(...params);
 }
 

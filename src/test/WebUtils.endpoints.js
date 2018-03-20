@@ -5,7 +5,7 @@ import { debug, waitRetry, cast } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { toString } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { browserEx, zzzTestFunc, launchSession, rerunLoaded } from '../lib/WebUtils';
+import { browserEx, zzzTestFunc, rerun } from '../lib/WebUtils';
 
 describe('browserEx', () => {
 
@@ -15,22 +15,14 @@ describe('browserEx', () => {
 
 });
 
-/*
-TODO: rerunner
-   * combine to one function (rerunner)
- */
-describe('launchSession', () => {
+describe('rerun', () => {
 
-  it('launchSession', () => {
-    launchSession(null, zzzTestFunc);
+  it.only('close', () => {
+    rerun();
   });
 
-});
-
-describe('rerunClient', () => {
-
-  it.only('rerunLoaded', () => {
-    chkEq('Google', rerunLoaded())
+  it('run', () => {
+    chkEq('Google', rerun('https://www.google.com.au/', zzzTestFunc))
   });
 
 });

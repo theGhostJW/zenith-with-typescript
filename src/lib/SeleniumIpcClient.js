@@ -58,7 +58,7 @@ let ponged: boolean = false;
 export function isConnected() {
   ponged = false;
   clientEmit('Ping');
-  return debug(waitRetry(() => ponged, 50));
+  return waitRetry(() => ponged, 50);
 }
 
 /// The Launcher runs from the client
