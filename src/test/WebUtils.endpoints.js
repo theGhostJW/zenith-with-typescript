@@ -5,7 +5,9 @@ import { debug, waitRetry, cast } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { toString } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { browserEx, zzzTestFunc, rerun } from '../lib/WebUtils';
+import { browserEx, zzzTestFunc, rerun, set } from '../lib/WebUtils';
+
+const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
 
 describe('browserEx', () => {
 
@@ -17,7 +19,7 @@ describe('browserEx', () => {
 
 describe('rerun', () => {
 
-  it.only('close', () => {
+  it('close', () => {
     rerun();
   });
 

@@ -17,6 +17,16 @@ import type { BeforeRunInfo } from './WebLauncher';
 import * as wd from 'webdriverio';
 import * as _ from 'lodash';
 
+//$FlowFixMe
+export const S = s => $(s);
+
+//$FlowFixMe
+export const SS = s => $$(s);
+
+export function set(elementSelector: string, value: string | number | Array<string|number>) {
+  S(elementSelector).setValue(value);
+}
+
 export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any, ...params: Array<any>): mixed {
   runClient();
   // Closing - if already closed will do nothing
