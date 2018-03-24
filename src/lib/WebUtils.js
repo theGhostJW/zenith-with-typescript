@@ -27,7 +27,9 @@ export function links() {
   return SS('[href]')
 }
 
-
+export function url(url: string) {
+  browser.url(url);
+}
 
 export function click(elementSelector: string) {
   browser.click(elementSelector);
