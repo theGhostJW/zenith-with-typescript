@@ -121,7 +121,7 @@ export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func
 
     saveSignature(sig);
 
-    let result = !connected || sigChangedConnected ?
+    result = !connected || sigChangedConnected ?
                                  launchSession(beforeFuncOrUrl, func, ...params) :
                                  rerunLoaded(...params);
 
