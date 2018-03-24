@@ -10,7 +10,6 @@ export type BeforeRunInfo = {
   name: string
 }
 
-
 export function generateAndDumpTestFile(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean) {
   stringToFile(fileContent(beforeInfo, functionName, sourcePath, destPath, dynamicModuleLoad), destPath);
 }
@@ -82,13 +81,22 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
 
 
 return   `
+
+  let beforeRun = false;
+
   function uiInteraction(): void {
       // exception handling / logging pending
       let params = invocationParams();
-      startServer();
+
       if (params != null) {
         try {
+          if (!beforeRun){
+            ${initCall};
+            beforeRun = true;
+          }
+
           ${responseBlock}
+
           emitMessage('InvocationResponse', response);
         } catch (e) {
           let err = translateErrorObj(e);
@@ -104,7 +112,6 @@ return   `
 
     it('interact', () => {
       startServer();
-      ${initCall}
       waitRetry(() => done(), 90000000, () => uiInteraction());
     });
 

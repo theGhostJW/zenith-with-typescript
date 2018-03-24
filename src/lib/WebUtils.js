@@ -54,8 +54,6 @@ export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func
   }
 }
 
-
-
 export function zzzTestFunc() {
   return browser.getTitle();
 }
