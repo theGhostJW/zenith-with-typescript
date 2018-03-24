@@ -14,16 +14,12 @@ let
     responseReceived = false,
     serverReadySingleton = false;
 
+export function disconnectClient() {
+  ipc.disconnect(INTERACT_SOCKET_NAME);
+}
+
 export function clientEmit(msgType: Protocol, msg?: Array<mixed> ) {
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
-}
-
-export function serverReady() {
-  return serverReadySingleton;
-}
-
-export function setServerReady(ready: boolean) {
-  serverReadySingleton = ready;
 }
 
 export function invocationResponse() {
@@ -42,7 +38,6 @@ export function clearInvocationResponse(): void {
 
 export function sendClientDone() {
   clientEmit('ClientSessionDone');
-  waitRetry(() => !serverReady(), 30000);
 }
 
 export function sendInvocationParams(...params?: Array<mixed>) {
@@ -66,7 +61,7 @@ export function runClient() {
   ipc.config.id = createGuid();
   ipc.config.retry = 500;
   ipc.config.sync = false;
-  ipc.config.silent = true;
+  ipc.config.silent = false;
 
 //  debug (`client launched ${process.pid}`)
 
@@ -105,16 +100,16 @@ export function runClient() {
 
         when('ServerDone',
                         (data) => {
-                             ipc.disconnect(INTERACT_SOCKET_NAME);
-                             setServerReady(false);
                         }
                     );
 
         when('connect',
               (data) => {
-                setServerReady(true);
               }
+
+
         );
       }
     )
+
   }

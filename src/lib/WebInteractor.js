@@ -30,7 +30,7 @@ function uiInteraction(): void {
     }
 }
 
-describe.only('runner', () => {
+describe('runner', () => {
 
   it('interact', () => {
     startServer();

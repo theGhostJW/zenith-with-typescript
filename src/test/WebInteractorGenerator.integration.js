@@ -9,7 +9,7 @@ import { generateAndDumpTestFile } from '../lib/WebInteractorGenerator';
 
 describe('generateAndDumpTestFile', () => {
 
-  it.only('works', () => {
+  it('works', () => {
     let before = {
       isUrl: true,
       name: 'http:\\google.com.au'

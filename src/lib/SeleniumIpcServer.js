@@ -48,6 +48,10 @@ function emit(socket: any, msgType: Protocol, msg?: mixed ) {
   ipc.server.emit(socket, msgType, msg);
 }
 
+export function stopServer() {
+  ipc.server.stop();
+}
+
 /// The Interactor Runs the server
 export function startServer() {
   if (ipc.server){
@@ -56,7 +60,7 @@ export function startServer() {
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;
-  ipc.config.silent = true;
+  ipc.config.silent = false;
 
   function when(msg: Protocol, action: (data: any, socket: any) => void) {
     ipc.server.on(msg, action);

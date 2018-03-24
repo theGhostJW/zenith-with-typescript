@@ -1,21 +1,37 @@
 // @flow
 
-import {trimLines} from '../index';
-import { combine, copyFile, fileOrFolderName, fileToString, parentDir,
-          pathExists, projectDir, projectSubDir, runTimeFile, stringToFile,
-          testCaseFile, PATH_SEPARATOR } from './FileUtils';
-import { hasText, newLine, subStrAfter, subStrBetween, trimChars, show } from './StringUtils';
 import {
-        cast, debug, def, delay, ensure, ensureHasVal, ensureReturn,
-         fail, filePathFromCallStackLine, functionNameFromFunction,
-        callstackStrings, isSerialisable, waitRetry, TEST_SUFFIXES
+  combine,
+  copyFile,
+  fileOrFolderName,
+  fileToString,
+  fromTemp,
+  parentDir,
+  pathExists,
+  projectDir,
+  projectSubDir,
+  runTimeFile,
+  stringToFile,
+  tempFileExists,
+  testCaseFile,
+  toTemp,
+  PATH_SEPARATOR,
+} from './FileUtils';
+
+import { hasText, newLine, show, subStrAfter, subStrBetween, trimChars,
+         trimLines, wildCardMatch } from './StringUtils';
+import {
+        areEqual, callstackStrings, cast, debug, def, delay, ensure,
+         ensureHasVal, ensureReturn, fail,
+        filePathFromCallStackLine, functionNameFromFunction, isSerialisable,
+        waitRetry, TEST_SUFFIXES
       } from './SysUtils';
-import { endSeleniumIpcSession, interact, launchWdioServerDetached,
-          launchWebInteractor,  isConnected, sendClientDone,
-          runClient } from './WebLauncher';
-import type { BeforeRunInfo } from './WebLauncher';
-import * as wd from 'webdriverio';
+import { interact, isConnected,
+          launchWdioServerDetached,  launchWebInteractor, runClient,
+          sendClientDone, stopSession, waitConnected, disconnectClient } from './WebLauncher';
 import * as _ from 'lodash';
+
+
 
 //$FlowFixMe
 export const S = s => $(s);
@@ -23,8 +39,30 @@ export const S = s => $(s);
 //$FlowFixMe
 export const SS = s => $$(s);
 
+export type Element = {
+  getText: () => string,
+  click: () => void
+}
+
+export const clickLink = (displayText: string) => linkByText(displayText).click();
+
+export function linkByText(displayText: string): Element {
+  let result = links().find(l => wildCardMatch(l.getText(), displayText))
+  if (result == null){
+    fail(
+          'linkByText Failed',
+          'could not find a link with display text matching: ' + displayText
+        );
+    // just to keep flow hapy will never return
+    return cast({});
+  }
+  else {
+    return result;
+  }
+}
+
 export function links() {
-  return SS('[href]')
+  return SS('[href]');
 }
 
 export function url(url: string) {
@@ -39,21 +77,62 @@ export function set(elementSelector: string, value: string | number | Array<stri
   S(elementSelector).setValue(value);
 }
 
+
+function signature(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any) {
+  return {
+    before: _.isFunction(beforeFuncOrUrl) ? functionNameFromFunction(beforeFuncOrUrl) : show(beforeFuncOrUrl),
+    target: functionNameFromFunction(func)
+  }
+}
+
+const webDriverIOParamsSignatureFileName = 'webioParams.yaml';
+
+function saveSignature(sig) {
+  toTemp(sig, webDriverIOParamsSignatureFileName, false, false);
+}
+
+function signatureChanged(sig) {
+  return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName), sig) : true;
+}
+
 export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any, ...params: Array<any>): mixed {
-  runClient();
-  // Closing - if already closed will do nothing
-  if (func == null){
-    sendClientDone();
-    return null;
+  let result;
+  try {
+    runClient();
+    // Closing - if already closed will do nothing
+    if (func == null){
+      stopSession();
+      return null;
+    }
+
+    let connected = isConnected(),
+        sig = signature(beforeFuncOrUrl, func),
+        sigChangedConnected = connected && debug(signatureChanged(sig), 'sig-changed');
+
+    debug(connected, 'connected');
+    debug(sigChangedConnected, 'sigChangedConnected');
+
+    // close off session if signatureChanged
+    if (sigChangedConnected) {
+      debug('Closing down');
+      stopSession();
+      runClient();
+    }
+
+    saveSignature(sig);
+
+    let result = !connected || sigChangedConnected ?
+                                 launchSession(beforeFuncOrUrl, func, ...params) :
+                                 rerunLoaded(...params);
+
+  } catch (e) {
+
+  } finally {
+    disconnectClient();
   }
-  // Rerunning
-  else if (isConnected()) {
-    return rerunLoaded(...params);
-  }
-  // Starting
-  else {
-    return launchSession(beforeFuncOrUrl, func, ...params);
-  }
+
+  return result;
+
 }
 
 export function zzzTestFunc() {
@@ -68,7 +147,7 @@ export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
   catch (e) {
     fail('browserEx - fail', e)
    } finally {
-    endSeleniumIpcSession();
+    stopSession();
    }
 }
 
@@ -90,7 +169,8 @@ function launchSession(before: (() => void) | null | string, func: (...any) => a
        sourcePath
      } = extractNamesAndSource(before, caller, func);
      launchWdioServerDetached(sourcePath, beforeFuncInfo, funcName, true);
-     ensure(waitRetry(() => isConnected(), 30000), 'Timed out waiting on interactor');
+     ;
+     ensure(waitConnected(30000), 'Timed out waiting on interactor');
      return interact(...params);
    }
   catch (e) {

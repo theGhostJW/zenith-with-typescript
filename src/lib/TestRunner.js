@@ -40,7 +40,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
       } catch (e) {
         fail('item runner failed', e);
       } finally {
-        webLauncher.endSeleniumIpcSession()
+        webLauncher.stopSession()
       }
 
 

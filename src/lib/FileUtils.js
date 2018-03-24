@@ -154,12 +154,15 @@ function toTempStringPriv(str : string, fileName : ?string, wantWarning : boolea
   return path;
 }
 
+export function tempFileExists(fileName: string): boolean {
+   return pathExists(tempFile(fileName));
+}
+
 export function fromTempString(fileName : ?string, wantWarning : boolean = true) : string {
   return fromTempStringPriv(fileName, wantWarning, '.txt');
 }
 
-function fromTempStringPriv(fileName :
-  ? string, wantWarning : boolean, fileExt : string) : string {
+function fromTempStringPriv(fileName : ? string, wantWarning : boolean, fileExt : string) : string {
   let path = tmpStrPath(fileName, fileExt);
   if (wantWarning) {
     logWarning(`Reading temp file from ${path}`);

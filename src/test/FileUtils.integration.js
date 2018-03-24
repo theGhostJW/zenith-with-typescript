@@ -1,25 +1,63 @@
 // @flow
 
-import {
-        chk, chkEq, chkEqJson, chkFalse, chkHasText,
-        chkWithMessage
-      } from '../lib/AssertionUtils';
-import {test, describe} from 'mocha'
-import * as _ from 'lodash';
-import * as fs from 'fs';
-import { debug, areEqual } from '../lib/SysUtils';
+
+
 import type { LogAttributes } from '../lib/Logging';
-import type { FileFilterFunc, FileFilterGlobs  } from '../lib/FileUtils';
-import { createGuidTruncated, hasText } from '../lib/StringUtils';
+
+
+import {chk, chkEq, chkEqJson, chkFalse, chkHasText, chkWithMessage} from '../lib/AssertionUtils';
 import { now } from '../lib/DateTimeUtils';
+import {
+  clearDirectory,
+  combine,
+  copyFile,
+  deleteDirectory,
+  deleteFile,
+  eachFile,
+  eachFolder,
+  eachPathNonRecursive,
+  fileExtension,
+  fileLastModified,
+  fileOrFolderName,
+  fileToLines,
+  fileToObj,
+  fileToString,
+  forceDirectory,
+  fromLogDir,
+  fromMock,
+  fromTemp,
+  fromTempString,
+  fromTestData,
+  fromTestDataString,
+  linesToFile,
+  listFiles,
+  listFolders,
+  logFile,
+  mockFile,
+  pathExists,
+  projectDir,
+  relativePath,
+  runTimeFile,
+  seekFolder,
+  stringToFile,
+  stringToLogFile,
+  tempFile,
+  tempFileExists,
+  testDataFile,
+  toLogDir,
+  toMock,
+  toTemp,
+  toTempString,
+  toTestData,
+  toTestDataString,
+  unzipAll,
+  zipAll,
+} from '../lib/FileUtils';
+
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
-import { combine, seekFolder, pathExists, projectDir, tempFile, mockFile, testDataFile,
-         runTimeFile, logFile, stringToFile, fileToString, toTempString, fromTempString,
-         deleteFile, toTestDataString, fromTestDataString, toTemp, fromTemp, fromTestData, toTestData,
-         fromMock, toMock, fromLogDir, toLogDir, fileToObj, fileExtension, forceDirectory, deleteDirectory,
-         clearDirectory, eachFile, eachFolder, eachPathNonRecursive, fileOrFolderName, listFiles, listFolders,
-         fileToLines, linesToFile, stringToLogFile, zipAll, unzipAll, relativePath, copyFile, fileLastModified
-        } from '../lib/FileUtils';
+import { createGuidTruncated, hasText } from '../lib/StringUtils';
+import { areEqual, debug } from '../lib/SysUtils';
+
 
 const PROJECT_PATH : string = 'C:\\ZWTF',
       SOURCE_DIR: string = 'C:\\ZWTF\\src',
@@ -391,7 +429,7 @@ describe('fileToObj', () => {
     let obj = {hi: 'hi'},
         pth = tempFile('test.yaml');
 
-    toTemp(obj, 'test');
+    toTemp(obj, 'test', false);
     let actual = fileToObj(pth);
     chkEq(obj, actual);
   });
@@ -433,6 +471,18 @@ describe('special dirs / round trip', () => {
 
   it('from / to log', () => {
     roundTripTest(toLogDir, fromLogDir, 'log');
+  });
+
+});
+
+describe('tempFileExists', () => {
+
+  it.only('simple round trip', () => {
+    let filelName = 'Exists.yaml',
+        path = toTemp('Blahhh', filelName, false);
+    chk(tempFileExists(filelName));
+    deleteFile(path);
+    chkFalse(tempFileExists(filelName));
   });
 
 });

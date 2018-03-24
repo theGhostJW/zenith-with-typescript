@@ -38,9 +38,10 @@ function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, 
 }
 
 const FRAMEWORK_USES = trimLines(`
-  import { startServer, invocationParams, done, setInvocationParams, emitMessage } from '../src/lib/SeleniumIpcServer';
+  import { startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage } from '../src/lib/SeleniumIpcServer';
   import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from '../src/lib/SysUtils';
-  import { show  } from '../src/lib/StringUtils';
+  import { show, hasText  } from '../src/lib/StringUtils';
+  import { toTempString  } from '../src/lib/FileUtils';
   import { INTERACT_SOCKET_NAME } from '../src/lib/SeleniumIpcProtocol';
   import { log, logError, logException } from '../src/lib/Logging';
   import type { Protocol } from '../src/lib/SeleniumIpcProtocol';
@@ -48,7 +49,7 @@ const FRAMEWORK_USES = trimLines(`
 
 const ZWTF_USES = trimLines(`
   import {
-          startServer, invocationParams, done, setInvocationParams, emitMessage,
+          startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage,
           waitRetry, debug, fail, hasValue, translateErrorObj, cast,
           show,
           INTERACT_SOCKET_NAME,
@@ -67,11 +68,21 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
   let responseBlock = dynamicModuleLoad ?
                                           trimLines(
                                             `// Delete cache entry to make sure the file is re-read from disk.
-                                            delete require.cache['${modulePath}'];
-                                            // Load function from file.
-                                            let modd = require('${modulePath}');
 
-                                            let response = modd.${functionName}(...cast(params));`
+
+                                            function renewCache(path) {
+                                              delete require.cache[path];
+                                              return require(path)
+                                            }
+
+                                            _.values(require.cache)
+                                                      .filter(m => !hasText(m.filename, '\\\\node_modules\\\\') && !hasText(m.fileName, '\\\\temp\\\\') && !m.filename != '${modulePath}')
+                                                      .map(m => m.filename)
+                                                      .forEach(renewCache);
+
+
+                                            let modd = renewCache('${modulePath}'),
+                                                response = modd.${functionName}(...cast(params));`
                                           )
                                         : `let response = ${functionName}(...cast(params));`,
       initCall = beforeInfo == null ? '' :
@@ -112,7 +123,10 @@ return   `
 
     it('interact', () => {
       startServer();
+      toTempString('${process.pid}', 'Started');
       waitRetry(() => done(), 90000000, () => uiInteraction());
+      toTempString('DONE', 'DONE');
+      stopServer();
     });
 
   });

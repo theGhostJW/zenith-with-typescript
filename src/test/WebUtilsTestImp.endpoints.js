@@ -5,7 +5,8 @@ import { debug, waitRetry, cast } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { TEST_LOG_IN, setSmartBearLogIn, links } from '../lib/WebUtilsTestImp';
+import { TEST_LOG_IN, setSmartBearLogIn, links, linkByTextText,
+          clickLink } from '../lib/WebUtilsTestImp';
 import { rerun } from '../lib/WebUtils';
 
 
@@ -20,8 +21,25 @@ describe('set', () => {
 
 describe('links', () => {
 
-  it.only('getAll', () => {
-    debug(rerun(setSmartBearLogIn, links));
+  it('getAll', () => {
+    chk(cast(rerun(setSmartBearLogIn, links)).length > 4);
+  });
+
+});
+
+
+describe('linkByText', () => {
+
+  it.only('simple exists', () => {
+    chkEq('View all orders', rerun(setSmartBearLogIn, linkByTextText));
+  });
+
+});
+
+describe('clickLink', () => {
+
+  it('simple link', () => {
+    rerun(setSmartBearLogIn, clickLink, '*products*');
   });
 
 });

@@ -7,7 +7,7 @@ import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
 import { browserEx, findMatchingSourceFile } from '../lib/WebUtils';
 
-describe.only('findMatchingSourceFile', () => {
+describe('findMatchingSourceFile', () => {
 
   it('simple', function blahhh(){
     console.log(findMatchingSourceFile('C:\\ZWTF\\src\\test\\WebUtils.test.js'));

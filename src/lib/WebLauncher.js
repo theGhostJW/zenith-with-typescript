@@ -1,8 +1,8 @@
 // @flow
 
 import type { Protocol } from './SeleniumIpcProtocol';
-import { runClient, invocationResponse, clearInvocationResponse, activeSocket, sendInvocationParams, sendClientDone,
-          serverReady } from './SeleniumIpcClient';
+import { runClient, invocationResponse, clearInvocationResponse, activeSocket,
+          sendInvocationParams, sendClientDone, isConnected } from './SeleniumIpcClient';
 
 import { stringToFile, tempFile, toTempString, toTemp, fromTemp, projectDir,
          logFile, combine } from './FileUtils';
@@ -25,10 +25,26 @@ import * as wd from 'webdriverio';
 import * as fs from 'file-system';
 import child_process from 'child_process';
 
-export const endSeleniumIpcSession = sendClientDone;
+export {
+  isConnected,
+  sendClientDone,
+  runClient,
+  disconnectClient
+} from './SeleniumIpcClient';
 
 export const SELENIUM_BASE_URL = 'http://localhost:4444/';
 export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
+
+export function waitConnected(timeout: number, wantConnected: boolean = true) {
+  return waitRetry(() => isConnected() == wantConnected, timeout);
+}
+
+export function stopSession() {
+  if (waitConnected(3000)){
+    sendClientDone();
+    waitRetry(() => !isConnected(), 30000, sendClientDone);
+  }
+}
 
 export function interact(...params?: Array<mixed>) {
   try {
@@ -50,12 +66,6 @@ function startSeleniumServerOnce() {
   }
   seleniumLaunched = true;
 }
-
-export {
-  isConnected,
-  sendClientDone,
-  runClient
-} from './SeleniumIpcClient';
 
 export {
   BeforeRunInfo
@@ -117,7 +127,7 @@ export function startWdioServer(config: {}) {
       failed = true;
     });
 
-    waitRetry(() => serverReady() || failed, 10000000);
+    waitRetry(() => isConnected() || failed, 10000000);
   } catch (e) {
     fail(e);
   }
