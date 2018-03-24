@@ -41,8 +41,8 @@ import {
   waitRetry,
   randomInt,
   randomInt0,
-  getCallerString,
-  getStackStrings,
+  callerString,
+  callstackStrings,
   isSerialisable
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
@@ -107,7 +107,7 @@ describe('getCallerString', () => {
 
 
   function calledFunc() {
-    return getCallerString();
+    return callerString();
   }
 
   it('simple', function blahhh(){
@@ -119,10 +119,10 @@ describe('getCallerString', () => {
 });
 
 
-describe('getStackStrings', () => {
+describe('callstackStrings', () => {
 
   it('simple', function blahhStrings() {
-    let actual = getStackStrings();
+    let actual = callstackStrings();
     chkHasText(actual.join('\n'), 'blahhStrings');
   });
 

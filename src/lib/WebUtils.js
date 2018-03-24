@@ -8,7 +8,7 @@ import { hasText, newLine, subStrAfter, subStrBetween, trimChars, toString } fro
 import {
         cast, debug, def, delay, ensure, ensureHasVal, ensureReturn,
          fail, filePathFromCallStackLine, functionNameFromFunction,
-        getStackStrings, isSerialisable, waitRetry, TEST_SUFFIXES
+        callstackStrings, isSerialisable, waitRetry, TEST_SUFFIXES
       } from './SysUtils';
 import { endSeleniumIpcSession, interact, launchWdioServerDetached,
           launchWebInteractor,  isConnected, sendClientDone,
@@ -63,7 +63,7 @@ export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
 }
 
 function firstTestModuleInStack(): string {
-  let fullStack = getStackStrings(),
+  let fullStack = callstackStrings(),
       line = fullStack.find(s => TEST_SUFFIXES.some(suffix => hasText(s, suffix)));
 
   return filePathFromCallStackLine(
