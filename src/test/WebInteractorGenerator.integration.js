@@ -9,12 +9,12 @@ import { generateAndDumpTestFile } from '../lib/WebInteractorGenerator';
 
 describe('generateAndDumpTestFile', () => {
 
-  it('works', () => {
+  it.only('works', () => {
     let before = {
       isUrl: true,
       name: 'http:\\google.com.au'
     };
-    generateAndDumpTestFile(before, 'interactor', 'Demo_Case.web', 'C:\\ZWTF\\temp\\WebInteractor.js', true);
+    generateAndDumpTestFile(before, 'interactor',  'C:\\ZWTF\\src\\test\\WebInteractorGenerator.integration.js', 'C:\\ZWTF\\temp\\WebInteractor.js', true);
     let actual = fromTempString('WebInteractor.js', false);
     chkHasText(actual, 'startServer();');
   });

@@ -38,7 +38,7 @@ function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, 
 }
 
 const FRAMEWORK_USES = trimLines(`
-  import { startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage } from '../src/lib/SeleniumIpcServer';
+  import { startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage, isReloadableFile } from '../src/lib/SeleniumIpcServer';
   import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from '../src/lib/SysUtils';
   import { show, hasText  } from '../src/lib/StringUtils';
   import { toTempString  } from '../src/lib/FileUtils';
@@ -51,7 +51,7 @@ const ZWTF_USES = trimLines(`
   import {
           startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage,
           waitRetry, debug, fail, hasValue, translateErrorObj, cast,
-          show,
+          show, isReloadableFile
           INTERACT_SOCKET_NAME,
           log, logError, logException
    } from 'ZWFT';
@@ -71,12 +71,13 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
 
 
                                             function renewCache(path) {
+                                              log('Renewing Cache: ' + path);
                                               delete require.cache[path];
                                               return require(path)
                                             }
 
                                             _.values(require.cache)
-                                                      .filter(m => !hasText(m.filename, '\\\\node_modules\\\\') && !hasText(m.fileName, '\\\\temp\\\\') && !m.filename != '${modulePath}')
+                                                      .filter(i => isReloadableFile(i.filename))
                                                       .map(m => m.filename)
                                                       .forEach(renewCache);
 

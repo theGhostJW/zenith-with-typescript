@@ -52,8 +52,16 @@ let ponged: boolean = false;
 
 export function isConnected() {
   ponged = false;
-  clientEmit('Ping');
-  return waitRetry(() => ponged, 50);
+
+  function isPonged() {
+    if (ipc.of[INTERACT_SOCKET_NAME] == null){
+      return false;
+    }
+    clientEmit('Ping');
+    return ponged;
+  }
+
+  return waitRetry(isPonged, 50);
 }
 
 /// The Launcher runs from the client
@@ -75,6 +83,7 @@ export function runClient() {
 
         when('Pong',
                     (data) => {
+                      debug(ipc.of)
                       ponged = true;
                     }
                     );

@@ -116,7 +116,6 @@ export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func
     if (sigChangedConnected) {
       debug('Closing down');
       stopSession();
-      runClient();
     }
 
     saveSignature(sig);

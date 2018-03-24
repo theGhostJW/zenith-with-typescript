@@ -5,7 +5,7 @@ import type { Protocol } from './SeleniumIpcProtocol';
 import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 
-import { show } from './StringUtils';
+import { show, hasText } from './StringUtils';
 import {cast, debug, ensure, ensureHasVal, fail, waitRetry, hasValue} from './SysUtils';
 import { generateAndDumpTestFile } from './WebInteractorGenerator';
 
@@ -15,6 +15,15 @@ import * as ipc from 'node-ipc';
 
 let doneSingleton = false,
     invocationParamsSingleton: ?Array<mixed>;
+
+export function isReloadableFile(path: string): boolean {
+  return !hasText(path, 'node_modules')
+              &&  !hasText(path, '\\temp\\')
+              &&  (path != '${modulePath}')
+              &&  !hasText(path, 'SeleniumIpcServer')
+              &&  !hasText(path, 'WebInteractor')
+              &&  !hasText(path, 'wdio.conf')
+}
 
 export function done() {
   return doneSingleton;
@@ -77,7 +86,8 @@ export function startServer() {
         when(
             'ClientSessionDone',
             (data, socket) => {
-              emit(socket, 'ServerDone');
+              //emit(socket, 'ServerDone');
+              stopServer();
               setDone(true);
             }
           );
