@@ -3,7 +3,7 @@
 import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING, timeStampedRawPath } from '../lib/Logging';
-import { newLine, toString, subStrBefore, replaceAll, hasText, appendDelim} from '../lib/StringUtils';
+import { newLine, show, subStrBefore, replaceAll, hasText, appendDelim} from '../lib/StringUtils';
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString, toMock } from '../lib/FileUtils';
@@ -63,7 +63,7 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
           break;
 
       default:
-        logText = `PARSER ERROR UNHANDLED ELEMENT TYPE \nElement Type: ${toString(element.elementType)}\n\nFullElement:\n${toString(element)}`
+        logText = `PARSER ERROR UNHANDLED ELEMENT TYPE \nElement Type: ${show(element.elementType)}\n\nFullElement:\n${show(element)}`
     }
 
     writeAll(logText, isIssue);
@@ -85,7 +85,7 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
 
 
 function environment(runConfig: {[string]: mixed}): string {
-  return toString(def(runConfig['environment'], ''));
+  return show(def(runConfig['environment'], ''));
 }
 
 function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: ?number, testName: string, R) => string) {
@@ -94,7 +94,7 @@ function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (ite
 //
 
  let item = def(seekInObj(iteration, 'item'), {}),
-     script = toString(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
+     script = show(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
      id = item.id,
      destFile = mockFileNameFunc(id, script, runConfig),
      mockInfo = {
@@ -353,7 +353,7 @@ function fileWriter(destPath: string){
    let fd = fs.openSync(destPath, 'w');
 
    return function writer(data, indent: number, suffix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
-     let str = toString(data);
+     let str = show(data);
 
      // depricate this ??
      if (indent > 0){
@@ -377,7 +377,7 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
       errorSink = state.activeIssues;
 
   if(errorSink == null){
-    fail( `parser error - no active error / wanring sink at entry: ${toString(entry)}`);
+    fail( `parser error - no active error / wanring sink at entry: ${show(entry)}`);
   }
   else {
 
@@ -399,7 +399,7 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
       errArrray = warnings;
     }
     else {
-      fail('pushTestErrorWarning - not in valid state: ' + toString(entry));
+      fail('pushTestErrorWarning - not in valid state: ' + show(entry));
     }
 
    if (isType2 && state.errorExpectation != null){
@@ -730,7 +730,7 @@ function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => 
               +  newLine()
               + str + newLine(2)
               + 'Exception was:' + newLine()
-              + toString(e)
+              + show(e)
              )
     }
   }

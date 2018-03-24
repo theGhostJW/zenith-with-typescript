@@ -4,7 +4,7 @@ import {trimLines} from '../index';
 import { combine, copyFile, fileOrFolderName, fileToString, parentDir,
           pathExists, projectDir, projectSubDir, runTimeFile, stringToFile,
           testCaseFile, PATH_SEPARATOR } from './FileUtils';
-import { hasText, newLine, subStrAfter, subStrBetween, trimChars, toString } from './StringUtils';
+import { hasText, newLine, subStrAfter, subStrBetween, trimChars, show } from './StringUtils';
 import {
         cast, debug, def, delay, ensure, ensureHasVal, ensureReturn,
          fail, filePathFromCallStackLine, functionNameFromFunction,
@@ -22,6 +22,10 @@ export const S = s => $(s);
 
 //$FlowFixMe
 export const SS = s => $$(s);
+
+export function click(elementSelector: string) {
+  browser.click(elementSelector);
+}
 
 export function set(elementSelector: string, value: string | number | Array<string|number>) {
   S(elementSelector).setValue(value);
@@ -104,7 +108,7 @@ function extractNamesAndSource(before: (() => void) | string | null, caller: str
     funcName: functionNameFromFunction(func),
     beforeFuncInfo: before == null ? null : {
                                               isUrl: beforeIsString,
-                                              name: beforeIsString ? toString(before) : functionNameFromFunction(before)
+                                              name: beforeIsString ? show(before) : functionNameFromFunction(before)
                                             },
     sourcePath: findMatchingSourceFile(caller)
   }

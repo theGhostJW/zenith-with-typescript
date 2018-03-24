@@ -82,7 +82,7 @@ function ALLOWABLE_PROP_CHARS(){
                       .map(String.fromCharCode)
                       .map(firstChar)
                       .concat('_')
-                      .concat(_.map(_.range(0, 11), toString))
+                      .concat(_.map(_.range(0, 11), show))
                       .value();
 
 }
@@ -220,8 +220,8 @@ export function loadTemplate(templateString: string, data: {}): string {
 export function loadTemplatePositional(templateString: string, ...data: any): string {
   // note lodays does not work with numeric keys so can't use lodash templating for this
   function applyKey(accum, val, idx) {
-    let tag = '{{' + toString(idx) + '}}'
-    return replaceAll(accum, tag, toString(val))
+    let tag = '{{' + show(idx) + '}}'
+    return replaceAll(accum, tag, show(val))
   }
   return data.reduce(applyKey, templateString);
 }
@@ -659,7 +659,7 @@ export function wildCardMatch(hayStack: string, needlePattern: string, caseSensi
   return result.result;
 }
 
-export function toString<T>(val : T): string {
+export function show<T>(val : T): string {
   if (val === null)
     return 'null';
 

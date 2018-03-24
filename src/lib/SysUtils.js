@@ -2,7 +2,7 @@
 
 import * as _ from 'lodash';
 import * as deep from 'lodash-deep';
-import {toString, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
+import {show, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
       subStrBetween, stringToArray, replaceAll, newLine, lwrFirst} from '../lib/StringUtils';
 import * as os from 'os';
 import * as yaml from 'js-yaml';
@@ -133,7 +133,7 @@ export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 1
 
   if (taskTokill != null) {
     result = true;
-    log(`Killing task pid: ${toString(taskTokill)}`);
+    log(`Killing task pid: ${show(taskTokill)}`);
     child_process.execSync(`taskkill /im ${taskTokill.pid} /t /f`, {timeout: timeoutMs})
   }
 
@@ -200,7 +200,7 @@ export function _parseTaskList(taskList: string): Array<TaskListItem>{
 }
 
 export function functionNameFromFunction(func: mixed) : string {
-  var str = toString(func);
+  var str = show(func);
   return subStrBetween(str, 'function', '(').trim();
 }
 
@@ -526,7 +526,7 @@ export function cast<T>(targ: any): T {
 
 export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
-  console.log(appendDelim(_.toUpper(label), ': ', toString(msgStr)) + newLine()  + '=========================' + newLine()  +
+  console.log(appendDelim(_.toUpper(label), ': ', show(msgStr)) + newLine()  + '=========================' + newLine()  +
                                                                       callstackStrings().join(', ' + newLine()) + newLine()  +
                                                                       '=========================') ;
   return msgStr;
@@ -614,7 +614,7 @@ function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
   if (typeof mixedSpec == 'string' || typeof mixedSpec == 'number') {
     let matcher = typeof mixedSpec == 'string' && hasText(mixedSpec, '*') ? wildCardMatch : areEqual;
     return function keyMatch(val : mixed, key : string | number) : any {
-      return matcher(toString(key), toString(mixedSpec)) ? val : undefined;
+      return matcher(show(key), show(mixedSpec)) ? val : undefined;
     }
   }
 
@@ -658,7 +658,7 @@ function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
   }
 
   // IndexSpecifier / or HOFIndex Specifier
-  ensure(_.isArray(mixedSpec) && ((mixedSpec: any): Array<any>).length === 1, 'expect this to be a single item array: ' + toString(mixedSpec));
+  ensure(_.isArray(mixedSpec) && ((mixedSpec: any): Array<any>).length === 1, 'expect this to be a single item array: ' + show(mixedSpec));
 
   let dummy = (val : mixed, key : string | number) => {return undefined},
       indexer : IndexSpecifier = ((mixedSpec : any) : IndexSpecifier),
@@ -793,7 +793,7 @@ function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : Array <Mix
       propInfo = noCheck ?  seekInObjNoCheckWithInfo(target, spec, ...otherSpecs) :  seekInObjWithInfo(target, spec, ...otherSpecs);
 
   if (propInfo == null){
-    fail( 'setInObj matching property not found for specification: ' + _.map(specifiers, toString).join(', '));
+    fail( 'setInObj matching property not found for specification: ' + _.map(specifiers, show).join(', '));
   }
   else {
     let parent = propInfo.parent;
@@ -818,7 +818,7 @@ export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...oth
 export const seekManyInObj = _.flowRight([getResultValues, seekManyInObjWithInfo]); // flowIssues _.flowRight(getResultValues, seekManyInObjWithInfo);
 
 function addressOfSeekResult(seekResult: SeekInObjResultItem) : string {
-  let strKey = toString(seekResult.key);
+  let strKey = show(seekResult.key);
   return strKey === '' || seekResult.parent == null ? strKey :
       appendDelim(addressOfSeekResult(seekResult.parent), '.', strKey);
 }

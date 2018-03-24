@@ -5,7 +5,7 @@ import {
           forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, cast, fail,
           translateErrorObj, def
         } from '../lib/SysUtils';
-import { toString, newLine, hasText} from '../lib/StringUtils';
+import { show, newLine, hasText} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
           logIterationSummary, logFilterLog, logException, logValidationStart,
@@ -75,7 +75,7 @@ export function itemFilter<I: BaseItem>(selector?: Number |  $Supertype<I> | (te
     return matchesProps(selector)
   }
 
-  fail('Invalid item selector property: ' + newLine() + toString(selector));
+  fail('Invalid item selector property: ' + newLine() + show(selector));
   // will never get here this is just to keep flow happy
   return allItems;
 }
@@ -255,7 +255,7 @@ function runValidators<V>(validators: GenericValidator<V> | Array<GenericValidat
     try {
       validator(valState, valTime);
     } catch (e) {
-      throw('Exception thrown in validator: ' + currentValidator + newLine() + toString(e));
+      throw('Exception thrown in validator: ' + currentValidator + newLine() + show(e));
     }
     logEndValidator(currentValidator);
   }

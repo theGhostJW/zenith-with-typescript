@@ -1,7 +1,7 @@
 // @flow
 
 import * as _ from 'lodash';
-import {toString, hasText, wildCardMatch} from '../lib/StringUtils';
+import {show, hasText, wildCardMatch} from '../lib/StringUtils';
 import {areEqual, ensure, fail, debug} from '../lib/SysUtils';
 
 export function chkWithMessage(val: boolean, message: string = ''): void {
@@ -14,7 +14,7 @@ export function chk(val: boolean): void {
 
 export function chkHasText(actualHaystack: ?string, expectedNeedle: string) : void {
   chkWithMessage(hasText(actualHaystack, expectedNeedle),
-    `looking for: <${expectedNeedle}> \n  IN \n <${toString(actualHaystack)}>`);
+    `looking for: <${expectedNeedle}> \n  IN \n <${show(actualHaystack)}>`);
 }
 
 
@@ -24,7 +24,7 @@ export function chkFalse(val : boolean) : void {
 
 export function chkEq(expected : mixed, actual : mixed) : void {
   if ( !areEqual(expected, actual)) {
-    fail(`expected: <${toString(expected)}> did not equal actual <${toString(actual)}>`);
+    fail(`expected: <${show(expected)}> did not equal actual <${show(actual)}>`);
   }
 }
 
@@ -42,7 +42,7 @@ export function chkExceptionText(action : () => any, exceptionText: string, case
   chkException(
       action,
       (e) => {
-        failMessage = toString(e);
+        failMessage = show(e);
         return wildCardMatch(failMessage, exceptionText, caseSensitive);
       },
       () => failMessage == null ? exceptionText :

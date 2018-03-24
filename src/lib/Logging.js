@@ -3,7 +3,7 @@
 import * as _ from 'lodash';
 import * as winston from 'winston';
 import * as util from 'util'
-import {appendDelim, newLine, capFirst, subStrAfter, toString, hasText } from '../lib/StringUtils';
+import {appendDelim, newLine, capFirst, subStrAfter, show, hasText } from '../lib/StringUtils';
 import {fail, objToYaml, debug, def, ensureHasVal, hasValue, translateErrorObj} from '../lib/SysUtils';
 import { nowAsLogFormat, nowFileFormatted, timeToShortDateTimeHyphenatedMs} from '../lib/DateTimeUtils';
 import { changeExtension } from '../lib/FileUtils';
@@ -93,9 +93,9 @@ export const logEndValidator = (name: string) => specialMessage('ValidatorEnd', 
 export const logException = (message: string, exceptionObj: any) => {
   let errobj = translateErrorObj(exceptionObj);
   logError(message,
-      toString(exceptionObj),
+      show(exceptionObj),
       {
-       additionalInfo: toString(exceptionObj),
+       additionalInfo: show(exceptionObj),
        subType: 'Exception',
        popControl: 'NoAction',
        callstack: _.isObject(errobj) ? errobj.stack : undefined
@@ -168,7 +168,7 @@ function specialLog(subType: LogSubType, baseFunction: LogFunction, popControl: 
     attr = attr == null ? {} : attr;
     attr.subType = subType;
     attr.popControl = popControl;
-    baseFunction(toString(message), additionalInfo == null ? additionalInfo: toString(additionalInfo), attr);
+    baseFunction(show(message), additionalInfo == null ? additionalInfo: show(additionalInfo), attr);
   }
 }
 
@@ -180,7 +180,7 @@ const isCheckPointSubType = (subType: ?LogSubType) =>  subType != null && ['Chec
 function consoleLog(label: string) : LogFunction {
   return function logWithlabel (message: string = '', additionalInfo?: string | {}, attr?: LogAttributes) : void {
     let fullMessage = _.toUpper(label) + ': ' + message;
-    console.log(appendDelim(fullMessage, newLine(), additionalInfo == null ? additionalInfo : toString(additionalInfo)));
+    console.log(appendDelim(fullMessage, newLine(), additionalInfo == null ? additionalInfo : show(additionalInfo)));
   }
 }
 
@@ -483,7 +483,7 @@ function logFunction(level: LogLevel, callStack: boolean) : LogFunction {
   return function logWithlabel (message?: string, additionalInfo?: string | {}, attrs?: LogAttributes) : void {
     attrs = attrs == null ? defAttributes() : attrs;
     let meta: LogAttributes = _.clone(attrs);
-    meta.additionalInfo = additionalInfo == null ? additionalInfo: toString(additionalInfo) ;
+    meta.additionalInfo = additionalInfo == null ? additionalInfo: show(additionalInfo) ;
     if (callStack) {
       meta.callstack = new Error().stack;
     }

@@ -46,7 +46,7 @@ import {
   isSerialisable
 } from '../lib/SysUtils';
 import { toTempString } from '../lib/FileUtils';
-import {toString, hasText} from '../lib/StringUtils';
+import {show, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage, chkHasText} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
 import { PROCESS_LIST } from '../test/SysUtils.data.test';
@@ -138,8 +138,8 @@ describe('random ', () => {
       .each(kv => {
         let k = kv[0],
             v = kv[1];
-        chkWithMessage(expectedVals.includes(k), `key ${toString(k)}`);
-        chkWithMessage(v.length > 10, `val ${toString(v)}`);
+        chkWithMessage(expectedVals.includes(k), `key ${show(k)}`);
+        chkWithMessage(v.length > 10, `val ${show(v)}`);
       })
       .value();
   }

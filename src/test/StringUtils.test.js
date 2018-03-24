@@ -8,7 +8,7 @@ import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate
   loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv, propsObjectStringFromXml,
   removeSection, replaceAll, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
   stringToGroupedTableLooseTyped, stringToGroupedTableLooseTypedDefinedTabSize, stringToGroupedTableMap, stringToTable,
-  stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, toString,
+  stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, show,
   trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, tryEncodings, formatXml,
   DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
 import {areEqual, debug, deepMapValues, def, flattenObj, forceArray } from '../lib/SysUtils';
@@ -784,27 +784,27 @@ describe('replace', () => {
 
 });
 
-describe('toString', () => {
+describe('show', () => {
 
   it('object', () => {
-    chkEq('hi: 1\n', toString({hi: 1}));
+    chkEq('hi: 1\n', show({hi: 1}));
   });
 
   it('moment', () => {
     let mmt = strToMoment('2017-11-04')
-    chkEq('2017-11-04 00:00:00', toString(mmt));
+    chkEq('2017-11-04 00:00:00', show(mmt));
   });
 
   it('number', () => {
-    chkEq('123', toString(123));
+    chkEq('123', show(123));
   });
 
   it('string', () => {
-    chkEq('hi', toString('hi'));
+    chkEq('hi', show('hi'));
   });
 
   it('array', () => {
-    chkEq('- 1\n- 2\n- 3\n', toString([1, 2, 3]));
+    chkEq('- 1\n- 2\n- 3\n', show([1, 2, 3]));
   });
 
   it('function', () => {
@@ -816,15 +816,15 @@ describe('toString', () => {
     function blahh() {
       return 'Hi';
     }
-    chkEq(expected, toString(blahh));
+    chkEq(expected, show(blahh));
   });
 
   it('null', () => {
-    chkEq('null', toString(null));
+    chkEq('null', show(null));
   });
 
   it('undefined', () => {
-    chkEq('undefined', toString(undefined));
+    chkEq('undefined', show(undefined));
   });
 
 });

@@ -8,7 +8,7 @@ import { stringToFile, tempFile, toTempString, toTemp, fromTemp, projectDir,
          logFile, combine } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging, logWarning } from './Logging';
-import { toString, trimChars } from './StringUtils';
+import { show, trimChars } from './StringUtils';
 
 import {cast, debug, ensure, ensureHasVal, fail, waitRetry, translateErrorObj,
         def,  seekInObj, executeRunTimeFile } from './SysUtils';
@@ -109,7 +109,7 @@ export function startWdioServer(config: {}) {
     log('Launching file: ' + cast(config).specs.join(', '));
     wdio.run().then(function (code) {
       if (code != 0){
-        logError(`WebDriver test launcher returned non zero response code: ${toString(code)}`);
+        logError(`WebDriver test launcher returned non zero response code: ${show(code)}`);
       }
       failed = true;
     }, function (error) {

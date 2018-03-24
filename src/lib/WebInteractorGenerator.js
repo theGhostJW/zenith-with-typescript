@@ -40,7 +40,7 @@ function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, 
 const FRAMEWORK_USES = trimLines(`
   import { startServer, invocationParams, done, setInvocationParams, emitMessage } from '../src/lib/SeleniumIpcServer';
   import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from '../src/lib/SysUtils';
-  import { toString  } from '../src/lib/StringUtils';
+  import { show  } from '../src/lib/StringUtils';
   import { INTERACT_SOCKET_NAME } from '../src/lib/SeleniumIpcProtocol';
   import { log, logError, logException } from '../src/lib/Logging';
   import type { Protocol } from '../src/lib/SeleniumIpcProtocol';
@@ -50,7 +50,7 @@ const ZWTF_USES = trimLines(`
   import {
           startServer, invocationParams, done, setInvocationParams, emitMessage,
           waitRetry, debug, fail, hasValue, translateErrorObj, cast,
-          toString,
+          show,
           INTERACT_SOCKET_NAME,
           log, logError, logException
    } from 'ZWFT';

@@ -3,7 +3,7 @@
 import { def, debug, objToYaml, ensure, yamlToObj,
          seekInObj, forceArray, areEqual, reorderProps } from '../lib/SysUtils';
 import type { MixedSpecifier } from '../lib/SysUtils';
-import { newLine, trimChars, toString, transformGroupedTable, replaceAll, sameText, hasText } from '../lib/StringUtils';
+import { newLine, trimChars, show, transformGroupedTable, replaceAll, sameText, hasText } from '../lib/StringUtils';
 import { durationFormatted } from '../lib/DateTimeUtils';
 import { fileOrFolderName } from '../lib/FileUtils';
 import type { LogEntry } from '../lib/Logging';
@@ -23,16 +23,16 @@ export function filterLogText(summary: FullSummaryInfo): string {
 }
 
 export function script(iteration: Iteration): ?string {
-  return toString(seekInObj(iteration.testConfig, 'script'))
+  return show(seekInObj(iteration.testConfig, 'script'))
 }
 
 
 export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript: ?string): string {
-  let script = toString(seekInObj(iteration.testConfig, 'script')),
+  let script = show(seekInObj(iteration.testConfig, 'script')),
       header = '';
 
   let summaryInfo = seekInObj(fullSummary, 'testSummaries', script),
-      seekSumStr = str => toString(seekInObj(((summaryInfo: any): {}), str)),
+      seekSumStr = str => show(seekInObj(((summaryInfo: any): {}), str)),
       mocked = iteration.mocked;
 
   if (!sameText(script, def(lastScript, ''))){
@@ -61,7 +61,7 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
 
   function titledText(obj: mixed, title: string, nullText: string): string {
     return title + (mocked ? ' MOCKED' : '') + ':' + newLine() +
-            (obj == null ? '  ' + nullText : padLines(toString(obj), '  '));
+            (obj == null ? '  ' + nullText : padLines(show(obj), '  '));
   }
 
   let hasSummary = !sameText('null', iteration.summary),
@@ -114,7 +114,7 @@ function issuesText(issues: IssuesList, valTime: string, valState: any): string 
   }
 
   let realIssues = issues.filter(i => hasIssues(i)).map(removeEmptyArraysAddValTime),
-      result = toString(realIssues),
+      result = show(realIssues),
       lines = result.split(newLine());
 
   let nameEncountered = false,
@@ -240,7 +240,7 @@ export function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects
 
 function toStringPairs(obj): Array<[string, string]> {
 
-  let toStr = (val) => typeof val == 'object' ? replaceAll(toString(val), newLine(), '') : toString(val);
+  let toStr = (val) => typeof val == 'object' ? replaceAll(show(val), newLine(), '') : show(val);
 
   return _.chain(obj)
           .toPairs()
@@ -338,7 +338,7 @@ export function summaryBlock(summary: FullSummaryInfo): string {
       headerLine = `Summary - ${name}`,
       heading = majorHeaderBlock(headerLine, false);
 
-  let seekInSumm = (specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): string => toString(seekInObj(runSummary, specifier, ...otherSpecifiers)),
+  let seekInSumm = (specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): string => show(seekInObj(runSummary, specifier, ...otherSpecifiers)),
   basic = {
     start: startTime,
     end: endTime,

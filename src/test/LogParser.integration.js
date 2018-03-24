@@ -7,7 +7,7 @@ import { testDataFile, logFile, toTemp, fromTestData, fileOrFolderNameNoExt } fr
 import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
 import { mockFileNameUseEnvironment } from '../../testCases/ProjectConfig';
 import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
-import { replaceAll, toString } from '../lib/StringUtils';
+import { replaceAll, show } from '../lib/StringUtils';
 
 describe('file Parsing', () => {
 

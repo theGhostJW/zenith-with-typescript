@@ -1,7 +1,7 @@
 // @flow
 
 import { def, debug, hasValue, areEqual, objToYaml} from '../lib/SysUtils';
-import { appendDelim, createGuidTruncated, newLine, toString, hasText,
+import { appendDelim, createGuidTruncated, newLine, show, hasText,
          replaceAll, standardiseLineEndings, wildCardMatch} from '../lib/StringUtils';
 import { logCheckFailure, logCheckPassed } from '../lib/Logging';
 import { tempFile, stringToLogFile } from '../lib/FileUtils';
@@ -50,13 +50,13 @@ export function checkTextContains(hayStack: string, needle: string, message: ?st
 
 
 function failMessage(expected: any, actual: any, additionalMsgStr: ?string, delim: string){
- 	let msgBase = `Expected: ${delim} ${toString(expected)} ${delim} did not equal Actual: ${delim} ${toString(actual)}`,
+ 	let msgBase = `Expected: ${delim} ${show(expected)} ${delim} did not equal Actual: ${delim} ${show(actual)}`,
 	    failMessage = additionalMsgStr ? additionalMsgStr + '.' + delim +  msgBase : msgBase;
   return failMessage;
 }
 
 function successMessage(expected, infoMessage){
-  let result =  (_.isObject(expected)) ? 'Object Verified: ' + newLine() + toString(expected)
+  let result =  (_.isObject(expected)) ? 'Object Verified: ' + newLine() + show(expected)
                   : expected + ' verified';
   return appendDelim(infoMessage, ' - ' , result);
 }

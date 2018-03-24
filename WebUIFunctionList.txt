@@ -1,0 +1,83 @@
+TDate 					To Do			Done			Completion
+------------------------------------
+24-03-18 			  76				0				   0 %
+
+==== WebUtils ===
+TODO: setInPage - renamed to Set
+TODO: sendWebRequest
+TODO: captureDOM
+TODO: readHyperlinkInfo
+TODO: check_no_dead_links
+TODO: check_no_dead_links
+TODO: setFormR
+TODO: selectIETab
+TODO: activeUrl
+TODO: setForm
+TODO: withSetter
+TODO: browserIndexToName
+TODO: browserNameToIndex
+TODO: setTargetBrowserName
+TODO: targetBrowserName
+TODO: targetBrowserIndex
+TODO: iESaveDownloadReturnPath
+TODO: iE9ClickSave
+TODO: seekByIdStrh
+TODO: seekByIdStr
+TODO: setByIdStr
+TODO: setByIdStrh
+TODO: setByObjectIdentifier
+TODO: setByObjectIdentifierh
+TODO: seekByObjectIdentifierh
+TODO: seekByObjectIdentifier
+TODO: seekByProperty
+TODO: pageBack
+TODO: seekAllInPage
+TODO: extractMailToFromHref
+TODO: BROWSER_NAME_IE
+TODO: BROWSER_NAME_OPERA
+TODO: BROWSER_NAME_SAFARI
+TODO: BROWSER_NAME_FIREFOX
+TODO: BROWSER_NAME_CHROME
+TODO: BROWSER_NAME_DEFAULT
+TODO: activePage
+TODO: seekInPage
+TODO: seekInPageh
+TODO: readInPage
+TODO: readInPageh
+TODO: readByProperty
+TODO: readByPropertyh
+TODO: readByIdStr
+TODO: readByIdStrh
+TODO: readByObjectIdentifier
+TODO: readByObjectIdentifierh
+TODO: clickInPage
+TODO: clickInPageh
+TODO: clickByProperty
+TODO: clickByPropertyh
+TODO: clickByIdStr
+TODO: clickByIdStrh
+TODO: clickByObjectIdentifier
+TODO: clickByObjectIdentifierh
+TODO: setInPageh
+TODO: setByProperty
+TODO: clickLink
+TODO: clickLinkh
+TODO: setByPropertyh
+TODO: waitActivePage
+TODO: closeBrowser
+TODO: closeIEMultTabsWarning
+TODO: defaultBrowser
+TODO: goUrl
+TODO: reopenBrowser
+TODO: findBrokenLinks
+TODO: findMainPageBrokenLinks
+TODO: activeBrowser
+TODO: activeBrowserInfo
+
+==== GridUtils ===
+TODO: readCell
+TODO: cell
+TODO: setGrid
+TODO: eachCell
+TODO: eachCellSimple
+TODO: readGrid

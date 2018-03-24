@@ -12,7 +12,7 @@ import {
   yamlToObj,
   forceArray
 } from '../lib/SysUtils';
-import {newLine, toString, replaceAll} from '../lib/StringUtils';
+import {newLine, show, replaceAll} from '../lib/StringUtils';
 import type { CharacterEncoding } from '../lib/StringUtils';
 import {logWarning, log, logError, timeStampedLogDir} from '../lib/Logging';
 import {parse, join, relative } from 'path';

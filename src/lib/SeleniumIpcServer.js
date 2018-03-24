@@ -5,7 +5,7 @@ import type { Protocol } from './SeleniumIpcProtocol';
 import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 
-import { toString } from './StringUtils';
+import { show } from './StringUtils';
 import {cast, debug, ensure, ensureHasVal, fail, waitRetry, hasValue} from './SysUtils';
 import { generateAndDumpTestFile } from './WebInteractorGenerator';
 

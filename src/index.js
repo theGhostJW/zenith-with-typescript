@@ -154,7 +154,7 @@ export {
   appendDelim,
   replaceAll,
   wildCardMatch,
-  toString,
+  show,
   startsWith,
   endsWith,
   hasText,
