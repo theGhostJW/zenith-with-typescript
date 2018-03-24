@@ -36,16 +36,16 @@ export const filePathFromCallStackLine = (l : string) => subStrBetween(l, ' (', 
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
 // assumes javascript extension .js
-export function getCallerString(filePathOnly: boolean = false): string {
-  let stack = getStackStrings();
-  // remove getCallerString
+export function callerString(filePathOnly: boolean = false): string {
+  let stack = callstackStrings();
+  // remove callerString
   // remove caller
   let result = stack[2];
   return filePathOnly ? filePathFromCallStackLine(result) : result;
 }
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
-export function getStackStrings(): Array<string> {
+export function callstackStrings(): Array<string> {
   // Save original Error.prepareStackTrace - don't know what this is
   let origPrepareStackTrace = Error.prepareStackTrace,
       stack = [];
@@ -526,7 +526,9 @@ export function cast<T>(targ: any): T {
 
 export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
-  console.log(appendDelim(_.toUpper(label), ': ', toString(msgStr)));
+  console.log(appendDelim(_.toUpper(label), ': ', toString(msgStr)) + newLine()  + '=========================' + newLine()  +
+                                                                      callstackStrings().join(', ' + newLine()) + newLine()  +
+                                                                      '=========================') ;
   return msgStr;
 }
 
