@@ -22,6 +22,5 @@ export function setSmartBearLogIn() {
 }
 
 export function linkByTextText() {
-  log(show(linkByText('*orders*')))
   return linkByText('*order*').getText();
 }

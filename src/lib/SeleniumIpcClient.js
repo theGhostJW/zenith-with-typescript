@@ -69,7 +69,7 @@ export function runClient() {
   ipc.config.id = createGuid();
   ipc.config.retry = 500;
   ipc.config.sync = false;
-  ipc.config.silent = false;
+  ipc.config.silent = true;
 
 //  debug (`client launched ${process.pid}`)
 
@@ -83,7 +83,6 @@ export function runClient() {
 
         when('Pong',
                     (data) => {
-                      debug(ipc.of)
                       ponged = true;
                     }
                     );

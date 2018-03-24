@@ -71,7 +71,6 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
 
 
                                             function renewCache(path) {
-                                              log('Renewing Cache: ' + path);
                                               delete require.cache[path];
                                               return require(path)
                                             }
@@ -126,7 +125,6 @@ return   `
       startServer();
       toTempString('${process.pid}', 'Started');
       waitRetry(() => done(), 90000000, () => uiInteraction());
-      toTempString('DONE', 'DONE');
       stopServer();
     });
 

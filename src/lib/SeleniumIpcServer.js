@@ -69,7 +69,7 @@ export function startServer() {
   ipc.config.id = INTERACT_SOCKET_NAME;
   ipc.config.retry = 50;
   ipc.config.sync = false;
-  ipc.config.silent = false;
+  ipc.config.silent = true;
 
   function when(msg: Protocol, action: (data: any, socket: any) => void) {
     ipc.server.on(msg, action);

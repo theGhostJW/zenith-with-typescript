@@ -21,7 +21,7 @@ describe('set', () => {
 
 describe('links', () => {
 
-  it('getAll', () => {
+  it.only('getAll', () => {
     chk(cast(rerun(setSmartBearLogIn, links)).length > 4);
   });
 
@@ -30,7 +30,7 @@ describe('links', () => {
 
 describe('linkByText', () => {
 
-  it.only('simple exists', () => {
+  it('simple exists', () => {
     chkEq('View all orders', rerun(setSmartBearLogIn, linkByTextText));
   });
 

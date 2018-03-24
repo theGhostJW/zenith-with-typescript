@@ -92,7 +92,7 @@ function saveSignature(sig) {
 }
 
 function signatureChanged(sig) {
-  return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName), sig) : true;
+  return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName, false), sig) : true;
 }
 
 export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any, ...params: Array<any>): mixed {
@@ -107,14 +107,10 @@ export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func
 
     let connected = isConnected(),
         sig = signature(beforeFuncOrUrl, func),
-        sigChangedConnected = connected && debug(signatureChanged(sig), 'sig-changed');
-
-    debug(connected, 'connected');
-    debug(sigChangedConnected, 'sigChangedConnected');
+        sigChangedConnected = connected && signatureChanged(sig);
 
     // close off session if signatureChanged
     if (sigChangedConnected) {
-      debug('Closing down');
       stopSession();
     }
 
@@ -168,7 +164,6 @@ function launchSession(before: (() => void) | null | string, func: (...any) => a
        sourcePath
      } = extractNamesAndSource(before, caller, func);
      launchWdioServerDetached(sourcePath, beforeFuncInfo, funcName, true);
-     ;
      ensure(waitConnected(30000), 'Timed out waiting on interactor');
      return interact(...params);
    }
