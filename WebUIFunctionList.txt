@@ -3,7 +3,8 @@ TDate 					To Do			Done			Completion
 24-03-18 			  76				0				   0 %
 
 ==== WebUtils ===
-TODO: setInPage - renamed to Set
+TODO: clickLink
+TODO: setInPage - renamed to set
 TODO: sendWebRequest
 TODO: captureDOM
 TODO: readHyperlinkInfo
@@ -60,7 +61,6 @@ TODO: clickByObjectIdentifier
 TODO: clickByObjectIdentifierh
 TODO: setInPageh
 TODO: setByProperty
-TODO: clickLink
 TODO: clickLinkh
 TODO: setByPropertyh
 TODO: waitActivePage

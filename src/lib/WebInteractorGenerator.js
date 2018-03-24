@@ -18,15 +18,16 @@ export function generateAndDumpTestFile(beforeInfo: BeforeRunInfo | null, functi
 function fileContent(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean): string {
   let fw = isFrameworkProject(),
       destParentDir = parentDir(destPath),
-      importFilePath = dynamicModuleLoad ? replaceAll(sourcePath, '\\', '\\\\') : replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
+      importFilePath = replaceAll(sourcePath, '\\', '\\\\'),
+      relativeImportFile = replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
 
-  return targetRequires(beforeInfo, functionName, sourcePath, destPath, dynamicModuleLoad) + newLine() +
+  return targetRequires(beforeInfo, functionName, sourcePath, relativeImportFile, dynamicModuleLoad) + newLine() +
           (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +
           NPM_USES + newLine() +
           sourceCode(beforeInfo, functionName, importFilePath, dynamicModuleLoad);
 }
 
-function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, targetPath: string, dynamicModuleLoad: boolean) : string {
+function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, relativeImportFile: string, dynamicModuleLoad: boolean) : string {
   let result = `// @flow \n\n`,
       beforeFuncName = beforeInfo == null ? null :
                                       beforeInfo.isUrl ? null : beforeInfo.name,
@@ -34,7 +35,7 @@ function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, 
       hasFuncs = funcs.length > 0 ,
       importFuncs = hasFuncs ? funcs.join(', ') : '';
 
-    return hasFuncs ? result + `import { ${importFuncs} } from '${targetPath}';` : result;
+    return hasFuncs ? result + `import { ${importFuncs} } from '${relativeImportFile}';` : result;
 }
 
 const FRAMEWORK_USES = trimLines(`
@@ -76,7 +77,7 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
                                         : `let response = ${functionName}(...cast(params));`,
       initCall = beforeInfo == null ? '' :
                   beforeInfo.isUrl ? `browser.url('${beforeInfo.name}');`
-                                   : `${beforeInfo.name}());`
+                                   : `${beforeInfo.name}();`
 
 
 

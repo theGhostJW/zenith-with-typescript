@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { debug, fail, waitRetry } from '../src/lib/SysUtils';
 import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
-import { toString } from '../src/lib/StringUtils';
+import { show } from '../src/lib/StringUtils';
 import child_process from 'child_process'
 import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
 import { register } from '../testCases/ProjectConfig';

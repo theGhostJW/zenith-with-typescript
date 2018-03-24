@@ -8,12 +8,12 @@ import { runTestItem, defaultTestRunner, testRun, loadAll, itemFilter} from '../
 import { forceArray, cast, debug, areEqual, def } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from '../testCases/TestFilters';
-import { toString } from '../src/lib/StringUtils';
+import { show } from '../src/lib/StringUtils';
 import { fileOrFolderNameNoExt } from '../src/lib/FileUtils';
 import * as _ from 'lodash';
 
 export const mockFileNameUseEnvironment: MockFileNameFunction<RunConfig> =
-                  (itemId, testName, runConfig) => fileOrFolderNameNoExt(testName) + '_' + toString(itemId) + '_' + toString(runConfig.environment) + '.yaml';
+                  (itemId, testName, runConfig) => fileOrFolderNameNoExt(testName) + '_' + show(itemId) + '_' + show(runConfig.environment) + '.yaml';
 
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {

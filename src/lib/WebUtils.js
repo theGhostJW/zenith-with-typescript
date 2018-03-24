@@ -23,6 +23,12 @@ export const S = s => $(s);
 //$FlowFixMe
 export const SS = s => $$(s);
 
+export function links() {
+  return SS('[href]')
+}
+
+
+
 export function click(elementSelector: string) {
   browser.click(elementSelector);
 }
