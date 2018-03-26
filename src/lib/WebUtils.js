@@ -19,39 +19,76 @@ import {
 } from './FileUtils';
 
 import { hasText, newLine, show, subStrAfter, subStrBetween, trimChars,
-         trimLines, wildCardMatch } from './StringUtils';
+         trimLines, wildCardMatch, sameText } from './StringUtils';
 import {
         areEqual, callstackStrings, cast, debug, def, delay, ensure,
          ensureHasVal, ensureReturn, fail,
         filePathFromCallStackLine, functionNameFromFunction, isSerialisable,
         waitRetry, TEST_SUFFIXES
       } from './SysUtils';
-import { interact, isConnected,
-          launchWdioServerDetached,  launchWebInteractor, runClient,
-          sendClientDone, stopSession, waitConnected, disconnectClient } from './WebLauncher';
+import { disconnectClient, interact,
+          isConnected,  launchWdioServerDetached, launchWebInteractor,
+          runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
 import * as _ from 'lodash';
 
 
-
 //$FlowFixMe
-export const S = s => $(s);
+export const S : string => Element = s => $(s);
 
 //$FlowFixMe
 export const SS = s => $$(s);
 
 export type Element = {
   getText: () => string,
-  click: () => void
+  getAttribute: string => string | null,
+  isSelected: () => boolean,
+  click: () => void,
+  setValue: (string | number | Array<string|number>) =>  void
 }
 
-export const clickLink = (displayText: string) => linkByText(displayText).click();
+export function setChecked(elementSelector: string, checkedVal: boolean) {
+  let el = S(elementSelector),
+      type = def(el.getAttribute('type'), ''),
+      isRadio = sameText(type, 'radio'),
+      isCheckBox = sameText(type, 'checkbox');
 
-export function linkByText(displayText: string): Element {
-  let result = links().find(l => wildCardMatch(l.getText(), displayText))
+  ensure(isRadio || isCheckBox,
+                      'setChecked can only be called on radio buttons or checkboxes');
+
+  let checked = el.isSelected();
+
+  ensure(isCheckBox || checkedVal,
+            'Cannot uncheck radio buttons with setChecked - check a different radio button to true instead');
+
+  if (checkedVal !== checked){
+    el.click();
+  }
+
+}
+
+/*
+
+
+client.addCommand('checkBox', function(selector, state, callback) {
+      this.isSelected(selector, function(err, isSelected) {
+          if(isSelected !== state) {
+              client.click(selector);
+          }
+      });
+      callback();
+  });
+ */
+
+export const clickLink = (displayTextOrFunc: string | string => boolean) => linkByText(displayTextOrFunc).click();
+
+export function linkByText(displayTextOrFunc: string | string => boolean): Element {
+  let pred : string => boolean = typeof displayTextOrFunc == 'string' ? elText => wildCardMatch(elText, cast(displayTextOrFunc)) : displayTextOrFunc,
+      result = links().find(l => pred(l.getText()));
+
   if (result == null){
     fail(
           'linkByText Failed',
-          'could not find a link with display text matching: ' + displayText
+          'could not find a link with display text matching: ' + show(displayTextOrFunc)
         );
     // just to keep flow hapy will never return
     return cast({});
@@ -210,7 +247,7 @@ export function findMatchingSourceFile(callerPath: string): string {
   let callerFileName = fileOrFolderName(callerPath);
   let suffix = TEST_SUFFIXES.find(s => hasText(callerFileName, s, true));
 
-  suffix = ensureHasVal(suffix, trimLines(`webUtilsTestLoad - calling file is not a standard test file.
+  suffix = ensureHasVal(suffix, trimLines(`webUtilsTestLoad - calling file: ${callerPath} is not a standard test file.
   This function can only be called from a standard test file that includes one of the following in the file name: ${TEST_SUFFIXES.join(', ')}`));
 
   let sourceFileName = callerFileName.replace(suffix, '.');

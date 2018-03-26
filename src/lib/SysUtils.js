@@ -1,18 +1,20 @@
 // @flow
 
 import * as _ from 'lodash';
-import * as deep from 'lodash-deep';
-import {show, startsWith, endsWith, appendDelim, wildCardMatch, hasText,
-      subStrBetween, stringToArray, replaceAll, newLine, lwrFirst} from '../lib/StringUtils';
-import * as os from 'os';
-import * as yaml from 'js-yaml';
-import moment from 'moment';
-import child_process from 'child_process';
 import { now } from '../lib/DateTimeUtils';
+import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE } from './FileUtils';
 import { log, logException } from '../lib/Logging';
-import { runTimeFile, pathExists, projectSubDir, TEMPLATE_BASE_FILE } from '../lib/FileUtils';
-import { parseString } from 'xml2js'
+import {appendDelim, endsWith, hasText, lwrFirst, newLine, replaceAll,
+      show, startsWith, stringToArray, subStrBetween, wildCardMatch, subStrBefore} from './StringUtils';
+
+import child_process from 'child_process';
 import deasync from 'deasync'
+import * as yaml from 'js-yaml';
+import * as deep from 'lodash-deep';
+import moment from 'moment';
+import * as os from 'os';
+import { parseString } from 'xml2js';
+
 
 export const TEST_SUFFIXES = ['.endpoints.', '.integration.', '.test.'];
 
@@ -32,7 +34,7 @@ export function isSerialisable(obj: mixed): boolean {
           ])(obj)
 }
 
-export const filePathFromCallStackLine = (l : string) => subStrBetween(l, ' (', '.js:', true) + '.js';
+export const filePathFromCallStackLine = (l : string) =>  (hasText(l, ' (', true) ? subStrBetween(l, ' (', '.js:', true) : subStrBefore(l, '.js')) + '.js';
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
 // assumes javascript extension .js
@@ -711,7 +713,7 @@ function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, searchType: Se
   } else {
     return null;
   }
-};
+}
 
 export function isPOJSO(val: mixed): boolean {
   return _.isObject(val) &&  !_.isArray(val);
@@ -919,7 +921,7 @@ function seekInObjBase(target :? {}, searchType: SearchDirective, specifier: Mix
       };
 
     return widthSearch(seedResult);
-};
+}
 
 export function isNullEmptyOrUndefined(arg : mixed): boolean {
   return !(arg != null) || arg === '';
@@ -957,10 +959,10 @@ export function hasValue(arg : mixed): boolean {
         : true;
 }
 
-  // flow issues with lodash
-  export function all < a > (predicate : (a) => boolean, arr : Array < a >): boolean {
-    return arr.reduce((accum, item) => accum && predicate(item), true);
-  }
+// flow issues with lodash
+export function all < a > (predicate : (a) => boolean, arr : Array < a >): boolean {
+  return arr.reduce((accum, item) => accum && predicate(item), true);
+}
 
 export function stringConvertableToNumber(val: ?string): boolean {
 

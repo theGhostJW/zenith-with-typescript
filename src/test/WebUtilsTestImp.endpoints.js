@@ -1,28 +1,33 @@
 // @flow
 
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import { debug, waitRetry, cast } from '../lib/SysUtils';
-import { toTemp, toTempString } from '../lib/FileUtils';
-import { show } from '../lib/StringUtils';
-import * as _ from 'lodash';
-import { TEST_LOG_IN, setSmartBearLogIn, links, linkByTextText,
-          clickLink } from '../lib/WebUtilsTestImp';
+
+import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
+import { cast, debug, waitRetry } from '../lib/SysUtils';
 import { rerun } from '../lib/WebUtils';
 
-
+import { checkUncheck,
+          clickLink,
+          linkByTextText,
+          links,
+          smartBearLogIn,
+          smartbearOrders,
+          clickOrderLink,
+          TEST_LOG_IN,
+          invalidUncheckCheckBox
+        } from '../lib/WebUtilsTestImp';
 
 describe('set', () => {
 
   it('simple set', () => {
-    rerun(TEST_LOG_IN, setSmartBearLogIn);
+    rerun(TEST_LOG_IN, smartBearLogIn);
   });
 
 });
 
 describe('links', () => {
 
-  it.only('getAll', () => {
-    chk(cast(rerun(setSmartBearLogIn, links)).length > 4);
+  it('getAll', () => {
+    chk(cast(rerun(smartBearLogIn, links)).length > 4);
   });
 
 });
@@ -31,7 +36,7 @@ describe('links', () => {
 describe('linkByText', () => {
 
   it('simple exists', () => {
-    chkEq('View all orders', rerun(setSmartBearLogIn, linkByTextText));
+    chkEq('View all orders', rerun(smartBearLogIn, linkByTextText));
   });
 
 });
@@ -39,7 +44,28 @@ describe('linkByText', () => {
 describe('clickLink', () => {
 
   it('simple link', () => {
-    rerun(setSmartBearLogIn, clickLink, '*products*');
+    rerun(smartBearLogIn, clickLink, '*products*');
+  });
+
+  it('HOF', () => {
+    rerun(smartBearLogIn, clickOrderLink);
+  });
+
+});
+
+describe('setChecked', () => {
+
+  it.only('setChecked - radio buttons', () => {
+    rerun(smartbearOrders, checkUncheck);
+  });
+
+  it('setUnchecked Invalid Radio Button', () => {
+
+    chkExceptionText(
+       () => rerun(smartbearOrders, invalidUncheckCheckBox),
+      'Cannot uncheck radio buttons with setChecked'
+    )
+
   });
 
 });
