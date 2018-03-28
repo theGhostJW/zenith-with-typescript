@@ -179,18 +179,18 @@ describe('todayPlus', () => {
 
 });
 
-describe('', () => {
-
-  it('', () => {
-
-  });
-
-});
-
 describe('datePlus', () => {
 
-  it('equal expected miliseconds from today', () => {
-    chkEq(5 * 1 * 1000 * 60 * 60 * 24,   todayPlus(5).toDate() - jsToday());
+  it.only('equal expected miliseconds from today', () => {
+    let month = today().month() + 1,
+        dateDiff = todayPlus(5).toDate() - jsToday(),
+        fiveDays = 5 * 1000 * 60 * 60 * 24,
+        oneHour =  1000 * 60 * 60,
+        withinTolerance: boolean = (fiveDays === dateDiff) ||
+            ((month === 3 || month === 4 ) && fiveDays + oneHour === dateDiff) || // daylight savings end
+            ((month === 9 || month === 10 ) && fiveDays - oneHour === dateDiff); // daylight savings start
+
+    chk(withinTolerance);
   });
 
 });

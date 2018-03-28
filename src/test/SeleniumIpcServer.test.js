@@ -6,7 +6,7 @@ import { isReloadableFile } from '../lib/SeleniumIpcServer';
 import { debug } from '../lib/SysUtils';
 import * as _ from 'lodash';
 
-describe.only('isReploadableFile', () => {
+describe('isReploadableFile', () => {
 
   it('isReploadableFile - SeleniumIpcServer', () => {
     chkFalse(isReloadableFile('C:\\ZWTF\\src\\lib\\SeleniumIpcServer.js'));
