@@ -303,14 +303,28 @@ export const latestRawPath = () => logFileBaseDuplicate('latest.raw.yaml');
 export const timeStampedRawPath = () => rawTimeStampLogFilePath;
 export const timeStampedLogDir = () => rawTimeStampLogDir;
 
+function nowLogFormatted() {
+  let d = new Date(),
+      pad = i => i < 10 ? '0' + i.toString() : i.toString();
+  return [ d.getFullYear(),
+            d.getMonth() + 1,
+            d.getDate(),
+            d.getHours(),
+            d.getMinutes(),
+            d.getSeconds(),
+            d.getMilliseconds()
+          ].map(pad).join('-');
+}
+
 function newWinstton() {
   if (logger) {
     logger.close();
   }
 
-  let rightNow = nowFileFormatted(),
+  let rightNow = nowLogFormatted(), // have to use local method as not all modules loaded
       subDir = combineDuplicate(logFileBaseDuplicate(), rightNow);
   rawTimeStampLogFilePath = combineDuplicate(subDir, `log ${rightNow}.raw.yaml`);
+
   forceDirectoryDuplicate(subDir);
 
   let isWebDriverProcess = hasText(process.mainModule.filename, 'webdriverio');
