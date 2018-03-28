@@ -2,7 +2,7 @@
 
 
 import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
-import { cast, debug, waitRetry } from '../lib/SysUtils';
+import { cast, debug, waitRetry, fail } from '../lib/SysUtils';
 import { rerun } from '../lib/WebUtils';
 
 import { checkUncheck,
@@ -55,16 +55,22 @@ describe('clickLink', () => {
 
 describe('setChecked', () => {
 
-  it.only('setChecked - radio buttons', () => {
+  it('setChecked - radio buttons', () => {
     rerun(smartbearOrders, checkUncheck);
   });
 
-  it('setUnchecked Invalid Radio Button', () => {
+  it.only('setUnchecked Invalid Radio Button', () => {
+      fail('BAng');
+  //  try {
+  //    rerun(smartbearOrders, invalidUncheckCheckBox)
+  //  } catch (e) {
+  //    debug(e, 'exception handled')
+  //  }
 
-    chkExceptionText(
-       () => rerun(smartbearOrders, invalidUncheckCheckBox),
-      'Cannot uncheck radio buttons with setChecked'
-    )
+    // chkExceptionText(
+    //    () => rerun(smartbearOrders, invalidUncheckCheckBox),
+    //   'Cannot uncheck radio buttons with setChecked'
+    // )
 
   });
 
