@@ -156,9 +156,7 @@ export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func
     result = !connected || sigChangedConnected ?
                                  launchSession(beforeFuncOrUrl, func, ...params) :
                                  rerunLoaded(...params);
-
-  } catch (e) {
-
+                                 
   } finally {
     disconnectClient();
   }

@@ -60,17 +60,11 @@ describe('setChecked', () => {
   });
 
   it.only('setUnchecked Invalid Radio Button', () => {
-      fail('BAng');
-  //  try {
-  //    rerun(smartbearOrders, invalidUncheckCheckBox)
-  //  } catch (e) {
-  //    debug(e, 'exception handled')
-  //  }
-
-    // chkExceptionText(
-    //    () => rerun(smartbearOrders, invalidUncheckCheckBox),
-    //   'Cannot uncheck radio buttons with setChecked'
-    // )
+    
+    chkExceptionText(
+       () => rerun(smartbearOrders, invalidUncheckCheckBox),
+      'Cannot uncheck radio buttons with setChecked'
+    )
 
   });
 

@@ -53,7 +53,7 @@ export function interact(...params?: Array<mixed>) {
     sendInvocationParams(...params);
     log('Waiting interaction response');
     let complete = waitRetry(() => invocationResponse() != null, 600000);
-    return complete ? invocationResponse() : new Error('Interactor Timeout Error');
+    return complete ? invocationResponse() : fail('Interactor Timeout Error');
   } catch (e) {
     fail(e);
   }
