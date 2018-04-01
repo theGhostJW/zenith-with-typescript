@@ -13,8 +13,37 @@ import { checkUncheck,
           smartbearOrders,
           clickOrderLink,
           TEST_LOG_IN,
-          invalidUncheckCheckBox
+          CARD_LIST_ID,
+          invalidUncheckCheckBox,
+          checkReturnChecked,
+          readSetRadioGroup,
+          radioItemVals,
+          setRadioGroup
         } from '../lib/WebUtilsTestImp';
+
+
+describe('radioGroup', () => {
+
+  const AVAILABLE_CARDS = ['Visa', 'MasterCard', 'American Express'];
+  it('radioItemVals', () => {
+      let groupReads = cast(rerun(smartbearOrders, radioItemVals, CARD_LIST_ID));
+      chkEq(AVAILABLE_CARDS, groupReads);
+  });
+
+  it('setRadioGroup / readRadioGroup', () => {
+      let groupReads = cast(rerun(smartbearOrders, readSetRadioGroup));
+      chkEq(AVAILABLE_CARDS, groupReads);
+  });
+
+  it.only('setRadioGroup - mising value exception ', () => {
+    chkExceptionText(
+       () => rerun(smartbearOrders, setRadioGroup, CARD_LIST_ID, 'BitCoin'),
+      'Could not find matching radio*button for value or label: BitCoin'
+    )
+  });
+
+
+});
 
 describe('set', () => {
 
@@ -55,17 +84,20 @@ describe('clickLink', () => {
 
 describe('setChecked', () => {
 
+  it('check uncheck radio', () => {
+      let checkedUnchecked = cast(rerun(smartBearLogIn, checkReturnChecked));
+      chkEq([true, false], checkedUnchecked);
+  });
+
   it('setChecked - radio buttons', () => {
     rerun(smartbearOrders, checkUncheck);
   });
 
-  it.only('setUnchecked Invalid Radio Button', () => {
-    
+  it('setUnchecked Invalid Radio Button', () => {
     chkExceptionText(
        () => rerun(smartbearOrders, invalidUncheckCheckBox),
       'Cannot uncheck radio buttons with setChecked'
     )
-
   });
 
 });

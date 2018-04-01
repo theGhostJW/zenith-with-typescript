@@ -18,6 +18,8 @@ import {
   PATH_SEPARATOR,
 } from './FileUtils';
 
+import { log } from './Logging';
+
 import { hasText, newLine, show, subStrAfter, subStrBetween, trimChars,
          trimLines, wildCardMatch, sameText } from './StringUtils';
 import {
@@ -33,21 +35,151 @@ import * as _ from 'lodash';
 
 
 //$FlowFixMe
-export const S : string => Element = s => $(s);
+export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
 
 //$FlowFixMe
-export const SS = s => $$(s);
+export const SS: string => Array<Element>  = s => $$(s);
 
 export type Element = {
+  hcode: number,
+  sessionId: any,
   getText: () => string,
   getAttribute: string => string | null,
   isSelected: () => boolean,
   click: () => void,
-  setValue: (string | number | Array<string|number>) =>  void
+  setValue: (string | number | Array<string|number>) =>  void,
+  $$: string => Array<Element>,
+  $: string => Element
 }
 
-export function setChecked(elementSelector: string, checkedVal: boolean) {
-  let el = S(elementSelector),
+const nameAttribute: Element => string | null = e => e.getAttribute('name');
+
+function radioElements(containerElementOrSelector: SelectorOrElement, groupName: string | null = null, wantUniqueNameCheck: boolean = true): Array<Element> {
+  let el = S(containerElementOrSelector),
+      radioElements = el.$$('input[type=radio]'),
+      groupNameSpecified = groupName != null;
+
+  if (groupNameSpecified){
+    radioElements = radioElements.filter(e => areEqual(nameAttribute(e), groupName))
+  }
+  else if (wantUniqueNameCheck) {
+    let radioNames = _.uniq(radioElements.map(e => e.getAttribute('name')));
+    ensure(radioNames.length === 1, `The selected container ${show(containerElementOrSelector)} must contain one and only one radio group. Groups found: ${show(radioNames)}`);
+  }
+
+  return radioElements;
+}
+
+function radioLabels(containerElementOrSelector: SelectorOrElement, candidateRadioElements: Array<Element>) {
+
+  function addId(accum: {}, element: Element): {} {
+    let id = element.getAttribute('id');
+    if (id != null){
+      accum[id] = true;
+    }
+    return accum;
+  }
+
+  let el = S(containerElementOrSelector),
+      labels = el.$$("[for]"),
+      radioIds = candidateRadioElements.reduce(addId, {});
+
+ function idExists(lbl) {
+   let forAttr = lbl.getAttribute('for');
+   return forAttr != null && radioIds[forAttr];
+ }
+
+  return labels.filter(idExists);
+}
+
+export function setRadioGroup(containerElementOrSelector: SelectorOrElement, valueOrLabel: string, groupName: string | null = null) {
+  let els = radioElements(containerElementOrSelector, groupName),
+      target = els.find(e => areEqual(e.getAttribute('value'), valueOrLabel));
+
+  if (target == null){
+    let labels = radioLabels(containerElementOrSelector, els),
+        targetLabel = labels.find(l => areEqual(valueOrLabel, l.getText()));
+
+    ensureHasVal(targetLabel, `Could not find matching radio button for value or label: ${valueOrLabel}`);
+
+    target = els.find(e => areEqual(e.getAttribute('id'), targetLabel));
+  }
+
+  setChecked(ensureHasVal(target, `Could not find matching radio button for value or label: ${valueOrLabel}`), true);
+}
+
+export function readRadioGroup(containerElementOrSelector: SelectorOrElement, groupName: string | null = null) {
+  let els = radioElements(containerElementOrSelector),
+      active = els.find(e => e.isSelected()),
+      result = active == null ? null : active.getAttribute('value');
+
+  return result == null ? null : result;
+}
+
+export function isRadioGroup(containerElementOrSelector: SelectorOrElement): boolean {
+  return radioElements(containerElementOrSelector, null, false).length > 0;
+}
+
+
+export function radioItemVals(containerElementOrSelector: SelectorOrElement, groupName: string | null = null) : Array<string> {
+  // type checker wants to handle nulls as well which are not realistic
+  return cast(radioElements(containerElementOrSelector, groupName).map(e => e.getAttribute('value')));
+}
+
+
+export function isElement(candidate: mixed): boolean {
+  return candidate != null &&
+        _.isObject(candidate) &&
+        !_.isArray(candidate) && (
+          !_.isUndefined(cast(candidate).ELEMENT) ||
+          !_.isUndefined(cast(candidate).hCode)
+        )
+}
+
+export type SelectorOrElement = string | Element;
+
+
+// need date later
+export function read(elementOrSelector: SelectorOrElement): boolean | string | null {
+  let el = S(elementOrSelector);
+  return isCheckable(el) ?
+            el.isSelected() :
+         isRadioGroup(el) ?
+            readRadioGroup(el) :
+         fail('read - unhandled element type', el);
+}
+
+export function isRadio(elementOrSelector: SelectorOrElement) {
+  let el = S(elementOrSelector);
+  return isRadioType(elementType(el));
+}
+
+export function isCheckBox(elementOrSelector: SelectorOrElement) {
+  let el = S(elementOrSelector);
+  return isCheckBoxType(elementType(el));
+}
+
+function isRadioType(type: string): boolean {
+    return sameText(type, 'radio');
+}
+
+function isCheckBoxType(type: string): boolean {
+   return sameText(type, 'checkbox');
+}
+
+function elementType(el: Element) {
+  return def(el.getAttribute('type'), '');
+}
+
+export function isCheckable(elementOrSelector: SelectorOrElement) {
+  let el = S(elementOrSelector),
+      type = elementType(el);
+
+  return isRadioType(type) || isCheckBoxType(type);
+}
+
+export function setChecked(elementOrSelector: SelectorOrElement, checkedVal: boolean) {
+  let el = S(elementOrSelector),
       type = def(el.getAttribute('type'), ''),
       isRadio = sameText(type, 'radio'),
       isCheckBox = sameText(type, 'checkbox');
@@ -65,19 +197,6 @@ export function setChecked(elementSelector: string, checkedVal: boolean) {
   }
 
 }
-
-/*
-
-
-client.addCommand('checkBox', function(selector, state, callback) {
-      this.isSelected(selector, function(err, isSelected) {
-          if(isSelected !== state) {
-              client.click(selector);
-          }
-      });
-      callback();
-  });
- */
 
 export const clickLink = (displayTextOrFunc: string | string => boolean) => linkByText(displayTextOrFunc).click();
 
@@ -114,6 +233,9 @@ export function set(elementSelector: string, value: string | number | Array<stri
   S(elementSelector).setValue(value);
 }
 
+/***********************************************************************************************
+******************************************** LOADING *******************************************
+************************************************************************************************/
 
 function signature(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any) {
   return {
@@ -156,7 +278,7 @@ export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func
     result = !connected || sigChangedConnected ?
                                  launchSession(beforeFuncOrUrl, func, ...params) :
                                  rerunLoaded(...params);
-                                 
+
   } finally {
     disconnectClient();
   }

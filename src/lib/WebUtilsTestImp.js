@@ -8,15 +8,45 @@ import * as _ from 'lodash';
 import {
           browserEx, zzzTestFunc, rerun,
           set, click, links, url,
-          linkByText,  clickLink, setChecked
+          linkByText,  clickLink, setChecked, S, SS,
+          read, setRadioGroup
         } from '../lib/WebUtils';
 export {
   links,
   url,
-  clickLink
+  clickLink,
+  radioItemVals,
+  setRadioGroup
 } from '../lib/WebUtils';
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
+export const CARD_LIST_ID = '#ctl00_MainContent_fmwOrder_cardList';
+
+export function readSetRadioGroup() {
+  setRadioGroup(CARD_LIST_ID, 'Visa');
+  let r0 = read(CARD_LIST_ID);
+
+  setRadioGroup(CARD_LIST_ID, 'MasterCard');
+  let r1 = read(CARD_LIST_ID);
+
+  setRadioGroup(CARD_LIST_ID, 'American Express');
+  let r2 = read(CARD_LIST_ID);
+
+  return [r0, r1, r2]
+}
+
+export function checkReturnChecked() {
+  let selector = '#ctl00_MainContent_orderGrid_ctl02_OrderSelector';
+
+  setChecked(selector, true);
+  let r0 = read(selector);
+
+  setChecked(selector, false);
+  let r1 = read(selector);
+
+  return [r0, r1];
+}
+
 
 export function clickOrderLink() {
   clickLink(s => s === 'Order')
