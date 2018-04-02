@@ -18,7 +18,7 @@ import {
   PATH_SEPARATOR,
 } from './FileUtils';
 
-import { log } from './Logging';
+import { log, logError } from './Logging';
 
 import { hasText, newLine, show, subStrAfter, subStrBetween, trimChars,
          trimLines, wildCardMatch, sameText } from './StringUtils';
@@ -33,13 +33,7 @@ import { disconnectClient, interact,
           runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
 import * as _ from 'lodash';
 
-
-//$FlowFixMe
-export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
-
-//$FlowFixMe
-export const SS: string => Array<Element>  = s => $$(s);
-
+export type SelectorOrElement = string | Element;
 export type Element = {
   hcode: number,
   sessionId: any,
@@ -56,7 +50,107 @@ export type Element = {
   $: string => Element
 }
 
+//$FlowFixMe
+export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
+
+//$FlowFixMe
+export const SS: string => Array<Element> = s => $$(s);
+
+export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelector: string): Array<Element> {
+    let el = S(parentSelectorOrElement);
+    return el.$$(manySelector);
+}
+
+
+
+export function setForm(
+                          parentElementorSelector: SelectorOrElement,
+                          valMap: {[string]: string | number | boolean},
+                          defaultSetter?: (Element, string | number | boolean) => void,
+                          defaultFinder?: (string, Array<Element>, Array<Element>) => Element
+                        ): void {
+
+  function addId(accum, element) {
+     let id = idAttribute(element);
+     if (id != null){
+       accum[id] = element;
+     }
+  }
+
+  let elements = SSNested(parentElementorSelector, '*'),
+      edits = elements.filter(canEdit),
+      finder = defaultFinder == null ? findByIdRadioFromLabelCloseLabel : defaultFinder,
+      idedEdits = defaultFinder == null ?  _.transform(edits, addId, {}) : {},
+      radios = null;
+
+  function findByIdRadioFromLabelCloseLabel(key: string, allElements: Array<Element>, edits: Array<Element>): Element {
+    let result = idedEdits[key];
+
+    if (result == null){
+      result = findRadioGroup(key, elements, edits);
+    }
+
+    // findRadioGroup - check for id
+    // for labels
+    // proximal labels
+    // wild card ??
+    // adapt as reader to finish off test (actual)
+    return ensureHasVal(result, `Could not find element matching: ${key}`);
+  }
+
+  function setElement(val: string | number | boolean, key: string) {
+    let target: Element = finder(key, elements, edits);
+    ensureHasVal(target, `setForm ~ could not find matching input element for: ${key}`);
+    set(target, val);
+  }
+
+  _.each(valMap, setElement);
+}
+
+function findRadioGroup(searchTerm: string, allElements: Array<Element>, edits: Array<Element>) : Element | null {
+  // string could be group name
+  let namedRadios = edits.filter(e => nameAttribute(e) === searchTerm),
+      parentForm = (namedRadios.length > 0) ? commonParent(namedRadios) : fail('not implemented')
+
+
+  return parentForm == null ? null : parentForm;
+}
+
+
+function commonParent(radios: Array<Element>) : Element | null {
+  let radiosLength = radios.length;
+  if (radiosLength === 0) {
+    return null;
+  }
+
+  let fst = radios[0],
+      name = nameAttribute(fst);
+
+  function parentOfAll(chld) {
+    let prnt = parent(chld);
+    if(prnt != null){
+      let theseRadios = radioElements(prnt, name);
+      return theseRadios.length === radiosLength ? prnt : parentOfAll(prnt);
+    }
+    else {
+      return null;
+    }
+  }
+
+  return parentOfAll(fst);
+}
+
+function canEdit(element: Element) {
+  let tag = element.getTagName();
+  return tag === 'input' ||
+         tag === 'select';
+}
+
+// may be required with strange inputs
+export const BACKSPACE = '\uE003'
+
 const nameAttribute: Element => string | null = e => e.getAttribute('name');
+const idAttribute: Element => string | null = e => e.getAttribute('id');
 
 export function setSelect(elementOrSelector: SelectorOrElement, visText: string): void {
   let el = S(elementOrSelector),
@@ -167,37 +261,93 @@ export function isElement(candidate: mixed): boolean {
         )
 }
 
-export type SelectorOrElement = string | Element;
-
-function isSelect(elementOrSelector: SelectorOrElement) : boolean {
-  let el = S(elementOrSelector);
-  return areEqual('select', el.getTagName());
+function elementIs(tagName: string) {
+  return function functionNelementMatches(elementOrSelector: SelectorOrElement) {
+    let el = S(elementOrSelector);
+    return areEqual(tagName, el.getTagName());
+  }
 }
+
 
 function readSelect(elementOrSelector: SelectorOrElement) : string {
   let el = S(elementOrSelector);
   return el.getValue();
 }
 
-function setInput() {
-
+export function setInput(elementOrSelector: SelectorOrElement, value: string | number) {
+  let el = S(elementOrSelector);
+  el.setValue(value);
 }
 
 /*
-WebElement parent = we.findElement(By.xpath(".."));
+WebElement parent = we.findElement(By.xpath(""));
 
  */
 
+export function parent(elementOrSelector: SelectorOrElement): Element | null {
+
+  let el = S(elementOrSelector),
+      result = null;
+
+  try {
+    result = el.$('..');
+  } catch (e) {
+     let eTxt = e.toString(),
+         known = hasText(eTxt, 'attached to the DOM', true) ||
+                  hasText(eTxt, 'element could not be located', true);
+
+     if (known){
+       result = null;
+     }
+     else {
+       fail('parent function failed', e);
+     }
+  }
+
+  return result;
+}
+
 // need date later
 export function read(elementOrSelector: SelectorOrElement): boolean | string | null {
-  let el = S(elementOrSelector);
-  return isCheckable(el) ?
-            el.isSelected() :
-         isRadioGroup(el) ?
-            readRadioGroup(el) :
-         isSelect(el) ?
-            readSelect(el) :
-         fail('read - unhandled element type', el);
+  let el = S(elementOrSelector),
+      checkable = isCheckable(el);
+
+  return checkable ?
+       el.isSelected() :
+
+     elementIs('select')(el) ?
+       readSelect(el) :
+
+     // !isCheckable is redundant but here
+     // to prevent introducng bugs if statements are reordered
+     elementIs('input')(el) && !checkable ?
+        el.getValue() :
+
+     isRadioGroup(el) ?
+        readRadioGroup(el) :
+
+     fail('read - unhandled element type', el);
+}
+
+export function set(elementOrSelector: SelectorOrElement, value: string | number | boolean) {
+  let el = S(elementOrSelector),
+      checkable = isCheckable(el);
+
+  return checkable ?
+     setChecked(el, cast(value)):
+
+     elementIs('select')(el) ?
+       setSelect(el, cast(value)) :
+
+     // !isCheckable is redundant but here
+     // to prevent introducng bugs if statements are reordered
+     elementIs('input')(el) && !checkable ?
+        setInput(el, cast(value)) :
+
+     isRadioGroup(el) ?
+        setRadioGroup(el, cast(value)):
+
+     fail('read - unhandled element type', el);
 }
 
 export function isRadio(elementOrSelector: SelectorOrElement) {
@@ -278,10 +428,6 @@ export function url(url: string) {
 
 export function click(elementSelector: string) {
   browser.click(elementSelector);
-}
-
-export function set(elementSelector: string, value: string | number | Array<string|number>) {
-  S(elementSelector).setValue(value);
 }
 
 /***********************************************************************************************

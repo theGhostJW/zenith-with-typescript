@@ -1,9 +1,13 @@
 // @flow
 
 
-import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
+import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage,
+        chkHasText } from '../lib/AssertionUtils';
 import { cast, debug, waitRetry, fail } from '../lib/SysUtils';
 import { rerun } from '../lib/WebUtils';
+import { show } from '../lib/StringUtils';
+import * as _ from 'lodash';
+
 
 import { checkUncheck,
           clickLink,
@@ -23,22 +27,83 @@ import { checkUncheck,
           setReadProduct,
           setReadInput,
           PRODUCT_SELECTOR,
-          AVAILABLE_PRODUCTS
+          AVAILABLE_PRODUCTS,
+          FORM_INPUT,
+          basicFormSet,
+          setFormWithIds,
+          setForm,
+          parent,
+          recursiveParent,
+          FORM_ID
         } from '../lib/WebUtilsTestImp';
 
 
-describe('setInput', () => {
+describe('setForm', () => {
 
-  it('', () => {
+  it('setForm ~ ids', () => {
+    // let actual = rerun(smartbearOrders, setFormWithIds),
+    //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
+    //                  .defaults(FORM_INPUT)
+    //                  .mapValues(show)
+    //                  .value();
 
+    //chkEq(expected, actual)
+  });
+
+  // Radio set by group name
+  it.only('setForm ~ radio group by name', () => {
+    let input = _.omit(FORM_INPUT, 'ctl00_MainContent_fmwOrder_cardList');
+    input['ctl00$MainContent$fmwOrder$cardList'] = 'American Express';
+    rerun(smartbearOrders, setForm, FORM_ID, input)
+     // let actual = ,
+     //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
+     //                 .defaults(FORM_INPUT)
+     //                 .mapValues(show)
+     //                 .value();
+     //
+     // chkEq(expected, actual)
   });
 
 });
 
 
+describe('parent', () => {
+
+  it('simple', () => {
+    let result = rerun(smartbearOrders, parent, '#ctl00_MainContent_fmwOrder_cardList_0');
+    debug(result);
+  });
+
+  it('recursive to top', () => {
+    let result = rerun(smartbearOrders, recursiveParent);
+    // Only sort of working can't gettext on top parent
+    chk(result != null);
+  });
+
+});
+
+describe('full form set ~ hard coded', () => {
+  it('set and read', () => {
+    let actual = rerun(smartbearOrders, basicFormSet),
+        expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
+                     .defaults(FORM_INPUT)
+                     .mapValues(show)
+                     .value();
+
+    chkEq(expected, actual)
+  });
+});
+
+describe('setInput', () => {
+  it('set and read', () => {
+    let actual = rerun(smartbearOrders, setReadInput);
+    chkEq('Janice Peterson', actual);
+  });
+});
+
 describe('select', () => {
 
-  it.only('simple select', () => {
+  it('simple select', () => {
     let allProducts = cast(rerun(smartbearOrders, setReadProduct));
     chkEq(AVAILABLE_PRODUCTS.reverse(), allProducts);
   });
