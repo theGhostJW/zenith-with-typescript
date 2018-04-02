@@ -44,15 +44,46 @@ export type Element = {
   hcode: number,
   sessionId: any,
   getText: () => string,
+  getValue: () => string,
+  getTagName: () => string,
   getAttribute: string => string | null,
   isSelected: () => boolean,
   click: () => void,
-  setValue: (string | number | Array<string|number>) =>  void,
+  setValue: (string | number | Array<string|number>) => void,
+  selectByVisibleText: string  => void,
+  selectByValue: string  => void,
   $$: string => Array<Element>,
   $: string => Element
 }
 
 const nameAttribute: Element => string | null = e => e.getAttribute('name');
+
+export function setSelect(elementOrSelector: SelectorOrElement, visText: string): void {
+  let el = S(elementOrSelector),
+      isSet = false;
+
+  try {
+    el.selectByVisibleText(visText);
+    isSet = true;
+  } catch (e) {
+    if (!hasText(e.message,'An element could not be located')){
+      fail(e);
+    }
+  }
+
+  if (!isSet){
+    try {
+      el.selectByValue(visText);
+    } catch (e) {
+      if (hasText(e.message,'An element could not be located')){
+        e.message = 'Element could not be located either by visible text or by value.' + newLine() +
+                    e.message;
+      }
+      fail('Element could not be located either by visible text or by value.', e);
+    }
+  }
+
+}
 
 function radioElements(containerElementOrSelector: SelectorOrElement, groupName: string | null = null, wantUniqueNameCheck: boolean = true): Array<Element> {
   let el = S(containerElementOrSelector),
@@ -138,6 +169,24 @@ export function isElement(candidate: mixed): boolean {
 
 export type SelectorOrElement = string | Element;
 
+function isSelect(elementOrSelector: SelectorOrElement) : boolean {
+  let el = S(elementOrSelector);
+  return areEqual('select', el.getTagName());
+}
+
+function readSelect(elementOrSelector: SelectorOrElement) : string {
+  let el = S(elementOrSelector);
+  return el.getValue();
+}
+
+function setInput() {
+
+}
+
+/*
+WebElement parent = we.findElement(By.xpath(".."));
+
+ */
 
 // need date later
 export function read(elementOrSelector: SelectorOrElement): boolean | string | null {
@@ -146,6 +195,8 @@ export function read(elementOrSelector: SelectorOrElement): boolean | string | n
             el.isSelected() :
          isRadioGroup(el) ?
             readRadioGroup(el) :
+         isSelect(el) ?
+            readSelect(el) :
          fail('read - unhandled element type', el);
 }
 

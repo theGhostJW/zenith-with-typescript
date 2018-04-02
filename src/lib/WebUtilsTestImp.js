@@ -9,18 +9,40 @@ import {
           browserEx, zzzTestFunc, rerun,
           set, click, links, url,
           linkByText,  clickLink, setChecked, S, SS,
-          read, setRadioGroup
+          read, setRadioGroup, setSelect
         } from '../lib/WebUtils';
 export {
   links,
   url,
   clickLink,
   radioItemVals,
-  setRadioGroup
+  setRadioGroup,
+  setSelect
 } from '../lib/WebUtils';
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
 export const CARD_LIST_ID = '#ctl00_MainContent_fmwOrder_cardList';
+
+export const PRODUCT_SELECTOR = '#ctl00_MainContent_fmwOrder_ddlProduct';
+export const AVAILABLE_PRODUCTS = ["MyMoney", "FamilyAlbum", "ScreenSaver"]
+
+export function setReadInput() {
+  
+}
+
+export function setReadProduct() {
+  let result = [];
+  setSelect(PRODUCT_SELECTOR, 'ScreenSaver');
+
+  result.push(read(PRODUCT_SELECTOR));
+
+  setSelect(PRODUCT_SELECTOR, 'FamilyAlbum');
+  result.push(read(PRODUCT_SELECTOR));
+
+  setSelect(PRODUCT_SELECTOR, 'MyMoney');
+  result.push(read(PRODUCT_SELECTOR));
+  return result;
+}
 
 export function readSetRadioGroup() {
   setRadioGroup(CARD_LIST_ID, 'Visa');

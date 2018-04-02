@@ -18,9 +18,39 @@ import { checkUncheck,
           checkReturnChecked,
           readSetRadioGroup,
           radioItemVals,
-          setRadioGroup
+          setRadioGroup,
+          setSelect,
+          setReadProduct,
+          setReadInput,
+          PRODUCT_SELECTOR,
+          AVAILABLE_PRODUCTS
         } from '../lib/WebUtilsTestImp';
 
+
+describe('setInput', () => {
+
+  it('', () => {
+
+  });
+
+});
+
+
+describe('select', () => {
+
+  it.only('simple select', () => {
+    let allProducts = cast(rerun(smartbearOrders, setReadProduct));
+    chkEq(AVAILABLE_PRODUCTS.reverse(), allProducts);
+  });
+
+  it('invalid select', () => {
+    chkExceptionText(
+       () => rerun(smartbearOrders, setSelect, 'Lexus'),
+      'An element could not be located'
+    )
+  });
+
+});
 
 describe('radioGroup', () => {
 
@@ -35,13 +65,12 @@ describe('radioGroup', () => {
       chkEq(AVAILABLE_CARDS, groupReads);
   });
 
-  it.only('setRadioGroup - mising value exception ', () => {
+  it('setRadioGroup - mising value exception ', () => {
     chkExceptionText(
        () => rerun(smartbearOrders, setRadioGroup, CARD_LIST_ID, 'BitCoin'),
       'Could not find matching radio*button for value or label: BitCoin'
     )
   });
-
 
 });
 
