@@ -66,28 +66,40 @@ export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelecto
     return el.$$(manySelector);
 }
 
-function forLabels(labelLike: Array<Element>, idedEdits: {}, prof): {} {
+function forLabels(labelLike: Array<ElementWithForAndText>, idedEdits: {}): {} {
 
-  function addLabelLike(accum: {}, label: Element) {
-    let id = label.getAttribute('for'),
-        edt = id == null ? null : idedEdits[id];
-
-    // log('TEXT',  {
-    //   tag: label.getTagName(),
-    //   txt: label.getText(),
-    //   time: prof.toString()
-    // });
-
-    if (edt != null){
-      let lblTxt = label.getText();
-      if (lblTxt != null){
-        accum[lblTxt] = edt;
-      }
+  function addLabelLike(accum: {}, label: ElementWithForAndText) {
+    let txt = label.text;
+    if (txt != null){
+      accum[txt] = idedEdits[label.for];
     }
   }
 
   let result = _.transform(labelLike, addLabelLike, {} );
   return result;
+}
+
+type ElementWithForAndText =  Element & {for: string, text: string};
+type ClassifiedLabels = {
+                          forLbls: Array<ElementWithForAndText>,
+                          otherLbls: Array<Element>
+                        };
+
+function partitionAddFor(nonEdits: Array<Element>): ClassifiedLabels {
+
+  function clasifyElement(accum: ClassifiedLabels, label: Element) {
+    let forTxt = label.getAttribute('for');
+    forTxt == null ?
+        accum.otherLbls.push(label) :
+        accum.forLbls.push(_.extend(label, {
+                                            for: forTxt,
+                                            text: label.getText()}));
+  }
+
+  return _.transform(nonEdits, clasifyElement,  {
+                            forLbls: [],
+                            otherLbls: []
+                          } );
 }
 
 export function setForm(
@@ -119,24 +131,30 @@ export function setForm(
       [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
       findElement = finder == null ? findByIdRadioFromLabelCloseLabel : finder,
       idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
-      labelsWithFor = _.memoize(forLabels);
+      partitionedForLabelSingleton: ?ClassifiedLabels = null,
+      forLablesMap = _.memoize(forLabels);
+
+  function partitionedForLabels(): ClassifiedLabels {
+    partitionedForLabelSingleton = partitionedForLabels == null ? partitionAddFor(nonEdits) : partitionAddFor(nonEdits);
+    return partitionedForLabelSingleton;
+  }
 
   function findByIdRadioFromLabelCloseLabel(key: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): Element {
     //logWarning('Reinstate This');
     let result = idedEdits[key];
-
-    // wild card labels ??
-    if (result == null && typeof val == 'string' && hasText(val, '*', true)){
-      // check wildcard labels
-      fail('Not implemented');
-    }
 
     if (result == null){
       result = findNamedRadioGroup(key, elements, edits);
     }
 
     if (result == null){
-      result = labelsWithFor(nonEdits, idedEdits, prof)[key];
+      result = forLablesMap(partitionedForLabels().forLbls, idedEdits)[key];
+    }
+
+    // wild card labels ??
+    if (result == null && typeof val == 'string' && hasText(val, '*', true)){
+      // check wildcard labels
+      fail('Not implemented');
     }
 
     // findRadioGroup - check for id

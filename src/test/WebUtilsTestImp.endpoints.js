@@ -68,7 +68,6 @@ describe('setForm', () => {
   // Radio set by group name
   it.only('setForm ~ FORLABELS', () => {
     let input = FORM_INPUT_FOR_LABELS;
-    debug('running');
     rerun(smartbearOrders, setForm, FORM_ID, input);
      // let actual = ,
      //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
