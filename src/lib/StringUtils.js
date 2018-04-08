@@ -23,7 +23,7 @@ const XML_DEF_OPTS: XmlFormatOptions  =  {
 }
 
 export function formatXml(xml: string, options: XmlFormatOptions = XML_DEF_OPTS) : string {
-  return xmlFormatter(xml, options); 
+  return xmlFormatter(xml, options);
 }
 
 /*
@@ -143,7 +143,7 @@ function transformSection(dataObj: {}, transformerFunc: (string, {}) => string, 
       };
 }
 
-export function loadSectionedTemplate(template: string, transformers: {[string]: (string, {}) => string}, data: {}): string {
+export function loadSectionedTemplate(template: string, transformers: {[string]: (string,  { [string|number]: ?string|number }) => string}, data: {}): string {
 
 
     function applyTransformer(accum, transformerFunc: (string, {}) => string, sectionName: string){

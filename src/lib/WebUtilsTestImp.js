@@ -29,7 +29,7 @@ export const CARD_LIST_ID = '#ctl00_MainContent_fmwOrder_cardList';
 export const PRODUCT_SELECTOR = '#ctl00_MainContent_fmwOrder_ddlProduct';
 export const AVAILABLE_PRODUCTS = ["MyMoney", "FamilyAlbum", "ScreenSaver"];
 const CUSTOMER_NAME_ID = '#ctl00_MainContent_fmwOrder_txtName';
-export const FORM_INPUT = {
+export const FORM_INPUT_IDS = {
     ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
     ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
     ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
@@ -43,6 +43,27 @@ export const FORM_INPUT = {
     ctl00_MainContent_fmwOrder_TextBox6: '12345678',
     ctl00_MainContent_fmwOrder_TextBox1: '12/24'
   }
+
+  export const FORM_INPUT_FOR_LABELS = {
+      ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
+      ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
+      ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
+      ctl00_MainContent_fmwOrder_txtDiscount: 7,
+      'Customer name:*': 'Janice Peterson',
+      ctl00_MainContent_fmwOrder_TextBox2: '22 Vernon St',
+      ctl00_MainContent_fmwOrder_TextBox3: 'Croydon',
+      ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
+      ctl00_MainContent_fmwOrder_TextBox5: 3136,
+      ctl00$MainContent$fmwOrder$cardList: 'American Express',
+      ctl00_MainContent_fmwOrder_TextBox6: '12345678',
+      ctl00_MainContent_fmwOrder_TextBox1: '12/24'
+    }
+
+export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_IDS)
+                                      .clone()
+                                      .omit('ctl00_MainContent_fmwOrder_cardList')
+                                      .extend({ctl00$MainContent$fmwOrder$cardList: 'American Express'})
+                                      .value();
 
 export const FORM_ID = '#ctl00_MainContent_fmwOrder'
 
@@ -64,13 +85,9 @@ export function recursiveParent() {
   return rslt;
 }
 
-export function setFormWithIds() {
-  setForm(FORM_ID, FORM_INPUT)
-}
-
-export function basicFormSet() {
-  _.each(FORM_INPUT, (v, k) => set('#' + k, v));
- return _.mapValues(FORM_INPUT, (v, k) => read('#' + k));
+export function basicSet() {
+  _.each(FORM_INPUT_IDS, (v, k) => set('#' + k, v));
+ return _.mapValues(FORM_INPUT_IDS, (v, k) => read('#' + k));
 }
 
 export function setReadInput() {

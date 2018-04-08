@@ -205,7 +205,7 @@ export type LogEntry = {
 
 
 
- const SynchFileLogger = winston.transports.SynchFileLogger = function (options: {}) {
+ const SynchFileLogger = winston.transports.SynchFileLogger = function (options: {[string|number]: string|number}) {
    //
    // Name this logger
 
@@ -255,7 +255,7 @@ export type LogEntry = {
   };
 
 
-  const IPCLogger = winston.transports.IPCLogger = function (options: {}) {
+  const IPCLogger = winston.transports.IPCLogger = function (options: {[string|number]: string|number}) {
     //
     // Name this logger
 

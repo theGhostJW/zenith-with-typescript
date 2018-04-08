@@ -2,7 +2,6 @@
 
 import moment from 'moment';
 import { debug } from '../lib/SysUtils';
-import {  } from '../lib/StringUtils';
 
 export const LOG_TO_SEC_FORMAT = "YYYY-MM-DD HH:mm:ss";
 export const LOG_FILE_MS_SEC_FORMAT = "YYYY-MM-DD HH-mm-ss-SSS";

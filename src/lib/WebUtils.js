@@ -18,7 +18,7 @@ import {
   PATH_SEPARATOR,
 } from './FileUtils';
 
-import { log, logError } from './Logging';
+import { log, logError, logWarning } from './Logging';
 
 import { hasText, newLine, show, subStrAfter, subStrBetween, trimChars,
          trimLines, wildCardMatch, sameText } from './StringUtils';
@@ -32,6 +32,9 @@ import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
           runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
 import * as _ from 'lodash';
+
+//$FlowFixMe
+import sp from 'step-profiler';
 
 export type SelectorOrElement = string | Element;
 export type Element = {
@@ -61,13 +64,31 @@ export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelecto
     return el.$$(manySelector);
 }
 
+function forLabels(labelLike: Array<Element>, idedEdits: {}): {} {
 
+  log('forLabels - CALLED')
+  function addLabelLike(accum: {}, label: Element) {
+    let id = label.getAttribute('for'),
+        edt = id == null ? null : idedEdits[id];
+
+    if (edt != null){
+      let lblTxt = label.getText();
+      if (lblTxt != null){
+        accum[lblTxt] = edt;
+      }
+    }
+  }
+
+  let result = _.transform(labelLike, addLabelLike, {} );
+  log(result)
+  return result;
+}
 
 export function setForm(
                           parentElementorSelector: SelectorOrElement,
                           valMap: {[string]: string | number | boolean},
-                          defaultSetter?: (Element, string | number | boolean) => void,
-                          defaultFinder?: (string, Array<Element>, Array<Element>) => Element
+                          setter: (Element, string | number | boolean) => void = set,
+                          finder?: (key: string, editable: Array<Element>, val: string | number | ?boolean, nonEditable: ?Array<Element>) => Element
                         ): void {
 
   function addId(accum, element) {
@@ -77,43 +98,62 @@ export function setForm(
      }
   }
 
-  let elements = SSNested(parentElementorSelector, '*'),
-      edits = elements.filter(canEdit),
-      finder = defaultFinder == null ? findByIdRadioFromLabelCloseLabel : defaultFinder,
-      idedEdits = defaultFinder == null ?  _.transform(edits, addId, {}) : {},
-      radios = null;
+  let prof = new sp({});
 
-  function findByIdRadioFromLabelCloseLabel(key: string, allElements: Array<Element>, edits: Array<Element>): Element {
+  let elements = SSNested(parentElementorSelector, '*'),
+      [edits, nonEdits] = _.partition(elements, canEdit),
+      findElement = finder == null ? findByIdRadioFromLabelCloseLabel : finder,
+      idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
+      labelsWithFor = _.memoize(forLabels);
+
+  function findByIdRadioFromLabelCloseLabel(key: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): Element {
+    //logWarning('Reinstate This');
     let result = idedEdits[key];
 
+    // wild card labels ??
+    if (result == null && typeof val == 'string' && hasText(val, '*', true)){
+      // check wildcard labels
+      fail('Not implemented');
+    }
+
     if (result == null){
-      result = findRadioGroup(key, elements, edits);
+      result = findNamedRadioGroup(key, elements, edits);
+    }
+
+    if (result == null){
+      result = labelsWithFor(nonEdits, idedEdits)[key];
     }
 
     // findRadioGroup - check for id
-    // for labels
-    // proximal labels
-    // wild card ??
+
+    // proximal labels inc radio groups
+
+    // Custom finder and setter
+
     // adapt as reader to finish off test (actual)
-    return ensureHasVal(result, `Could not find element matching: ${key}`);
+    return result;
   }
 
-  function setElement(val: string | number | boolean, key: string) {
-    let target: Element = finder(key, elements, edits);
-    ensureHasVal(target, `setForm ~ could not find matching input element for: ${key}`);
-    set(target, val);
+  function setElement(accum: Array<string>, val: string | number | boolean, key: string): void {
+    let target: Element = findElement(key, edits, val, nonEdits);
+    target == null ?
+                    accum.push(`Could not find matching input element for: ${key}`) :
+                    setter(target, val);
   }
 
-  _.each(valMap, setElement);
+  log('KICKING OFF');
+  prof.start('allElements');
+  let setFailures = _.transform(valMap, setElement, []);
+  prof.done('allElements');
+  prof.end();
+  log(prof.toString());
+  ensure(setFailures.length === 0, `setForm failures:\n ${setFailures.join('\n')}`)
 }
 
-function findRadioGroup(searchTerm: string, allElements: Array<Element>, edits: Array<Element>) : Element | null {
+function findNamedRadioGroup(searchTerm: string, allElements: Array<Element>, edits: Array<Element>) : Element | null {
   // string could be group name
-  let namedRadios = edits.filter(e => nameAttribute(e) === searchTerm),
-      parentForm = (namedRadios.length > 0) ? commonParent(namedRadios) : fail('not implemented')
-
-
-  return parentForm == null ? null : parentForm;
+  let namedRadios = edits.filter(e => nameAttribute(e) === searchTerm);
+  return namedRadios.length > 0 ? commonParent(namedRadios) : null
 }
 
 

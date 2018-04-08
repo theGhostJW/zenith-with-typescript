@@ -28,9 +28,10 @@ import { checkUncheck,
           setReadInput,
           PRODUCT_SELECTOR,
           AVAILABLE_PRODUCTS,
-          FORM_INPUT,
-          basicFormSet,
-          setFormWithIds,
+          FORM_INPUT_IDS,
+          FORM_INPUT_RADIO_NAME,
+          FORM_INPUT_FOR_LABELS,
+          basicSet,
           setForm,
           parent,
           recursiveParent,
@@ -51,10 +52,24 @@ describe('setForm', () => {
   });
 
   // Radio set by group name
-  it.only('setForm ~ radio group by name', () => {
-    let input = _.omit(FORM_INPUT, 'ctl00_MainContent_fmwOrder_cardList');
-    input['ctl00$MainContent$fmwOrder$cardList'] = 'American Express';
-    rerun(smartbearOrders, setForm, FORM_ID, input)
+  it('setForm ~ radio group by name', () => {
+    let input = FORM_INPUT_RADIO_NAME;
+    debug('running');
+    rerun(smartbearOrders, setForm, FORM_ID, input);
+     // let actual = ,
+     //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
+     //                 .defaults(FORM_INPUT)
+     //                 .mapValues(show)
+     //                 .value();
+     //
+     // chkEq(expected, actual)
+  });
+
+  // Radio set by group name
+  it.only('setForm ~ FORLABELS', () => {
+    let input = FORM_INPUT_FOR_LABELS;
+    debug('running');
+    rerun(smartbearOrders, setForm, FORM_ID, input);
      // let actual = ,
      //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
      //                 .defaults(FORM_INPUT)
@@ -84,9 +99,9 @@ describe('parent', () => {
 
 describe('full form set ~ hard coded', () => {
   it('set and read', () => {
-    let actual = rerun(smartbearOrders, basicFormSet),
+    let actual = rerun(smartbearOrders, basicSet),
         expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
-                     .defaults(FORM_INPUT)
+                     .defaults(FORM_INPUT_IDS)
                      .mapValues(show)
                      .value();
 

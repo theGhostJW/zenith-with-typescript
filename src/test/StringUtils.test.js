@@ -149,6 +149,7 @@ describe('loadSectionedTemplate', () => {
           };
 
     function accountsTransformer(xmlTemplate, accountsObj){
+      
       let arrAccounts = forceArray(accountsObj),
           accountTemplate = templateSectionParts(xmlTemplate, 'account').section,
           sectionToRemove = accountsObj.unformattedAddress == null ?
