@@ -20,8 +20,8 @@ import {
 
 import { log, logError, logWarning } from './Logging';
 
-import { hasText, newLine, show, subStrAfter, subStrBetween, trimChars,
-         trimLines, wildCardMatch, sameText } from './StringUtils';
+import { hasText, newLine, sameText, show, subStrAfter, subStrBetween,
+         trimChars, trimLines, wildCardMatch, replaceAll } from './StringUtils';
 import {
         areEqual, callstackStrings, cast, debug, def, delay, ensure,
          ensureHasVal, ensureReturn, fail,
@@ -35,6 +35,8 @@ import * as _ from 'lodash';
 
 //$FlowFixMe
 import sp from 'step-profiler';
+
+
 
 export type SelectorOrElement = string | Element;
 export type Element = {
@@ -64,12 +66,17 @@ export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelecto
     return el.$$(manySelector);
 }
 
-function forLabels(labelLike: Array<Element>, idedEdits: {}): {} {
+function forLabels(labelLike: Array<Element>, idedEdits: {}, prof): {} {
 
-  log('forLabels - CALLED')
   function addLabelLike(accum: {}, label: Element) {
     let id = label.getAttribute('for'),
         edt = id == null ? null : idedEdits[id];
+
+    // log('TEXT',  {
+    //   tag: label.getTagName(),
+    //   txt: label.getText(),
+    //   time: prof.toString()
+    // });
 
     if (edt != null){
       let lblTxt = label.getText();
@@ -80,7 +87,6 @@ function forLabels(labelLike: Array<Element>, idedEdits: {}): {} {
   }
 
   let result = _.transform(labelLike, addLabelLike, {} );
-  log(result)
   return result;
 }
 
@@ -100,8 +106,17 @@ export function setForm(
 
   let prof = new sp({});
 
+  function editsLabels(accum: [Array<Element>, Array<Element>], element: Element) {
+    let tag = element.getTagName();
+    canEditTag(tag) ? accum[0].push(element) :
+      isLabelLikeTag(tag) ? accum[1].push(element) :
+        null;
+
+    return accum
+  }
+
   let elements = SSNested(parentElementorSelector, '*'),
-      [edits, nonEdits] = _.partition(elements, canEdit),
+      [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
       findElement = finder == null ? findByIdRadioFromLabelCloseLabel : finder,
       idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
       labelsWithFor = _.memoize(forLabels);
@@ -121,7 +136,9 @@ export function setForm(
     }
 
     if (result == null){
-      result = labelsWithFor(nonEdits, idedEdits)[key];
+      prof.start('forlabels');
+      result = labelsWithFor(nonEdits, idedEdits, prof)[key];
+      prof.done('forlabels');
     }
 
     // findRadioGroup - check for id
@@ -131,6 +148,8 @@ export function setForm(
     // Custom finder and setter
 
     // adapt as reader to finish off test (actual)
+
+    // alt text
     return result;
   }
 
@@ -141,12 +160,11 @@ export function setForm(
                     setter(target, val);
   }
 
-  log('KICKING OFF');
   prof.start('allElements');
   let setFailures = _.transform(valMap, setElement, []);
   prof.done('allElements');
   prof.end();
-  log(prof.toString());
+  log(replaceAll(prof.toString(), ';', ';\n'));
   ensure(setFailures.length === 0, `setForm failures:\n ${setFailures.join('\n')}`)
 }
 
@@ -180,10 +198,16 @@ function commonParent(radios: Array<Element>) : Element | null {
   return parentOfAll(fst);
 }
 
+function canEditTag(tagName: string) {
+  return ['input', 'select'].includes(tagName);
+}
+
+function isLabelLikeTag(tagName: string) {
+  return ['label'].includes(tagName);
+}
+
 function canEdit(element: Element) {
-  let tag = element.getTagName();
-  return tag === 'input' ||
-         tag === 'select';
+  return canEditTag(element.getTagName());
 }
 
 // may be required with strange inputs
