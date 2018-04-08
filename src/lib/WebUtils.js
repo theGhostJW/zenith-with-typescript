@@ -136,9 +136,7 @@ export function setForm(
     }
 
     if (result == null){
-      prof.start('forlabels');
       result = labelsWithFor(nonEdits, idedEdits, prof)[key];
-      prof.done('forlabels');
     }
 
     // findRadioGroup - check for id
@@ -153,19 +151,30 @@ export function setForm(
     return result;
   }
 
-  function setElement(accum: Array<string>, val: string | number | boolean, key: string): void {
+  function mapVal(accum, val: string | number | boolean, key: string): void {
     let target: Element = findElement(key, edits, val, nonEdits);
     target == null ?
-                    accum.push(`Could not find matching input element for: ${key}`) :
-                    setter(target, val);
+                accum.failedMappings.push(`Could not find matching input element for: ${key}`):
+                accum.mapping[key] = target;
   }
 
-  prof.start('allElements');
-  let setFailures = _.transform(valMap, setElement, []);
-  prof.done('allElements');
+  prof.start('mapping');
+  let mapping = _.transform(valMap, mapVal, {
+                                              mapping: {},
+                                              failedMappings: []
+                                            } );
+  prof.done('mapping');
+
+
+  prof.start('setting');
+  _.each(mapping.mapping, (e, k) => set(e, valMap[k]));
+  prof.end('setting');
   prof.end();
   log(replaceAll(prof.toString(), ';', ';\n'));
-  ensure(setFailures.length === 0, `setForm failures:\n ${setFailures.join('\n')}`)
+
+
+  let fails = mapping.failedMappings;
+  ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
 }
 
 function findNamedRadioGroup(searchTerm: string, allElements: Array<Element>, edits: Array<Element>) : Element | null {
