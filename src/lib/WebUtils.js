@@ -66,7 +66,7 @@ export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelecto
     return el.$$(manySelector);
 }
 
-function forLabels(labelLike: Array<ElementWithForAndText>, idedEdits: {}): {} {
+function forLabelsMapFromArray(labelLike: Array<ElementWithForAndText>, idedEdits: {}): {} {
 
   function addLabelLike(accum: {}, label: ElementWithForAndText) {
     let txt = label.text;
@@ -74,10 +74,9 @@ function forLabels(labelLike: Array<ElementWithForAndText>, idedEdits: {}): {} {
       accum[txt] = idedEdits[label.for];
     }
   }
-
-  let result = _.transform(labelLike, addLabelLike, {} );
-  return result;
+  return _.transform(labelLike, addLabelLike, {} );
 }
+
 
 type ElementWithForAndText =  Element & {for: string, text: string};
 type ClassifiedLabels = {
@@ -131,30 +130,54 @@ export function setForm(
       [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
       findElement = finder == null ? findByIdRadioFromLabelCloseLabel : finder,
       idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
-      partitionedForLabelSingleton: ?ClassifiedLabels = null,
       forLablesMap = _.memoize(forLabels);
 
+  let partitionedForLabelSingleton: ?ClassifiedLabels = null;
   function partitionedForLabels(): ClassifiedLabels {
     partitionedForLabelSingleton = partitionedForLabels == null ? partitionAddFor(nonEdits) : partitionAddFor(nonEdits);
     return partitionedForLabelSingleton;
   }
 
-  function findByIdRadioFromLabelCloseLabel(key: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): Element {
+  function forLabels(): Array<ElementWithForAndText> {
+    return partitionedForLabels().forLbls;
+  }
+
+  function forLblMap() {
+    return forLabelsMapFromArray(forLabels(), idedEdits);
+  }
+
+  let sortedForLabelTextSingleton: ?Array<string> = null;
+  function sortedForTexts(): Array<string> {
+    sortedForLabelTextSingleton = def(sortedForLabelTextSingleton,
+                                                _.chain(forLabels())
+                                                  .map('text')
+                                                  .sortBy(t => t.length)
+                                                  .value());
+    return sortedForLabelTextSingleton;
+  }
+
+  function findByIdRadioFromLabelCloseLabel(key: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
     //logWarning('Reinstate This');
-    let result = idedEdits[key];
 
+    // Ided fields
+    let result = idedEdits[key],
+        wildcard = result == null && (typeof key == 'string') && key.includes('*');
+
+    // Named radio group
     if (result == null){
-      result = findNamedRadioGroup(key, elements, edits);
+      result = findNamedRadioGroup(key, elements, edits, wildcard);
     }
 
+      // Label with for
     if (result == null){
-      result = forLablesMap(partitionedForLabels().forLbls, idedEdits)[key];
+      result = forLblMap()[key];
     }
 
-    // wild card labels ??
-    if (result == null && typeof val == 'string' && hasText(val, '*', true)){
-      // check wildcard labels
-      fail('Not implemented');
+    // Label with for + wildcard
+    if (result == null && wildcard){
+      // for labels
+      let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
+      result = lblText == null ? null : forLblMap()[lblText];
     }
 
     // findRadioGroup - check for id
@@ -170,7 +193,7 @@ export function setForm(
   }
 
   function mapVal(accum, val: string | number | boolean, key: string): void {
-    let target: Element = findElement(key, edits, val, nonEdits);
+    let target: ?Element = findElement(key, edits, val, nonEdits);
     target == null ?
                 accum.failedMappings.push(`Could not find matching input element for: ${key}`):
                 accum.mapping[key] = target;
@@ -195,10 +218,15 @@ export function setForm(
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
 }
 
-function findNamedRadioGroup(searchTerm: string, allElements: Array<Element>, edits: Array<Element>) : Element | null {
+function findNamedRadioGroup(searchTerm: string, allElements: Array<Element>, edits: Array<Element>, wildCard: boolean) : Element | null {
   // string could be group name
-  let namedRadios = edits.filter(e => nameAttribute(e) === searchTerm);
-  return namedRadios.length > 0 ? commonParent(namedRadios) : null
+
+  let atrPred = wildCard ?
+                s => s != null && wildCardMatch(s, searchTerm) :
+                s => s === searchTerm,
+      namedRadios = edits.filter(e => atrPred(nameAttribute(e)));
+
+  return namedRadios.length > 0 ? commonParent(namedRadios) : null;
 }
 
 

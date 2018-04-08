@@ -49,12 +49,15 @@ export const FORM_INPUT_IDS = {
       ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
       ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
       ctl00_MainContent_fmwOrder_txtDiscount: 7,
+      // for label
       'Customer name:*': 'Janice Peterson',
       ctl00_MainContent_fmwOrder_TextBox2: '22 Vernon St',
-      ctl00_MainContent_fmwOrder_TextBox3: 'Croydon',
+      // for label fuzzy
+      'City*': 'Croydon',
       ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
       ctl00_MainContent_fmwOrder_TextBox5: 3136,
-      ctl00$MainContent$fmwOrder$cardList: 'American Express',
+      // radio fuzzy
+      '*cardList': 'American Express',
       ctl00_MainContent_fmwOrder_TextBox6: '12345678',
       ctl00_MainContent_fmwOrder_TextBox1: '12/24'
     }
