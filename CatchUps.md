@@ -1,3 +1,171 @@
+# Tour De HOF i
+
+## NO
+
+```javascript
+
+function thisIsBad(arr){
+  for (var counter = 0; counter < arr.length ; counter++){
+    if (x){
+      for (var counter = 0; counter < 50; counter++){
+        if (a){
+          if (c)
+            doSomething();
+        }
+        else {
+            doSomethingElse();
+        }
+      }
+     }
+     else {
+      for (var counter = 0; counter < 50; counter++){
+        if (a){
+          doAnotherThing();
+        }
+        else {
+          doYetAnotherThing()
+        }
+      }
+   }
+  }
+}
+
+```
+## HOFs
+## underscore -> lodash + ES6
+
+## ES6 ~ Arrays
+
+```javascript
+
+/*
+*************************************************************************************************
+********************************* forEach ~ side effects ****************************************
+*************************************************************************************************
+*/
+
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy'].forEach(console.log)
+
+/*
+*************************************************************************************************
+**************************************** find  **************************************************
+*************************************************************************************************
+*/
+
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].find(n => n.startsWith('h'))
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].find(n => n.startsWith('r'))
+
+/*
+*************************************************************************************************
+**************************************** includes **************************************************
+*************************************************************************************************
+*/
+
+// not a HOF
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].includes('dopy')
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].includes('nazelly')
+
+
+/*
+*************************************************************************************************
+**************************************** some **************************************************
+*************************************************************************************************
+*/
+
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].some(n => n.includes('i'))
+
+// same as
+function hasAni(str) {
+  return str.includes('i')
+}
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].some(hasAni);
+
+const hasi = n => n.includes('i');
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].some(hasi);
+
+/*
+*************************************************************************************************
+**************************************** all **************************************************
+*************************************************************************************************
+*/
+
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(n => n.length > 3)
+
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(n => n.length > 4)
+
+// note the repetition
+function longerThan(minLength) {
+  return function isLonger(str) {
+    return str.length > minLength
+  }
+}
+longerThan(4)('HodyDoDe');
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(longerThan(3));
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(longerThan(4));
+
+//
+const longerThan = ml => s => s.length > ml;
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].some(longerThan(4));
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(longerThan(4));
+
+/*
+*************************************************************************************************
+**************************************** sort **************************************************
+*************************************************************************************************
+*/
+
+// Note limited - in place ~ not a HOF
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].sort();
+
+
+/*
+*************************************************************************************************
+**************************************** filter **************************************************
+*************************************************************************************************
+*/
+
+const dwarfs = ['lazy', 'sleepy', 'happy', 'grumpy', 'lofty']
+let lDwafs = dwarfs.filter(n => n.startsWith('l'));
+
+console.log('=== All Dwarfs ===')
+dwarfs.forEach(console.log)
+
+console.log('=== L Dwarfs ===')
+lDwafs.forEach(console.log)
+
+console.log('=== L Dwarfs Chained ===')
+dwarfs
+    .filter(n => n.startsWith('l'))
+    .forEach(console.log)
+
+/*
+*************************************************************************************************
+**************************************** map **************************************************
+*************************************************************************************************
+*/
+
+// Shouty Dwarfs
+ ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].map(n => `${n.toUpperCase()} !!!!`)
+
+ // Chained Shouty Longg Name Dwarfs
+  ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty']
+                            .filter(n => n.length > 4)
+                            .map(n => `${n.toUpperCase()} !!!!`)
+                            .forEach(console.log)
+
+
+
+/*
+*************************************************************************************************
+**************************************** reduce **************************************************
+*************************************************************************************************
+*/
+
+
+```
+
+# Tour De ZWTF ~ ???
+
 # Tour De ES6 ~ 07-03-2018
 
 Run using console.js ~ see also ES6 Google Slides
