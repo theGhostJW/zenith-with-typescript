@@ -31,6 +31,7 @@ import { checkUncheck,
           FORM_INPUT_IDS,
           FORM_INPUT_RADIO_NAME,
           FORM_INPUT_FOR_LABELS,
+          FORM_INPUT_PROXIMAL_LABELS,
           basicSet,
           setForm,
           parent,
@@ -66,16 +67,14 @@ describe('setForm', () => {
   });
 
   // Radio set by group name
-  it.only('setForm ~ FORLABELS', () => {
+  it('setForm ~ FORLABELS', () => {
     let input = FORM_INPUT_FOR_LABELS;
     rerun(smartbearOrders, setForm, FORM_ID, input);
-     // let actual = ,
-     //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
-     //                 .defaults(FORM_INPUT)
-     //                 .mapValues(show)
-     //                 .value();
-     //
-     // chkEq(expected, actual)
+  });
+
+  it.only('setForm ~ Proximal labels - needs special code edits to be valid', () => {
+    let input = FORM_INPUT_PROXIMAL_LABELS;
+    rerun(smartbearOrders, setForm, FORM_ID, input);
   });
 
 });

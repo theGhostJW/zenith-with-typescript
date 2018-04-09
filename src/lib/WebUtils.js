@@ -47,7 +47,7 @@ export type Element = {
   getTagName: () => string,
   getLocation: () => {x: number, y: number},
   getElementSize: () => {width: number, height: number},
-  getSize: () => {x: number, y: number},
+  getHTML: () => string,
   getAttribute: string => string | null,
   isSelected: () => boolean,
   click: () => void,
@@ -151,7 +151,7 @@ type ElementPlusLoc = $Subtype<Element> & {
                                           }
 function addLocation(el:$Subtype<Element>): ElementPlusLoc {
   let loc = el.getLocation(),
-      size = el.getSize();
+      size = el.getElementSize();
 
   el.x = loc.x,
   el.y = loc.y;
@@ -295,6 +295,19 @@ function nearestEdit(key: string, val: string | number | boolean, edts: Array<El
   return targetLabel == null ? null : closestObject(targetLabel, edts, lblModifier);
 }
 
+type ElementWithType = Element & {type: string};
+function addType(elements: Element[]): ElementWithType[] {
+  function addEl(accum: ElementWithType[], e: Element) {
+    let type = e.getAttribute('type');
+    if (type != null){
+      cast(e).type = type;
+      accum.push(cast(e));
+    }
+    return accum;
+  }
+  return elements.reduce(addEl, []);
+}
+
 export function setForm(
                           parentElementorSelector: SelectorOrElement,
                           valMap: {[string]: string | number | boolean},
@@ -313,7 +326,7 @@ export function setForm(
 
   function editsLabels(accum: [Array<Element>, Array<Element>], element: Element) {
     let tag = element.getTagName();
-    canEditTag(tag) ? accum[0].push(element) :
+    canEditTag(tag) && canEditTypeAttr(element.getAttribute('type')) ? accum[0].push(element) :
       isLabelLikeTag(tag) ? accum[1].push(element) :
         null;
 
@@ -327,7 +340,12 @@ export function setForm(
       forLablesMap = _.memoize(forLabels),
       editsWithPlaceHolders = _.memoize(addPlaceHolders),
       addCoords = _.memoize(addLocations),
-      addCoordsTxt = _.memoize(addLocationsAndText);
+      addCoordsTxt = _.memoize(addLocationsAndText),
+      elementsWithType = _.memoize(addType);
+
+
+  log('P.A.R.T.I.T.I.O.N');
+
 
   let partitionedForLabelSingleton: ?ClassifiedLabels = null;
   function partitionedForLabels(): ClassifiedLabels {
@@ -365,10 +383,13 @@ export function setForm(
 
     // Named radio group
     if (result == null){
-      result = findNamedRadioGroup(key, elements, edits, wildcard);
+      result = findNamedRadioGroup(key, elementsWithType(edits), wildcard);
     }
 
-      // Label with for
+    logWarning('revert this');
+    // comment out labelwith for to test proximal label
+    // Label with for and make change in proximal labels block
+    /*
     if (result == null){
       result = forLblMap()[key];
     }
@@ -379,20 +400,30 @@ export function setForm(
       let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
       result = lblText == null ? null : forLblMap()[lblText];
     }
+    */
+
 
     // placeholders ~ not tested
     if (result == null){
+      log('PLACEHOLDERS');
       let pred : ElementWithPlaceHolder => boolean = wildcard ? e => wildCardMatch(e.placeholder, key) : e => e.placeholder === key;
       result = editsWithPlaceHolders(edits).find(pred);
     }
 
     //proximal labels - non for
     if (result == null){
-      let labels = addCoordsTxt(nonForLabels()),
-          edts = addCoords(edits);
-      result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
-    }
 
+      //Testing Code
+      logWarning('revert this');
+      log('PROXIMALS');
+      let labels = addCoordsTxt(forLabels().concat(nonForLabels())),
+
+  //  let labels = addCoordsTxt(nonForLabels()),
+          edts = addCoords(edits);
+
+      result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
+      log('RESULT', result)
+    }
 
     // Custom finder and setter
 
@@ -414,7 +445,12 @@ export function setForm(
                                             } );
   prof.done('mapping');
   prof.start('setting');
-  _.each(mapping.mapping, (e, k) => set(e, valMap[k]));
+  _.each(mapping.mapping, (e, k) => {
+        log('KEYYYYYY', k);
+        log('ELLLL', e.getHTML());
+        set(e, valMap[k]);
+      }
+  );
   prof.end('setting');
   prof.end();
   log(replaceAll(prof.toString(), ';', ';\n'));
@@ -423,19 +459,17 @@ export function setForm(
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
 }
 
-function findNamedRadioGroup(searchTerm: string, allElements: Array<Element>, edits: Array<Element>, wildCard: boolean) : Element | null {
+function findNamedRadioGroup(searchTerm: string, edits: Array<ElementWithType>, wildCard: boolean) : Element | null {
   // string could be group name
-
   let atrPred = wildCard ?
                 s => s != null && wildCardMatch(s, searchTerm) :
                 s => s === searchTerm,
-      namedRadios = edits.filter(e => atrPred(nameAttribute(e)));
-
+      namedRadios = edits.filter(e => e.type === 'radio' && atrPred(nameAttribute(e)));
   return namedRadios.length > 0 ? commonParent(namedRadios) : null;
 }
 
 
-function commonParent(radios: Array<Element>) : Element | null {
+function commonParent(radios: $Subtype<Element>[]) : Element | null {
   let radiosLength = radios.length;
   if (radiosLength === 0) {
     return null;
@@ -462,12 +496,18 @@ function canEditTag(tagName: string) {
   return ['input', 'select'].includes(tagName);
 }
 
+function canEditTypeAttr(typeAttr: ?string) {
+  const blackList = ['submit', 'reset', 'button', 'hidden'];
+  return typeAttr == null || !blackList.includes(typeAttr);
+}
+
+
 function isLabelLikeTag(tagName: string) {
   return ['label'].includes(tagName);
 }
 
 function canEdit(element: Element) {
-  return canEditTag(element.getTagName());
+  return canEditTag(element.getTagName()) && canEditTypeAttr(element.getAttribute('type'));
 }
 
 // may be required with strange inputs
@@ -653,12 +693,12 @@ export function read(elementOrSelector: SelectorOrElement): boolean | string | n
      fail('read - unhandled element type', el);
 }
 
-export function set(elementOrSelector: SelectorOrElement, value: string | number | boolean) {
-  let el = S(elementOrSelector),
+export function set(elementOrSelector: SelectorOrElement, value: string | number | boolean) : void {
+  let el =  S(elementOrSelector),
       checkable = isCheckable(el);
 
   return checkable ?
-     setChecked(el, cast(value)):
+      setChecked(el, cast(value)):
 
      elementIs('select')(el) ?
        setSelect(el, cast(value)) :
