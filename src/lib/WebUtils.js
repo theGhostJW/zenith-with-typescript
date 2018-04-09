@@ -422,7 +422,7 @@ export function setForm(
           edts = addCoords(edits);
 
       result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
-      log('RESULT', result)
+      log('RESULT', show(result));
     }
 
     // Custom finder and setter
