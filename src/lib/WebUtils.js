@@ -45,6 +45,9 @@ export type Element = {
   getText: () => string,
   getValue: () => string,
   getTagName: () => string,
+  getLocation: () => {x: number, y: number},
+  getElementSize: () => {width: number, height: number},
+  getSize: () => {x: number, y: number},
   getAttribute: string => string | null,
   isSelected: () => boolean,
   click: () => void,
@@ -84,6 +87,23 @@ type ClassifiedLabels = {
                           otherLbls: Array<Element>
                         };
 
+export type LabelSearchDirectionModifier = 'A'| 'B' | 'L' | 'R' | '*';
+
+const allModifiers = ['A', 'B', 'L', 'R', '*'];
+
+export const unitTestingTargets = {
+  sliceSearchModifier: sliceSearchModifier
+}
+
+function sliceSearchModifier(str: string): [LabelSearchDirectionModifier, string] {
+  if (str.length < 3 || str[1] != '~' ) {
+    return ['*', str];
+  }
+
+  let modifier = str[0].toUpperCase();
+  return allModifiers.includes(modifier) ? [cast(modifier), str.slice(2) ]: ['*', str];
+}
+
 function partitionAddFor(nonEdits: Array<Element>): ClassifiedLabels {
 
   function clasifyElement(accum: ClassifiedLabels, label: Element) {
@@ -99,6 +119,180 @@ function partitionAddFor(nonEdits: Array<Element>): ClassifiedLabels {
                             forLbls: [],
                             otherLbls: []
                           } );
+}
+
+type ElementWithPlaceHolder =  Element & {placeholder: string};
+function addPlaceHolders(edits: Array<Element>) : Array<ElementWithPlaceHolder>  {
+
+  function addIfPlaceHolder(accum, elm) : Array<ElementWithPlaceHolder> {
+    let ph = elm.getAttribute('placeholder');
+    if (ph != null){
+      cast(elm).placeholder = ph;
+      accum.push(elm);
+    }
+    return cast(accum);
+  }
+
+  let unsorted: Array<ElementWithPlaceHolder> = edits.reduce(cast(addIfPlaceHolder), []);
+  return _.sortBy(unsorted, e => e.placeholder.length);
+}
+
+type ElementPlusLoc = $Subtype<Element> & {
+                                            x: number,
+                                            y: number,
+                                            left: number,
+                                            right: number,
+                                            top: number,
+                                            bottom: number,
+                                            width: number,
+                                            height: number,
+                                            verticalCentre: number,
+                                            horizontalCentre: number
+                                          }
+function addLocation(el:$Subtype<Element>): ElementPlusLoc {
+  let loc = el.getLocation(),
+      size = el.getSize();
+
+  el.x = loc.x,
+  el.y = loc.y;
+  el.left = loc.x;
+  el.right = loc.x + size.width;
+  el.top = loc.y;
+  el.bottom = loc.y + size.height;
+  el.width = size.width;
+  el.height = size.height;
+  el.verticalCentre = loc.y + size.height/2;
+  el.horizontalCentre = loc.x + size.width/2;
+  return el;
+}
+
+function addLocations(locs: Array<Element>): Array<ElementPlusLoc> {
+  return locs.map(addLocation);
+}
+
+type ElementPlusLocPlusText = $Subtype<Element> & {x: number, y: number, text: string}
+function addLocationsAndText(locs: Array<Element>): Array<ElementPlusLocPlusText> {
+  return _.sortBy(addLocations(locs).map(e => {
+                                      e.text = e.getText();
+                                      return e;
+                                    }),
+                                    e => e.text.length
+                                  );
+}
+
+function pointsOverlap(lowerBound1, upperBound1, lowerBound2, upperBound2){
+
+  function liesWithin(target, lowerBound, upperBound){
+    return (target >= lowerBound && target <= upperBound);
+  }
+
+  return  liesWithin(lowerBound1, lowerBound2, upperBound2) ||
+          liesWithin(upperBound1, lowerBound2, upperBound2) ||
+          liesWithin(lowerBound2, lowerBound1, upperBound1) ||
+          liesWithin(upperBound2, lowerBound1, upperBound1);
+}
+
+function centrePassesThroughTarget(candidate: ElementPlusDistance, targetLabel: ElementPlusLocPlusText, directionModifier: LabelSearchDirectionModifier): boolean {
+
+  return (directionModifier === 'A' || directionModifier === 'B') ?
+            targetLabel.horizontalCentre < candidate.right && targetLabel.horizontalCentre > candidate.left :
+          (directionModifier === 'R' || directionModifier === 'L') ?
+            targetLabel.verticalCentre > candidate.top && targetLabel.verticalCentre < candidate.bottom :
+            centrePassesThroughTarget(candidate, targetLabel, 'L') || centrePassesThroughTarget(candidate, targetLabel, 'A');
+}
+
+function distanceLabelToDataObject(candidate, targetLabel, directionModifier){
+  function veritcalOverlap(targetLabel, candidate){
+    return pointsOverlap(candidate.top, candidate.bottom, targetLabel.top, targetLabel.bottom);
+  }
+
+  function pixToRight(candidate, targetLabel){
+    return targetLabel.right <= candidate.left && veritcalOverlap(targetLabel, candidate) ?
+           candidate.left - targetLabel.right: null;
+  }
+
+  function pixToLeft(candidate, targetLabel){
+    return targetLabel.left >= candidate.left /* using .left not .right because some labels envelop their control esp clickable controls */ && veritcalOverlap(targetLabel, candidate) ?
+         Math.max(targetLabel.left - candidate.right, 0) : null;
+  }
+
+  function horizontalOverlap(targetLabel, candidate){
+    return pointsOverlap(candidate.left, candidate.right, targetLabel.left, targetLabel.right);
+  }
+
+  function pixAbove(candidate, targetLabel){
+    return targetLabel.top >= candidate.bottom  && horizontalOverlap(targetLabel, candidate) ?
+          targetLabel.top - candidate.bottom: null;
+  }
+
+  function pixBelow(candidate, targetLabel){
+    return targetLabel.bottom <= candidate.top && horizontalOverlap(targetLabel, candidate) ?
+         candidate.top - targetLabel.bottom: null;
+  }
+
+  switch (directionModifier) {
+    case 'A':
+      return pixAbove(candidate, targetLabel);
+
+    case 'B':
+      return pixBelow(candidate, targetLabel);
+
+    case 'R':
+      return pixToRight(candidate, targetLabel);
+
+    case 'L':
+      return pixToLeft(candidate, targetLabel);
+
+    default:
+      let distanceFromTarget = def(pixToRight(candidate, targetLabel), pixBelow(candidate, targetLabel));
+
+      // only look to left of label if chkbox or radio
+      if (isCheckable(candidate)){
+        var pixLeft = pixToLeft(candidate, targetLabel);
+        if (pixLeft != null && (distanceFromTarget == null || pixLeft < distanceFromTarget) ){
+          distanceFromTarget = pixLeft;
+        }
+      }
+      return distanceFromTarget;
+  }
+}
+
+type ElementPlusDistance = $Subtype<Element> & {distanceFromTarget: ?number, labelCentred: boolean}
+
+function nearestObject(targetLabel: ElementPlusLocPlusText, directionModifier: LabelSearchDirectionModifier, candidate: ElementPlusDistance, bestSoFar: ElementPlusDistance | null){
+  let distanceFromTarget = distanceLabelToDataObject(candidate, targetLabel, directionModifier);
+
+  if (distanceFromTarget != null && bestSoFar == null ||
+      bestSoFar != null &&
+      (
+        distanceFromTarget < bestSoFar.distanceFromTarget ||
+        distanceFromTarget === bestSoFar.distanceFromTarget && !bestSoFar.labelCentred
+      )
+    ){
+    candidate.distanceFromTarget = distanceFromTarget;
+    candidate.labelCentred = centrePassesThroughTarget(candidate, targetLabel, directionModifier);
+    return candidate;
+  }
+  else {
+    return bestSoFar;
+  }
+}
+
+function closestObject(targetLabel: ElementPlusLocPlusText, edts: Array<ElementPlusLoc>, directionModifier: LabelSearchDirectionModifier): Element | null {
+  function chooseBestObject(bestSoFar, candidate){
+    return nearestObject(targetLabel, directionModifier, candidate, bestSoFar);
+  }
+  return edts.reduce(chooseBestObject, null);
+}
+
+function nearestEdit(key: string, val: string | number | boolean, edts: Array<ElementPlusLoc>, labels: Array<ElementPlusLocPlusText>,
+                      wildcard: boolean, lblModifier: LabelSearchDirectionModifier): Element | null {
+  // Note labels previously sorted by text length so will pick the match
+  //with the shortest label
+  let pred : ElementPlusLocPlusText => boolean = wildcard ? e => wildCardMatch(e.text, key) : e => e.text === key,
+      targetLabel = _.find(labels, pred);
+
+  return targetLabel == null ? null : closestObject(targetLabel, edts, lblModifier);
 }
 
 export function setForm(
@@ -130,16 +324,23 @@ export function setForm(
       [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
       findElement = finder == null ? findByIdRadioFromLabelCloseLabel : finder,
       idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
-      forLablesMap = _.memoize(forLabels);
+      forLablesMap = _.memoize(forLabels),
+      editsWithPlaceHolders = _.memoize(addPlaceHolders),
+      addCoords = _.memoize(addLocations),
+      addCoordsTxt = _.memoize(addLocationsAndText);
 
   let partitionedForLabelSingleton: ?ClassifiedLabels = null;
   function partitionedForLabels(): ClassifiedLabels {
-    partitionedForLabelSingleton = partitionedForLabels == null ? partitionAddFor(nonEdits) : partitionAddFor(nonEdits);
+    partitionedForLabelSingleton = partitionedForLabelSingleton == null ? partitionAddFor(nonEdits) : partitionedForLabelSingleton;
     return partitionedForLabelSingleton;
   }
 
   function forLabels(): Array<ElementWithForAndText> {
     return partitionedForLabels().forLbls;
+  }
+
+  function nonForLabels(): Array<Element> {
+    return partitionedForLabels().otherLbls;
   }
 
   function forLblMap() {
@@ -156,11 +357,10 @@ export function setForm(
     return sortedForLabelTextSingleton;
   }
 
-  function findByIdRadioFromLabelCloseLabel(key: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
-    //logWarning('Reinstate This');
-
+  function findByIdRadioFromLabelCloseLabel(keyWithLabelDirectionModifier: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
     // Ided fields
-    let result = idedEdits[key],
+    let [lblModifier, key] = sliceSearchModifier(keyWithLabelDirectionModifier),
+        result = idedEdits[key],
         wildcard = result == null && (typeof key == 'string') && key.includes('*');
 
     // Named radio group
@@ -180,15 +380,23 @@ export function setForm(
       result = lblText == null ? null : forLblMap()[lblText];
     }
 
-    // findRadioGroup - check for id
+    // placeholders ~ not tested
+    if (result == null){
+      let pred : ElementWithPlaceHolder => boolean = wildcard ? e => wildCardMatch(e.placeholder, key) : e => e.placeholder === key;
+      result = editsWithPlaceHolders(edits).find(pred);
+    }
 
-    // proximal labels inc radio groups
+    //proximal labels - non for
+    if (result == null){
+      let labels = addCoordsTxt(nonForLabels()),
+          edts = addCoords(edits);
+      result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
+    }
+
 
     // Custom finder and setter
 
     // adapt as reader to finish off test (actual)
-
-    // alt text
     return result;
   }
 
@@ -205,14 +413,11 @@ export function setForm(
                                               failedMappings: []
                                             } );
   prof.done('mapping');
-
-
   prof.start('setting');
   _.each(mapping.mapping, (e, k) => set(e, valMap[k]));
   prof.end('setting');
   prof.end();
   log(replaceAll(prof.toString(), ';', ';\n'));
-
 
   let fails = mapping.failedMappings;
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)

@@ -181,7 +181,7 @@ describe('todayPlus', () => {
 
 describe('datePlus', () => {
 
-  it.only('equal expected miliseconds from today', () => {
+  it('equal expected miliseconds from today', () => {
     let month = today().month() + 1,
         dateDiff = todayPlus(5).toDate() - jsToday(),
         fiveDays = 5 * 1000 * 60 * 60 * 24,
