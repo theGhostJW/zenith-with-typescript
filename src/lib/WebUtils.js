@@ -87,6 +87,7 @@ type ClassifiedLabels = {
                           otherLbls: Array<Element>
                         };
 
+// label above / below Left / right / default (left the  above)
 export type LabelSearchDirectionModifier = 'A'| 'B' | 'L' | 'R' | '*';
 
 const allModifiers = ['A', 'B', 'L', 'R', '*'];
@@ -194,26 +195,36 @@ function pointsOverlap(lowerBound1, upperBound1, lowerBound2, upperBound2){
 
 function centrePassesThroughTarget(candidate: ElementPlusDistance, targetLabel: ElementPlusLocPlusText, directionModifier: LabelSearchDirectionModifier): boolean {
 
-  return (directionModifier === 'A' || directionModifier === 'B') ?
-            targetLabel.horizontalCentre < candidate.right && targetLabel.horizontalCentre > candidate.left :
-          (directionModifier === 'R' || directionModifier === 'L') ?
-            targetLabel.verticalCentre > candidate.top && targetLabel.verticalCentre < candidate.bottom :
-            centrePassesThroughTarget(candidate, targetLabel, 'L') || centrePassesThroughTarget(candidate, targetLabel, 'A');
+  let horizonallyAligned = targetLabel.horizontalCentre < candidate.right && targetLabel.horizontalCentre > candidate.left,
+      verticallyAligned = targetLabel.verticalCentre > candidate.top && targetLabel.verticalCentre < candidate.bottom;
+
+  return (directionModifier === 'A' || directionModifier === 'B') ?  horizonallyAligned :
+         (directionModifier === 'R' || directionModifier === 'L') ?  verticallyAligned  :
+         horizonallyAligned || verticallyAligned;
 }
 
-function distanceLabelToDataObject(candidate, targetLabel, directionModifier){
+function distanceLabelToDataObject(candidate, targetLabel, directionModifier: LabelSearchDirectionModifier){
   function veritcalOverlap(targetLabel, candidate){
     return pointsOverlap(candidate.top, candidate.bottom, targetLabel.top, targetLabel.bottom);
   }
 
   function pixToRight(candidate, targetLabel){
-    return targetLabel.right <= candidate.left && veritcalOverlap(targetLabel, candidate) ?
+    let result = targetLabel.right <= candidate.left && veritcalOverlap(targetLabel, candidate) ?
            candidate.left - targetLabel.right: null;
+    return result;
   }
 
   function pixToLeft(candidate, targetLabel){
-    return targetLabel.left >= candidate.left /* using .left not .right because some labels envelop their control esp clickable controls */ && veritcalOverlap(targetLabel, candidate) ?
-         Math.max(targetLabel.left - candidate.right, 0) : null;
+
+    let result = targetLabel.left >= candidate.left /* using .left not .right because some labels envelop their control esp clickable controls */ && veritcalOverlap(targetLabel, candidate) ?
+                  Math.max(targetLabel.left - candidate.right, 0) : null;
+
+      log('label', targetLabel);
+      log('candidate',candidate);
+      log('PIX LEFT: ' + directionModifier + ' ==== '  + targetLabel.text + '  ' +  idAttribute(candidate) + ' ' + result);
+      log(veritcalOverlap(targetLabel, candidate) )
+
+     return result;
   }
 
   function horizontalOverlap(targetLabel, candidate){
@@ -230,25 +241,28 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier){
          candidate.top - targetLabel.bottom: null;
   }
 
+ // Because LabelSearchDirectionModifier from the perspective of the label
+ // but this code was implemented from the perspective of the data control
+ // the functions are flipped below
   switch (directionModifier) {
-    case 'A':
-      return pixAbove(candidate, targetLabel);
-
-    case 'B':
+    case 'A': // label object to above
       return pixBelow(candidate, targetLabel);
 
-    case 'R':
-      return pixToRight(candidate, targetLabel);
+    case 'B': // label object to below
+      return pixAbove(candidate, targetLabel);
 
-    case 'L':
+    case 'R': // label object to right
       return pixToLeft(candidate, targetLabel);
+
+    case 'L': // label object to left
+      return pixToRight(candidate, targetLabel);
 
     default:
       let distanceFromTarget = def(pixToRight(candidate, targetLabel), pixBelow(candidate, targetLabel));
 
-      // only look to left of label if chkbox or radio
+      // only look to left of label if chkbox or radio ~ note the flip see above
       if (isCheckable(candidate)){
-        var pixLeft = pixToLeft(candidate, targetLabel);
+        var pixLeft = pixToLeft(candidate, targetLabel); // candidate to left of lbl
         if (pixLeft != null && (distanceFromTarget == null || pixLeft < distanceFromTarget) ){
           distanceFromTarget = pixLeft;
         }
@@ -262,13 +276,14 @@ type ElementPlusDistance = $Subtype<Element> & {distanceFromTarget: ?number, lab
 function nearestObject(targetLabel: ElementPlusLocPlusText, directionModifier: LabelSearchDirectionModifier, candidate: ElementPlusDistance, bestSoFar: ElementPlusDistance | null){
   let distanceFromTarget = distanceLabelToDataObject(candidate, targetLabel, directionModifier);
 
-  if (distanceFromTarget != null && bestSoFar == null ||
-      bestSoFar != null &&
-      (
-        distanceFromTarget < bestSoFar.distanceFromTarget ||
-        distanceFromTarget === bestSoFar.distanceFromTarget && !bestSoFar.labelCentred
-      )
-    ){
+  const distanceFromTargetCloser = () => {
+    return distanceFromTarget == null || bestSoFar == null ? false :
+              distanceFromTarget < bestSoFar.distanceFromTarget ||
+              distanceFromTarget === bestSoFar.distanceFromTarget && !bestSoFar.labelCentred;
+  }
+
+  if (distanceFromTarget != null && (bestSoFar == null || distanceFromTargetCloser())){
+    log('!!!!! Nearest Object: ' + idAttribute(candidate) + ' ' + distanceFromTarget)
     candidate.distanceFromTarget = distanceFromTarget;
     candidate.labelCentred = centrePassesThroughTarget(candidate, targetLabel, directionModifier);
     return candidate;
@@ -343,10 +358,6 @@ export function setForm(
       addCoordsTxt = _.memoize(addLocationsAndText),
       elementsWithType = _.memoize(addType);
 
-
-  log('P.A.R.T.I.T.I.O.N');
-
-
   let partitionedForLabelSingleton: ?ClassifiedLabels = null;
   function partitionedForLabels(): ClassifiedLabels {
     partitionedForLabelSingleton = partitionedForLabelSingleton == null ? partitionAddFor(nonEdits) : partitionedForLabelSingleton;
@@ -405,7 +416,6 @@ export function setForm(
 
     // placeholders ~ not tested
     if (result == null){
-      log('PLACEHOLDERS');
       let pred : ElementWithPlaceHolder => boolean = wildcard ? e => wildCardMatch(e.placeholder, key) : e => e.placeholder === key;
       result = editsWithPlaceHolders(edits).find(pred);
     }
@@ -419,10 +429,10 @@ export function setForm(
       let labels = addCoordsTxt(forLabels().concat(nonForLabels())),
 
   //  let labels = addCoordsTxt(nonForLabels()),
-          edts = addCoords(edits);
+      edts = addCoords(edits);
 
       result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
-      log('RESULT', show(result));
+      log('!!!!!!!!! Prox result ' + key + ' - ' + idAttribute(result) + ' ~ ' + val)
     }
 
     // Custom finder and setter
@@ -446,8 +456,7 @@ export function setForm(
   prof.done('mapping');
   prof.start('setting');
   _.each(mapping.mapping, (e, k) => {
-        log('KEYYYYYY', k);
-        log('ELLLL', e.getHTML());
+        log('setting ' + idAttribute(e) + ' ~ ' + valMap[k])
         set(e, valMap[k]);
       }
   );

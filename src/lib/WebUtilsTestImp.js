@@ -63,20 +63,20 @@ export const FORM_INPUT_IDS = {
     }
 
    export const FORM_INPUT_PROXIMAL_LABELS = {
-        'Product*': 'ScreenSaver',
-        '*tity*': '\uE00395',
-        '*per unit*': 10,
-        'Discount:': 7,
-        // for label
-        'Customer name:*': 'Janice Peterson',
-        'Street*': '22 Vernon St',
-        // for label fuzzy
-        'City*': 'Croydon',
-        'State*': 'Victoria',
-        'Zip:': 3136,
+         'Product*': 'ScreenSaver',
+         '*tity*': '\uE00395',
+         '*per unit*': 10,
+         'Discount:': 7,
+         // for label
+         'Customer name:*': 'Janice Peterson',
+         'Street*': '22 Vernon St',
+         // for label fuzzy
+         'City*': 'Croydon',
+         'State*': 'Victoria',
+         'Zip*': 3136,
         // radio button
         'R~American Express': true,
-        'Card Nr*': '12345678',
+         'Card Nr*': '12345678',
         'Expire*': '12/24'
       }
 

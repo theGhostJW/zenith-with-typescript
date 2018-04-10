@@ -13,6 +13,8 @@ function thisIsBad(arr){
             doSomething();
         }
         else {
+            if (k)
+              break;
             doSomethingElse();
         }
       }
@@ -147,19 +149,33 @@ dwarfs
 // Shouty Dwarfs
  ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].map(n => `${n.toUpperCase()} !!!!`)
 
- // Chained Shouty Longg Name Dwarfs
+ // Chained Shouty Long Name Dwarfs
   ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty']
                             .filter(n => n.length > 4)
                             .map(n => `${n.toUpperCase()} !!!!`)
                             .forEach(console.log)
 
-
-
 /*
-*************************************************************************************************
-**************************************** reduce **************************************************
-*************************************************************************************************
+********************************************************************************
+*********************************** reduce *************************************
+********************************************************************************
 */
+
+ // many -> one
+
+function addToObj(accum, dwarf) {
+  accum[dwarf] = dwarf.length;
+  return accum;
+}
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].reduce(addToObj, {});
+
+// Roll your own max
+
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].reduce((ml, d) => d.length > ml ? d.length : ml, 0);
+
+let _ = require('lodash');
+// this doees not work will return to this next week (with proper imports)
+_.maxBy(['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'], d => d.length);
 
 
 ```
