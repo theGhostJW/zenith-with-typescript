@@ -54,6 +54,9 @@ function thisIsBad(arr){
 *************************************************************************************************
 */
 
+function functionName(name) {
+  return name.startsWith('h')
+}
 ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].find(n => n.startsWith('h'))
 ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].find(n => n.startsWith('r'))
 
@@ -101,12 +104,26 @@ function longerThan(minLength) {
     return str.length > minLength
   }
 }
-longerThan(4)('HodyDoDe');
+
+unction isLonger(str) {
+  return str.length > 4
+}
+
 ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(longerThan(3));
+
 ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(longerThan(4));
 
 //
+//
+
+function longerThan(minLength) {
+  return function isLonger(str) {
+    return str.length > minLength
+  }
+}
+
 const longerThan = ml => s => s.length > ml;
+
 ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].some(longerThan(4));
 ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(longerThan(4));
 
@@ -117,8 +134,9 @@ const longerThan = ml => s => s.length > ml;
 */
 
 // Note limited - in place ~ not a HOF
-['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].sort();
-
+let d = ['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'];
+d.sort();
+d
 
 /*
 *************************************************************************************************
@@ -128,6 +146,8 @@ const longerThan = ml => s => s.length > ml;
 
 const dwarfs = ['lazy', 'sleepy', 'happy', 'grumpy', 'lofty']
 let lDwafs = dwarfs.filter(n => n.startsWith('l'));
+lDwafs
+dwarfs
 
 console.log('=== All Dwarfs ===')
 dwarfs.forEach(console.log)
@@ -171,7 +191,8 @@ function addToObj(accum, dwarf) {
 
 // Roll your own max
 
-['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].reduce((ml, d) => d.length > ml ? d.length : ml, 0);
+['lazy', 'slee', 'happy', 'grmpy', 'dopy', 'lofty'].reduce(
+                        (ml, d) => d.length > ml ? d.length : ml, 0);
 
 let _ = require('lodash');
 // this doees not work will return to this next week (with proper imports)
