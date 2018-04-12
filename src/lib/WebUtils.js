@@ -168,11 +168,13 @@ function addLocation(el:$Subtype<Element>): ElementPlusLoc {
 }
 
 function addLocations(locs: Array<Element>): Array<ElementPlusLoc> {
+  log('addLocations Called')
   return locs.map(addLocation);
 }
 
 type ElementPlusLocPlusText = $Subtype<Element> & {x: number, y: number, text: string}
 function addLocationsAndText(locs: Array<Element>): Array<ElementPlusLocPlusText> {
+  log('CALLING');
   return _.sortBy(addLocations(locs).map(e => {
                                       e.text = e.getText();
                                       return e;
@@ -215,16 +217,9 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
   }
 
   function pixToLeft(candidate, targetLabel){
-
     let result = targetLabel.left >= candidate.left /* using .left not .right because some labels envelop their control esp clickable controls */ && veritcalOverlap(targetLabel, candidate) ?
                   Math.max(targetLabel.left - candidate.right, 0) : null;
-
-      log('label', targetLabel);
-      log('candidate',candidate);
-      log('PIX LEFT: ' + directionModifier + ' ==== '  + targetLabel.text + '  ' +  idAttribute(candidate) + ' ' + result);
-      log(veritcalOverlap(targetLabel, candidate) )
-
-     return result;
+    return result;
   }
 
   function horizontalOverlap(targetLabel, candidate){
@@ -283,7 +278,6 @@ function nearestObject(targetLabel: ElementPlusLocPlusText, directionModifier: L
   }
 
   if (distanceFromTarget != null && (bestSoFar == null || distanceFromTargetCloser())){
-    log('!!!!! Nearest Object: ' + idAttribute(candidate) + ' ' + distanceFromTarget)
     candidate.distanceFromTarget = distanceFromTarget;
     candidate.labelCentred = centrePassesThroughTarget(candidate, targetLabel, directionModifier);
     return candidate;
@@ -358,6 +352,7 @@ export function setForm(
       addCoordsTxt = _.memoize(addLocationsAndText),
       elementsWithType = _.memoize(addType);
 
+
   let partitionedForLabelSingleton: ?ClassifiedLabels = null;
   function partitionedForLabels(): ClassifiedLabels {
     partitionedForLabelSingleton = partitionedForLabelSingleton == null ? partitionAddFor(nonEdits) : partitionedForLabelSingleton;
@@ -386,6 +381,8 @@ export function setForm(
     return sortedForLabelTextSingleton;
   }
 
+  let DEBUG_ALL_LABELS = forLabels().concat(nonForLabels());
+
   function findByIdRadioFromLabelCloseLabel(keyWithLabelDirectionModifier: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
     // Ided fields
     let [lblModifier, key] = sliceSearchModifier(keyWithLabelDirectionModifier),
@@ -397,7 +394,7 @@ export function setForm(
       result = findNamedRadioGroup(key, elementsWithType(edits), wildcard);
     }
 
-    logWarning('revert this');
+  //  logWarning('revert this');
     // comment out labelwith for to test proximal label
     // Label with for and make change in proximal labels block
     /*
@@ -424,15 +421,19 @@ export function setForm(
     if (result == null){
 
       //Testing Code
-      logWarning('revert this');
-      log('PROXIMALS');
-      let labels = addCoordsTxt(forLabels().concat(nonForLabels())),
 
+      prof.start('proximals');
+      let labels = addCoordsTxt(DEBUG_ALL_LABELS);
+      //  logWarning('revert this');
   //  let labels = addCoordsTxt(nonForLabels()),
-      edts = addCoords(edits);
+      prof.start('decorateEdits');
+      let edts = addCoords(edits);
+      prof.done('decorateEdits');
 
+      prof.start('nearestEdit');
       result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
-      log('!!!!!!!!! Prox result ' + key + ' - ' + idAttribute(result) + ' ~ ' + val)
+      prof.done('nearestEdit');
+      prof.done('proximals');
     }
 
     // Custom finder and setter
@@ -455,17 +456,21 @@ export function setForm(
                                             } );
   prof.done('mapping');
   prof.start('setting');
-  _.each(mapping.mapping, (e, k) => {
-        log('setting ' + idAttribute(e) + ' ~ ' + valMap[k])
-        set(e, valMap[k]);
-      }
-  );
-  prof.end('setting');
+  _.each(mapping.mapping, (e, k) => handledSet(e, valMap[k]));
+  prof.done('setting');
   prof.end();
   log(replaceAll(prof.toString(), ';', ';\n'));
 
   let fails = mapping.failedMappings;
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
+}
+
+function handledSet(element: Element, value: string | number | boolean) {
+  try {
+    set(element, value);
+  } catch (e) {
+    fail(`set function failed: setting element to value: ${show(value)} \n element: ${element.getHTML()}`, e);
+  }
 }
 
 function findNamedRadioGroup(searchTerm: string, edits: Array<ElementWithType>, wildCard: boolean) : Element | null {
@@ -704,7 +709,13 @@ export function read(elementOrSelector: SelectorOrElement): boolean | string | n
 
 export function set(elementOrSelector: SelectorOrElement, value: string | number | boolean) : void {
   let el =  S(elementOrSelector),
-      checkable = isCheckable(el);
+      checkable = isCheckable(el),
+      bool = _.isBoolean(value);
+
+  const isIsNot = b => `is${b ? '' : ' not'}`;
+  if (checkable !== bool){
+    fail(`set - type mismatch - value type ${isIsNot(bool)} boolean but element ${isIsNot(checkable)} a radio button or checkbox.`);
+  }
 
   return checkable ?
       setChecked(el, cast(value)):
