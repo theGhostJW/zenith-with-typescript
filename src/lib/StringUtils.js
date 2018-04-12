@@ -624,7 +624,8 @@ export function replaceAll(hayStack: string, needle: string, replacement: string
    return hayStack.replace(reg, replacement);
 }
 
-export function wildCardMatch(hayStack: string, needlePattern: string, caseSensitive: boolean = true, checkForAll: boolean = true, processFragmentResult: (fragment: string, remainder: string, found: boolean) => void = (f,r,ff) => {} ): boolean {
+export function wildCardMatch(hayStack: string, needlePattern: string, caseSensitive: boolean = true, checkForAll: boolean = false,
+                            processFragmentResult: (fragment: string, remainder: string, found: boolean) => void = (f,r,ff) => {} ): boolean {
 
   if (!caseSensitive){
     hayStack = lowerCase(hayStack);
@@ -633,27 +634,24 @@ export function wildCardMatch(hayStack: string, needlePattern: string, caseSensi
 
   function findNextPattern(accum, fragment){
     if (!checkForAll && !accum.result){
-      return accum;
+      return false;
     }
 
     // make forgiving with spaces
     fragment = trim(fragment);
-    let result = {},
-        remainder = accum.remainder,
+    let remainder = accum.remainder,
         idx = remainder.indexOf(fragment),
         found = (idx > -1);
 
-    processFragmentResult(fragment, remainder, found);
+      processFragmentResult(fragment, remainder, found);
 
-    return {
-      result: accum.result && found,
-      remainder: found ? remainder.slice(idx + fragment.length) : remainder
-    };
+      accum.result = accum.result && found;
+      accum.remainder = found ? remainder.slice(idx + fragment.length) : remainder;
   }
 
   let result = _.chain(needlePattern.split('*'))
                   .filter(hasValue) // ignore empty strings in pattern
-                  .reduce(findNextPattern, {result: true, remainder: hayStack})
+                  .transform(findNextPattern, {result: true, remainder: hayStack})
                   .value();
 
   return result.result;
