@@ -149,7 +149,7 @@ describe('loadSectionedTemplate', () => {
           };
 
     function accountsTransformer(xmlTemplate, accountsObj){
-      
+
       let arrAccounts = forceArray(accountsObj),
           accountTemplate = templateSectionParts(xmlTemplate, 'account').section,
           sectionToRemove = accountsObj.unformattedAddress == null ?
@@ -830,7 +830,7 @@ describe('show', () => {
 
 });
 
-describe('wildcardMatch', () => {
+describe.only('wildcardMatch', () => {
 
   it('wildcard surround', () => {
     chk(wildCardMatch("demo_Array_Data_Driven_Test", "*Array*"));

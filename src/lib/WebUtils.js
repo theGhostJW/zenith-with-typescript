@@ -150,6 +150,7 @@ type ElementPlusLoc = $Subtype<Element> & {
                                             verticalCentre: number,
                                             horizontalCentre: number
                                           }
+
 function addLocation(el:$Subtype<Element>): ElementPlusLoc {
   let loc = el.getLocation(),
       size = el.getElementSize();
@@ -210,13 +211,13 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
     return pointsOverlap(candidate.top, candidate.bottom, targetLabel.top, targetLabel.bottom);
   }
 
-  function pixToRight(candidate, targetLabel){
+  function editPixToRight(candidate, targetLabel){
     let result = targetLabel.right <= candidate.left && veritcalOverlap(targetLabel, candidate) ?
            candidate.left - targetLabel.right: null;
     return result;
   }
 
-  function pixToLeft(candidate, targetLabel){
+  function editPixToLeft(candidate, targetLabel){
     let result = targetLabel.left >= candidate.left /* using .left not .right because some labels envelop their control esp clickable controls */ && veritcalOverlap(targetLabel, candidate) ?
                   Math.max(targetLabel.left - candidate.right, 0) : null;
     return result;
@@ -226,12 +227,12 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
     return pointsOverlap(candidate.left, candidate.right, targetLabel.left, targetLabel.right);
   }
 
-  function pixAbove(candidate, targetLabel){
+  function editPixAbove(candidate, targetLabel){
     return targetLabel.top >= candidate.bottom  && horizontalOverlap(targetLabel, candidate) ?
           targetLabel.top - candidate.bottom: null;
   }
 
-  function pixBelow(candidate, targetLabel){
+  function editPixBelow(candidate, targetLabel){
     return targetLabel.bottom <= candidate.top && horizontalOverlap(targetLabel, candidate) ?
          candidate.top - targetLabel.bottom: null;
   }
@@ -241,23 +242,23 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
  // the functions are flipped below
   switch (directionModifier) {
     case 'A': // label object to above
-      return pixBelow(candidate, targetLabel);
+      return editPixBelow(candidate, targetLabel);
 
     case 'B': // label object to below
-      return pixAbove(candidate, targetLabel);
+      return editPixAbove(candidate, targetLabel);
 
     case 'R': // label object to right
-      return pixToLeft(candidate, targetLabel);
+      return editPixToLeft(candidate, targetLabel);
 
     case 'L': // label object to left
-      return pixToRight(candidate, targetLabel);
+      return editPixToRight(candidate, targetLabel);
 
     default:
-      let distanceFromTarget = def(pixToRight(candidate, targetLabel), pixBelow(candidate, targetLabel));
+      let distanceFromTarget = def(editPixToRight(candidate, targetLabel), editPixBelow(candidate, targetLabel));
 
       // only look to left of label if chkbox or radio ~ note the flip see above
       if (isCheckable(candidate)){
-        var pixLeft = pixToLeft(candidate, targetLabel); // candidate to left of lbl
+        var pixLeft = editPixToLeft(candidate, targetLabel); // candidate to left of lbl
         if (pixLeft != null && (distanceFromTarget == null || pixLeft < distanceFromTarget) ){
           distanceFromTarget = pixLeft;
         }
@@ -317,19 +318,36 @@ function addType(elements: Element[]): ElementWithType[] {
   return elements.reduce(addEl, []);
 }
 
+// up to here reuse this fo labesl and non lables
+// use sorted list of elements rather than a map
+// by test length
+// function matchLabel() {
+//   if (result == null){
+//     result = forLblMap()[key];
+//   }
+//
+//   // Label with for + wildcard
+//   if (result == null && wildcard){
+//     // for labels
+//     let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
+//     result = lblText == null ? null : forLblMap()[lblText];
+//   }
+// }
+
+
+function addId(accum: {[string]: Element}, element: Element) {
+   let id = idAttribute(element);
+   if (id != null){
+     accum[id] = element;
+   }
+}
+
 export function setForm(
                           parentElementorSelector: SelectorOrElement,
                           valMap: {[string]: string | number | boolean},
                           setter: (Element, string | number | boolean) => void = set,
                           finder?: (key: string, editable: Array<Element>, val: string | number | ?boolean, nonEditable: ?Array<Element>) => Element
                         ): void {
-
-  function addId(accum, element) {
-     let id = idAttribute(element);
-     if (id != null){
-       accum[id] = element;
-     }
-  }
 
   let prof = new sp({});
 
@@ -346,7 +364,6 @@ export function setForm(
       [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
       findElement = finder == null ? findByIdRadioFromLabelCloseLabel : finder,
       idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
-      forLablesMap = _.memoize(forLabels),
       editsWithPlaceHolders = _.memoize(addPlaceHolders),
       addCoords = _.memoize(addLocations),
       addCoordsTxt = _.memoize(addLocationsAndText),
@@ -367,7 +384,7 @@ export function setForm(
     return partitionedForLabels().otherLbls;
   }
 
-  function forLblMap() {
+  function forLblMap(): {[string]: ElementWithForAndText} {
     return forLabelsMapFromArray(forLabels(), idedEdits);
   }
 
@@ -718,7 +735,7 @@ export function set(elementOrSelector: SelectorOrElement, value: string | number
   }
 
   return checkable ?
-      setChecked(el, cast(value)):
+    setChecked(el, cast(value)):
 
      elementIs('select')(el) ?
        setSelect(el, cast(value)) :
