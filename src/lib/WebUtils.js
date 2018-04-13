@@ -257,6 +257,7 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
       let distanceFromTarget = def(editPixToRight(candidate, targetLabel), editPixBelow(candidate, targetLabel));
 
       // only look to left of label if chkbox or radio ~ note the flip see above
+      // TODO: singletonerise isCheckableset
       if (isCheckable(candidate)){
         var pixLeft = editPixToLeft(candidate, targetLabel); // candidate to left of lbl
         if (pixLeft != null && (distanceFromTarget == null || pixLeft < distanceFromTarget) ){
@@ -295,6 +296,7 @@ function closestObject(targetLabel: ElementPlusLocPlusText, edts: Array<ElementP
   return edts.reduce(chooseBestObject, null);
 }
 
+//TODO: refactior
 function nearestEdit(key: string, val: string | number | boolean, edts: Array<ElementPlusLoc>, labels: Array<ElementPlusLocPlusText>,
                       wildcard: boolean, lblModifier: LabelSearchDirectionModifier): Element | null {
   // Note labels previously sorted by text length so will pick the match
@@ -321,6 +323,7 @@ function addType(elements: Element[]): ElementWithType[] {
 // up to here reuse this fo labesl and non lables
 // use sorted list of elements rather than a map
 // by test length
+// TODO: start refactoring
 // function matchLabel() {
 //   if (result == null){
 //     result = forLblMap()[key];
@@ -435,6 +438,7 @@ export function setForm(
     }
 
     //proximal labels - non for
+    //TODO: generalise / refactor this
     if (result == null){
 
       //Testing Code
