@@ -486,6 +486,7 @@ export function setForm(
                 accum.mapping[key] = target;
   }
 
+  // Up to here custom setter
   let mapping = _.transform(valMap, mapVal, {
                                               mapping: {},
                                               failedMappings: []
