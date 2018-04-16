@@ -149,6 +149,10 @@ type ElementPlusLoc = $Subtype<Element> & {
                                             height: number,
                                             verticalCentre: number,
                                             horizontalCentre: number
+                                          };
+
+type ElementPlusLocIsCheckControl = $Subtype<ElementPlusLoc> & {
+                                            isCheckControl: boolean
                                           }
 
 function addLocation(el:$Subtype<Element>): ElementPlusLoc {
@@ -166,6 +170,16 @@ function addLocation(el:$Subtype<Element>): ElementPlusLoc {
   el.verticalCentre = loc.y + size.height/2;
   el.horizontalCentre = loc.x + size.width/2;
   return el;
+}
+
+function addLocationsAndCheckControl(locs: Array<Element>): Array<ElementPlusLocIsCheckControl> {
+  log('addLocations Called')
+  return locs.
+            map(addLocation).
+            map(el => {
+                        el.isCheckControl = isCheckable(el);
+                        return el;
+                      });
 }
 
 function addLocations(locs: Array<Element>): Array<ElementPlusLoc> {
@@ -257,8 +271,7 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
       let distanceFromTarget = def(editPixToRight(candidate, targetLabel), editPixBelow(candidate, targetLabel));
 
       // only look to left of label if chkbox or radio ~ note the flip see above
-      // TODO: singletonerise isCheckableset
-      if (isCheckable(candidate)){
+      if (candidate.isCheckControl){
         var pixLeft = editPixToLeft(candidate, targetLabel); // candidate to left of lbl
         if (pixLeft != null && (distanceFromTarget == null || pixLeft < distanceFromTarget) ){
           distanceFromTarget = pixLeft;
@@ -289,7 +302,7 @@ function nearestObject(targetLabel: ElementPlusLocPlusText, directionModifier: L
   }
 }
 
-function closestObject(targetLabel: ElementPlusLocPlusText, edts: Array<ElementPlusLoc>, directionModifier: LabelSearchDirectionModifier): Element | null {
+function closestObject(targetLabel: ElementPlusLocPlusText, edts: Array<ElementPlusLocIsCheckControl>, directionModifier: LabelSearchDirectionModifier): Element | null {
   function chooseBestObject(bestSoFar, candidate){
     return nearestObject(targetLabel, directionModifier, candidate, bestSoFar);
   }
@@ -369,6 +382,7 @@ export function setForm(
       idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
       editsWithPlaceHolders = _.memoize(addPlaceHolders),
       addCoords = _.memoize(addLocations),
+      addCoordsCheckable = _.memoize(addLocationsAndCheckControl),
       addCoordsTxt = _.memoize(addLocationsAndText),
       elementsWithType = _.memoize(addType);
 
@@ -448,7 +462,7 @@ export function setForm(
       //  logWarning('revert this');
   //  let labels = addCoordsTxt(nonForLabels()),
       prof.start('decorateEdits');
-      let edts = addCoords(edits);
+      let edts = addCoordsCheckable(edits);
       prof.done('decorateEdits');
 
       prof.start('nearestEdit');
