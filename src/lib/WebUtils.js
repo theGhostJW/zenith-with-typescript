@@ -173,7 +173,6 @@ function addLocation(el:$Subtype<Element>): ElementPlusLoc {
 }
 
 function addLocationsAndCheckControl(locs: Array<Element>): Array<ElementPlusLocIsCheckControl> {
-  log('addLocations Called')
   return locs.
             map(addLocation).
             map(el => {
@@ -183,13 +182,11 @@ function addLocationsAndCheckControl(locs: Array<Element>): Array<ElementPlusLoc
 }
 
 function addLocations(locs: Array<Element>): Array<ElementPlusLoc> {
-  log('addLocations Called')
   return locs.map(addLocation);
 }
 
 type ElementPlusLocPlusText = $Subtype<Element> & {x: number, y: number, text: string}
 function addLocationsAndText(locs: Array<Element>): Array<ElementPlusLocPlusText> {
-  log('CALLING');
   return _.sortBy(addLocations(locs).map(e => {
                                       e.text = e.getText();
                                       return e;
@@ -333,24 +330,6 @@ function addType(elements: Element[]): ElementWithType[] {
   return elements.reduce(addEl, []);
 }
 
-// up to here reuse this fo labesl and non lables
-// use sorted list of elements rather than a map
-// by test length
-// TODO: start refactoring
-// function matchLabel() {
-//   if (result == null){
-//     result = forLblMap()[key];
-//   }
-//
-//   // Label with for + wildcard
-//   if (result == null && wildcard){
-//     // for labels
-//     let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
-//     result = lblText == null ? null : forLblMap()[lblText];
-//   }
-// }
-
-
 function addId(accum: {[string]: Element}, element: Element) {
    let id = idAttribute(element);
    if (id != null){
@@ -365,7 +344,7 @@ export function setForm(
                           finder?: (key: string, editable: Array<Element>, val: string | number | ?boolean, nonEditable: ?Array<Element>) => Element
                         ): void {
 
-  let prof = new sp({});
+  //let prof = new sp({});
 
   function editsLabels(accum: [Array<Element>, Array<Element>], element: Element) {
     let tag = element.getTagName();
@@ -415,7 +394,7 @@ export function setForm(
     return sortedForLabelTextSingleton;
   }
 
-  let DEBUG_ALL_LABELS = forLabels().concat(nonForLabels());
+  //let DEBUG_ALL_LABELS = forLabels().concat(nonForLabels());
 
   function findByIdRadioFromLabelCloseLabel(keyWithLabelDirectionModifier: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
     // Ided fields
@@ -428,10 +407,6 @@ export function setForm(
       result = findNamedRadioGroup(key, elementsWithType(edits), wildcard);
     }
 
-  //  logWarning('revert this');
-    // comment out labelwith for to test proximal label
-    // Label with for and make change in proximal labels block
-    /*
     if (result == null){
       result = forLblMap()[key];
     }
@@ -442,8 +417,6 @@ export function setForm(
       let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
       result = lblText == null ? null : forLblMap()[lblText];
     }
-    */
-
 
     // placeholders ~ not tested
     if (result == null){
@@ -452,27 +425,14 @@ export function setForm(
     }
 
     //proximal labels - non for
-    //TODO: generalise / refactor this
     if (result == null){
-
-      //Testing Code
-
-      prof.start('proximals');
-      let labels = addCoordsTxt(DEBUG_ALL_LABELS);
-      //  logWarning('revert this');
-  //  let labels = addCoordsTxt(nonForLabels()),
-      prof.start('decorateEdits');
-      let edts = addCoordsCheckable(edits);
-      prof.done('decorateEdits');
-
-      prof.start('nearestEdit');
+      //let labels = addCoordsTxt(DEBUG_ALL_LABELS);
+      let labels = addCoordsTxt(nonForLabels()),
+          edts = addCoordsCheckable(edits);
       result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
-      prof.done('nearestEdit');
-      prof.done('proximals');
     }
 
     // Custom finder and setter
-
     // adapt as reader to finish off test (actual)
     return result;
   }
@@ -484,18 +444,12 @@ export function setForm(
                 accum.mapping[key] = target;
   }
 
-  prof.start('mapping');
   let mapping = _.transform(valMap, mapVal, {
                                               mapping: {},
                                               failedMappings: []
                                             } );
-  prof.done('mapping');
-  prof.start('setting');
   _.each(mapping.mapping, (e, k) => handledSet(e, valMap[k]));
-  prof.done('setting');
-  prof.end();
-  log(replaceAll(prof.toString(), ';', ';\n'));
-
+  //log(replaceAll(prof.toString(), ';', ';\n'));
   let fails = mapping.failedMappings;
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
 }
