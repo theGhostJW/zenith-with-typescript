@@ -337,11 +337,48 @@ function addId(accum: {[string]: Element}, element: Element) {
    }
 }
 
+export type SetterFunc = (Element, string | number | boolean) => void;
+export type FinderFunc = (key: string, editable: Array<Element>, val: string | number | ?boolean, nonEditable: ?Array<Element>) => Element;
+export type SetterValue = string | number | boolean;
+export type CustomSetFormSource = {
+  value: SetterValue,
+  finder?: FinderFunc,
+  setter?: SetterFunc
+}
+
+export function withSetter(value: SetterValue | CustomSetFormSource, setter: SetterFunc): CustomSetFormSource {
+  return _.isObject(value) ?
+                    {
+                      value: ensureHasVal(cast(value).value, 'withSetter value object value property is null or undefined'),
+                      finder: cast(value).finder,
+                      setter: setter
+                    } :
+                    {
+                      value: cast(value),
+                      setter: setter
+                    };
+
+}
+
+export function withFinder(value: SetterValue | CustomSetFormSource, finder: FinderFunc): CustomSetFormSource {
+  return _.isObject(value) ?
+                    {
+                      value: ensureHasVal(cast(value).value, 'withSetter value object value property is null or undefined'),
+                      finder: finder,
+                      setter: cast(value).setter
+                    } :
+                    {
+                      value: cast(value),
+                      finder: finder
+                    };
+}
+
+
 export function setForm(
                           parentElementorSelector: SelectorOrElement,
-                          valMap: {[string]: string | number | boolean},
-                          setter: (Element, string | number | boolean) => void = set,
-                          finder?: (key: string, editable: Array<Element>, val: string | number | ?boolean, nonEditable: ?Array<Element>) => Element
+                          valMap: {[string]: SetterValue | CustomSetFormSource},
+                          setter: SetterFunc = set,
+                          finder?: FinderFunc
                         ): void {
 
   //let prof = new sp({});
@@ -357,7 +394,7 @@ export function setForm(
 
   let elements = SSNested(parentElementorSelector, '*'),
       [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
-      findElement = finder == null ? findByIdRadioFromLabelCloseLabel : finder,
+      findElement = finder == null ? defaultFinder : finder,
       idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
       editsWithPlaceHolders = _.memoize(addPlaceHolders),
       addCoords = _.memoize(addLocations),
@@ -396,7 +433,7 @@ export function setForm(
 
   //let DEBUG_ALL_LABELS = forLabels().concat(nonForLabels());
 
-  function findByIdRadioFromLabelCloseLabel(keyWithLabelDirectionModifier: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
+  function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
     // Ided fields
     let [lblModifier, key] = sliceSearchModifier(keyWithLabelDirectionModifier),
         result = idedEdits[key],
@@ -437,8 +474,13 @@ export function setForm(
     return result;
   }
 
-  function mapVal(accum, val: string | number | boolean, key: string): void {
-    let target: ?Element = findElement(key, edits, val, nonEdits);
+  function mapVal(accum, val: SetterValue | CustomSetFormSource, key: string): void {
+
+    let isCustomObj = _.isObject(val),
+        trueVal: SetterValue = cast(isCustomObj ? ensureHasVal(cast(val).value, 'setform custom object must have value property defined') : val),
+        finder: FinderFunc = cast(isCustomObj && val.finder != null ? val.finder : findElement),
+        target: ?Element = finder(key, edits, trueVal, nonEdits);
+
     target == null ?
                 accum.failedMappings.push(`Could not find matching input element for: ${key}`):
                 accum.mapping[key] = target;
@@ -454,7 +496,7 @@ export function setForm(
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
 }
 
-function handledSet(element: Element, value: string | number | boolean) {
+function handledSet(element: Element, value: SetterValue) {
   try {
     set(element, value);
   } catch (e) {
