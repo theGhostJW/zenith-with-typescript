@@ -495,8 +495,6 @@ export function setForm(
                 safeSetter = handledSet(setter, mapping.customSetters),
                 trueVals = mapping.trueVals;
 
- log(show(mapping.customSetters))
-
   _.each(mapping.mapping, (e, k) => safeSetter(e, k, trueVals[k]));
 
   let fails = mapping.failedMappings;
