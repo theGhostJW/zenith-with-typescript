@@ -512,8 +512,6 @@ function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
   }
 }
 
-
-
 function findNamedRadioGroup(searchTerm: string, edits: Array<ElementWithType>, wildCard: boolean) : Element | null {
   // string could be group name
   let atrPred = wildCard ?
@@ -522,7 +520,6 @@ function findNamedRadioGroup(searchTerm: string, edits: Array<ElementWithType>, 
       namedRadios = edits.filter(e => e.type === 'radio' && atrPred(nameAttribute(e)));
   return namedRadios.length > 0 ? commonParent(namedRadios) : null;
 }
-
 
 function commonParent(radios: $Subtype<Element>[]) : Element | null {
   let radiosLength = radios.length;
