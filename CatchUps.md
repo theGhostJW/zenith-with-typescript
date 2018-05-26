@@ -1,6 +1,434 @@
-# Tour De HOF i
+# Tour De HOF ii
 
-## NO
+```javascript
+
+/*
+********************************************************************************************************
+********************************* Same, Same, Same but Different ****************************************
+********************************************************************************************************
+*/
+
+/*** LAST WEEK ***/
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].every(n => n.length > 3)
+
+/*** THIS WEEK ***/
+let _ = require('lodash');
+_.every(['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'], n => n.length > 3)
+
+// e.g. 2
+let _ = require('lodash');
+_.each(['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'], console.log)
+
+['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'].forEach(console.log)
+/*
+  * for arrays Lodash has:
+                * each
+                * map
+                * reduce
+                * find
+                * includes
+                * some
+                * filter
+
+   WHY and which to choose ??
+*/
+
+/*
+********************************************************************************************************
+************************************************* Objects **********************************************
+********************************************************************************************************
+*/
+
+const obj = {       
+              jill: {
+                      gender: 'F',
+                      pets: ['spot', 'peppa']
+                    },
+
+              jack:  {
+                      gender: 'M',
+                      pets: ['flopsy']
+                    },
+              boPeep: {
+                gender: 'F',
+                pets: ['snowdrop']
+              },
+              mary: {
+                gender: 'F',
+                pets: ['baba']
+              },
+              'tommy stout': {
+                gender: 'M',
+                pets: ['salina', 'sarrena', 'tom']
+              }
+            };
+
+const pets = c => c.pets;
+
+//obj.map(pets)
+let _ = require('lodash');
+//_.map(obj, pets);
+_.map(obj, 'pets');
+
+/*
+********************************************************************************************************
+************************************************* ZOOM IN  ********************************************
+*/
+const obj = { jill: {gender: 'F', pets: ['spot', 'peppa']  },
+              jack:  { gender: 'M', pets: ['flopsy']  },
+              boPeep: {gender: 'F', pets: ['snowdrop']},
+              mary: {gender: 'F',pets: ['baba'] },
+              'tommy stout': {gender: 'M',pets: ['salina', 'sarrena', 'tom']}};
+
+const gender = (value, key, object) => {
+  console.log(k);
+//  console.log(v);
+//  console.log(JSON.stringify(o));
+  return v.gender;
+};
+
+let _ = require('lodash');
+_.map(obj, gender);
+
+/*
+********************************************************************************************************
+***********************************I******** Put it Together *********************************************
+********************************************************************************************************
+*/
+
+const obj = { jill: {gender: 'F', pets: ['spot', 'peppa']  },
+              jack:  { gender: 'M', pets: ['flopsy']  },
+              boPeep: {gender: 'F', pets: ['snowdrop']},
+              mary: {gender: 'F',pets: ['baba'] },
+              'tommy stout': {gender: 'M',pets: [['salina'], 'sarrena', ['tom']]}};
+
+let _ = require('lodash');
+
+let boys = _.filter(obj, p => p.gender === 'M'),
+    boysPets = _.map(boys, 'pets'),
+    result = _.flatten(boysPets);
+
+ result;
+
+ /*
+ ********************************************************************************************************
+ ***********************************I******** Map Values *********************************************
+ ********************************************************************************************************
+ */
+
+ const obj = { jill: {gender: 'F', pets: ['spot', 'peppa']  },
+               jack:  { gender: 'M', pets: ['flopsy']  },
+               boPeep: {gender: 'F', pets: ['snowdrop']},
+               mary: {gender: 'F',pets: ['baba'] },
+               'tommy stout': {gender: 'M',pets: ['salina', 'sarrena', 'tom']}};
+
+ let _ = require('lodash');
+ _.mapValues(obj, 'gender')
+//_.mapValues(obj, p => p.pets.length)
+
+// Note Object => Object
+
+
+/*
+********************************************************************************************************
+***********************************I******** Array <=//=> Object ***************************************
+********************************************************************************************************
+*/
+
+const obj = { jill: {gender: 'F', pets: ['spot', 'peppa']  },
+              jack:  { gender: 'M', pets: ['flopsy']  },
+              boPeep: {gender: 'F', pets: ['snowdrop']},
+              mary: {gender: 'F',pets: ['baba'] },
+              'tommy stout': {gender: 'M',pets: ['salina', 'sarrena', 'tom']}};
+
+ let _ = require('lodash');
+_.pairs(obj); // _.toPairs
+
+/******************* NOT VERKING **************/
+
+let _ = require('lodash');
+_.fromPairs([['jill ', {gender: 'F', pets: ['spot', 'peppa']  }], ['jack ', { gender: 'M', pets: ['flopsy']  }]]);
+
+/*
+********************************************************************************************************
+***************************************I************ Keys **********************************************
+********************************************************************************************************
+*/
+
+const obj = { jill: {gender: 'F', pets: ['spot', 'peppa']  },
+              jack:  { gender: 'M', pets: ['flopsy']  },
+              boPeep: {gender: 'F', pets: ['snowdrop']},
+              mary: {gender: 'F',pets: ['baba'] },
+              'tommy stout': {gender: 'M',pets: ['salina', 'sarrena', 'tom']}};
+
+let _ = require('lodash');
+_.keys(obj);
+
+/*
+********************************************************************************************************
+***************************************I************ Values **********************************************
+********************************************************************************************************
+*/
+
+const obj = { jill: {gender: 'F', pets: ['spot', 'peppa']  },
+              jack:  { gender: 'M', pets: ['flopsy']  },
+              boPeep: {gender: 'F', pets: ['snowdrop']},
+              mary: {gender: 'F',pets: ['baba'] },
+              'tommy stout': {gender: 'M',pets: ['salina', 'sarrena', 'tom']}};
+
+let _ = require('lodash');
+_.values(obj)
+
+
+
+/*
+********************************************************************************************************
+********************************************** O.S.I.D.N.T.D.T ****************************************
+********************************************************************************************************
+  Functions you could write yourself but don't need to:
+    => read the docs
+*/
+
+/*
+********************************************************************************************************
+***************************************** Partition / Group By ****************************************
+********************************************************************************************************
+*/
+
+let _ = require('lodash');
+_.partition([1, 2, 3, 4], n => n % 2);
+
+
+const obj = { jill: {gender: 'F', pets: ['spot', 'peppa']  },
+              jack:  { gender: 'M', pets: ['flopsy']  },
+              boPeep: {gender: 'F', pets: ['snowdrop']},
+              mary: {gender: 'F',pets: ['baba'] },
+              'tommy stout': {gender: 'M',pets: ['salina', 'sarrena', 'tom']}};
+
+let _ = require('lodash');
+_.groupBy(obj, c => c.name[0]);
+
+
+/*
+********************************************************************************************************
+***************************************** Reject Inverse of filter *************************************
+********************************************************************************************************
+*/
+
+let _ = require('lodash');
+let odds = _.reject([1, 2, 3, 4], n => n % 2);
+odds;
+
+/*
+********************************************************************************************************
+***************************************** Flatten *************************************
+********************************************************************************************************
+*/
+
+// Note - library function force array does something similar
+let _ = require('lodash');
+_.flatten([[1, 2, 3, 4], [1, 2, 3], [[2, 4, 6, 8]], [5]]);
+
+let _ = require('lodash');
+_.flattenDeep([[1, 2, 3, 4], [1, 2, 3], [[2, 4, 6, 8]], [5]]);
+
+
+/*
+********************************************************************************************************
+********************************************* Chaining ************************************************
+********************************************************************************************************
+*/
+
+// Method Vs Function
+
+let _ = require('lodash');
+_.forEach(['this', 'is','the', 'day', 'your', 'life', 'will', 'surely', 'change'], console.log);
+
+['this', 'is','the', 'day', 'your', 'life', 'will', 'surely', 'change'].forEach(console.log);
+
+
+['this', 'is','the', 'day', 'your', 'life', 'will', 'surely', 'change']
+                                                  .map(s => s.toUpperCase())
+                                                  .filter(s => s !== 'YOUR')
+                                                  .forEach(console.log);
+
+
+let _ = require('lodash');
+_.map(['this', 'is','the', 'day', 'your', 'life', 'will', 'surely', 'change'], s => s.toUpperCase())
+                                                                          .filter(s => s !== 'YOUR')
+                                                                          .forEach(console.log);
+
+
+let _ = require('lodash');
+_.map(['this', 'is','the', 'day', 'your', 'life', 'will', 'surely', 'change'], s => s.toUpperCase())
+                                                                          .reject(s => s === 'YOUR')
+                                                                          .forEach(console.log);
+
+let _ = require('lodash');
+_.chain(['this', 'is','the', 'day', 'your', 'life', 'will', 'surely', 'change'])
+                  .map(s => s.toUpperCase())
+                  .reject(s => s === 'YOUR')
+                  .forEach(console.log)
+                  .value();
+
+// Don't forget to unwrap it !!!
+
+let _ = require('lodash');
+_.chain(['this', 'is','the', 'day', 'your', 'life', 'will', 'surely', 'change'])
+                  .map(s => s.toUpperCase())
+                  .reject(s => s === 'YOUR')
+                  .forEach(console.log);
+
+/*
+********************************************************************************************************
+******************************************* Big Chain ****************************************
+********************************************************************************************************
+*/
+
+let people = [
+          {
+            first: 'bill',
+            last: 'baxter',
+            gender: 'M',
+            children: {
+                        jill: {
+                                gender: 'F',
+                                pets: ['spot', 'peppa']
+                              },
+
+                        jack:  {
+                                gender: 'M',
+                                pets: ['flopsy']
+                              }
+                        }
+          }
+          ,
+
+          {
+            first: 'hellen',
+            last: 'earth',
+            gender: 'M',
+            children: {
+                        james: {
+                                gender: 'M',
+                                pets: ['spacky']
+                              },
+
+                        george:  {
+                                gender: 'M'
+                              }
+                        }
+          },
+
+          {
+            first: 'jill',
+            last: 'chin',
+            gender: 'F'
+          }
+    ];
+
+
+
+let people = [{first: 'bill', last: 'baxter', gender: 'M', children: { jill: {gender: 'F',  pets: ['spot', 'peppa']},  jack:  {gender: 'M', pets: ['flopsy']  }, ernie:  {gender: 'M'}}},
+              {first: 'hellen',last: 'earth', gender: 'M', children: { james: {gender: 'M', pets: ['spacky']}, george:  {gender: 'M'}}}];
+
+// can use tap here
+let _ = require('lodash');
+_.chain(people)
+           .map('children')
+           .values()
+           .map(_.values)
+           .flatten()
+            .tap(v => console.log(JSON.stringify(v)))
+           .map('pets')
+           .compact()
+           .flatten()
+           .forEach(console.log)
+           .value();
+
+
+// FINALLY HAS SOMEONE DONE THIS BEFORE ??? => RTFM
+
+/*
+********************************************************************************************************
+************************************* Working Around Mutability ****************************************
+********************************************************************************************************
+*/
+
+
+let _ = require('lodash'),
+    child  = {first: 'doogy', last: 'housa', gender: 'M', pets: {spot: 'dog', felix: 'cat'}},
+    changeFelix = c => {
+                          c.pets.felix = 'dog';
+                          c.first = 'felix';
+                          return c
+                        };
+ changeFelix(child);
+ //
+ child;  
+
+ let _ = require('lodash'),
+     child  = {first: 'doogy', last: 'housa', gender: 'M', pets: {spot: 'dog', felix: 'cat'}},
+     changeFelix = o => {
+                          let c = _.clone(o)
+                           c.pets.felix = 'dog';
+                           c.first = 'felix';
+                           return c
+                         };
+  changeFelix(child);
+  //
+  child;
+
+
+  let _ = require('lodash'),
+      child  = {first: 'doogy', last: 'housa', gender: 'M', pets: {spot: 'dog', felix: 'cat'}},
+      changeFelix = o => {
+                           let c = _.cloneDeep(o);
+                            c.pets.felix = 'dog';
+                            c.first = 'felix';
+                            return c
+                          };
+   changeFelix(child);
+   //
+   child;
+
+
+/*
+********************************************************************************************************
+************************************************** Pick ***********************************************
+********************************************************************************************************
+*/
+
+let  _ = require('lodash'),
+     object = { given: 'Janice', surname: 'Peterson', birthYear: 1977, occupation: 'News Presneter' };
+_.pick(object, ['given', 'surname']);
+
+
+
+/*
+********************************************************************************************************
+************************************************** Pick ***********************************************
+********************************************************************************************************
+*/
+
+let  _ = require('lodash'),
+     objects = [
+                  { given: 'Janice', surname: 'Peterson', birthYear: 1977, occupation: 'News Presneter' },
+                  { given: 'Tamara', surname: 'Oudyn', birthYear: 1977, occupation: 'News Presneter' },
+                  { given: 'Guy', surname: 'Stayner', birthYear: '????', occupation: 'New Presneter' }
+              ];
+_.map(objects, 'given');   
+// note the difference to ES6
+//objects.map('given');    
+
+
+
+
+
+
+```
+
+# Tour De HOF i
 
 ```javascript
 
@@ -194,7 +622,7 @@ function addToObj(accum, dwarf) {
 ['lazy', 'slee', 'happy', 'grmpy', 'dopy', 'lofty'].reduce(
                         (ml, d) => d.length > ml ? d.length : ml, 0);
 
-let _ = require('lodash');
+var _ = require('lodash');
 // this doees not work will return to this next week (with proper imports)
 _.maxBy(['lazy', 'sleepy', 'happy', 'grumpy', 'dopy', 'lofty'], d => d.length);
 

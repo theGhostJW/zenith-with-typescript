@@ -830,7 +830,7 @@ describe('show', () => {
 
 });
 
-describe.only('wildcardMatch', () => {
+describe('wildcardMatch', () => {
 
   it('wildcard surround', () => {
     chk(wildCardMatch("demo_Array_Data_Driven_Test", "*Array*"));

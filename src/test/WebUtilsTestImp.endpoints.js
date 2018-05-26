@@ -4,15 +4,22 @@
 import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage,
         chkHasText } from '../lib/AssertionUtils';
 import { cast, debug, waitRetry, fail } from '../lib/SysUtils';
-import { rerun } from '../lib/WebUtils';
+import { rerun, set } from '../lib/WebUtils';
+import type { SetterFunc } from '../lib/WebUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
 
+import {  clickLink,
+          links,
+          radioItemVals,
+          setRadioGroup,
+          setSelect,
+          setForm,
+          parent,
+        } from '../lib/WebUtils';
 
 import { checkUncheck,
-          clickLink,
           linkByTextText,
-          links,
           smartBearLogIn,
           smartbearOrders,
           clickOrderLink,
@@ -21,9 +28,6 @@ import { checkUncheck,
           invalidUncheckCheckBox,
           checkReturnChecked,
           readSetRadioGroup,
-          radioItemVals,
-          setRadioGroup,
-          setSelect,
           setReadProduct,
           setReadInput,
           PRODUCT_SELECTOR,
@@ -33,12 +37,11 @@ import { checkUncheck,
           FORM_INPUT_FOR_LABELS,
           FORM_INPUT_PROXIMAL_LABELS,
           basicSet,
-          setForm,
-          parent,
           recursiveParent,
-          FORM_ID
+          FORM_ID,
+          setSmartbearcaps,
+          setSmartbearcapsLwrAddress
         } from '../lib/WebUtilsTestImp';
-
 
 describe('setForm', () => {
 
@@ -55,7 +58,6 @@ describe('setForm', () => {
   // Radio set by group name
   it('setForm ~ radio group by name', () => {
     let input = FORM_INPUT_RADIO_NAME;
-    debug('running');
     rerun(smartbearOrders, setForm, FORM_ID, input);
      // let actual = ,
      //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
@@ -72,9 +74,17 @@ describe('setForm', () => {
     rerun(smartbearOrders, setForm, FORM_ID, input);
   });
 
-  it.only('setForm ~ Proximal labels - needs special code edits to be valid', () => {
+  it('setForm ~ Proximal labels - needs special code edits to be valid', () => {
     let input = FORM_INPUT_PROXIMAL_LABELS;
     rerun(smartbearOrders, setForm, FORM_ID, input);
+  });
+
+  it('setForm - Global Setter', () => {
+    rerun(smartbearOrders, setSmartbearcaps);
+  });
+
+  it.only('setForm - Global Setter and single setter', () => {
+    rerun(smartbearOrders, setSmartbearcapsLwrAddress);
   });
 
 });

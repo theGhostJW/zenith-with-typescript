@@ -340,13 +340,13 @@ function addId(accum: {[string]: Element}, element: Element) {
 export type SetterFunc = (Element, string | number | boolean) => void;
 export type FinderFunc = (key: string, editable: Array<Element>, val: string | number | ?boolean, nonEditable: ?Array<Element>) => Element;
 export type SetterValue = string | number | boolean;
-export type CustomSetFormSource = {
+export type ValueWithFinderSetter = {
   value: SetterValue,
   finder?: FinderFunc,
   setter?: SetterFunc
 }
 
-export function withSetter(value: SetterValue | CustomSetFormSource, setter: SetterFunc): CustomSetFormSource {
+export function withSetter(value: SetterValue | ValueWithFinderSetter, setter: SetterFunc): ValueWithFinderSetter {
   return _.isObject(value) ?
                     {
                       value: ensureHasVal(cast(value).value, 'withSetter value object value property is null or undefined'),
@@ -360,7 +360,7 @@ export function withSetter(value: SetterValue | CustomSetFormSource, setter: Set
 
 }
 
-export function withFinder(value: SetterValue | CustomSetFormSource, finder: FinderFunc): CustomSetFormSource {
+export function withFinder(value: SetterValue | ValueWithFinderSetter, finder: FinderFunc): ValueWithFinderSetter {
   return _.isObject(value) ?
                     {
                       value: ensureHasVal(cast(value).value, 'withSetter value object value property is null or undefined'),
@@ -374,23 +374,22 @@ export function withFinder(value: SetterValue | CustomSetFormSource, finder: Fin
 }
 
 
+
+function editsLabels(accum: [Array<Element>, Array<Element>], element: Element) {
+  let tag = element.getTagName();
+  canEditTag(tag) && canEditTypeAttr(element.getAttribute('type')) ? accum[0].push(element) :
+    isLabelLikeTag(tag) ? accum[1].push(element) :
+      null;
+
+  return accum;
+}
+
 export function setForm(
                           parentElementorSelector: SelectorOrElement,
-                          valMap: {[string]: SetterValue | CustomSetFormSource},
+                          valMap: {[string]: SetterValue | ValueWithFinderSetter},
                           setter: SetterFunc = set,
                           finder?: FinderFunc
                         ): void {
-
-  //let prof = new sp({});
-
-  function editsLabels(accum: [Array<Element>, Array<Element>], element: Element) {
-    let tag = element.getTagName();
-    canEditTag(tag) && canEditTypeAttr(element.getAttribute('type')) ? accum[0].push(element) :
-      isLabelLikeTag(tag) ? accum[1].push(element) :
-        null;
-
-    return accum
-  }
 
   let elements = SSNested(parentElementorSelector, '*'),
       [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
@@ -430,8 +429,6 @@ export function setForm(
                                                   .value());
     return sortedForLabelTextSingleton;
   }
-
-  //let DEBUG_ALL_LABELS = forLabels().concat(nonForLabels());
 
   function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
     // Ided fields
@@ -474,36 +471,50 @@ export function setForm(
     return result;
   }
 
-  function mapVal(accum, val: SetterValue | CustomSetFormSource, key: string): void {
+  function mapVal(accum, val: SetterValue | ValueWithFinderSetter, key: string): void {
 
     let isCustomObj = _.isObject(val),
         trueVal: SetterValue = cast(isCustomObj ? ensureHasVal(cast(val).value, 'setform custom object must have value property defined') : val),
+        customSetter: ?SetterFunc = isCustomObj ? cast(val).setter : undefined,
         finder: FinderFunc = cast(isCustomObj && val.finder != null ? val.finder : findElement),
         target: ?Element = finder(key, edits, trueVal, nonEdits);
 
     target == null ?
                 accum.failedMappings.push(`Could not find matching input element for: ${key}`):
+                accum.customSetters[key] = customSetter;
+                accum.trueVals[key] = trueVal;
                 accum.mapping[key] = target;
   }
 
-  // Up to here custom setter
   let mapping = _.transform(valMap, mapVal, {
                                               mapping: {},
+                                              customSetters: {},
+                                              trueVals: {},
                                               failedMappings: []
-                                            } );
-  _.each(mapping.mapping, (e, k) => handledSet(e, valMap[k]));
-  //log(replaceAll(prof.toString(), ';', ';\n'));
+                                            }),
+                safeSetter = handledSet(setter, mapping.customSetters),
+                trueVals = mapping.trueVals;
+
+ log(show(mapping.customSetters))
+
+  _.each(mapping.mapping, (e, k) => safeSetter(e, k, trueVals[k]));
+
   let fails = mapping.failedMappings;
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
 }
 
-function handledSet(element: Element, value: SetterValue) {
-  try {
-    set(element, value);
-  } catch (e) {
-    fail(`set function failed: setting element to value: ${show(value)} \n element: ${element.getHTML()}`, e);
+function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
+  return function handledSet(element: Element, key: string, value: SetterValue) {
+    try {
+      let setterFunc = def(customSetters[key], setter);
+      setterFunc(element, value);
+    } catch (e) {
+      fail(`set function failed: setting element to value: ${show(value)} \n element: ${element.getHTML()}`, e);
+    }
   }
 }
+
+
 
 function findNamedRadioGroup(searchTerm: string, edits: Array<ElementWithType>, wildCard: boolean) : Element | null {
   // string could be group name
@@ -557,7 +568,7 @@ function canEdit(element: Element) {
 }
 
 // may be required with strange inputs
-export const BACKSPACE = '\uE003'
+export const BACKSPACE = '\uE003';
 
 const nameAttribute: Element => string | null = e => e.getAttribute('name');
 const idAttribute: Element => string | null = e => e.getAttribute('id');
@@ -671,8 +682,8 @@ export function isElement(candidate: mixed): boolean {
         )
 }
 
-function elementIs(tagName: string) {
-  return function functionNelementMatches(elementOrSelector: SelectorOrElement) {
+export function elementIs(tagName: string) {
+  return function functionElementMatches(elementOrSelector: SelectorOrElement) {
     let el = S(elementOrSelector);
     return areEqual(tagName, el.getTagName());
   }

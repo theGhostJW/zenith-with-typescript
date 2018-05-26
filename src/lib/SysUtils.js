@@ -534,6 +534,12 @@ export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   return msgStr;
 }
 
+export function debugNoStack<T>(msg: T | () => T, label: string = 'DEBUG'): T {
+  let msgStr = typeof msg == 'function' ? msg() : msg;
+  console.log(appendDelim(label, ': ', show(msgStr)));
+  return msgStr;
+}
+
 export function def <T> (val : ?T, defaultVal: T): T {
     // != null === not null or undefined
   return val == null ? defaultVal : val;

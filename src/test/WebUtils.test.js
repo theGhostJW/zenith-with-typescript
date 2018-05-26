@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 import { unitTestingTargets } from '../lib/WebUtils';
 
 
-describe.only('sliceSearchModifier', () => {
+describe('sliceSearchModifier', () => {
 
   const sliceSearchModifier = unitTestingTargets.sliceSearchModifier;
 

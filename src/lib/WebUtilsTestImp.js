@@ -10,18 +10,10 @@ import {
           set, click, links, url,
           linkByText,  clickLink, setChecked, S, SS,
           read, setRadioGroup, setSelect, setInput,
-          setForm, parent
+          setForm, parent, elementIs, withSetter,
+          radioItemVals
         } from '../lib/WebUtils';
-export {
-  links,
-  url,
-  clickLink,
-  radioItemVals,
-  setRadioGroup,
-  setSelect,
-  setForm,
-  parent
-} from '../lib/WebUtils';
+
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
 export const CARD_LIST_ID = '#ctl00_MainContent_fmwOrder_cardList';
@@ -87,6 +79,26 @@ export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_IDS)
                                       .value();
 
 export const FORM_ID = '#ctl00_MainContent_fmwOrder'
+
+function setWithCaps(el, val){
+  val = elementIs('input')(el)  && _.isString(val) ? cast(val).toUpperCase() : val;
+  set(el, val);
+}
+
+function setWithLwr(el, val){
+  val = elementIs('input')(el)  && _.isString(val) ? cast(val).toLowerCase() : val;
+  set(el, val);
+}
+
+export function setSmartbearcaps(){
+  setForm(FORM_ID, FORM_INPUT_FOR_LABELS, setWithCaps);
+}
+
+export function setSmartbearcapsLwrAddress(){
+  let vals = _.clone(FORM_INPUT_FOR_LABELS);
+  vals.ctl00_MainContent_fmwOrder_TextBox2 = cast(withSetter('22 Vernon Street', setWithLwr));
+  setForm(FORM_ID, vals, setWithCaps);
+}
 
 export function recursiveParent() {
 
