@@ -40,7 +40,8 @@ import { checkUncheck,
           recursiveParent,
           FORM_ID,
           setSmartbearcaps,
-          setSmartbearcapsLwrAddress
+          setSmartbearcapsLwrAddress,
+          setWithFindByIdOnlyAndLwrStreetName
         } from '../lib/WebUtilsTestImp';
 
 describe('setForm', () => {
@@ -83,8 +84,12 @@ describe('setForm', () => {
     rerun(smartbearOrders, setSmartbearcaps);
   });
 
-  it.only('setForm - Global Setter and single setter', () => {
+  it('setForm - Global Setter and single setter', () => {
     rerun(smartbearOrders, setSmartbearcapsLwrAddress);
+  });
+
+  it.only('setForm - Global Setter and single setter and id finder', () => {
+    rerun(smartbearOrders, setWithFindByIdOnlyAndLwrStreetName);
   });
 
 });

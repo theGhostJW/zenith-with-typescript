@@ -11,8 +11,10 @@ import {
           linkByText,  clickLink, setChecked, S, SS,
           read, setRadioGroup, setSelect, setInput,
           setForm, parent, elementIs, withSetter,
-          radioItemVals
+          radioItemVals, idAttribute
         } from '../lib/WebUtils';
+
+import type { Element } from '../lib/WebUtils';
 
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
@@ -98,6 +100,16 @@ export function setSmartbearcapsLwrAddress(){
   let vals = _.clone(FORM_INPUT_FOR_LABELS);
   vals.ctl00_MainContent_fmwOrder_TextBox2 = cast(withSetter('22 Vernon Street', setWithLwr));
   setForm(FORM_ID, vals, setWithCaps);
+}
+
+function findById(key: string, editable: Array<Element>, nonEditable: ?Array<Element>) : ?Element {
+  return editable.find(e => idAttribute(e) == key);
+}
+
+export function setWithFindByIdOnlyAndLwrStreetName(){
+  let vals = _.clone(FORM_INPUT_IDS);
+  vals.ctl00_MainContent_fmwOrder_TextBox2 = cast(withSetter('22 Vernon Street', setWithLwr));
+  setForm(FORM_ID, vals, setWithCaps, findById);
 }
 
 export function recursiveParent() {

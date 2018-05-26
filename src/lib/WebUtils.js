@@ -307,7 +307,7 @@ function closestObject(targetLabel: ElementPlusLocPlusText, edts: Array<ElementP
 }
 
 //TODO: refactior
-function nearestEdit(key: string, val: string | number | boolean, edts: Array<ElementPlusLoc>, labels: Array<ElementPlusLocPlusText>,
+function nearestEdit(key: string, edts: Array<ElementPlusLoc>, labels: Array<ElementPlusLocPlusText>,
                       wildcard: boolean, lblModifier: LabelSearchDirectionModifier): Element | null {
   // Note labels previously sorted by text length so will pick the match
   //with the shortest label
@@ -338,7 +338,7 @@ function addId(accum: {[string]: Element}, element: Element) {
 }
 
 export type SetterFunc = (Element, string | number | boolean) => void;
-export type FinderFunc = (key: string, editable: Array<Element>, val: string | number | ?boolean, nonEditable: ?Array<Element>) => Element;
+export type FinderFunc = (key: string, editable: Array<Element>, nonEditable: ?Array<Element>) => ?Element;
 export type SetterValue = string | number | boolean;
 export type ValueWithFinderSetter = {
   value: SetterValue,
@@ -363,7 +363,7 @@ export function withSetter(value: SetterValue | ValueWithFinderSetter, setter: S
 export function withFinder(value: SetterValue | ValueWithFinderSetter, finder: FinderFunc): ValueWithFinderSetter {
   return _.isObject(value) ?
                     {
-                      value: ensureHasVal(cast(value).value, 'withSetter value object value property is null or undefined'),
+                      value: ensureHasVal(cast(value).value, 'withFinder value object value property is null or undefined'),
                       finder: finder,
                       setter: cast(value).setter
                     } :
@@ -430,8 +430,8 @@ export function setForm(
     return sortedForLabelTextSingleton;
   }
 
-  function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, val: string | number | boolean, nonEditable: Array<Element>): ?Element {
-    // Ided fields
+  function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, nonEditable: Array<Element>): ?Element {
+    // Ided fields and search modifiers (e.g. A~Female ~ female label above)
     let [lblModifier, key] = sliceSearchModifier(keyWithLabelDirectionModifier),
         result = idedEdits[key],
         wildcard = result == null && (typeof key == 'string') && key.includes('*');
@@ -441,33 +441,32 @@ export function setForm(
       result = findNamedRadioGroup(key, elementsWithType(edits), wildcard);
     }
 
+    // For labels
     if (result == null){
       result = forLblMap()[key];
     }
 
-    // Label with for + wildcard
+    // For labels with for + wildcard
     if (result == null && wildcard){
       // for labels
       let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
       result = lblText == null ? null : forLblMap()[lblText];
     }
 
-    // placeholders ~ not tested
+    // Placeholders
     if (result == null){
       let pred : ElementWithPlaceHolder => boolean = wildcard ? e => wildCardMatch(e.placeholder, key) : e => e.placeholder === key;
       result = editsWithPlaceHolders(edits).find(pred);
     }
 
-    //proximal labels - non for
+    // Proximal labels - non for
     if (result == null){
       //let labels = addCoordsTxt(DEBUG_ALL_LABELS);
       let labels = addCoordsTxt(nonForLabels()),
           edts = addCoordsCheckable(edits);
-      result = nearestEdit(key, val, edts, labels, wildcard, lblModifier);
+      result = nearestEdit(key, edts, labels, wildcard, lblModifier);
     }
 
-    // Custom finder and setter
-    // adapt as reader to finish off test (actual)
     return result;
   }
 
@@ -477,7 +476,7 @@ export function setForm(
         trueVal: SetterValue = cast(isCustomObj ? ensureHasVal(cast(val).value, 'setform custom object must have value property defined') : val),
         customSetter: ?SetterFunc = isCustomObj ? cast(val).setter : undefined,
         finder: FinderFunc = cast(isCustomObj && val.finder != null ? val.finder : findElement),
-        target: ?Element = finder(key, edits, trueVal, nonEdits);
+        target: ?Element = finder(key, edits, nonEdits);
 
     target == null ?
                 accum.failedMappings.push(`Could not find matching input element for: ${key}`):
@@ -498,7 +497,7 @@ export function setForm(
   _.each(mapping.mapping, (e, k) => safeSetter(e, k, trueVals[k]));
 
   let fails = mapping.failedMappings;
-  ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`)
+  ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`);
 }
 
 function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
@@ -507,7 +506,8 @@ function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
       let setterFunc = def(customSetters[key], setter);
       setterFunc(element, value);
     } catch (e) {
-      fail(`set function failed: setting element to value: ${show(value)} \n element: ${element.getHTML()}`, e);
+      let elementInfo = element == null ? 'Undefined Element' : element.getHTML();
+      fail(`setForm function failed setting element: key: ${key} \n value: ${show(value)} \n element: ${elementInfo}`, e);
     }
   }
 }
@@ -565,8 +565,8 @@ function canEdit(element: Element) {
 // may be required with strange inputs
 export const BACKSPACE = '\uE003';
 
-const nameAttribute: Element => string | null = e => e.getAttribute('name');
-const idAttribute: Element => string | null = e => e.getAttribute('id');
+export const nameAttribute: Element => string | null = e => e.getAttribute('name');
+export const idAttribute: Element => string | null = e => e.getAttribute('id');
 
 export function setSelect(elementOrSelector: SelectorOrElement, visText: string): void {
   let el = S(elementOrSelector),
