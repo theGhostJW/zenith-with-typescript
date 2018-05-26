@@ -512,8 +512,6 @@ function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
   }
 }
 
-
-
 function findNamedRadioGroup(searchTerm: string, edits: Array<ElementWithType>, wildCard: boolean) : Element | null {
   // string could be group name
   let atrPred = wildCard ?
