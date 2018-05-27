@@ -32,7 +32,7 @@ import { checkUncheck,
           setReadInput,
           PRODUCT_SELECTOR,
           AVAILABLE_PRODUCTS,
-          FORM_INPUT_IDS,
+          FORM_INPUT_MOSTLY_IDS,
           FORM_INPUT_RADIO_NAME,
           FORM_INPUT_FOR_LABELS,
           FORM_INPUT_PROXIMAL_LABELS,
@@ -41,7 +41,8 @@ import { checkUncheck,
           FORM_ID,
           setSmartbearcaps,
           setSmartbearcapsLwrAddress,
-          setWithFindByIdOnlyAndLwrStreetName
+          setWithFindByIdOnlyAndLwrStreetName,
+          setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder
         } from '../lib/WebUtilsTestImp';
 
 describe('setForm', () => {
@@ -88,8 +89,12 @@ describe('setForm', () => {
     rerun(smartbearOrders, setSmartbearcapsLwrAddress);
   });
 
-  it.only('setForm - Global Setter and single setter and id finder', () => {
+  it('setForm - Global Setter and single setter and id finder', () => {
     rerun(smartbearOrders, setWithFindByIdOnlyAndLwrStreetName);
+  });
+
+  it.only('setForm - Global Setter and single setter and id finder and specialised finder', () => {
+    rerun(smartbearOrders, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder);
   });
 
 });
@@ -114,7 +119,7 @@ describe('full form set ~ hard coded', () => {
   it('set and read', () => {
     let actual = rerun(smartbearOrders, basicSet),
         expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
-                     .defaults(FORM_INPUT_IDS)
+                     .defaults(FORM_INPUT_MOSTLY_IDS)
                      .mapValues(show)
                      .value();
 

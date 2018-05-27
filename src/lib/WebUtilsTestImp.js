@@ -11,7 +11,8 @@ import {
           linkByText,  clickLink, setChecked, S, SS,
           read, setRadioGroup, setSelect, setInput,
           setForm, parent, elementIs, withSetter,
-          radioItemVals, idAttribute
+          radioItemVals, idAttribute, withFinder,
+          predicateToFinder
         } from '../lib/WebUtils';
 
 import type { Element } from '../lib/WebUtils';
@@ -23,7 +24,7 @@ export const CARD_LIST_ID = '#ctl00_MainContent_fmwOrder_cardList';
 export const PRODUCT_SELECTOR = '#ctl00_MainContent_fmwOrder_ddlProduct';
 export const AVAILABLE_PRODUCTS = ["MyMoney", "FamilyAlbum", "ScreenSaver"];
 const CUSTOMER_NAME_ID = '#ctl00_MainContent_fmwOrder_txtName';
-export const FORM_INPUT_IDS = {
+export const FORM_INPUT_MOSTLY_IDS = {
     ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
     ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
     ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
@@ -33,10 +34,27 @@ export const FORM_INPUT_IDS = {
     ctl00_MainContent_fmwOrder_TextBox3: 'Croydon',
     ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
     ctl00_MainContent_fmwOrder_TextBox5: 3136,
+    //Id of container not target
     ctl00_MainContent_fmwOrder_cardList: 'American Express',
     ctl00_MainContent_fmwOrder_TextBox6: '12345678',
     ctl00_MainContent_fmwOrder_TextBox1: '12/24'
   }
+
+  export const FORM_INPUT_ALL_IDS = {
+      ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
+      ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
+      ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
+      ctl00_MainContent_fmwOrder_txtDiscount: 7,
+      ctl00_MainContent_fmwOrder_txtName: 'Janice Peterson',
+      ctl00_MainContent_fmwOrder_TextBox2: '22 Vernon St',
+      ctl00_MainContent_fmwOrder_TextBox3: 'Croydon',
+      ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
+      ctl00_MainContent_fmwOrder_TextBox5: 3136,
+      //id of container radio button
+      ctl00_MainContent_fmwOrder_cardList_2: true,
+      ctl00_MainContent_fmwOrder_TextBox6: '12345678',
+      ctl00_MainContent_fmwOrder_TextBox1: '12/24'
+    }
 
   export const FORM_INPUT_FOR_LABELS = {
       ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
@@ -74,7 +92,7 @@ export const FORM_INPUT_IDS = {
         'Expire*': '12/24'
       }
 
-export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_IDS)
+export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_MOSTLY_IDS)
                                       .clone()
                                       .omit('ctl00_MainContent_fmwOrder_cardList')
                                       .extend({ctl00$MainContent$fmwOrder$cardList: 'American Express'})
@@ -107,8 +125,20 @@ function findById(key: string, editable: Array<Element>, nonEditable: ?Array<Ele
 }
 
 export function setWithFindByIdOnlyAndLwrStreetName(){
-  let vals = _.clone(FORM_INPUT_IDS);
+  // #ctl00_MainContent_fmwOrder_cardList_2
+  let vals = _.clone(FORM_INPUT_ALL_IDS);
   vals.ctl00_MainContent_fmwOrder_TextBox2 = cast(withSetter('22 Vernon Street', setWithLwr));
+  setForm(FORM_ID, vals, setWithCaps, findById);
+}
+
+export function setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder(){
+  let vals = _.clone(FORM_INPUT_ALL_IDS);
+  cast(vals).ctl00$MainContent$fmwOrder$txtName =  cast(
+                                                    withFinder(
+                                                      withSetter('JANICE PETERSON', setWithLwr),
+                                                      predicateToFinder((k, e) => e.getAttribute('name') == k)
+                                                    )
+                                                  );
   setForm(FORM_ID, vals, setWithCaps, findById);
 }
 
@@ -131,8 +161,8 @@ export function recursiveParent() {
 }
 
 export function basicSet() {
-  _.each(FORM_INPUT_IDS, (v, k) => set('#' + k, v));
- return _.mapValues(FORM_INPUT_IDS, (v, k) => read('#' + k));
+  _.each(FORM_INPUT_MOSTLY_IDS, (v, k) => set('#' + k, v));
+ return _.mapValues(FORM_INPUT_MOSTLY_IDS, (v, k) => read('#' + k));
 }
 
 export function setReadInput() {

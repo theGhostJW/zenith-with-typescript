@@ -346,6 +346,12 @@ export type ValueWithFinderSetter = {
   setter?: SetterFunc
 }
 
+export function predicateToFinder(pred: (key: string, element: Element) => bool): FinderFunc {
+  return function finder(key: string, editable: Array<Element>, nonEditable: ?Array<Element>): ?Element {
+    return editable.find(element => pred(key, element));
+  }
+}
+
 export function withSetter(value: SetterValue | ValueWithFinderSetter, setter: SetterFunc): ValueWithFinderSetter {
   return _.isObject(value) ?
                     {
