@@ -330,11 +330,12 @@ function addType(elements: Element[]): ElementWithType[] {
   return elements.reduce(addEl, []);
 }
 
-function addId(accum: {[string]: Element}, element: Element) {
+function addId(accum: {[string]: Element}, element: Element): {[string]: Element} {
    let id = idAttribute(element);
    if (id != null){
      accum[id] = element;
    }
+   return accum;
 }
 
 export type SetterFunc = (Element, string | number | boolean) => void;
@@ -381,34 +382,29 @@ export function withFinder(value: SetterValue | ValueWithFinderSetter, finder: F
 
 
 
-function editsLabels(accum: [Array<Element>, Array<Element>], element: Element) {
-  let tag = element.getTagName();
-  canEditTag(tag) && canEditTypeAttr(element.getAttribute('type')) ? accum[0].push(element) :
-    isLabelLikeTag(tag) ? accum[1].push(element) :
-      null;
+function splitEditsNonEdits(accum: [Array<Element>, Array<Element>], element: Element) {
+  let tag = element.getTagName(),
+      isEditableElement = canEditTag(tag) && canEditTypeAttr(element.getAttribute('type'));
+
+   if (isEditableElement){
+    accum[0].push(element);
+   }
+   else if (isLabelLikeTag(tag)) {
+     accum[1].push(element);
+   }
 
   return accum;
 }
 
-export function setForm(
-                          parentElementorSelector: SelectorOrElement,
-                          valMap: {[string]: SetterValue | ValueWithFinderSetter},
-                          setter: SetterFunc = set,
-                          finder?: FinderFunc
-                        ): void {
+function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: () => {[string]: Element}, edits: Array<Element>, nonEdits: Array<Element>) {
 
-  let elements = SSNested(parentElementorSelector, '*'),
-      [edits, nonEdits] = _.reduce(elements, editsLabels, [[], []]),
-      findElement = finder == null ? defaultFinder : finder,
-      idedEdits = finder == null ? _.transform(edits, addId, {}) : {},
-      editsWithPlaceHolders = _.memoize(addPlaceHolders),
+  let editsWithPlaceHolders = _.memoize(addPlaceHolders),
       addCoords = _.memoize(addLocations),
       addCoordsCheckable = _.memoize(addLocationsAndCheckControl),
       addCoordsTxt = _.memoize(addLocationsAndText),
-      elementsWithType = _.memoize(addType);
+      elementsWithType = _.memoize(addType),
+      partitionedForLabelSingleton: ?ClassifiedLabels = null;
 
-
-  let partitionedForLabelSingleton: ?ClassifiedLabels = null;
   function partitionedForLabels(): ClassifiedLabels {
     partitionedForLabelSingleton = partitionedForLabelSingleton == null ? partitionAddFor(nonEdits) : partitionedForLabelSingleton;
     return partitionedForLabelSingleton;
@@ -436,10 +432,10 @@ export function setForm(
     return sortedForLabelTextSingleton;
   }
 
-  function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, nonEditable: Array<Element>): ?Element {
+  return function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, nonEditable: Array<Element>): ?Element {
     // Ided fields and search modifiers (e.g. A~Female ~ female label above)
     let [lblModifier, key] = sliceSearchModifier(keyWithLabelDirectionModifier),
-        result = idedEdits[key],
+        result = idedEdits()[key],
         wildcard = result == null && (typeof key == 'string') && key.includes('*');
 
     // Named radio group
@@ -476,7 +472,29 @@ export function setForm(
     return result;
   }
 
-  function mapVal(accum, val: SetterValue | ValueWithFinderSetter, key: string): void {
+}
+
+export function setForm(
+                          parentElementorSelector: SelectorOrElement,
+                          valMap: {[string]: SetterValue | ValueWithFinderSetter},
+                          setter: SetterFunc = set,
+                          finder?: FinderFunc
+                        ): void {
+
+  type ElementInfo = {
+                     elementMap: {},
+                     customSetters: {},
+                     trueVals: {},
+                     failedMappings: string[]
+                   };
+
+  let elements = SSNested(parentElementorSelector, '*'),
+      [edits, nonEdits] = _.reduce(elements, splitEditsNonEdits, [[], []]),
+      idedEdits = _.memoize(() => finder == null ? _.reduce(edits, addId, {}) : {}),
+      findElement = finder == null ? defaultFinder(parentElementorSelector, idedEdits, edits, nonEdits) : finder;
+
+
+  function deconstructFindElement(accum: ElementInfo, val: SetterValue | ValueWithFinderSetter, key: string): ElementInfo {
 
     let isCustomObj = _.isObject(val),
         trueVal: SetterValue = cast(isCustomObj ? ensureHasVal(cast(val).value, 'setform custom object must have value property defined') : val),
@@ -484,25 +502,31 @@ export function setForm(
         finder: FinderFunc = cast(isCustomObj && val.finder != null ? val.finder : findElement),
         target: ?Element = finder(key, edits, nonEdits);
 
-    target == null ?
-                accum.failedMappings.push(`Could not find matching input element for: ${key}`):
-                accum.customSetters[key] = customSetter;
-                accum.trueVals[key] = trueVal;
-                accum.mapping[key] = target;
+    if (target == null) {
+      accum.failedMappings.push(`Could not find matching input element for: ${key}. Looking for element to set to: ${show(trueVal)}`);
+    }
+    else {
+      accum.customSetters[key] = customSetter;
+      accum.trueVals[key] = trueVal;
+      accum.elementMap[key] = target;
+    }
+
+    return accum;
   }
 
-  let mapping = _.transform(valMap, mapVal, {
-                                              mapping: {},
-                                              customSetters: {},
-                                              trueVals: {},
-                                              failedMappings: []
-                                            }),
-                safeSetter = handledSet(setter, mapping.customSetters),
-                trueVals = mapping.trueVals;
+  let infoSeed = {
+                    elementMap: {},
+                    customSetters: {},
+                    trueVals: {},
+                    failedMappings: cast([])
+                  },
+      elementInfo = _.reduce(valMap, deconstructFindElement, infoSeed),
+      safeSetter = handledSet(setter, elementInfo.customSetters),
+      trueVals = elementInfo.trueVals;
 
-  _.each(mapping.mapping, (e, k) => safeSetter(e, k, trueVals[k]));
+  _.each(elementInfo.elementMap, (e, k) => safeSetter(e, k, trueVals[k]));
 
-  let fails = mapping.failedMappings;
+  let fails = elementInfo.failedMappings;
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`);
 }
 
