@@ -12,7 +12,7 @@ import {
           read, setRadioGroup, setSelect, setInput,
           setForm, parent, elementIs, withSetter,
           radioItemVals, idAttribute, withFinder,
-          predicateToFinder
+          predicateToFinder, withPredicate
         } from '../lib/WebUtils';
 
 import type { Element } from '../lib/WebUtils';
@@ -132,12 +132,13 @@ export function setWithFindByIdOnlyAndLwrStreetName(){
 }
 
 export function setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder(){
-  let vals = _.clone(FORM_INPUT_ALL_IDS);
-  cast(vals).ctl00$MainContent$fmwOrder$txtName =  cast(
-                                                    withFinder(
-                                                      withSetter('JANICE PETERSON', setWithLwr),
-                                                      predicateToFinder((k, e) => e.getAttribute('name') == k)
-                                                    )
+  let vals = _.chain(FORM_INPUT_ALL_IDS)
+              .clone()
+              .omit('ctl00_MainContent_fmwOrder_txtName')
+              .value();
+  cast(vals).ctl00$MainContent$fmwOrder$txtName = withPredicate(
+                                                    withSetter('JANICE PETERSON', setWithLwr),
+                                                    (k, e) => e.getAttribute('name') == k
                                                   );
   setForm(FORM_ID, vals, setWithCaps, findById);
 }

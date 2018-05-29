@@ -380,6 +380,11 @@ export function withFinder(value: SetterValue | ValueWithFinderSetter, finder: F
                     };
 }
 
+export function withPredicate(value: SetterValue | ValueWithFinderSetter, predicate: (key: string, element: Element) => bool): ValueWithFinderSetter {
+  let finder = predicateToFinder(predicate);
+  return withFinder(value, finder);
+}
+
 
 
 function splitEditsNonEdits(accum: [Array<Element>, Array<Element>], element: Element) {
