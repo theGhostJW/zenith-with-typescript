@@ -69,22 +69,166 @@ export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelecto
     return el.$$(manySelector);
 }
 
-function forLabelsMapFromArray(labelLike: Array<ElementWithForAndText>, idedEdits: {}): {} {
+/*
+function setFormR(container, data){
 
-  function addLabelLike(accum: {}, label: ElementWithForAndText) {
-    let txt = label.text;
-    if (txt != null){
-      accum[txt] = idedEdits[label.for];
-    }
+  var searchSetInfo = getSearchSetInfo(container, data);
+
+  function getId(candidate){
+    return (hasValue(candidate) && _.isNaN(parseInt(candidate))) ? candidate : null;
   }
-  return _.transform(labelLike, addLabelLike, {} );
+
+  function addMapToObject(accum, objAndCoordinates){
+    var obj = objAndCoordinates.object;
+    var id = getId(obj.idStr) || getId(obj.ObjectIdentifier);
+    if (hasValue(id)){
+      accum[id] = "ID";
+    }
+    var closestLabelAndCoordinates = getClosestLabelWithText(objAndCoordinates, searchSetInfo);
+    if (hasValue(closestLabelAndCoordinates)){
+      var propName = trimWhiteSpace(closestLabelAndCoordinates.object.contentText);
+      var newLineIndex = propName.indexOf(newLine());
+      if (newLineIndex > -1){
+        propName = propName.slice(0, newLineIndex);
+      }
+      accum[propName] = null;
+    }
+    return accum;
+  }
+
+  function topLeft(obj){
+    return (obj.top * 10000) + obj.left;
+  }
+
+  var result = _.chain(searchSetInfo.dataObjectsWithCoordinates)
+                .sortBy(topLeft)
+                .reduce(addMapToObject, {})
+                .value();
+
+  result = objectToJson(result).split(newLine());
+
+  var len = result.length;
+  function fixJson(line, lineIndex){
+    var suffix = lineIndex > len - 4 ? ''  : ','
+    return fixJsonIncLineSuffix(line, suffix);
+  }
+
+  result = _.chain(result)
+              .map(fixJson)
+              .map(indent)
+              .value()
+              .join(newLine());
+
+
+  result = 'setForm(' + newLine() + result + newLine() +  '\t);';
+  if (hasValue(searchSetInfo.data)){
+   var keys = _.keys(searchSetInfo.data);
+   result = '\t/*' +
+                  newLine() +
+                  _.map(keys, indent).join(newLine()) +
+                  newLine()
+          + '\t~/' + newLine() +
+          '\t' + result;
+  }
+  Sys.Clipboard = result;
+}
+*/
+
+export function getForm(parentElementorSelector: SelectorOrElement): string {
+  log(show(parentElementorSelector))
+  // let {edits, nonEdits} = editsNonEdits(parentElementorSelector),
+  //     elPos = (e0, e1) => e0.top - e1.top != 0 ? e0.top - e1.top : e0.left - e1.left;
+  //
+  // edits = addLocationsAndCheckControl(edits).sort(elPos);
+  // nonEdits = addLocationsAndCheckControl(nonEdits).sort(elPos);
+  //
+  // log(show(edits));
+  // log(show(nonEdits));
+ return 'HI';
+}
+
+type EditsNonEdits = {
+                      edits: Element[],
+                      nonEdits: Element[]
+                    };
+
+function editsNonEdits(parentElementorSelector: SelectorOrElement): EditsNonEdits {
+  let elements = SSNested(parentElementorSelector, '*');
+  return _.reduce(elements, splitEditsNonEdits, {edits: [], nonEdits: []});
+}
+
+export function setForm(
+                          parentElementorSelector: SelectorOrElement,
+                          valMap: {[string]: SetterValue | ValueWithFinderSetter},
+                          setter: SetterFunc = set,
+                          finder?: FinderFunc
+                        ): void {
+
+  type ElementInfo = {
+                     elementMap: {},
+                     customSetters: {},
+                     trueVals: {},
+                     failedMappings: string[]
+                   };
+
+  let {edits, nonEdits} = editsNonEdits(parentElementorSelector),
+      idedEdits = _.memoize(() => finder == null ? _.reduce(edits, addId, {}) : {}),
+      findElement = finder == null ? defaultFinder(parentElementorSelector, idedEdits, edits, nonEdits) : finder;
+
+  function deconstructFindElement(accum: ElementInfo, val: SetterValue | ValueWithFinderSetter, key: string): ElementInfo {
+
+    let isCustomObj = _.isObject(val),
+        trueVal: SetterValue = cast(isCustomObj ? ensureHasVal(cast(val).value, 'setform custom object must have value property defined') : val),
+        customSetter: ?SetterFunc = isCustomObj ? cast(val).setter : undefined,
+        finder: FinderFunc = cast(isCustomObj && val.finder != null ? val.finder : findElement),
+        target: ?Element = finder(key, edits, nonEdits);
+
+    if (target == null) {
+      accum.failedMappings.push(`Could not find matching input element for: ${key} is setForm: {${key}: ${show(trueVal)}, ...}`);
+    }
+    else {
+      accum.customSetters[key] = customSetter;
+      accum.trueVals[key] = trueVal;
+      accum.elementMap[key] = target;
+    }
+
+    return accum;
+  }
+
+  let infoSeed = {
+                    elementMap: {},
+                    customSetters: {},
+                    trueVals: {},
+                    failedMappings: cast([])
+                  },
+      elementInfo = _.reduce(valMap, deconstructFindElement, infoSeed),
+      safeSetter = handledSet(setter, elementInfo.customSetters),
+      trueVals = elementInfo.trueVals;
+
+  _.each(elementInfo.elementMap, (e, k) => safeSetter(e, k, trueVals[k]));
+
+  let fails = elementInfo.failedMappings;
+  ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`);
+}
+
+
+function forLabelsMapFromArray(labelLike: ElementWithForAndText[], idedEdits: {[string]: Element}): {} {
+
+  function addLabelLike(accum: {}, label: ElementWithForAndText): {} {
+    let lblTxt = label.text;
+    if (lblTxt != null){
+      accum[lblTxt] = idedEdits[label.for];
+    }
+    return accum;
+  }
+  return labelLike.reduce(addLabelLike, {});
 }
 
 
 type ElementWithForAndText =  Element & {for: string, text: string};
 type ClassifiedLabels = {
                           forLbls: Array<ElementWithForAndText>,
-                          otherLbls: Array<Element>
+                          nonForLbls: Array<Element>
                         };
 
 // label above / below Left / right / default (left the  above)
@@ -109,16 +253,20 @@ function partitionAddFor(nonEdits: Array<Element>): ClassifiedLabels {
 
   function clasifyElement(accum: ClassifiedLabels, label: Element) {
     let forTxt = label.getAttribute('for');
-    forTxt == null ?
-        accum.otherLbls.push(label) :
-        accum.forLbls.push(_.extend(label, {
-                                            for: forTxt,
-                                            text: label.getText()}));
+    if (forTxt == null){
+      accum.nonForLbls.push(label);
+    }
+    else  {
+      accum.forLbls.push(_.extend(label, {
+                                          for: forTxt,
+                                          text: label.getText()}));
+    }
+    return accum;
   }
 
-  return _.transform(nonEdits, clasifyElement,  {
+  return nonEdits.reduce(clasifyElement,  {
                             forLbls: [],
-                            otherLbls: []
+                            nonForLbls: []
                           } );
 }
 
@@ -306,7 +454,6 @@ function closestObject(targetLabel: ElementPlusLocPlusText, edts: Array<ElementP
   return edts.reduce(chooseBestObject, null);
 }
 
-//TODO: refactior
 function nearestEdit(key: string, edts: Array<ElementPlusLoc>, labels: Array<ElementPlusLocPlusText>,
                       wildcard: boolean, lblModifier: LabelSearchDirectionModifier): Element | null {
   // Note labels previously sorted by text length so will pick the match
@@ -385,17 +532,15 @@ export function withPredicate(value: SetterValue | ValueWithFinderSetter, predic
   return withFinder(value, finder);
 }
 
-
-
-function splitEditsNonEdits(accum: [Array<Element>, Array<Element>], element: Element) {
+function splitEditsNonEdits(accum: EditsNonEdits, element: Element) {
   let tag = element.getTagName(),
       isEditableElement = canEditTag(tag) && canEditTypeAttr(element.getAttribute('type'));
 
    if (isEditableElement){
-    accum[0].push(element);
+    accum.edits.push(element);
    }
    else if (isLabelLikeTag(tag)) {
-     accum[1].push(element);
+     accum.nonEdits.push(element);
    }
 
   return accum;
@@ -403,38 +548,33 @@ function splitEditsNonEdits(accum: [Array<Element>, Array<Element>], element: El
 
 function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: () => {[string]: Element}, edits: Array<Element>, nonEdits: Array<Element>) {
 
+  const partitionAddForNonEdits = () => partitionAddFor(nonEdits),
+        forLblMapFunc: () => {[string]: ElementWithForAndText} = () => forLabelsMapFromArray(forLabels(), idedEdits());
+
   let editsWithPlaceHolders = _.memoize(addPlaceHolders),
       addCoords = _.memoize(addLocations),
       addCoordsCheckable = _.memoize(addLocationsAndCheckControl),
       addCoordsTxt = _.memoize(addLocationsAndText),
       elementsWithType = _.memoize(addType),
-      partitionedForLabelSingleton: ?ClassifiedLabels = null;
-
-  function partitionedForLabels(): ClassifiedLabels {
-    partitionedForLabelSingleton = partitionedForLabelSingleton == null ? partitionAddFor(nonEdits) : partitionedForLabelSingleton;
-    return partitionedForLabelSingleton;
-  }
+      partitionedForLabels = _.memoize(partitionAddForNonEdits),
+      forLblMap = _.memoize(forLblMapFunc),
+      sortedForTexts = _.memoize(sortedForTextsFunc);
 
   function forLabels(): Array<ElementWithForAndText> {
     return partitionedForLabels().forLbls;
   }
 
   function nonForLabels(): Array<Element> {
-    return partitionedForLabels().otherLbls;
+    return partitionedForLabels().nonForLbls;
   }
 
-  function forLblMap(): {[string]: ElementWithForAndText} {
-    return forLabelsMapFromArray(forLabels(), idedEdits);
-  }
 
-  let sortedForLabelTextSingleton: ?Array<string> = null;
-  function sortedForTexts(): Array<string> {
-    sortedForLabelTextSingleton = def(sortedForLabelTextSingleton,
-                                                _.chain(forLabels())
-                                                  .map('text')
-                                                  .sortBy(t => t.length)
-                                                  .value());
-    return sortedForLabelTextSingleton;
+
+  function sortedForTextsFunc(): string[] {
+    return _.chain(forLabels())
+                              .map('text')
+                              .sortBy(t => t.length)
+                              .value();
   }
 
   return function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, nonEditable: Array<Element>): ?Element {
@@ -456,6 +596,7 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
     // For labels with for + wildcard
     if (result == null && wildcard){
       // for labels
+
       let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
       result = lblText == null ? null : forLblMap()[lblText];
     }
@@ -477,62 +618,6 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
     return result;
   }
 
-}
-
-export function setForm(
-                          parentElementorSelector: SelectorOrElement,
-                          valMap: {[string]: SetterValue | ValueWithFinderSetter},
-                          setter: SetterFunc = set,
-                          finder?: FinderFunc
-                        ): void {
-
-  type ElementInfo = {
-                     elementMap: {},
-                     customSetters: {},
-                     trueVals: {},
-                     failedMappings: string[]
-                   };
-
-  let elements = SSNested(parentElementorSelector, '*'),
-      [edits, nonEdits] = _.reduce(elements, splitEditsNonEdits, [[], []]),
-      idedEdits = _.memoize(() => finder == null ? _.reduce(edits, addId, {}) : {}),
-      findElement = finder == null ? defaultFinder(parentElementorSelector, idedEdits, edits, nonEdits) : finder;
-
-
-  function deconstructFindElement(accum: ElementInfo, val: SetterValue | ValueWithFinderSetter, key: string): ElementInfo {
-
-    let isCustomObj = _.isObject(val),
-        trueVal: SetterValue = cast(isCustomObj ? ensureHasVal(cast(val).value, 'setform custom object must have value property defined') : val),
-        customSetter: ?SetterFunc = isCustomObj ? cast(val).setter : undefined,
-        finder: FinderFunc = cast(isCustomObj && val.finder != null ? val.finder : findElement),
-        target: ?Element = finder(key, edits, nonEdits);
-
-    if (target == null) {
-      accum.failedMappings.push(`Could not find matching input element for: ${key}. Looking for element to set to: ${show(trueVal)}`);
-    }
-    else {
-      accum.customSetters[key] = customSetter;
-      accum.trueVals[key] = trueVal;
-      accum.elementMap[key] = target;
-    }
-
-    return accum;
-  }
-
-  let infoSeed = {
-                    elementMap: {},
-                    customSetters: {},
-                    trueVals: {},
-                    failedMappings: cast([])
-                  },
-      elementInfo = _.reduce(valMap, deconstructFindElement, infoSeed),
-      safeSetter = handledSet(setter, elementInfo.customSetters),
-      trueVals = elementInfo.trueVals;
-
-  _.each(elementInfo.elementMap, (e, k) => safeSetter(e, k, trueVals[k]));
-
-  let fails = elementInfo.failedMappings;
-  ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`);
 }
 
 function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
@@ -647,14 +732,6 @@ function radioElements(containerElementOrSelector: SelectorOrElement, groupName:
 }
 
 function radioLabels(containerElementOrSelector: SelectorOrElement, candidateRadioElements: Array<Element>) {
-
-  function addId(accum: {}, element: Element): {} {
-    let id = element.getAttribute('id');
-    if (id != null){
-      accum[id] = true;
-    }
-    return accum;
-  }
 
   let el = S(containerElementOrSelector),
       labels = el.$$("[for]"),

@@ -9,16 +9,16 @@ import type { SetterFunc } from '../lib/WebUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
 
-import {  clickLink,
+import {
+          clickLink,
           links,
           radioItemVals,
           setRadioGroup,
           setSelect,
           setForm,
+          getForm,
           parent,
-        } from '../lib/WebUtils';
-
-import { checkUncheck,
+          checkUncheck,
           linkByTextText,
           smartBearLogIn,
           smartbearOrders,
@@ -76,7 +76,7 @@ describe('setForm', () => {
     rerun(smartbearOrders, setForm, FORM_ID, input);
   });
 
-  it('setForm ~ Proximal labels - needs special code edits to be valid', () => {
+  it.only('setForm ~ Proximal labels - needs special code edits to be valid', () => {
     let input = FORM_INPUT_PROXIMAL_LABELS;
     rerun(smartbearOrders, setForm, FORM_ID, input);
   });
@@ -93,12 +93,17 @@ describe('setForm', () => {
     rerun(smartbearOrders, setWithFindByIdOnlyAndLwrStreetName);
   });
 
-  it.only('setForm - Global Setter and single setter and id finder and specialised finder', () => {
+  it('setForm - Global Setter and single setter and id finder and specialised finder', () => {
     rerun(smartbearOrders, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder);
   });
 
 });
 
+describe('getForm', () => {
+  it('getForm - orders', () => {
+    rerun(smartbearOrders, getForm, FORM_ID);
+  });
+})
 
 describe('parent', () => {
 

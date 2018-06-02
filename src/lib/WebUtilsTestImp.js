@@ -12,10 +12,19 @@ import {
           read, setRadioGroup, setSelect, setInput,
           setForm, parent, elementIs, withSetter,
           radioItemVals, idAttribute, withFinder,
-          predicateToFinder, withPredicate
+          predicateToFinder, withPredicate, getForm
         } from '../lib/WebUtils';
 
 import type { Element } from '../lib/WebUtils';
+
+export {   clickLink,
+            links,
+            radioItemVals,
+            setRadioGroup,
+            setSelect,
+            setForm,
+            getForm,
+            parent } from '../lib/WebUtils';
 
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
