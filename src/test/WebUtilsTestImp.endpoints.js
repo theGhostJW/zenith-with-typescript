@@ -4,45 +4,17 @@
 import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage,
         chkHasText } from '../lib/AssertionUtils';
 import { cast, debug, waitRetry, fail } from '../lib/SysUtils';
-import { rerun, set } from '../lib/WebUtils';
+import { rerun, set, setForm } from '../lib/WebUtils';
 import type { SetterFunc } from '../lib/WebUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
-
-import {
-          clickLink,
-          links,
-          radioItemVals,
-          setRadioGroup,
-          setSelect,
-          setForm,
-          getForm,
-          parent,
-          checkUncheck,
-          linkByTextText,
-          smartBearLogIn,
-          smartbearOrders,
-          clickOrderLink,
-          TEST_LOG_IN,
-          CARD_LIST_ID,
-          invalidUncheckCheckBox,
-          checkReturnChecked,
-          readSetRadioGroup,
-          setReadProduct,
-          setReadInput,
-          PRODUCT_SELECTOR,
-          AVAILABLE_PRODUCTS,
-          FORM_INPUT_MOSTLY_IDS,
-          FORM_INPUT_RADIO_NAME,
-          FORM_INPUT_FOR_LABELS,
-          FORM_INPUT_PROXIMAL_LABELS,
-          basicSet,
-          recursiveParent,
-          FORM_ID,
-          setSmartbearcaps,
-          setSmartbearcapsLwrAddress,
-          setWithFindByIdOnlyAndLwrStreetName,
-          setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder
+import { clickLink, links, radioItemVals, setRadioGroup, setSelect, /* setForm,*/ getForm, parent,
+        checkUncheck,  linkByTextText, smartBearLogIn,  smartbearOrders, clickOrderLink, TEST_LOG_IN,
+        CARD_LIST_ID, invalidUncheckCheckBox, checkReturnChecked, readSetRadioGroup, setReadProduct,
+        setReadInput,PRODUCT_SELECTOR, AVAILABLE_PRODUCTS,  FORM_INPUT_MOSTLY_IDS,  FORM_INPUT_RADIO_NAME,
+        FORM_INPUT_FOR_LABELS,  FORM_INPUT_PROXIMAL_LABELS, basicSet, recursiveParent, FORM_ID,
+        setSmartbearcaps,  setSmartbearcapsLwrAddress,  setWithFindByIdOnlyAndLwrStreetName,
+        setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder
         } from '../lib/WebUtilsTestImp';
 
 describe('setForm', () => {

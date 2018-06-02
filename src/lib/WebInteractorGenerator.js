@@ -39,7 +39,7 @@ function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, 
 
 const FRAMEWORK_USES = trimLines(`
   import { startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage, isReloadableFile } from '../src/lib/SeleniumIpcServer';
-  import { waitRetry, debug, fail, hasValue, translateErrorObj, cast  } from '../src/lib/SysUtils';
+  import { waitRetry, debug, fail, hasValue, translateErrorObj, cast, ensure } from '../src/lib/SysUtils';
   import { show, hasText  } from '../src/lib/StringUtils';
   import { toTempString  } from '../src/lib/FileUtils';
   import { INTERACT_SOCKET_NAME } from '../src/lib/SeleniumIpcProtocol';
@@ -82,7 +82,12 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
 
 
                                             let modd = renewCache('${modulePath}'),
-                                                response = modd.${functionName}(...cast(params));`
+                                                func = modd.${functionName};
+
+                                             ensure(func != null, "Web interactor error: Could not invoke ${functionName}.\\n" +
+                                                                   "This is usually because the function has not been exported from the target module.\\n" +
+                                                                   "Check the function: \\"${functionName}\\" is exported from the module: \\"${modulePath}\\".");
+                                             response = func(...cast(params));`
                                           )
                                         : `let response = ${functionName}(...cast(params));`,
       initCall = beforeInfo == null ? '' :
