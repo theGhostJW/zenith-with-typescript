@@ -1,5 +1,6 @@
 // @flow
 
+import { log } from './Logging';
 import {
   combine,
   copyFile,
@@ -18,23 +19,25 @@ import {
   PATH_SEPARATOR,
 } from './FileUtils';
 
-import { log, logError, logWarning } from './Logging';
-
-import { hasText, newLine, sameText, show, subStrAfter, subStrBetween,
-         trimChars, trimLines, wildCardMatch, replaceAll } from './StringUtils';
+import { hasText, newLine, replaceAll, sameText, show, subStrAfter,
+         subStrBetween, trimChars, trimLines, wildCardMatch } from './StringUtils';
 import {
         areEqual, callstackStrings, cast, debug, def, delay, ensure,
          ensureHasVal, ensureReturn, fail,
-        filePathFromCallStackLine, functionNameFromFunction, isSerialisable,
-        waitRetry, TEST_SUFFIXES
+        filePathFromCallStackLine, functionNameFromFunction, hasValue,
+        isSerialisable, waitRetry,
+                   TEST_SUFFIXES
       } from './SysUtils';
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
           runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
 import * as _ from 'lodash';
 
-//$FlowFixMe
-import sp from 'step-profiler';
+
+
+
+
+
 
 export type SelectorOrElement = string | Element;
 export type Element = {
@@ -132,17 +135,128 @@ function setFormR(container, data){
 }
 */
 
+type FormItems =  {
+                   editsRemaining: ElementPlusLocIsCheckControl[],
+                   nonEditsRemaining: ElementPlusLocIsCheckControl[],
+                   result: {[string]: string},
+                   data: {[string]: mixed}
+                 };
+
+
+function nearestLabel(edit: ElementPlusLocIsCheckControl, nonEditsRemaining: ElementPlusLocIsCheckControl[]) : ?ElementPlusLocIsCheckControl {
+  const calcDistance = l => distanceLabelToDataObject(edit, l, '*');
+
+  function bestCandidate(accum, lbl) {
+    let distance = calcDistance(lbl),
+        txt = lbl.getText();
+
+    if (distance != null && hasValue(txt) && distance < accum.distance){
+      return {
+        distance: distance,
+        result: lbl
+      }
+    }
+    else {
+      return accum;
+    }
+  }
+
+  _.reduce(nonEditsRemaining, bestCandidate, {
+                                              distance: Number.MAX_VALUE,
+                                              result: null
+                                            });
+}
+
+function placeholderOrLabelText(edit: ElementPlusLocIsCheckControl, nonEditsRemaining: ElementPlusLocIsCheckControl[]) : {altIdStr: string | null, nonEdit: ElementPlusLocIsCheckControl | null} {
+  let ph = edit.getAttribute('placeholder'),
+      altIdStr = null,
+      nonEdit = null;
+
+  if (ph == null || ph != null){
+    let nonEdit = def(
+                      nonEditsRemaining.find(l => l.getAttribute('for') == idAttribute(edit) && l.getAttribute('for') != null),
+                      nearestLabel(edit, nonEditsRemaining.filter(l => l.getAttribute('for') == null ))
+                     );
+
+   log(show(nonEdit));
+
+    altIdStr = nonEdit == null || !hasValue(nonEdit.getText()) ? 'idOrTextNotFound' : nonEdit.getText();
+  }
+  else {
+    log('ph: ' + ph);
+    altIdStr = ph;
+    nonEdit = null;
+  }
+
+  log(altIdStr);
+
+  return {
+    altIdStr: altIdStr,
+    nonEdit: nonEdit
+  }
+
+}
+
+function getNextFormItems(items: FormItems): FormItems {
+
+    let {
+          editsRemaining,
+          nonEditsRemaining,
+          data
+        } = items;
+
+    if (editsRemaining.length == 0){
+      return items;
+    }
+
+    let edit = _.head(editsRemaining),
+        id = idAttribute(edit),
+        result = items.result,
+        {altIdStr, nonEdit} = placeholderOrLabelText(edit, nonEditsRemaining),
+        lblTextkey = def(altIdStr, '?????' + show(_.keys(result).length));
+
+    editsRemaining = _.tail(editsRemaining);
+
+     let namedRadio = isRadio(edit) && nameAttribute(edit) != null;
+     if (namedRadio){
+       let name: string = cast(nameAttribute(edit));
+       result[name] = 'radioGroup';
+       data[name] = 'radioGroup';
+     }
+     else if (id != null){
+       result[id] = '???';
+     }
+     else {
+       result[lblTextkey] = '???'
+     }
+
+     if (!namedRadio){
+       data[lblTextkey] = '???';
+     }
+     
+     return getNextFormItems(
+       {
+          editsRemaining: editsRemaining,
+          nonEditsRemaining: items.nonEditsRemaining,
+          result: result,
+          data: data
+        }
+     );
+}
+
 export function getForm(parentElementorSelector: SelectorOrElement): string {
-  log(show(parentElementorSelector))
-  // let {edits, nonEdits} = editsNonEdits(parentElementorSelector),
-  //     elPos = (e0, e1) => e0.top - e1.top != 0 ? e0.top - e1.top : e0.left - e1.left;
-  //
-  // edits = addLocationsAndCheckControl(edits).sort(elPos);
-  // nonEdits = addLocationsAndCheckControl(nonEdits).sort(elPos);
-  //
-  // log(show(edits));
-  // log(show(nonEdits));
- return 'HI';
+  let {edits, nonEdits} = editsNonEdits(parentElementorSelector),
+      elPos = (e0, e1) => e0.top - e1.top != 0 ? e0.top - e1.top : e0.left - e1.left;
+
+ edits = addLocationsAndCheckControl(edits).sort(elPos);
+ nonEdits = addLocationsAndCheckControl(nonEdits).sort(elPos);
+
+ return show(getNextFormItems({
+                          editsRemaining: edits,
+                          nonEditsRemaining: nonEdits,
+                          result: {},
+                          data: {}
+                        }));
 }
 
 type EditsNonEdits = {
@@ -318,7 +432,7 @@ function addLocation(el:$Subtype<Element>): ElementPlusLoc {
   return el;
 }
 
-function addLocationsAndCheckControl(locs: Array<Element>): Array<ElementPlusLocIsCheckControl> {
+function addLocationsAndCheckControl(locs: Element[]): ElementPlusLocIsCheckControl[] {
   return locs.
             map(addLocation).
             map(el => {

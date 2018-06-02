@@ -27,7 +27,6 @@ import {
   seekAllInObj,
   isPOJSO,
   debug,
-  debugNoStack,
   yamlToObj,
   objToYaml,
   forceArray,
@@ -53,7 +52,7 @@ import * as _ from 'lodash';
 import { PROCESS_LIST } from '../test/SysUtils.data.test';
 import { log } from '../lib/Logging';
 
-const showTarget = v => debugNoStack('\n' + show(v))
+const showTarget = v => debug('\n' + show(v))
 
 describe('isSerialisable', () => {
 
@@ -831,21 +830,21 @@ describe('seekInObjxxx - derived functions', () => {
 
     it('single item', () => {
       showTarget(EG_OBJ)
-      debugNoStack(seekInObj(EG_OBJ, 'moreInfo'), "seekInObj(EG_OBJ, 'moreInfo')")
+      debug(seekInObj(EG_OBJ, 'moreInfo'), "seekInObj(EG_OBJ, 'moreInfo')")
       chkEq('Hi there', seekInObj(EG_OBJ, 'moreInfo'));
     });
 
     it('missing item', () => {
       showTarget(EG_OBJ)
-      debugNoStack(seekInObj(EG_OBJ, 'lessInfo'), "seekInObj(EG_OBJ, 'lessInfo')")
+      debug(seekInObj(EG_OBJ, 'lessInfo'), "seekInObj(EG_OBJ, 'lessInfo')")
       chkEq(undefined, seekInObj(EG_OBJ, 'lessInfo'));
     });
 
     it('ambiguous - expect error', () => {
 
       showTarget(EG_OBJ)
-      debugNoStack('store, category', "seekInObj(EG_OBJ, 'store', 'category')")
-      debugNoStack('BANG')
+      debug('store, category', "seekInObj(EG_OBJ, 'store', 'category')")
+      debug('BANG')
       chkExceptionText(() => {
         seekInObj(EG_OBJ, 'store', 'category')
       },
@@ -858,7 +857,7 @@ describe('seekInObjxxx - derived functions', () => {
 
     it('single item', () => {
       showTarget(EG_OBJ)
-      debugNoStack(seekInObjWithInfo(EG_OBJ, 'moreInfo'))
+      debug(seekInObjWithInfo(EG_OBJ, 'moreInfo'))
       chkValKeys([
         {
           key: 'moreInfo',
@@ -883,7 +882,7 @@ describe('seekInObjxxx - derived functions', () => {
 
     it('seekInObjNoCheckWithInfo ambiguous - no error', () => {
       showTarget(EG_OBJ);
-      debugNoStack(seekInObjNoCheck(EG_OBJ, 'store', 'category'), "seekInObjNoCheck(EG_OBJ, 'store', 'category')");
+      debug(seekInObjNoCheck(EG_OBJ, 'store', 'category'), "seekInObjNoCheck(EG_OBJ, 'store', 'category')");
       chkValKeys([
         {
           "key": "category",
@@ -998,10 +997,10 @@ describe('seekManyInObjWithInfo', () => {
 
     it('finds a multiple wildcard string match', () => {
       showTarget(targ)
-      debugNoStack(seekManyInObj(targ, 'blah*'), 'seekManyInObj(targ, "blah*")')
+      debug(seekManyInObj(targ, 'blah*'), 'seekManyInObj(targ, "blah*")')
 
       showTarget(targ)
-      debugNoStack(seekAllInObj(targ, 'blah*'), 'seekAllInObj(targ, "blah*")')
+      debug(seekAllInObj(targ, 'blah*'), 'seekAllInObj(targ, "blah*")')
 
       let expected = [
           {
@@ -1070,7 +1069,7 @@ describe('seekManyInObjWithInfo', () => {
         actual = seekManyInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
 
       showTarget(targ);
-      debugNoStack(seekManyInObj(targ, 'child', 'grandChild', 'blah', [2], 'final'),
+      debug(seekManyInObj(targ, 'child', 'grandChild', 'blah', [2], 'final'),
                     "seekManyInObj(targ, 'child', 'grandChild', 'blah', [2], 'final')"
                   );
 
@@ -1264,10 +1263,10 @@ describe('seekManyInObjWithInfo', () => {
         actual = valKeys(seekManyInObjWithInfo(EG_OBJ, areToys));
 
         showTarget(EG_OBJ)
-        debugNoStack(`function areToys(val : any, key : string | number) : boolean {
+        debug(`function areToys(val : any, key : string | number) : boolean {
           return areEqual('toys', key);
         }`)
-        debugNoStack(actual, "seekManyInObjWithInfo(EG_OBJ, areToys)")
+        debug(actual, "seekManyInObjWithInfo(EG_OBJ, areToys)")
 
       chkEq(expected, actual);
     });

@@ -526,7 +526,7 @@ export function cast<T>(targ: any): T {
   return (targ: T);
 }
 
-export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
+export function debugStk<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
   console.log(appendDelim(_.toUpper(label), ': ', show(msgStr)) + newLine()  + '=========================' + newLine()  +
                                                                       callstackStrings().join(', ' + newLine()) + newLine()  +
@@ -534,7 +534,7 @@ export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   return msgStr;
 }
 
-export function debugNoStack<T>(msg: T | () => T, label: string = 'DEBUG'): T {
+export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
   console.log(appendDelim(label, ': ', show(msgStr)));
   return msgStr;

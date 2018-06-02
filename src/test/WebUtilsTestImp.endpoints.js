@@ -48,7 +48,7 @@ describe('setForm', () => {
     rerun(smartbearOrders, setForm, FORM_ID, input);
   });
 
-  it.only('setForm ~ Proximal labels - needs special code edits to be valid', () => {
+  it('setForm ~ Proximal labels - needs special code edits to be valid', () => {
     let input = FORM_INPUT_PROXIMAL_LABELS;
     rerun(smartbearOrders, setForm, FORM_ID, input);
   });
@@ -72,8 +72,8 @@ describe('setForm', () => {
 });
 
 describe('getForm', () => {
-  it('getForm - orders', () => {
-    rerun(smartbearOrders, getForm, FORM_ID);
+  it.only('getForm - orders', () => {
+    debug(rerun(smartbearOrders, getForm, FORM_ID));
   });
 })
 

@@ -204,7 +204,7 @@ export function readSetRadioGroup() {
   setRadioGroup(CARD_LIST_ID, 'American Express');
   let r2 = read(CARD_LIST_ID);
 
-  return [r0, r1, r2]
+  return [r0, r1, r2];
 }
 
 export function checkReturnChecked() {
