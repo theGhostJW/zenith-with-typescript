@@ -36,8 +36,6 @@ import * as _ from 'lodash';
 //$FlowFixMe
 import sp from 'step-profiler';
 
-
-
 export type SelectorOrElement = string | Element;
 export type Element = {
   hcode: number,

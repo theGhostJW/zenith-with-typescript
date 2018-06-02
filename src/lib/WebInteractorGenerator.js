@@ -84,10 +84,10 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
                                             let modd = renewCache('${modulePath}'),
                                                 func = modd.${functionName};
 
-                                             ensure(func != null, "Web interactor error: Could not invoke ${functionName}.\\n" +
-                                                                   "This is usually because the function has not been exported from the target module.\\n" +
-                                                                   "Check the function: \\"${functionName}\\" is exported from the module: \\"${modulePath}\\".");
-                                             response = func(...cast(params));`
+                                             ensure(func != null, 'Web interactor error: Could not invoke ${functionName}.\\n' +
+                                                                   'This is usually because the function has not been exported from the target module.\\n' +
+                                                                   'Check the "${functionName}" function is exported from the module: "${modulePath}".');
+                                             let response = func(...cast(params));`
                                           )
                                         : `let response = ${functionName}(...cast(params));`,
       initCall = beforeInfo == null ? '' :
