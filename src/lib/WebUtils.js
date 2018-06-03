@@ -33,12 +33,13 @@ import {
                                    waitRetry,
                                    TEST_SUFFIXES
       } from './SysUtils';
+
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
           runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
 import * as _ from 'lodash';
 
-
+import clipBoardy from 'clipboardy';
 
 export type SelectorOrElement = string | Element;
 export type Element = {
@@ -340,6 +341,8 @@ export function getForm(parentElementorSelector: SelectorOrElement): string {
   let result = formatFormInfo(extractFormInfo(parentElementorSelector));
   log(result);
   toTempString(result);
+  clipBoardy.write(result);
+  log('sourcecode copied to clipboard');
   return result;
 }
 

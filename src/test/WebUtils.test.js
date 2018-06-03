@@ -1,9 +1,5 @@
 // @flow
 
-
-
-
-
 import {
   chk,
   chkEq,
