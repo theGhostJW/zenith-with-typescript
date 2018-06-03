@@ -14,7 +14,7 @@ import { clickLink, links, radioItemVals, setRadioGroup, setSelect, /* setForm,*
         setReadInput,PRODUCT_SELECTOR, AVAILABLE_PRODUCTS,  FORM_INPUT_MOSTLY_IDS,  FORM_INPUT_RADIO_NAME,
         FORM_INPUT_FOR_LABELS,  FORM_INPUT_PROXIMAL_LABELS, basicSet, recursiveParent, FORM_ID,
         setSmartbearcaps,  setSmartbearcapsLwrAddress,  setWithFindByIdOnlyAndLwrStreetName,
-        setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder
+        setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, setThisForm
         } from '../lib/WebUtilsTestImp';
 
 describe('setForm', () => {
@@ -71,11 +71,26 @@ describe('setForm', () => {
 
 });
 
-describe('getForm', () => {
-  it.only('getForm - orders', () => {
-    debug(rerun(smartbearOrders, getForm, FORM_ID));
+describe.only('getForm', () => {
+  it('getForm - orders', () => {
+    rerun(smartbearOrders, getForm, FORM_ID);
   });
 })
+
+describe('getFormDump test', () => {
+
+  it('getForm demo', () => {
+    let params = {
+      product: 'FamilyAlbum',
+		  pricePerUnit: 100,
+		  discount: 30,
+		  customerName: 'Janice Peterson',
+    };
+
+    rerun(smartbearOrders, setThisForm, FORM_ID, params);
+  });
+
+});
 
 describe('parent', () => {
 

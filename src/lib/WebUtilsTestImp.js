@@ -1,21 +1,25 @@
 // @flow
 
-import { debug, waitRetry, cast } from '../lib/SysUtils';
-import { toTemp, toTempString } from '../lib/FileUtils';
-import { show } from '../lib/StringUtils';
-import { log } from '../lib/Logging';
-import * as _ from 'lodash';
-import {
-          browserEx, zzzTestFunc, rerun,
-          set, click, links, url,
-          linkByText,  clickLink, setChecked, S, SS,
-          read, setRadioGroup, setSelect, setInput,
-          setForm, parent, elementIs, withSetter,
-          radioItemVals, idAttribute, withFinder,
-          predicateToFinder, withPredicate, getForm
-        } from '../lib/WebUtils';
+
 
 import type { Element } from '../lib/WebUtils';
+import type {SelectorOrElement} from './WebUtils';
+
+
+
+import {cast, debug, waitRetry} from '../lib/SysUtils';
+import {
+          browserEx, click, clickLink,
+          elementIs, getForm, idAttribute, linkByText,
+          links,  parent, predicateToFinder, radioItemVals, read,
+          rerun, set, setChecked, setForm,
+          setInput, setRadioGroup, setSelect, url,
+          withFinder, withPredicate, withSetter,
+          zzzTestFunc, S, SS
+        } from '../lib/WebUtils';
+
+import * as _ from 'lodash';
+
 
 export {   clickLink,
             links,
@@ -49,57 +53,57 @@ export const FORM_INPUT_MOSTLY_IDS = {
     ctl00_MainContent_fmwOrder_TextBox1: '12/24'
   }
 
-  export const FORM_INPUT_ALL_IDS = {
-      ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
-      ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
-      ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
-      ctl00_MainContent_fmwOrder_txtDiscount: 7,
-      ctl00_MainContent_fmwOrder_txtName: 'Janice Peterson',
-      ctl00_MainContent_fmwOrder_TextBox2: '22 Vernon St',
-      ctl00_MainContent_fmwOrder_TextBox3: 'Croydon',
-      ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
-      ctl00_MainContent_fmwOrder_TextBox5: 3136,
-      //id of container radio button
-      ctl00_MainContent_fmwOrder_cardList_2: true,
-      ctl00_MainContent_fmwOrder_TextBox6: '12345678',
-      ctl00_MainContent_fmwOrder_TextBox1: '12/24'
-    }
+export const FORM_INPUT_ALL_IDS = {
+    ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
+    ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
+    ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
+    ctl00_MainContent_fmwOrder_txtDiscount: 7,
+    ctl00_MainContent_fmwOrder_txtName: 'Janice Peterson',
+    ctl00_MainContent_fmwOrder_TextBox2: '22 Vernon St',
+    ctl00_MainContent_fmwOrder_TextBox3: 'Croydon',
+    ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
+    ctl00_MainContent_fmwOrder_TextBox5: 3136,
+    //id of container radio button
+    ctl00_MainContent_fmwOrder_cardList_2: true,
+    ctl00_MainContent_fmwOrder_TextBox6: '12345678',
+    ctl00_MainContent_fmwOrder_TextBox1: '12/24'
+  }
 
-  export const FORM_INPUT_FOR_LABELS = {
-      ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
-      ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
-      ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
-      ctl00_MainContent_fmwOrder_txtDiscount: 7,
+export const FORM_INPUT_FOR_LABELS = {
+    ctl00_MainContent_fmwOrder_ddlProduct: 'ScreenSaver',
+    ctl00_MainContent_fmwOrder_txtQuantity: '\uE00395',
+    ctl00_MainContent_fmwOrder_txtUnitPrice: 10,
+    ctl00_MainContent_fmwOrder_txtDiscount: 7,
+    // for label
+    'Customer name:*': 'Janice Peterson',
+    ctl00_MainContent_fmwOrder_TextBox2: '22 Vernon St',
+    // for label fuzzy
+    'City*': 'Croydon',
+    ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
+    ctl00_MainContent_fmwOrder_TextBox5: 3136,
+    // radio fuzzy
+    '*cardList': 'American Express',
+    ctl00_MainContent_fmwOrder_TextBox6: '12345678',
+    ctl00_MainContent_fmwOrder_TextBox1: '12/24'
+  }
+
+export const FORM_INPUT_PROXIMAL_LABELS = {
+      'Product*': 'ScreenSaver',
+      '*tity*': '\uE00395',
+      '*per unit*': 10,
+      'Discount:': 7,
       // for label
       'Customer name:*': 'Janice Peterson',
-      ctl00_MainContent_fmwOrder_TextBox2: '22 Vernon St',
+      'Street*': '22 Vernon St',
       // for label fuzzy
       'City*': 'Croydon',
-      ctl00_MainContent_fmwOrder_TextBox4: 'Victoria',
-      ctl00_MainContent_fmwOrder_TextBox5: 3136,
-      // radio fuzzy
-      '*cardList': 'American Express',
-      ctl00_MainContent_fmwOrder_TextBox6: '12345678',
-      ctl00_MainContent_fmwOrder_TextBox1: '12/24'
-    }
-
-   export const FORM_INPUT_PROXIMAL_LABELS = {
-         'Product*': 'ScreenSaver',
-         '*tity*': '\uE00395',
-         '*per unit*': 10,
-         'Discount:': 7,
-         // for label
-         'Customer name:*': 'Janice Peterson',
-         'Street*': '22 Vernon St',
-         // for label fuzzy
-         'City*': 'Croydon',
-         'State*': 'Victoria',
-         'Zip*': 3136,
-        // radio button
-        'R~American Express': true,
-         'Card Nr*': '12345678',
-        'Expire*': '12/24'
-      }
+      'State*': 'Victoria',
+      'Zip*': 3136,
+     // radio button
+     'R~American Express': true,
+      'Card Nr*': '12345678',
+     'Expire*': '12/24'
+   }
 
 export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_MOSTLY_IDS)
                                       .clone()
@@ -248,4 +252,78 @@ export function invalidUncheckCheckBox() {
 
 export function linkByTextText() {
   return linkByText('*order*').getText();
+}
+
+
+/******************************************************************************
+************************** Sample From getForm ********************************
+*******************************************************************************/
+
+// Field Subtypes
+export type Product =
+	'MyMoney'
+	| 'FamilyAlbum'
+	| 'ScreenSaver';
+
+export type Ctl00MaincontentFmworderCardlist =
+	'Visa'
+	| 'MasterCard'
+	| 'American Express';
+
+// Complete Form Input Type
+export type CompleteFormInput =
+	{
+		product: Product,
+		quantity: string,
+		pricePerUnit: number,
+		discount: number,
+		customerName: string,
+		street: string,
+		city: string,
+		state: string,
+		zip: string,
+		ctl00MaincontentFmworderCardlist: Ctl00MaincontentFmworderCardlist,
+		cardNr: string,
+		expireDateMmYy: string
+	}
+
+// Form Input
+export type FormInput = $Supertype<CompleteFormInput>;
+
+// Default Data
+export const formDefaults = () => {
+ return {
+		product: 'FamilyAlbum',
+		quantity: '\uE00395',
+		pricePerUnit: 100,
+		discount: 10,
+		customerName: 'name',
+		street: 'street',
+		city: 'city',
+		state: 'state',
+		zip: '3103',
+		ctl00MaincontentFmworderCardlist: 'Visa',
+		cardNr: '0124587',
+		expireDateMmYy: '12/30'
+	}
+}
+
+export function setThisForm(parentElementorSelector: SelectorOrElement, params: FormInput) {
+  params = _.defaults(params, formDefaults());
+  let formParams =
+	{
+		ctl00_MainContent_fmwOrder_ddlProduct: params.product,
+		ctl00_MainContent_fmwOrder_txtQuantity: params.quantity,
+		ctl00_MainContent_fmwOrder_txtUnitPrice: params.pricePerUnit,
+		ctl00_MainContent_fmwOrder_txtDiscount: params.discount,
+		ctl00_MainContent_fmwOrder_txtName: params.customerName,
+		ctl00_MainContent_fmwOrder_TextBox2: params.street,
+		ctl00_MainContent_fmwOrder_TextBox3: params.city,
+		ctl00_MainContent_fmwOrder_TextBox4: params.state,
+		ctl00_MainContent_fmwOrder_TextBox5: params.zip,
+		ctl00$MainContent$fmwOrder$cardList: params.ctl00MaincontentFmworderCardlist,
+		ctl00_MainContent_fmwOrder_TextBox6: params.cardNr,
+		ctl00_MainContent_fmwOrder_TextBox1: params.expireDateMmYy
+	};
+  setForm(parentElementorSelector, formParams);
 }

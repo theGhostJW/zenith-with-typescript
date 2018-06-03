@@ -1,6 +1,5 @@
 // @flow
 
-import { log } from './Logging';
 import {
   combine,
   copyFile,
@@ -16,26 +15,28 @@ import {
   tempFileExists,
   testCaseFile,
   toTemp,
+  toTempString,
   PATH_SEPARATOR,
 } from './FileUtils';
 
-import { hasText, newLine, replaceAll, sameText, show, subStrAfter,
-         subStrBetween, trimChars, trimLines, wildCardMatch } from './StringUtils';
+import {log} from './Logging';
+
+import { hasText, lowerCase, lowerFirst, newLine, replaceAll, sameText,
+         show, subStrAfter, subStrBetween, trim, trimChars,
+         trimLines, upperFirst,
+         wildCardMatch } from './StringUtils';
 import {
         areEqual, callstackStrings, cast, debug, def, delay, ensure,
          ensureHasVal, ensureReturn, fail,
-        filePathFromCallStackLine, functionNameFromFunction, hasValue,
-        isSerialisable, waitRetry,
-                   TEST_SUFFIXES
+        filePathFromCallStackLine, forceArray, functionNameFromFunction,
+        hasValue, isSerialisable, stringConvertableToNumber,
+                                   waitRetry,
+                                   TEST_SUFFIXES
       } from './SysUtils';
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
           runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
 import * as _ from 'lodash';
-
-
-
-
 
 
 
@@ -70,78 +71,53 @@ export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelecto
     return el.$$(manySelector);
 }
 
-/*
-function setFormR(container, data){
-
-  var searchSetInfo = getSearchSetInfo(container, data);
-
-  function getId(candidate){
-    return (hasValue(candidate) && _.isNaN(parseInt(candidate))) ? candidate : null;
-  }
-
-  function addMapToObject(accum, objAndCoordinates){
-    var obj = objAndCoordinates.object;
-    var id = getId(obj.idStr) || getId(obj.ObjectIdentifier);
-    if (hasValue(id)){
-      accum[id] = "ID";
-    }
-    var closestLabelAndCoordinates = getClosestLabelWithText(objAndCoordinates, searchSetInfo);
-    if (hasValue(closestLabelAndCoordinates)){
-      var propName = trimWhiteSpace(closestLabelAndCoordinates.object.contentText);
-      var newLineIndex = propName.indexOf(newLine());
-      if (newLineIndex > -1){
-        propName = propName.slice(0, newLineIndex);
-      }
-      accum[propName] = null;
-    }
-    return accum;
-  }
-
-  function topLeft(obj){
-    return (obj.top * 10000) + obj.left;
-  }
-
-  var result = _.chain(searchSetInfo.dataObjectsWithCoordinates)
-                .sortBy(topLeft)
-                .reduce(addMapToObject, {})
-                .value();
-
-  result = objectToJson(result).split(newLine());
-
-  var len = result.length;
-  function fixJson(line, lineIndex){
-    var suffix = lineIndex > len - 4 ? ''  : ','
-    return fixJsonIncLineSuffix(line, suffix);
-  }
-
-  result = _.chain(result)
-              .map(fixJson)
-              .map(indent)
-              .value()
-              .join(newLine());
-
-
-  result = 'setForm(' + newLine() + result + newLine() +  '\t);';
-  if (hasValue(searchSetInfo.data)){
-   var keys = _.keys(searchSetInfo.data);
-   result = '\t/*' +
-                  newLine() +
-                  _.map(keys, indent).join(newLine()) +
-                  newLine()
-          + '\t~/' + newLine() +
-          '\t' + result;
-  }
-  Sys.Clipboard = result;
-}
-*/
-
 type FormItems =  {
+                   allEdits: ElementPlusLocIsCheckControl[],
                    editsRemaining: ElementPlusLocIsCheckControl[],
                    nonEditsRemaining: ElementPlusLocIsCheckControl[],
                    result: {[string]: string},
-                   data: {[string]: mixed}
+                   data: {[string]: mixed},
+                   dataType: {[string]: string},
+                   sumTypes:  {[string]: string[]},
                  };
 
+export const ZZForTest = {
+ toPropString : toPropString,
+ formatFormInfo: formatFormInfo
+}
+
+function toPropString(labelStr: string): string {
+
+   function splitOnNonChars(accum, chr) {
+     let code = chr.charCodeAt(0),
+         isAlphaNum = code > 64 && code < 91 || code > 96 && code < 123 || code > 47 && code < 58,
+         {words, inWord} = accum,
+         lastIdx = words.length - 1;
+
+     if (isAlphaNum && inWord){
+       words[lastIdx] = words[lastIdx] + chr;
+     }
+     else if (isAlphaNum) {
+       words.push(chr);
+       accum.inWord = true;
+     }
+     else {
+       accum.inWord = false;
+     }
+     return accum;
+   }
+
+   let words = labelStr.split('').reduce(splitOnNonChars, {words: [], inWord: false}).words,
+       firstWrd = _.head(words);
+
+   if (firstWrd == null) {
+     return '???????'
+   }
+   else {
+     let capsWrds = forceArray(lowerCase(firstWrd), _.tail(words).map(w => upperFirst(lowerCase(w))));
+     return capsWrds.join('');
+   }
+}
 
 function nearestLabel(edit: ElementPlusLocIsCheckControl, nonEditsRemaining: ElementPlusLocIsCheckControl[]) : ?ElementPlusLocIsCheckControl {
   const calcDistance = l => distanceLabelToDataObject(edit, l, '*');
@@ -172,23 +148,19 @@ function placeholderOrLabelText(edit: ElementPlusLocIsCheckControl, nonEditsRema
       altIdStr = null,
       nonEdit = null;
 
-  if (ph == null || ph != null){
+  if (ph == null || ph == ''){
     let nonEdit = def(
                       nonEditsRemaining.find(l => l.getAttribute('for') == idAttribute(edit) && l.getAttribute('for') != null),
                       nearestLabel(edit, nonEditsRemaining.filter(l => l.getAttribute('for') == null ))
                      );
 
-   log(show(nonEdit));
-
     altIdStr = nonEdit == null || !hasValue(nonEdit.getText()) ? 'idOrTextNotFound' : nonEdit.getText();
   }
   else {
-    log('ph: ' + ph);
+    log('PLACEHOLDER: ' + ph)
     altIdStr = ph;
     nonEdit = null;
   }
-
-  log(altIdStr);
 
   return {
     altIdStr: altIdStr,
@@ -197,66 +169,178 @@ function placeholderOrLabelText(edit: ElementPlusLocIsCheckControl, nonEditsRema
 
 }
 
-function getNextFormItems(items: FormItems): FormItems {
+const isRadioOfName = (name: string) => (edit: ElementPlusLocIsCheckControl) => edit.getAttribute('type') == 'radio' && nameAttribute(edit) == name;
 
-    let {
-          editsRemaining,
-          nonEditsRemaining,
-          data
-        } = items;
-
-    if (editsRemaining.length == 0){
-      return items;
-    }
-
-    let edit = _.head(editsRemaining),
-        id = idAttribute(edit),
-        result = items.result,
-        {altIdStr, nonEdit} = placeholderOrLabelText(edit, nonEditsRemaining),
-        lblTextkey = def(altIdStr, '?????' + show(_.keys(result).length));
-
-    editsRemaining = _.tail(editsRemaining);
-
-     let namedRadio = isRadio(edit) && nameAttribute(edit) != null;
-     if (namedRadio){
-       let name: string = cast(nameAttribute(edit));
-       result[name] = 'radioGroup';
-       data[name] = 'radioGroup';
-     }
-     else if (id != null){
-       result[id] = '???';
-     }
-     else {
-       result[lblTextkey] = '???'
-     }
-
-     if (!namedRadio){
-       data[lblTextkey] = '???';
-     }
-     
-     return getNextFormItems(
-       {
-          editsRemaining: editsRemaining,
-          nonEditsRemaining: items.nonEditsRemaining,
-          result: result,
-          data: data
-        }
-     );
+function radioOptions(name: string, allEdits: ElementPlusLocIsCheckControl[]): string[] {
+  return allEdits
+            .filter(isRadioOfName(name))
+            .map(e => e.getAttribute('value'))
+            .filter(hasValue);
 }
 
-export function getForm(parentElementorSelector: SelectorOrElement): string {
+function selectOptions(edit: ElementPlusLocIsCheckControl): string[] {
+  let options = edit.$$('option');
+  return options.map(o => o.getText());
+}
+
+function radioValue(name: string, allEdits: ElementPlusLocIsCheckControl[]): string | null {
+  var radio = allEdits.find(isRadioOfName(name));
+  return radio == null ? null : radio.getAttribute('value');
+}
+
+function getNextFormItems(items: FormItems): FormItems {
+
+  let {
+        editsRemaining,
+        allEdits,
+        nonEditsRemaining,
+        data,
+        dataType,
+        sumTypes
+      } = items;
+
+  if (editsRemaining.length == 0){
+    return items;
+  }
+
+  let edit = _.head(editsRemaining),
+      id = idAttribute(edit),
+      result = items.result,
+      {altIdStr, nonEdit} = placeholderOrLabelText(edit, nonEditsRemaining),
+      lblTextkey = def(altIdStr, '?????' + show(_.keys(result).length)),
+      name = nameAttribute(edit),
+      namedRadio = isRadio(edit) && name != null,
+      dataPropName = toPropString(namedRadio ? cast(name) : lblTextkey),
+      typeName = upperFirst(dataPropName),
+      paramStr = 'params.' + dataPropName;
+
+  editsRemaining = _.tail(editsRemaining);
+
+   if (namedRadio){
+     let name: string = cast(nameAttribute(edit));
+     result[name] = paramStr;
+     data[dataPropName] = radioValue(name, allEdits);
+     dataType[dataPropName] = typeName;
+     sumTypes[typeName] = radioOptions(name, allEdits)
+   }
+   else if (id != null){
+     result[id] = paramStr;
+   }
+   else {
+     result[lblTextkey] = paramStr
+   }
+
+   if (!namedRadio){
+     let val = read(edit),
+         isSelect = isSelectElement(edit);
+
+     val = typeof val == 'string' && stringConvertableToNumber(val) ? Number.parseFloat(cast(val)) : val;
+     data[dataPropName] = val
+     dataType[dataPropName] = edit.isCheckControl ? 'boolean' :
+                                isSelect ? typeName :
+                                val == null ? 'string' : typeof val;
+
+    if (isSelect){
+       sumTypes[typeName] = selectOptions(edit)
+    }
+   }
+
+   return getNextFormItems(
+     {
+        allEdits: allEdits,
+        editsRemaining: editsRemaining,
+        nonEditsRemaining: items.nonEditsRemaining,
+        result: result,
+        data: data,
+        dataType: dataType,
+        sumTypes: sumTypes
+      }
+   );
+}
+
+export const isSelectElement = elementIs('select')
+
+function extractFormInfo(parentElementorSelector: SelectorOrElement): FormItems {
   let {edits, nonEdits} = editsNonEdits(parentElementorSelector),
       elPos = (e0, e1) => e0.top - e1.top != 0 ? e0.top - e1.top : e0.left - e1.left;
 
  edits = addLocationsAndCheckControl(edits).sort(elPos);
  nonEdits = addLocationsAndCheckControl(nonEdits).sort(elPos);
-
- return show(getNextFormItems({
+ return getNextFormItems({
+                          allEdits: edits,
                           editsRemaining: edits,
                           nonEditsRemaining: nonEdits,
                           result: {},
-                          data: {}
-                        }));
+                          data: {},
+                          dataType: {},
+                          sumTypes: {},
+                        });
+}
+
+function typeDeclaration(types, typeName): string {
+  return `export type ${typeName} = \n\t${types.map(s => `'${s}'`).join('\n\t| ')};`
+}
+
+function typeLines(dataType: {[string]: string}): string {
+  let lines = _.map(dataType, (v, n) => '\t\t' + n + ': ' + v);
+  return lines.join(',\n');
+}
+
+function formParamLines(result: {[string]: string}): string {
+  let lines = _.map(result, (v, n) => '\t\t' + n + ': ' + v);
+  return lines.join(',\n');
+}
+
+function dataLines(data: {[string]: mixed}, dataType: {[string]: string}) {
+  function valShow(name, typeName) {
+    let val = show(data[name]);
+    return typeName == 'boolean' || typeName == 'number' ? val : "'" + val + "'";
+  }
+
+  let lines = _.map(dataType, (v, n) => '\t\t' + n + ': ' + valShow(n,v));
+  return lines.join(',\n');
+}
+
+function formatFormInfo(info: FormItems): string {
+  let {
+      result,
+      data,
+      dataType,
+      sumTypes
+      } = info;
+
+  // Sum Types
+  let sumTypeStr = _.map(sumTypes, typeDeclaration).join('\n\n');
+  sumTypeStr = trim(sumTypeStr) == '' ? '' : `// Field Subtypes\n${sumTypeStr}`;
+
+  // data Type
+  let dataTypeStr = `// Complete Form Input Type\nexport type CompleteFormInput = \n\t{\n${typeLines(dataType)}\n\t}`;
+
+  // default data
+  let defaultData = `// Default Data\nexport const formDefaults = () => {\n return {\n${dataLines(data, dataType)}\n\t}\n}`;
+
+  // set form function
+  let setFormStr =
+`export function setThisForm(parentElementorSelector: SelectorOrElement, params: FormInput) {
+  params = _.defaults(params, formDefaults());
+  let formParams = \n\t{\n${formParamLines(result)}\n\t};
+  setForm(parentElementorSelector, formParams);
+}`;
+
+  return [
+          sumTypeStr,
+          dataTypeStr,
+          '// Form Input\nexport type FormInput = $Supertype<CompleteFormInput>;',
+          defaultData,
+          setFormStr
+        ].join('\n\n');
+}
+
+export function getForm(parentElementorSelector: SelectorOrElement): string {
+  let result = formatFormInfo(extractFormInfo(parentElementorSelector));
+  log(result);
+  toTempString(result);
+  return result;
 }
 
 type EditsNonEdits = {
@@ -269,12 +353,8 @@ function editsNonEdits(parentElementorSelector: SelectorOrElement): EditsNonEdit
   return _.reduce(elements, splitEditsNonEdits, {edits: [], nonEdits: []});
 }
 
-export function setForm(
-                          parentElementorSelector: SelectorOrElement,
-                          valMap: {[string]: SetterValue | ValueWithFinderSetter},
-                          setter: SetterFunc = set,
-                          finder?: FinderFunc
-                        ): void {
+// do not move onto multiple lines ~ confuses symbold view
+export function setForm(parentElementorSelector: SelectorOrElement, valMap: {[string]: SetterValue | ValueWithFinderSetter}, setter: SetterFunc = set, finder?: FinderFunc): void {
 
   type ElementInfo = {
                      elementMap: {},

@@ -1042,7 +1042,7 @@ describe('seekManyInObjWithInfo', () => {
       chkEq(expected, valKeys(actual));
     });
 
-    it.only('index specifier plus multiple specifiers', () => {
+    it('index specifier plus multiple specifiers', () => {
 
       let targ = {
         blah1: 1,
