@@ -83,7 +83,6 @@ export type ReadResult = boolean | string | null;
 
 export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult | void {
   let cl = cell(tableSelector, lookUpVals, valueCol);
-  log(show(cl))
   return cl == undefined ? undefined : read(cl);
 }
 
@@ -325,7 +324,6 @@ function placeholderOrLabelText(edit: ElementPlusLocIsCheckControl, nonEditsRema
     altIdStr = nonEdit == null || !hasValue(nonEdit.getText()) ? 'idOrTextNotFound' : nonEdit.getText();
   }
   else {
-    log('PLACEHOLDER: ' + ph)
     altIdStr = ph;
     nonEdit = null;
   }
