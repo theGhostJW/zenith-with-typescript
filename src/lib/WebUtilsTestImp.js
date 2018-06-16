@@ -1,6 +1,6 @@
 // @flow
 
-import type {Element, SelectorOrElement} from '../lib/WebUtils';
+import type {Element, SelectorOrElement, ReadResult} from '../lib/WebUtils';
 
 
 import { log } from '../lib/Logging';
@@ -17,12 +17,12 @@ import {
           withSetter, zzzTestFunc, S, SS
         } from '../lib/WebUtils';
 
-import {mapCells} from './WebUtils';
+import {mapCells, cell} from './WebUtils';
 
 import * as _ from 'lodash';
 
 
-export {   clickLink,
+export {    clickLink,
             links,
             radioItemVals,
             setRadioGroup,
@@ -30,7 +30,9 @@ export {   clickLink,
             setForm,
             getForm,
             parent,
-            mapCellsSimple } from '../lib/WebUtils';
+            mapCellsSimple,
+            cell
+          } from '../lib/WebUtils';
 
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
@@ -106,6 +108,11 @@ export const FORM_INPUT_PROXIMAL_LABELS = {
       'Card Nr*': '12345678',
      'Expire*': '12/24'
    }
+
+export function cellVal(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult {
+  let cl = cell(tableSelector, lookUpVals, valueCol);
+  return cl == undefined ? null : read(cl);
+}
 
 function readLogCell(cell: Element, rowIndex: number, colIndex: number, row: Element) {
  let str = read(cell, false),

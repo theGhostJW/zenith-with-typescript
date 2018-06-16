@@ -74,20 +74,91 @@ export const SS: string => Array<Element> = s => $$(s);
 ********************************************************************************
  */
 
-export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: number, row: Element) => T
-export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) => T
+export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: number, row: Element) => T;
+export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) => T;
+export type ReadResult = boolean | string | null;
 
+// readCell
+// cell
+// setGrid
+// readGrid
+
+export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): Element | void {
+  let tbl = S(tableSelector),
+      header = tbl.$('tr'),
+      colMap = generateColMap(header),
+      colNames: string[] = _.values(colMap),
+      lookUpNames = _.keys(lookUpVals),
+      missing = lookUpNames.filter(n => !colNames.includes(n));
+
+  ensure(missing.length === 0, `The following lookup columns do not appear in the table header: ${missing.join(', ')}. Possible values are: ${colNames.join(', ')}`);
+  ensure(colNames.includes(valueCol), `The value column: ${valueCol} does not appear in the table header. Possible values are: ${colNames.join(', ')}`);
+
+
+  // Bending a mapper into a reducer so can reuse mapCells
+  // rather than rewrite flow control
+  let accum = {
+    rowUnmatched: false,
+    value: (undefined: ?Element),
+    result: (undefined: ?Element),
+    resultSet: false
+  },
+  lastRowIdx = -1,
+  maxColIndex = colNames.length - 1;
+
+  function reset() {
+    accum = {
+      rowUnmatched: false,
+      value: (undefined: ?Element),
+      result: (undefined: ?Element),
+      resultSet: false
+    }
+  }
+
+  function psuedoReducer(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) {
+    if (accum.resultSet || lastRowIdx === rowIndex && accum.rowUnmatched){
+      return true;
+    }
+
+    if (lastRowIdx !== rowIndex){
+      reset();
+      lastRowIdx = rowIndex;
+    }
+
+    if (colTitle == valueCol){
+      accum.value = cell;
+    }
+
+    let targetVal = lookUpVals[colTitle];
+    if (targetVal !== undefined) {
+      accum.rowUnmatched = !areEqual(targetVal, read(cell));
+    }
+
+    if (colIndex == maxColIndex && !accum.rowUnmatched){
+      accum.result = accum.value;
+      accum.resultSet = true;
+    }
+
+    return true;
+  }
+
+  mapCellsPriv(tbl, psuedoReducer, false, colMap);
+  return accum.resultSet ? accum.result : undefined;
+}
 
 function generateColMap(row: Element) : {[number]: string} {
   let cells = row.$$('th, td');
   function addCol(accum: {[number]: string}, el : Element, idx: number): {[number]: string} {
-    accum[idx] = show(read(el));
+    accum[idx] = trim(show(read(el)));
     return accum;
   }
   return _.reduce(cells, addCol, {});
 }
 
-export function mapCells<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true): T[][] {
+export const mapCells = <T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly?: boolean) => mapCellsPriv(tableSelector, cellFunc, visibleOnly);
+
+// Does not allow for invisible first row
+function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true, maybeColMap: ?{[number]: string}): T[][] {
   let tbl = S(tableSelector),
       rows = tbl.$$('tr'),
       visFilter = e => !visibleOnly || e.isVisible(),
@@ -97,7 +168,7 @@ export function mapCells<T>(tableSelector: SelectorOrElement, cellFunc : CellFun
   if (headerRow == null) {
     return [];
   } else {
-    let colMap = generateColMap(headerRow);
+    let colMap: {[number]: string} = def(maybeColMap, generateColMap(headerRow));
 
     function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
       return function eachCellFunc(cell: Element, colIndex: number) {
@@ -115,10 +186,10 @@ export function mapCells<T>(tableSelector: SelectorOrElement, cellFunc : CellFun
               .value();
     }
 
-    return _.chain(rows)
-          .filter(visFilter)
-          .map(mapRow)
-          .value();
+    return _.chain(dataRows)
+            .filter(visFilter)
+            .map(mapRow)
+            .value();
 
   }
 }
@@ -149,12 +220,6 @@ export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : S
           .map(mapRow)
           .value();
 }
-
-// readCell
-// cell
-// setGrid
-// eachCell
-// readGrid
 
  /*
  ********************************************************************************
@@ -1127,7 +1192,7 @@ export function parent(elementOrSelector: SelectorOrElement): Element | null {
 }
 
 // need date later
-export function read(elementOrSelector: SelectorOrElement, includeRaioGroups: boolean = true): boolean | string | null {
+export function read(elementOrSelector: SelectorOrElement, includeRaioGroups: boolean = true): ReadResult {
   let el = S(elementOrSelector);
 
   let tagName = el.getTagName();
