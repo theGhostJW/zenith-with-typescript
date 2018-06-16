@@ -75,9 +75,9 @@ export const SS: string => Array<Element> = s => $$(s);
  */
 
 export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: number, row: Element) => T
-//export type CellPredicate =
+export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) => T
 
-export function eachCellSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, visibleOnly: boolean = true): T[][] {
+export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, visibleOnly: boolean = true): T[][] {
   let tbl = S(tableSelector),
       rows = tbl.$$('tr'),
       visFilter = e => !visibleOnly || e.isVisible();

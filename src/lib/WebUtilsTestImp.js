@@ -7,7 +7,7 @@ import {show} from '../lib/StringUtils';
 import { log } from '../lib/Logging';
 import {
           browserEx, click, clickLink,
-          eachCellSimple, elementIs, getForm, idAttribute,
+          mapCellsSimple, elementIs, getForm, idAttribute,
           linkByText,  links, parent, predicateToFinder, radioItemVals,
           read, rerun, set, setChecked,
           setForm, setInput, setRadioGroup, setSelect,
@@ -25,7 +25,7 @@ export {   clickLink,
             setForm,
             getForm,
             parent,
-            eachCellSimple } from '../lib/WebUtils';
+            mapCellsSimple } from '../lib/WebUtils';
 
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
@@ -109,12 +109,12 @@ function readLogCell(cell: Element, rowIndex: number, colIndex: number, row: Ele
  return rslt;
 }
 
-export function eachCellSimpleLog(selector: string) {
-  return eachCellSimple(selector, readLogCell, false);
+export function mapCellsSimpleLog(selector: string) {
+  return mapCellsSimple(selector, readLogCell, false);
 }
 
-export function eachCellSimpleLogNoInvisibles(selector: string) {
-  return eachCellSimple(selector, readLogCell);
+export function mapCellsSimpleLogNoInvisibles(selector: string) {
+  return mapCellsSimple(selector, readLogCell);
 }
 
 

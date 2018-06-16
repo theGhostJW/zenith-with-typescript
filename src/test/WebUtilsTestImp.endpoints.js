@@ -1,32 +1,41 @@
 // @flow
 
-
-import {chk, chkEq, chkEqJson, chkExceptionText, chkFalse, chkWithMessage,
-        chkHasText } from '../lib/AssertionUtils';
-import { cast, debug, waitRetry, fail } from '../lib/SysUtils';
-import { rerun, set, setForm } from '../lib/WebUtils';
-import type { SetterFunc } from '../lib/WebUtils';
+import {
+  chk,
+  chkEq,
+  chkEqJson,
+  chkExceptionText,
+  chkFalse,
+  chkHasText,
+  chkWithMessage,
+} from '../lib/AssertionUtils';
 import { show } from '../lib/StringUtils';
-import * as _ from 'lodash';
-import { clickLink, links, radioItemVals, setRadioGroup, setSelect, /* setForm,*/ getForm, parent,
-        checkUncheck,  linkByTextText, smartBearLogIn,  smartbearOrders, clickOrderLink, TEST_LOG_IN,
-        CARD_LIST_ID, invalidUncheckCheckBox, checkReturnChecked, readSetRadioGroup, setReadProduct,
-        setReadInput,PRODUCT_SELECTOR, AVAILABLE_PRODUCTS,  FORM_INPUT_MOSTLY_IDS,  FORM_INPUT_RADIO_NAME,
-        FORM_INPUT_FOR_LABELS,  FORM_INPUT_PROXIMAL_LABELS, basicSet, recursiveParent, FORM_ID,
-        setSmartbearcaps,  setSmartbearcapsLwrAddress,  setWithFindByIdOnlyAndLwrStreetName,
-        setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, setThisForm, eachCellSimpleLog,
-        eachCellSimpleLogNoInvisibles
+import { cast, debug, fail, waitRetry } from '../lib/SysUtils';
+import { rerun, set, setForm } from '../lib/WebUtils';
+import { basicSet, checkReturnChecked, checkUncheck, clickLink, clickOrderLink, /* setForm,*/ getForm, invalidUncheckCheckBox,
+        linkByTextText,  links, mapCellsSimple,  mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parent,
+        radioItemVals, readSetRadioGroup, recursiveParent, setRadioGroup, setReadInput,
+        setReadProduct,setSelect, setSmartbearcaps,  setSmartbearcapsLwrAddress,  setThisForm,
+        setWithFindByIdOnlyAndLwrStreetName,  setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, smartBearLogIn, smartbearOrders, AVAILABLE_PRODUCTS,
+        CARD_LIST_ID,  FORM_ID,  FORM_INPUT_FOR_LABELS,
+        FORM_INPUT_MOSTLY_IDS, FORM_INPUT_PROXIMAL_LABELS,
+        FORM_INPUT_RADIO_NAME,
+        PRODUCT_SELECTOR,
+        TEST_LOG_IN
         } from '../lib/WebUtilsTestImp';
+
+import * as _ from 'lodash';
+
 
 describe('Table Utils', () => {
 
   it.only('eachCellSimple Include Invisible', () => {
-    let rslt = rerun(smartBearLogIn, eachCellSimpleLog, '#ctl00_MainContent_orderGrid');
+    let rslt = rerun(smartBearLogIn, mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
     chkEq(9, rslt.length);
   });
 
   it('eachCellSimple Exclude Invisible', () => {
-    let rslt = rerun(smartBearLogIn, eachCellSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
+    let rslt = rerun(smartBearLogIn, mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
     chkEq(9, rslt.length);
   });
 
