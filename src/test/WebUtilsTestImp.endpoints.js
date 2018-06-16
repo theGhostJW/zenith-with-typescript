@@ -30,24 +30,24 @@ import * as _ from 'lodash';
 
 describe('Table Utils', () => {
 
-  it('mapCells Include Invisible', () => {
+  it('mapCellsSimple Include Invisible', () => {
     let rslt = rerun(smartBearLogIn, mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
     chkEq(9, rslt.length);
   });
 
-  it('mapCells Exclude Invisible', () => {
+  it('mapCellsSimple Exclude Invisible', () => {
     let rslt = rerun(smartBearLogIn, mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
     chkEq(9, rslt.length);
   });
 
-  it('mapCells Include Invisible', () => {
+  it.only('mapCells Include Invisible', () => {
     let rslt = rerun(smartBearLogIn, mapCellsLog, '#ctl00_MainContent_orderGrid');
-    chkEq(9, rslt.length);
+    chkEq(8, rslt.length);
   });
 
   it('eachCellSimple Exclude Invisible', () => {
     let rslt = rerun(smartBearLogIn, mapCellsLogNoInvisibles, '#ctl00_MainContent_orderGrid');
-    chkEq(9, rslt.length);
+    chkEq(8, rslt.length);
   });
 
   it('cell', () => {
@@ -59,7 +59,7 @@ describe('Table Utils', () => {
     chkEq('Susan McLaren', rslt);
   });
 
-  it.only('readCell', () => {
+  it('readCell', () => {
     let params = {
                    Product: 'FamilyAlbum',
                    Zip: 63325

@@ -79,7 +79,36 @@ export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, co
 export type ReadResult = boolean | string | null;
 
 // setGrid
-// readGrid
+
+// export function readTable(tableSelector: SelectorOrElement, columns: ?{[string]: string}, visibleOnly: boolean = true): {[string]: ReadResult}[] {
+//   let tbl = S(tableSelector),
+//       header = tbl.$('tr'),
+//       colMap = generateColMap(header),
+//       result = [];
+//
+//  function mapRow(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element): {
+//
+//  }
+//
+//   mapCellsPriv(tbl, psuedoReducer, visibleOnly, colMap);
+//
+// //   function readGrid(table){
+// //   var row = null;
+// //   var result = []
+// //   var lastRowIndex = -1;
+// //   function addField(cell, colTitle, rowIndex, colIndex, arRowCells){
+// //     if (lastRowIndex !== rowIndex){
+// //       row = {};
+// //       result.push(row);
+// //       lastRowIndex = rowIndex;
+// //     }
+// //     row[def(colTitle, colIndex)] = read(cell);
+// //   }
+// //   eachCell(table, addField);
+// //   return result
+// // }
+//
+// }
 
 export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult | void {
   let cl = cell(tableSelector, lookUpVals, valueCol);
@@ -172,37 +201,41 @@ function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T
 
   if (headerRow == null) {
     return [];
-  } else {
-    let colMap: {[number]: string} = def(maybeColMap, generateColMap(headerRow));
-
-    function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
-      return function eachCellFunc(cell: Element, colIndex: number) {
-        return cellFunc(cell, colMap[colIndex], rowIndex, colIndex, row);
-      }
-    }
-
-   function mapRow(row, rowIndex): T[] {
-      let innerCellFunc = rowFunc(row, rowIndex),
-          rowCells = row.$$('th, td');
-
-      return _.chain(rowCells)
-              .filter(visFilter)
-              .map(innerCellFunc)
-              .value();
-    }
-
-    return _.chain(dataRows)
-            .filter(visFilter)
-            .map(mapRow)
-            .value();
-
   }
+
+  let colMap: {[number]: string} = def(maybeColMap, generateColMap(headerRow));
+
+  function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
+    return function eachCellFunc(cell: Element, colIndex: number) {
+      return cellFunc(cell, colMap[colIndex], rowIndex, colIndex, row);
+    }
+  }
+
+ return mapRows(rowFunc, visFilter, dataRows);
+}
+
+function mapRows<T>(colProcessorCreator: (Element, number) => (Element, number) => T, elementFilter: Element => boolean, rows: Element[]): T[][] {
+
+  function mapRow(row: Element, rowIndex: number): T[] {
+    let innerCellFunc = colProcessorCreator(row, rowIndex),
+        rowCells = row.$$('th, td');
+
+    return _.chain(rowCells)
+            .filter(elementFilter)
+            .map(innerCellFunc)
+            .value();
+  }
+
+  return _.chain(rows)
+          .filter(elementFilter)
+          .map(mapRow)
+          .value();
 }
 
 export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, visibleOnly: boolean = true): T[][] {
   let tbl = S(tableSelector),
       rows = tbl.$$('tr'),
-      visFilter = e => !visibleOnly || e.isVisible();
+      visFilter = (e: Element) => !visibleOnly || e.isVisible();
 
   function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
     return function eachCellFunc(cell: Element, colIndex: number) {
@@ -210,20 +243,7 @@ export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : S
     }
   }
 
-  function mapRow(row, rowIndex): T[] {
-    let innerCellFunc = rowFunc(row, rowIndex),
-        rowCells = row.$$('th, td');
-
-    return _.chain(rowCells)
-            .filter(visFilter)
-            .map(innerCellFunc)
-            .value();
-  }
-
-  return _.chain(rows)
-          .filter(visFilter)
-          .map(mapRow)
-          .value();
+  return mapRows(rowFunc, visFilter, rows);
 }
 
  /*
