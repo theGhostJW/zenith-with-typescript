@@ -31,7 +31,8 @@ export {    clickLink,
             getForm,
             parent,
             mapCellsSimple,
-            cell
+            cell,
+            readCell
           } from '../lib/WebUtils';
 
 

@@ -78,10 +78,14 @@ export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: numb
 export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) => T;
 export type ReadResult = boolean | string | null;
 
-// readCell
-// cell
 // setGrid
 // readGrid
+
+export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult | void {
+  let cl = cell(tableSelector, lookUpVals, valueCol);
+  log(show(cl))
+  return cl == undefined ? undefined : read(cl);
+}
 
 export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): Element | void {
   let tbl = S(tableSelector),
@@ -131,7 +135,9 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: Re
 
     let targetVal = lookUpVals[colTitle];
     if (targetVal !== undefined) {
-      accum.rowUnmatched = !areEqual(targetVal, read(cell));
+      let actual = read(cell);
+      accum.rowUnmatched = !areEqual(targetVal, actual)  &&
+                           !((typeof targetVal != 'string' || typeof actual != 'string') && show(actual) == show(targetVal)) ;
     }
 
     if (colIndex == maxColIndex && !accum.rowUnmatched){

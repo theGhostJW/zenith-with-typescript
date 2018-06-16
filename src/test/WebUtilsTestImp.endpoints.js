@@ -17,7 +17,7 @@ import { basicSet,  checkReturnChecked, checkUncheck, clickLink, clickOrderLink,
         mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parent, radioItemVals, readSetRadioGroup,
         recursiveParent,setRadioGroup, setReadInput,  setReadProduct,  setSelect,
         setSmartbearcaps,  setSmartbearcapsLwrAddress, setThisForm, setWithFindByIdOnlyAndLwrStreetName, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder,
-        smartBearLogIn, smartbearOrders, AVAILABLE_PRODUCTS,  CARD_LIST_ID, cellVal,
+        smartBearLogIn, smartbearOrders, AVAILABLE_PRODUCTS,  CARD_LIST_ID, cellVal, readCell,
         FORM_ID, FORM_INPUT_FOR_LABELS,
         FORM_INPUT_MOSTLY_IDS,
         FORM_INPUT_PROXIMAL_LABELS,
@@ -27,12 +27,6 @@ import { basicSet,  checkReturnChecked, checkUncheck, clickLink, clickOrderLink,
         } from '../lib/WebUtilsTestImp';
 
 import * as _ from 'lodash';
-
-
-
-
-
-
 
 describe('Table Utils', () => {
 
@@ -56,13 +50,22 @@ describe('Table Utils', () => {
     chkEq(9, rslt.length);
   });
 
-  it.only('cell', () => {
+  it('cell', () => {
     let params = {
                    Product: 'MyMoney',
                    Card: 'MasterCard'
                   },
     rslt = rerun(smartBearLogIn, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
     chkEq('Susan McLaren', rslt);
+  });
+
+  it.only('readCell', () => {
+    let params = {
+                   Product: 'FamilyAlbum',
+                   Zip: 63325
+                  },
+        rslt = rerun(smartBearLogIn, readCell, '#ctl00_MainContent_orderGrid', params, 'Name');
+    chkEq('Clare Jefferson', rslt);
   });
 
 
