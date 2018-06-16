@@ -102,14 +102,19 @@ export const FORM_INPUT_PROXIMAL_LABELS = {
      'Expire*': '12/24'
    }
 
+function readLogCell(cell: Element, rowIndex: number, colIndex: number, row: Element) {
+ let str = read(cell, false),
+     rslt = `row: ${rowIndex} col: ${colIndex} ~ ${show(str)}`;
+ log(rslt);
+ return rslt;
+}
+
 export function eachCellSimpleLog(selector: string) {
-  function cellFunc(cell: Element, rowIndex: number, colIndex: number, row: Element) {
-    let str = read(cell),
-        rslt = `row: ${rowIndex} col: ${colIndex} ~ ${show(str)}`;
-    log(rslt);
-    return rslt;
-  }
-  return eachCellSimple(selector, cellFunc);
+  return eachCellSimple(selector, readLogCell, false);
+}
+
+export function eachCellSimpleLogNoInvisibles(selector: string) {
+  return eachCellSimple(selector, readLogCell);
 }
 
 

@@ -75,10 +75,12 @@ export const SS: string => Array<Element> = s => $$(s);
  */
 
 export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: number, row: Element) => T
+//export type CellPredicate =
 
-export function eachCellSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, includeInvisible: boolean = true): T[][] {
+export function eachCellSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, visibleOnly: boolean = true): T[][] {
   let tbl = S(tableSelector),
-      rows = tbl.$$('tr');
+      rows = tbl.$$('tr'),
+      visFilter = e => !visibleOnly || e.isVisible();
 
   function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
     return function eachCellFunc(cell: Element, colIndex: number) {
@@ -91,13 +93,13 @@ export function eachCellSimple<T>(tableSelector: SelectorOrElement, cellFunc : S
         rowCells = row.$$('th, td');
 
     return _.chain(rowCells)
-            .filter(e => includeInvisible || e.isVisible())
+            .filter(visFilter)
             .map(innerCellFunc)
             .value();
   }
 
   return _.chain(rows)
-          .filter(e => includeInvisible || e.isVisible())
+          .filter(visFilter)
           .map(mapRow)
           .value();
 }
@@ -106,7 +108,6 @@ export function eachCellSimple<T>(tableSelector: SelectorOrElement, cellFunc : S
 // cell
 // setGrid
 // eachCell
-// eachCellSimple
 // readGrid
 
  /*
@@ -1080,27 +1081,16 @@ export function parent(elementOrSelector: SelectorOrElement): Element | null {
 }
 
 // need date later
-export function read(elementOrSelector: SelectorOrElement): boolean | string | null {
-  let el = S(elementOrSelector),
-      checkable = isCheckable(el);
+export function read(elementOrSelector: SelectorOrElement, includeRaioGroups: boolean = true): boolean | string | null {
+  let el = S(elementOrSelector);
 
-  return checkable ?
-       el.isSelected() :
-
-     elementIs('select')(el) ?
-       readSelect(el) :
-
-     // !isCheckable is redundant but here
-     // to prevent introducng bugs if statements are reordered
-     elementIs('input')(el) && !checkable ?
-        el.getValue() :
-
-     isRadioGroup(el) ?
-        readRadioGroup(el) :
-
-      el.getText();
-
-    // fail('read - unhandled element type', el);
+  let tagName = el.getTagName();
+  switch (tagName) {
+    case 'select':  return readSelect(el);
+    case 'input': return isCheckable(el) ? el.isSelected() : el.getValue();
+    default:
+      return includeRaioGroups && isRadioGroup(el) ? readRadioGroup(el) : el.getText();
+  }
 }
 
 export function set(elementOrSelector: SelectorOrElement, value: string | number | boolean) : void {
@@ -1156,6 +1146,10 @@ export function isCheckable(elementOrSelector: SelectorOrElement) {
   let el = S(elementOrSelector),
       type = elementType(el);
 
+  return isCheckableType(type);
+}
+
+export function isCheckableType(type: string) {
   return isRadioType(type) || isCheckBoxType(type);
 }
 

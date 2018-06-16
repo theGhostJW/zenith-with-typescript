@@ -14,13 +14,19 @@ import { clickLink, links, radioItemVals, setRadioGroup, setSelect, /* setForm,*
         setReadInput,PRODUCT_SELECTOR, AVAILABLE_PRODUCTS,  FORM_INPUT_MOSTLY_IDS,  FORM_INPUT_RADIO_NAME,
         FORM_INPUT_FOR_LABELS,  FORM_INPUT_PROXIMAL_LABELS, basicSet, recursiveParent, FORM_ID,
         setSmartbearcaps,  setSmartbearcapsLwrAddress,  setWithFindByIdOnlyAndLwrStreetName,
-        setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, setThisForm, eachCellSimpleLog
+        setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, setThisForm, eachCellSimpleLog,
+        eachCellSimpleLogNoInvisibles
         } from '../lib/WebUtilsTestImp';
 
 describe('Table Utils', () => {
 
-  it.only('eachCellSimple', () => {
+  it.only('eachCellSimple Include Invisible', () => {
     let rslt = rerun(smartBearLogIn, eachCellSimpleLog, '#ctl00_MainContent_orderGrid');
+    chkEq(9, rslt.length);
+  });
+
+  it('eachCellSimple Exclude Invisible', () => {
+    let rslt = rerun(smartBearLogIn, eachCellSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
     chkEq(9, rslt.length);
   });
 
