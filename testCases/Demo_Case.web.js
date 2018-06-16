@@ -71,7 +71,7 @@ function mockFilename(item: Item, runConfig: RunConfig) {
   return '';
 }
 
-function check_less_than_2(valState: ValState, valTime: moment$Moment) {
+function check_id_less_than_2(valState: ValState, valTime: moment$Moment) {
   expectDefect('should fail');
   check(valState.id < 2, 'expect less than 2', `${valState.id} should be less than 2`);
   endDefect();
@@ -105,7 +105,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       then: 'i get the result',
       url: 'http://google.com',
       validators: [
-        check_less_than_2,
+        check_id_less_than_2,
         check_with_disabled_expectation,
         check_with_incorrect_disabled_expectation
       ]
@@ -117,7 +117,7 @@ function  testItems(runConfig: RunConfig): Array<Item> {
       then: 'i get another result',
       url: 'http://webdriver.io/api.html',
       validators: [
-        check_less_than_2,
+        check_id_less_than_2,
         check_less_than_3
       ]
     },

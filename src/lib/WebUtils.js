@@ -53,6 +53,7 @@ export type Element = {
   getHTML: () => string,
   getAttribute: string => string | null,
   isSelected: () => boolean,
+  isVisible: () => boolean,
   click: () => void,
   setValue: (string | number | Array<string|number>) => void,
   selectByVisibleText: string  => void,
@@ -66,6 +67,54 @@ export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensu
 
 //$FlowFixMe
 export const SS: string => Array<Element> = s => $$(s);
+
+/*
+********************************************************************************
+******************************* Grid Utils *************************************
+********************************************************************************
+ */
+
+export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: number, row: Element) => T
+
+export function eachCellSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, includeInvisible: boolean = true): T[][] {
+  let tbl = S(tableSelector),
+      rows = tbl.$$('tr');
+
+  function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
+    return function eachCellFunc(cell: Element, colIndex: number) {
+      return cellFunc(cell, rowIndex, colIndex, row);
+    }
+  }
+
+  function mapRow(row, rowIndex): T[] {
+    let innerCellFunc = rowFunc(row, rowIndex),
+        rowCells = row.$$('th, td');
+
+    return _.chain(rowCells)
+            .filter(e => includeInvisible || e.isVisible())
+            .map(innerCellFunc)
+            .value();
+  }
+
+  return _.chain(rows)
+          .filter(e => includeInvisible || e.isVisible())
+          .map(mapRow)
+          .value();
+}
+
+// readCell
+// cell
+// setGrid
+// eachCell
+// eachCellSimple
+// readGrid
+
+ /*
+ ********************************************************************************
+ ******************************* Other Utils *************************************
+ ********************************************************************************
+  */
+
 
 export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelector: string): Array<Element> {
     let el = S(parentSelectorOrElement);
@@ -1049,7 +1098,9 @@ export function read(elementOrSelector: SelectorOrElement): boolean | string | n
      isRadioGroup(el) ?
         readRadioGroup(el) :
 
-     fail('read - unhandled element type', el);
+      el.getText();
+
+    // fail('read - unhandled element type', el);
 }
 
 export function set(elementOrSelector: SelectorOrElement, value: string | number | boolean) : void {
@@ -1180,14 +1231,14 @@ function signatureChanged(sig) {
   return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName, false), sig) : true;
 }
 
-export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any, ...params: Array<any>): mixed {
+export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => T, ...params: Array<any>): T {
   let result;
   try {
     runClient();
     // Closing - if already closed will do nothing
     if (func == null){
       stopSession();
-      return null;
+      throw 'rerun Session Stop';
     }
 
     let connected = isConnected(),
@@ -1210,7 +1261,6 @@ export function rerun(beforeFuncOrUrl: (() => void) | string | null = null, func
   }
 
   return result;
-
 }
 
 export function zzzTestFunc() {
@@ -1238,7 +1288,7 @@ function firstTestModuleInStack(): string {
   );
 }
 
-function launchSession(before: (() => void) | null | string, func: (...any) => any, ...params: Array<any>) {
+function launchSession<T>(before: (() => void) | null | string, func: (...any) => T, ...params: Array<any>): T {
    try {
      let caller = firstTestModuleInStack(),
      {
@@ -1248,19 +1298,19 @@ function launchSession(before: (() => void) | null | string, func: (...any) => a
      } = extractNamesAndSource(before, caller, func);
      launchWdioServerDetached(sourcePath, beforeFuncInfo, funcName, true);
      ensure(waitConnected(30000), 'Timed out waiting on interactor');
-     return interact(...params);
+     return cast(interact(...params));
    }
   catch (e) {
-    fail('launchSession - fail', e)
+    return fail('launchSession - fail', e)
    }
 }
 
-function rerunLoaded(...params: Array<any>) {
+function rerunLoaded<T>(...params: Array<any>): T {
    try {
      return interact(...params);
    }
   catch (e) {
-    fail('rerunLoaded - fail', e)
+    return fail('rerunLoaded - fail', e)
    }
 }
 

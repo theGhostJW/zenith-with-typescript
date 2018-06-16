@@ -46,16 +46,17 @@ export function stopSession() {
   }
 }
 
-export function interact(...params?: Array<mixed>) {
+export function interact<T>(...params?: Array<mixed>): T {
   try {
     ensureHasVal(activeSocket(), 'socket not assigned')
     clearInvocationResponse();
     sendInvocationParams(...params);
     log('Waiting interaction response');
-    let complete = waitRetry(() => invocationResponse() != null, 600000);
-    return complete ? invocationResponse() : fail('Interactor Timeout Error');
+    let complete = waitRetry(() => invocationResponse() != null, 600000),
+        result: T = invocationResponse() == null ? fail('Interactor Timeout Error') : cast(invocationResponse());
+    return result
   } catch (e) {
-    fail(e);
+    return fail(e);
   }
 }
 

@@ -71,7 +71,8 @@
   "nyc": {
     "exclude": [
       "**/*.integration.js",
-      "**/*.test.js"
+      "**/*.test.js",
+      "**/*.endpoints.js"
     ]
   }
 }

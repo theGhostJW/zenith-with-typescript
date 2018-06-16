@@ -6,7 +6,7 @@ import type { Protocol } from './SeleniumIpcProtocol';
 import { stringToFile, tempFile, toTempString } from './FileUtils';
 import { INTERACT_SOCKET_NAME} from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging  } from './Logging';
-import { debug, waitRetry } from './SysUtils';
+import { debug, waitRetry, cast } from './SysUtils';
 import { createGuid } from './StringUtils';
 
 let
@@ -22,11 +22,11 @@ export function clientEmit(msgType: Protocol, msg?: Array<mixed> ) {
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
-export function invocationResponse() {
-  return responseReceived ? invocationResponseSingleton : undefined;
+export function invocationResponse<T>(): ?T {
+  return responseReceived ? cast(invocationResponseSingleton) : undefined;
 }
 
-function loadInvocationResponse(response: mixed): void {
+function loadInvocationResponse<T>(response: T): void {
   responseReceived = true;
   invocationResponseSingleton = response;
 }

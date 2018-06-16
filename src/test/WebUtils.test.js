@@ -15,7 +15,7 @@ import { unitTestingTargets, ZZForTest  } from '../lib/WebUtils';
 
 
 
-describe.only('formatFormInfo', () => {
+describe('formatFormInfo', () => {
   const formatFormInfo = ZZForTest.formatFormInfo;
 
   const infoYaml = `

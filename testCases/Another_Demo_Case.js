@@ -11,21 +11,13 @@ import { register } from '../testCases/ProjectConfig';
 import { check, checkTextContains } from '../src/lib/CheckUtils';
 import moment from 'moment';
 
-var config: TestConfig = {
+const config: TestConfig = {
   id: 2,
   when: 'i test anther case',
   then: 'it still works',
   owner: 'JW',
   enabled: true,
   countries: 'Australia'
-}
-
-export function interactor(item: Item, runConfig: RunConfig): ApState {
-
-  return {
-    theWhen: item.when,
-    obs: 'blahh'
-  }
 }
 
 type ApState = {|
@@ -36,6 +28,14 @@ type ApState = {|
 type ValState = {|
   when: string
 |}
+
+export function interactor(item: Item, runConfig: RunConfig): ApState {
+
+  return {
+    theWhen: item.when,
+    obs: 'blahh'
+  }
+}
 
 function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState {
   return {
@@ -58,7 +58,7 @@ type Item = {|
   validators: Validators<ValState>
 |}
 
-function check_has_another(valState: ValState, valTime: moment$Moment) {
+function check_when_text_contains_another(valState: ValState, valTime: moment$Moment) {
   checkTextContains(valState.when, 'another')
 }
 
@@ -67,16 +67,16 @@ function  testItems(runConfig: RunConfig): Array<Item> {
     {
       id: 1,
       when: 'I run a test',
-      then: 'i get the result',
-      validators: check_has_another
+      then: 'the when statement is as expected',
+      validators: check_when_text_contains_another
     },
 
     {
       id: 2,
       when: 'I run another test',
-      then: 'i get another result',
+      then: 'the when statement is as expected',
       validators: [
-          check_has_another
+          check_when_text_contains_another
       ]
     }
 

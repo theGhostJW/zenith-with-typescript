@@ -22,8 +22,5 @@ zsol commented on Sep 17, 2016
   * add this to the top of the lodash_.. flowTyped file if getting imports warning in diagnostics:
       function Comparator() {/* this is a filler function to get rid of Nuclide AutoImport warning added by JW */}
 
-# TestCafe
-  * fixes - as per checked in file if needed ~ there is around 40
-
 # git lfs
   * activate from sourcetree

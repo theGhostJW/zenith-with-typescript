@@ -1,25 +1,21 @@
 // @flow
 
-
-
-import type { Element } from '../lib/WebUtils';
-import type {SelectorOrElement} from './WebUtils';
-
-
+import type {Element, SelectorOrElement} from '../lib/WebUtils';
 
 import {cast, debug, waitRetry} from '../lib/SysUtils';
+import {show} from '../lib/StringUtils';
+import { log } from '../lib/Logging';
 import {
           browserEx, click, clickLink,
-          elementIs, getForm, idAttribute, linkByText,
-          links,  parent, predicateToFinder, radioItemVals, read,
-          rerun, set, setChecked, setForm,
-          setInput, setRadioGroup, setSelect, url,
-          withFinder, withPredicate, withSetter,
-          zzzTestFunc, S, SS
+          eachCellSimple, elementIs, getForm, idAttribute,
+          linkByText,  links, parent, predicateToFinder, radioItemVals,
+          read, rerun, set, setChecked,
+          setForm, setInput, setRadioGroup, setSelect,
+          url, withFinder, withPredicate,
+          withSetter, zzzTestFunc, S, SS
         } from '../lib/WebUtils';
 
 import * as _ from 'lodash';
-
 
 export {   clickLink,
             links,
@@ -28,7 +24,8 @@ export {   clickLink,
             setSelect,
             setForm,
             getForm,
-            parent } from '../lib/WebUtils';
+            parent,
+            eachCellSimple } from '../lib/WebUtils';
 
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
@@ -104,6 +101,17 @@ export const FORM_INPUT_PROXIMAL_LABELS = {
       'Card Nr*': '12345678',
      'Expire*': '12/24'
    }
+
+export function eachCellSimpleLog(selector: string) {
+  function cellFunc(cell: Element, rowIndex: number, colIndex: number, row: Element) {
+    let str = read(cell),
+        rslt = `row: ${rowIndex} col: ${colIndex} ~ ${show(str)}`;
+    log(rslt);
+    return rslt;
+  }
+  return eachCellSimple(selector, cellFunc);
+}
+
 
 export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_MOSTLY_IDS)
                                       .clone()

@@ -477,7 +477,7 @@ describe('special dirs / round trip', () => {
 
 describe('tempFileExists', () => {
 
-  it.only('simple round trip', () => {
+  it('simple round trip', () => {
     let filelName = 'Exists.yaml',
         path = toTemp('Blahhh', filelName, false);
     chk(tempFileExists(filelName));
