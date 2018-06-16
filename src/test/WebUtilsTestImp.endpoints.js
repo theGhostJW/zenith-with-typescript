@@ -1,5 +1,17 @@
 // @flow
 
+
+
+
+
+
+
+
+
+
+
+
+
 import {
   chk,
   chkEq,
@@ -13,12 +25,14 @@ import { show } from '../lib/StringUtils';
 import { cast, debug, fail, waitRetry } from '../lib/SysUtils';
 import { rerun, set, setForm } from '../lib/WebUtils';
 import { basicSet, checkReturnChecked, checkUncheck, clickLink, clickOrderLink, /* setForm,*/ getForm, invalidUncheckCheckBox,
-        linkByTextText,  links, mapCellsSimple,  mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parent,
-        radioItemVals, readSetRadioGroup, recursiveParent, setRadioGroup, setReadInput,
-        setReadProduct,setSelect, setSmartbearcaps,  setSmartbearcapsLwrAddress,  setThisForm,
-        setWithFindByIdOnlyAndLwrStreetName,  setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, smartBearLogIn, smartbearOrders, AVAILABLE_PRODUCTS,
-        CARD_LIST_ID,  FORM_ID,  FORM_INPUT_FOR_LABELS,
-        FORM_INPUT_MOSTLY_IDS, FORM_INPUT_PROXIMAL_LABELS,
+        linkByTextText,  links, mapCellsLog,  mapCellsLogNoInvisibles, mapCellsSimple, mapCellsSimpleLog,
+        mapCellsSimpleLogNoInvisibles, parent, radioItemVals, readSetRadioGroup, recursiveParent,
+        setRadioGroup,setReadInput, setReadProduct,  setSelect,  setSmartbearcaps,
+        setSmartbearcapsLwrAddress,  setThisForm, setWithFindByIdOnlyAndLwrStreetName, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, smartBearLogIn,
+        smartbearOrders,  AVAILABLE_PRODUCTS,  CARD_LIST_ID,
+        FORM_ID, FORM_INPUT_FOR_LABELS,
+        FORM_INPUT_MOSTLY_IDS,
+        FORM_INPUT_PROXIMAL_LABELS,
         FORM_INPUT_RADIO_NAME,
         PRODUCT_SELECTOR,
         TEST_LOG_IN
@@ -26,16 +40,25 @@ import { basicSet, checkReturnChecked, checkUncheck, clickLink, clickOrderLink, 
 
 import * as _ from 'lodash';
 
-
 describe('Table Utils', () => {
 
-  it.only('eachCellSimple Include Invisible', () => {
+  it('mapCells Include Invisible', () => {
     let rslt = rerun(smartBearLogIn, mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
     chkEq(9, rslt.length);
   });
 
-  it('eachCellSimple Exclude Invisible', () => {
+  it('mapCells Exclude Invisible', () => {
     let rslt = rerun(smartBearLogIn, mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
+    chkEq(9, rslt.length);
+  });
+
+  it('mapCells Include Invisible', () => {
+    let rslt = rerun(smartBearLogIn, mapCellsLog, '#ctl00_MainContent_orderGrid');
+    chkEq(9, rslt.length);
+  });
+
+  it.only('eachCellSimple Exclude Invisible', () => {
+    let rslt = rerun(smartBearLogIn, mapCellsLogNoInvisibles, '#ctl00_MainContent_orderGrid');
     chkEq(9, rslt.length);
   });
 

@@ -77,6 +77,52 @@ export const SS: string => Array<Element> = s => $$(s);
 export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: number, row: Element) => T
 export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) => T
 
+
+function generateColMap(row: Element) : {[number]: string} {
+  let cells = row.$$('th, td');
+  function addCol(accum: {[number]: string}, el : Element, idx: number): {[number]: string} {
+    accum[idx] = show(read(el));
+    return accum;
+  }
+  return _.reduce(cells, addCol, {});
+}
+
+export function mapCells<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true): T[][] {
+  let tbl = S(tableSelector),
+      rows = tbl.$$('tr'),
+      visFilter = e => !visibleOnly || e.isVisible(),
+      headerRow = _.head(rows),
+      dataRows =  _.tail(rows);
+
+  if (headerRow == null) {
+    return [];
+  } else {
+    let colMap = generateColMap(headerRow);
+
+    function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
+      return function eachCellFunc(cell: Element, colIndex: number) {
+        return cellFunc(cell, colMap[colIndex], rowIndex, colIndex, row);
+      }
+    }
+
+   function mapRow(row, rowIndex): T[] {
+      let innerCellFunc = rowFunc(row, rowIndex),
+          rowCells = row.$$('th, td');
+
+      return _.chain(rowCells)
+              .filter(visFilter)
+              .map(innerCellFunc)
+              .value();
+    }
+
+    return _.chain(rows)
+          .filter(visFilter)
+          .map(mapRow)
+          .value();
+
+  }
+}
+
 export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, visibleOnly: boolean = true): T[][] {
   let tbl = S(tableSelector),
       rows = tbl.$$('tr'),

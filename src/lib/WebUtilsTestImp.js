@@ -2,20 +2,25 @@
 
 import type {Element, SelectorOrElement} from '../lib/WebUtils';
 
-import {cast, debug, waitRetry} from '../lib/SysUtils';
-import {show} from '../lib/StringUtils';
+
 import { log } from '../lib/Logging';
+import {show} from '../lib/StringUtils';
+
+import {cast, debug, waitRetry} from '../lib/SysUtils';
 import {
           browserEx, click, clickLink,
-          mapCellsSimple, elementIs, getForm, idAttribute,
-          linkByText,  links, parent, predicateToFinder, radioItemVals,
+          elementIs, getForm, idAttribute, linkByText,
+          links,  mapCellsSimple, parent, predicateToFinder, radioItemVals,
           read, rerun, set, setChecked,
           setForm, setInput, setRadioGroup, setSelect,
           url, withFinder, withPredicate,
           withSetter, zzzTestFunc, S, SS
         } from '../lib/WebUtils';
 
+import {mapCells} from './WebUtils';
+
 import * as _ from 'lodash';
+
 
 export {   clickLink,
             links,
@@ -116,6 +121,22 @@ export function mapCellsSimpleLog(selector: string) {
 export function mapCellsSimpleLogNoInvisibles(selector: string) {
   return mapCellsSimple(selector, readLogCell);
 }
+
+function readHeadedLogCell(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) {
+ let str = read(cell, false),
+     rslt = `row: ${rowIndex} col: ${colIndex} title: ${colTitle} ~ ${show(str)}`;
+ log(rslt);
+ return rslt;
+}
+
+export function mapCellsLogNoInvisibles(selector: string) {
+  return mapCells(selector, readHeadedLogCell);
+}
+
+export function mapCellsLog(selector: string) {
+  return mapCells(selector, readHeadedLogCell, false);
+}
+
 
 
 export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_MOSTLY_IDS)
