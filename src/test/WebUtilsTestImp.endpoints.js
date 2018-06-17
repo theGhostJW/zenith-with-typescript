@@ -1,5 +1,9 @@
 // @flow
 
+
+
+
+
 import {
   chk,
   chkEq,
@@ -12,12 +16,13 @@ import {
 import { show } from '../lib/StringUtils';
 import { cast, debug, fail, waitRetry } from '../lib/SysUtils';
 import { read, rerun, set, setForm } from '../lib/WebUtils';
-import { basicSet,  checkReturnChecked, checkUncheck, clickLink, clickOrderLink, /* setForm,*/ getForm,
-        invalidUncheckCheckBox,  linkByTextText, links,  mapCellsLog, mapCellsLogNoInvisibles, mapCellsSimple,
-        mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parent, radioItemVals, readSetRadioGroup,
-        recursiveParent,setRadioGroup, setReadInput,  setReadProduct,  setSelect,
-        setSmartbearcaps,  setSmartbearcapsLwrAddress, setThisForm, setWithFindByIdOnlyAndLwrStreetName, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder,
-        smartBearLogIn, smartbearOrders, AVAILABLE_PRODUCTS,  CARD_LIST_ID, cellVal, readCell,
+import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLink, clickOrderLink,
+        /* setForm,*/ getForm,  invalidUncheckCheckBox, linkByTextText,  links, mapCellsLog, mapCellsLogNoInvisibles,
+        mapCellsSimple, mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parent, radioItemVals,
+        readCell,readSetRadioGroup, recursiveParent,  setRadioGroup,  setReadInput,
+        setReadProduct,  setSelect, setSmartbearcaps, setSmartbearcapsLwrAddress, setThisForm,
+        setWithFindByIdOnlyAndLwrStreetName, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, smartBearLogIn,  smartbearOrders,
+        readTable, AVAILABLE_PRODUCTS, CARD_LIST_ID,
         FORM_ID, FORM_INPUT_FOR_LABELS,
         FORM_INPUT_MOSTLY_IDS,
         FORM_INPUT_PROXIMAL_LABELS,
@@ -28,56 +33,102 @@ import { basicSet,  checkReturnChecked, checkUncheck, clickLink, clickOrderLink,
 
 import * as _ from 'lodash';
 
+
+
 describe('Table Utils', () => {
 
-  it('mapCellsSimple Include Invisible', () => {
-    let rslt = rerun(smartBearLogIn, mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
-    chkEq(9, rslt.length);
+  describe('mapCellsSimple', () => {
+
+    it('Include Invisible', () => {
+      let rslt = rerun(smartBearLogIn, mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
+      chkEq(9, rslt.length);
+    });
+
+    it('Exclude Invisible', () => {
+      let rslt = rerun(smartBearLogIn, mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
+      chkEq(9, rslt.length);
+    });
+
   });
 
-  it('mapCellsSimple Exclude Invisible', () => {
-    let rslt = rerun(smartBearLogIn, mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
-    chkEq(9, rslt.length);
+  describe('mapCells', () => {
+
+    it('mapCells Include Invisible', () => {
+      let rslt = rerun(smartBearLogIn, mapCellsLog, '#ctl00_MainContent_orderGrid');
+      chkEq(8, rslt.length);
+    });
+
+    it('eachCellSimple Exclude Invisible', () => {
+      let rslt = rerun(smartBearLogIn, mapCellsLogNoInvisibles, '#ctl00_MainContent_orderGrid');
+      chkEq(8, rslt.length);
+    });
+
   });
 
-  it('mapCells Include Invisible', () => {
-    let rslt = rerun(smartBearLogIn, mapCellsLog, '#ctl00_MainContent_orderGrid');
-    chkEq(8, rslt.length);
+  describe('cell', () => {
+
+    it('first record', () => {
+      let params = {
+                     Product: 'ScreenSaver',
+                      Zip: 748
+                    },
+      rslt = rerun(smartBearLogIn, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
+      chkEq('Paul Brown', rslt);
+    });
+
+    it('other record', () => {
+      let params = {
+                     Product: 'MyMoney',
+                     Card: 'MasterCard'
+                    },
+      rslt = rerun(smartBearLogIn, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
+      chkEq('Susan McLaren', rslt);
+    });
+
+    it('bad name', () => {
+      let params = {
+                     Product: 'MyMoney',
+                     NonExistentCol: 'MasterCard'
+                   };
+
+      chkExceptionText(
+                        () => rerun(smartBearLogIn, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name'),
+                        'do not appear in the table header: NonExistentCol.'
+      );
+    });
+
   });
 
-  it('eachCellSimple Exclude Invisible', () => {
-    let rslt = rerun(smartBearLogIn, mapCellsLogNoInvisibles, '#ctl00_MainContent_orderGrid');
-    chkEq(8, rslt.length);
+  describe('readCell', () => {
+
+    it('simple', () => {
+      let params = {
+                     Product: 'FamilyAlbum',
+                     Zip: 63325
+                    },
+          rslt = rerun(smartBearLogIn, readCell, '#ctl00_MainContent_orderGrid', params, 'Name');
+      chkEq('Clare Jefferson', rslt);
+    });
+
   });
 
-  it.only('cell first record', () => {
-    let params = {
-                   Product: 'ScreenSaver',
-                    Zip: 748
-                  },
-    rslt = rerun(smartBearLogIn, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
-    chkEq('Paul Brown', rslt);
+  describe.only('readTable', () => {
+
+    it('all cols', () => {
+      let rslt = rerun(smartBearLogIn, readTable, '#ctl00_MainContent_orderGrid');
+      chkEq(8, rslt.length);
+      chkEq(13, _.keys(rslt[0]).length);
+      debug(rslt);
+    });
+
+    it('some cols', () => {
+      let rslt = rerun(smartBearLogIn, readTable, '#ctl00_MainContent_orderGrid', ['Name', 'Product', 'Zip']);
+      chkEq(8, rslt.length);
+      chkEq(3, _.keys(rslt[0]).length);
+      debug(rslt);
+    });
+
   });
-
-  it.only('cell', () => {
-    let params = {
-                   Product: 'MyMoney',
-                   Card: 'MasterCard'
-                  },
-    rslt = rerun(smartBearLogIn, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
-    chkEq('Susan McLaren', rslt);
-  });
-
-  it('readCell', () => {
-    let params = {
-                   Product: 'FamilyAlbum',
-                   Zip: 63325
-                  },
-        rslt = rerun(smartBearLogIn, readCell, '#ctl00_MainContent_orderGrid', params, 'Name');
-    chkEq('Clare Jefferson', rslt);
-  });
-
-
 
 });
 

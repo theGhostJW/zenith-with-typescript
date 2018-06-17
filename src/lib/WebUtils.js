@@ -1,5 +1,9 @@
 // @flow
 
+
+
+
+
 import {
   combine,
   copyFile,
@@ -29,7 +33,8 @@ import {
         areEqual, callstackStrings, cast, debug, def, delay, ensure,
          ensureHasVal, ensureReturn, fail,
         filePathFromCallStackLine, forceArray, functionNameFromFunction,
-        hasValue, isSerialisable, stringConvertableToNumber,
+        hasValue, isNullEmptyOrUndefined, isSerialisable,
+                                   stringConvertableToNumber,
                                    waitRetry,
                                    TEST_SUFFIXES
       } from './SysUtils';
@@ -37,9 +42,12 @@ import {
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
           runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
-import * as _ from 'lodash';
 
 import clipBoardy from 'clipboardy';
+
+import * as _ from 'lodash';
+
+
 
 export type SelectorOrElement = string | Element;
 export type Element = {
@@ -80,52 +88,58 @@ export type ReadResult = boolean | string | null;
 
 // setGrid
 
-// export function readTable(tableSelector: SelectorOrElement, columns: ?{[string]: string}, visibleOnly: boolean = true): {[string]: ReadResult}[] {
-//   let tbl = S(tableSelector),
-//       header = tbl.$('tr'),
-//       colMap = generateColMap(header),
-//       result = [];
-//
-//  function mapRow(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element): {
-//
-//  }
-//
-//   mapCellsPriv(tbl, psuedoReducer, visibleOnly, colMap);
-//
-// //   function readGrid(table){
-// //   var row = null;
-// //   var result = []
-// //   var lastRowIndex = -1;
-// //   function addField(cell, colTitle, rowIndex, colIndex, arRowCells){
-// //     if (lastRowIndex !== rowIndex){
-// //       row = {};
-// //       result.push(row);
-// //       lastRowIndex = rowIndex;
-// //     }
-// //     row[def(colTitle, colIndex)] = read(cell);
-// //   }
-// //   eachCell(table, addField);
-// //   return result
-// // }
-//
-// }
+export function readTable(tableSelector: SelectorOrElement, columns: ?string[] = null, visibleOnly: boolean = true): {[string]: ReadResult}[] {
+  let tbl = S(tableSelector),
+      header = tbl.$('tr'),
+      colMap = generateColMap(header),
+      columnSubset = columns == null ? null : new Set(columns),
+      lastRowIndex = -1,
+      thisRow: {[string]: ReadResult} = {},
+      result: {[string]: ReadResult}[] = [];
+
+   if (columns != null) {
+     ensureAllColsInColMap(colMap, columns);
+   }
+
+   const include = colTitle => columnSubset == null ? true : columnSubset.has(colTitle);
+   function readSingleCell(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) {
+
+     if (lastRowIndex !== rowIndex){
+        thisRow = {};
+        result.push(thisRow);
+        lastRowIndex = rowIndex;
+     }
+
+     if (include(colTitle)){
+      thisRow[isNullEmptyOrUndefined(colTitle) ? show(colIndex): colTitle] = read(cell);
+     }
+  }
+
+  mapCells(tableSelector, readSingleCell, visibleOnly);
+  return result;
+}
 
 export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult | void {
   let cl = cell(tableSelector, lookUpVals, valueCol);
   return cl == undefined ? undefined : read(cl);
 }
 
+function ensureAllColsInColMap(colMap: {[number]: string}, lookUpNames: string[]){
+  let colNames: string[] = _.values(colMap),
+      missing = _.difference(lookUpNames, colNames);
+
+  ensure(missing.length === 0, `The following column names referenced in the arguments to this function do not appear in the table header: ${missing.join(', ')}. Possible values are: ${colNames.join(', ')}`);
+}
+
 export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): Element | void {
   let tbl = S(tableSelector),
       header = tbl.$('tr'),
       colMap = generateColMap(header),
-      colNames: string[] = _.values(colMap),
-      lookUpNames = _.keys(lookUpVals),
-      missing = lookUpNames.filter(n => !colNames.includes(n));
+      lookUpNames = _.keys(lookUpVals);
 
-  ensure(missing.length === 0, `The following lookup columns do not appear in the table header: ${missing.join(', ')}. Possible values are: ${colNames.join(', ')}`);
-  ensure(colNames.includes(valueCol), `The value column: ${valueCol} does not appear in the table header. Possible values are: ${colNames.join(', ')}`);
+  lookUpNames.push(valueCol)
 
+  ensureAllColsInColMap(colMap, lookUpNames);
 
   // Bending a mapper into a reducer so can reuse mapCells
   // rather than rewrite flow control
@@ -136,7 +150,7 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: Re
     resultSet: false
   },
   lastRowIdx = -1,
-  maxColIndex = colNames.length - 1;
+  maxColIndex = _.keys(colMap).length - 1;
 
   function reset() {
     accum = {
@@ -277,11 +291,11 @@ export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : S
   return mapRows(rowFunc, visFilter, rows);
 }
 
- /*
- ********************************************************************************
- ******************************* Other Utils *************************************
- ********************************************************************************
-  */
+/*
+********************************************************************************
+******************************* Other Utils *************************************
+********************************************************************************
+ */
 
 
 export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelector: string): Array<Element> {

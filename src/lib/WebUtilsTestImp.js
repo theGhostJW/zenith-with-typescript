@@ -32,7 +32,8 @@ export {    clickLink,
             parent,
             mapCellsSimple,
             cell,
-            readCell
+            readCell,
+            readTable
           } from '../lib/WebUtils';
 
 
