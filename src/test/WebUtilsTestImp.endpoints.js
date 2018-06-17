@@ -40,7 +40,7 @@ describe('Table Utils', () => {
     chkEq(9, rslt.length);
   });
 
-  it.only('mapCells Include Invisible', () => {
+  it('mapCells Include Invisible', () => {
     let rslt = rerun(smartBearLogIn, mapCellsLog, '#ctl00_MainContent_orderGrid');
     chkEq(8, rslt.length);
   });
@@ -50,7 +50,16 @@ describe('Table Utils', () => {
     chkEq(8, rslt.length);
   });
 
-  it('cell', () => {
+  it.only('cell first record', () => {
+    let params = {
+                   Product: 'ScreenSaver',
+                    Zip: 748
+                  },
+    rslt = rerun(smartBearLogIn, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
+    chkEq('Paul Brown', rslt);
+  });
+
+  it.only('cell', () => {
     let params = {
                    Product: 'MyMoney',
                    Card: 'MasterCard'

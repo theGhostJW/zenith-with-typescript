@@ -148,6 +148,10 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: Re
   }
 
   function psuedoReducer(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) {
+    if (accum.resultSet){
+      return ABORT_FLAG;
+    }
+
     if (accum.resultSet || lastRowIdx === rowIndex && accum.rowUnmatched){
       return true;
     }
@@ -214,22 +218,49 @@ function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T
  return mapRows(rowFunc, visFilter, dataRows);
 }
 
-function mapRows<T>(colProcessorCreator: (Element, number) => (Element, number) => T, elementFilter: Element => boolean, rows: Element[]): T[][] {
+type ABORT = 'ABORT';
+const ABORT_FLAG : ABORT  = 'ABORT';
 
-  function mapRow(row: Element, rowIndex: number): T[] {
+function mapImplementedWithTransform<I, T>(source: I[], mapper: (input: I, index: number) => T | ABORT): T[] {
+
+  function transformer(accum: T[], val: I, index: number) {
+    let result = mapper(val, index);
+    if (result == ABORT_FLAG) {
+      return false;
+    } else {
+      accum.push(cast(result));
+    }
+  }
+
+  return _.transform(source, transformer, []);
+}
+
+function mapRows<T>(colProcessorCreator: (Element, number) => (Element, number) => T | ABORT, elementFilter: Element => boolean, rows: Element[]): T[][] {
+
+  let aborted = false;
+
+  function mapRow(row: Element, rowIndex: number): T[] | ABORT {
+    if (aborted){
+      return ABORT_FLAG;
+    }
+
     let innerCellFunc = colProcessorCreator(row, rowIndex),
         rowCells = row.$$('th, td');
 
-    return _.chain(rowCells)
-            .filter(elementFilter)
-            .map(innerCellFunc)
-            .value();
+    function innerCellFuncWithAbort(cell: Element, colIndex: number):  T | ABORT {
+      let result = innerCellFunc(cell, colIndex);
+      if (result == ABORT_FLAG) {
+        aborted = true;
+      }
+      return result;
+    }
+
+    let activeCells = _.filter(rowCells, elementFilter);
+    return mapImplementedWithTransform(activeCells, innerCellFuncWithAbort);
   }
 
-  return _.chain(rows)
-          .filter(elementFilter)
-          .map(mapRow)
-          .value();
+  let activeRows = _.filter(rows, elementFilter);
+  return mapImplementedWithTransform(activeRows, mapRow);
 }
 
 export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, visibleOnly: boolean = true): T[][] {
