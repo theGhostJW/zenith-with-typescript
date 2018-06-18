@@ -1,9 +1,5 @@
 // @flow
-
-
-
-
-
+//
 import {
   combine,
   copyFile,
@@ -30,7 +26,7 @@ import { hasText, lowerCase, lowerFirst, newLine, replaceAll, sameText,
          trimLines, upperFirst,
          wildCardMatch } from './StringUtils';
 import {
-        areEqual, callstackStrings, cast, debug, def, delay, ensure,
+        areEqual, callstackStrings, cast, def, delay, ensure,
          ensureHasVal, ensureReturn, fail,
         filePathFromCallStackLine, forceArray, functionNameFromFunction,
         hasValue, isNullEmptyOrUndefined, isSerialisable,
@@ -86,7 +82,147 @@ export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: numb
 export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) => T;
 export type ReadResult = boolean | string | null;
 
-// setGrid
+type LookUpDef = {
+  findVals: {[string]: ReadResult},
+  setVals: {[string]: ReadResult}
+}
+
+type LookUpTarget = {
+  findElements: {[string]: Element},
+  setElements: {[string]: Element}
+}
+
+function generateLookupObjs(lookupCols: string[], dataCols: string[], columnDefs: string[],  data: ReadResult[][]): LookUpDef[] {
+  let allFields = columnDefs.map(s => s.startsWith('~') ? s.slice(1) : s),
+      lookupSet = new Set(lookupCols),
+      dataSet = new Set(dataCols);
+
+  function makeDef(rrs: ReadResult[], idx: number): LookUpDef {
+
+    function updateDef(accum: LookUpDef, rr: ReadResult, idx: number): LookUpDef {
+      let propName = allFields[idx];
+      if (lookupSet.has(propName)){
+        accum.findVals[propName] = rr;
+      }
+
+      if (dataSet.has(propName)){
+        accum.setVals[propName] = rr;
+      }
+
+      return accum;
+    }
+
+    return rrs.reduce(updateDef, {
+                                  findVals: {},
+                                  setVals: {}
+                                });
+  }
+
+  return data.map(makeDef);
+}
+
+function generateLookupTargets(tableSelector: SelectorOrElement, lookupCols: string[], dataCols: string[]): LookUpTarget[] {
+  let lookupSet = new Set(lookupCols),
+      dataSet = new Set(dataCols),
+      result = [],
+      active: LookUpTarget = {
+        findElements: {},
+        setElements: {}
+      };
+
+   function accumTarget(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element): void {
+     if (colIndex == 0){
+       active = {
+         findElements: {},
+         setElements: {}
+       };
+       result.push(active);
+     }
+
+     if (lookupSet.has(colTitle)){
+       active.findElements[colTitle] = cell;
+     }
+
+     if (dataSet.has(colTitle)){
+       active.setElements[colTitle] = cell;
+     }
+   }
+
+   mapCells(tableSelector, accumTarget);
+   return result;
+}
+
+const debug = (val: any, label: ?string) => label != null ? log(`${label}: ${show(val)}`) : log(`${show(val)}`)
+
+function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
+
+  function setIfMatchesLookup(target: LookUpTarget) {
+    let targVals: {[string]: ReadResult} = {},
+        {findElements, setElements} = target;
+
+    function targVal(propName: string) {
+      let result = targVals[propName];
+      if (result === undefined){
+        let targeElement = findElements[propName];
+        result = read(targeElement);
+        targVals[propName] = result;
+      }
+      return result;
+    }
+
+    function defMatchesTarget(lDef: LookUpDef): boolean {
+      let lkups = lDef.findVals;
+      return _.chain(lkups)
+              .keys()
+              .every(k => areEqual(lkups[k], targVal(k)))
+              .value()
+    }
+
+    let matchingDef = lookUpDefs.find(defMatchesTarget);
+    if (matchingDef != null){
+      let newVals = matchingDef.setVals;
+      debug(newVals, 'newVals');
+      function setTarget(val, key) {
+        debug(key, 'KEY');
+        debug(setElements[key], 'SetElements');
+        set(setElements[key], val);
+      }
+
+      _.each(newVals, setTarget)
+    }
+  }
+
+  lookupTargets.forEach(setIfMatchesLookup);
+}
+
+export function setTable(tableSelector: SelectorOrElement, columnDefs: string[], ...dataDefs: ReadResult[][]): void {
+  let data = dataDefs,
+      colCount = columnDefs.length;
+
+  data.forEach((ar, idx) => ensure(ar.length === colCount,
+    `Data array lengths must be equal to columDefLength. Column defs have a length of: ${show(colCount)} but data record index ${idx}` +
+     `has alength of ${ar.length}: \n\t ${ar.map(show).join(', ')}`));
+
+  let lookupCols = columnDefs
+                  .filter(s => s.startsWith('~'))
+                  .map(s => s.slice(1)),
+      dataCols = columnDefs.filter(s => !s.startsWith('~')),
+      allCols = lookupCols.concat(dataCols);
+
+  ensure(lookupCols.length > 0, 'No lookup columns defined in columnDefs (these are prepended by a tild e.g. ~Product)');
+
+  let tbl = S(tableSelector),
+      header = tbl.$('tr'),
+      colMap = generateColMap(header);
+
+   ensureAllColsInColMap(colMap, allCols);
+
+  let lookUpObjs = generateLookupObjs(lookupCols, dataCols, columnDefs, data),
+      lookupTargets = generateLookupTargets(tableSelector, lookupCols, dataCols);
+
+  doTableSet(lookUpObjs, lookupTargets);
+
+}
 
 export function readTable(tableSelector: SelectorOrElement, columns: ?string[] = null, visibleOnly: boolean = true): {[string]: ReadResult}[] {
   let tbl = S(tableSelector),
@@ -201,7 +337,8 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: Re
 function generateColMap(row: Element) : {[number]: string} {
   let cells = row.$$('th, td');
   function addCol(accum: {[number]: string}, el : Element, idx: number): {[number]: string} {
-    accum[idx] = trim(show(read(el)));
+    let colName = trim(show(read(el)));
+    accum[idx] = colName == '' ? 'idx' + show(idx) : colName;
     return accum;
   }
   return _.reduce(cells, addCol, {});
@@ -1274,30 +1411,76 @@ export function read(elementOrSelector: SelectorOrElement, includeRaioGroups: bo
 }
 
 export function set(elementOrSelector: SelectorOrElement, value: string | number | boolean) : void {
-  let el =  S(elementOrSelector),
-      checkable = isCheckable(el),
-      bool = _.isBoolean(value);
+  setPrivate(true, elementOrSelector, value);
+}
 
+function findSettable(element: Element): ?Element {
+  debug('FIND SETTABLE !!!!!!!')
+  let els = element.$$('*');
+  return els.find(isSetable);
+}
+
+export function isSetable(elementOrSelector: SelectorOrElement) {
+  return setPrivate(false, elementOrSelector, 'ignored')
+}
+
+function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, value: string | number | boolean) : boolean {
+  let el = S(elementOrSelector),
+      checkable = isCheckable(el),
+      bool = _.isBoolean(value),
+      tagName = el.getTagName();
+
+  debug('================= START SET ===============')
   const isIsNot = b => `is${b ? '' : ' not'}`;
-  if (checkable !== bool){
+  if (checkable !== bool && wantSet && tagName !== 'td'){
     fail(`set - type mismatch - value type ${isIsNot(bool)} boolean but element ${isIsNot(checkable)} a radio button or checkbox.`);
   }
 
-  return checkable ?
-    setChecked(el, cast(value)):
+  debug(checkable, 'checkable - above');
+  //debug(el, el.getHTML());
 
-     elementIs('select')(el) ?
-       setSelect(el, cast(value)) :
+  let result = checkable;
+  debug(result, 'result - above');
 
-     // !isCheckable is redundant but here
-     // to prevent introducng bugs if statements are reordered
-     elementIs('input')(el) && !checkable ?
-        setInput(el, cast(value)) :
+  if (checkable) {
+    if (wantSet) {
+      debug('SETCHECKED')
+      setChecked(el, cast(value));
+    }
+  }
+  else {
+    switch (tagName) {
+      case 'select':
+        setSelect(el, cast(value));
+        break;
+      case 'input':
+        setInput(el, cast(value));
+        break;
+      case 'td':
+        let settableChild = findSettable(el);
+        result = settableChild != null;
+        debug(result, 'result td');
+        if (result && wantSet){
+          setPrivate(true, cast(settableChild), value);
+        }
+        break;
+      default:
+        isRadioGroup(el) ?
+          setRadioGroup(el, cast(value)):
+        result = false;
+        debug(result, 'default result')
+        debug(el.getHTML())
+        break;
+      }
+  }
 
-     isRadioGroup(el) ?
-        setRadioGroup(el, cast(value)):
-
-     fail('read - unhandled element type', el);
+  debug(result, 'result final');
+  debug(wantSet, 'wantSet')
+  if (wantSet && !result) {
+    fail('set - unhandled element type', el.getHTML());
+  }
+  debug('---------------')
+  return result;
 }
 
 export function isRadio(elementOrSelector: SelectorOrElement) {

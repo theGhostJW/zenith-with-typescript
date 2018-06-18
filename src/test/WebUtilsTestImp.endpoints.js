@@ -22,7 +22,7 @@ import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLink, clickO
         readCell,readSetRadioGroup, recursiveParent,  setRadioGroup,  setReadInput,
         setReadProduct,  setSelect, setSmartbearcaps, setSmartbearcapsLwrAddress, setThisForm,
         setWithFindByIdOnlyAndLwrStreetName, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, smartBearLogIn,  smartbearOrders,
-        readTable, AVAILABLE_PRODUCTS, CARD_LIST_ID,
+        readTable, setTable, AVAILABLE_PRODUCTS, CARD_LIST_ID,
         FORM_ID, FORM_INPUT_FOR_LABELS,
         FORM_INPUT_MOSTLY_IDS,
         FORM_INPUT_PROXIMAL_LABELS,
@@ -112,7 +112,7 @@ describe('Table Utils', () => {
 
   });
 
-  describe.only('readTable', () => {
+  describe('readTable', () => {
 
     it('all cols', () => {
       let rslt = rerun(smartBearLogIn, readTable, '#ctl00_MainContent_orderGrid');
@@ -126,6 +126,26 @@ describe('Table Utils', () => {
       chkEq(8, rslt.length);
       chkEq(3, _.keys(rslt[0]).length);
       debug(rslt);
+    });
+
+  });
+
+  describe('setTable', () => {
+
+    it.only('simple', () => {
+      rerun(smartBearLogIn, setTable, '#ctl00_MainContent_orderGrid',
+                                                ['~Name'     , 'idx0' ],
+                                                ['Steve Johns', true],
+                                              );
+    });
+
+    it('multiple', () => {
+      rerun(smartBearLogIn, setTable, '#ctl00_MainContent_orderGrid',
+                                                ['~Name'     , '' ],
+                                                ['Steve Johns', true],
+                                                ['Mark Smith',  true],
+                                                ['Clare Jefferson', true]
+                                              );
     });
 
   });
