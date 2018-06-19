@@ -181,10 +181,7 @@ function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
     let matchingDef = lookUpDefs.find(defMatchesTarget);
     if (matchingDef != null){
       let newVals = matchingDef.setVals;
-      debug(newVals, 'newVals');
       function setTarget(val, key) {
-        debug(key, 'KEY');
-        debug(setElements[key], 'SetElements');
         set(setElements[key], val);
       }
 
@@ -1415,7 +1412,6 @@ export function set(elementOrSelector: SelectorOrElement, value: string | number
 }
 
 function findSettable(element: Element): ?Element {
-  debug('FIND SETTABLE !!!!!!!')
   let els = element.$$('*');
   return els.find(isSetable);
 }
@@ -1430,56 +1426,57 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
       bool = _.isBoolean(value),
       tagName = el.getTagName();
 
-  debug('================= START SET ===============')
   const isIsNot = b => `is${b ? '' : ' not'}`;
   if (checkable !== bool && wantSet && tagName !== 'td'){
     fail(`set - type mismatch - value type ${isIsNot(bool)} boolean but element ${isIsNot(checkable)} a radio button or checkbox.`);
   }
 
-  debug(checkable, 'checkable - above');
-  //debug(el, el.getHTML());
-
   let result = checkable;
-  debug(result, 'result - above');
 
   if (checkable) {
     if (wantSet) {
-      debug('SETCHECKED')
       setChecked(el, cast(value));
     }
   }
   else {
+    result = true;
     switch (tagName) {
       case 'select':
-        setSelect(el, cast(value));
+        if (wantSet) {
+          setSelect(el, cast(value));
+        }
         break;
+
       case 'input':
-        setInput(el, cast(value));
+        if (wantSet) {
+          setInput(el, cast(value));
+        }
         break;
+
       case 'td':
         let settableChild = findSettable(el);
         result = settableChild != null;
-        debug(result, 'result td');
         if (result && wantSet){
           setPrivate(true, cast(settableChild), value);
         }
         break;
+
       default:
-        isRadioGroup(el) ?
-          setRadioGroup(el, cast(value)):
         result = false;
-        debug(result, 'default result')
-        debug(el.getHTML())
         break;
       }
   }
 
-  debug(result, 'result final');
-  debug(wantSet, 'wantSet')
-  if (wantSet && !result) {
-    fail('set - unhandled element type', el.getHTML());
+  if (!result && isRadioGroup(el)){
+    result = true;
+    if (wantSet){
+      setRadioGroup(el, cast(value));
+    }
   }
-  debug('---------------')
+
+  if (wantSet && !result) {
+    fail('set failure - unhandled element type: "' + tagName + '"', el.getHTML());
+  }
   return result;
 }
 
