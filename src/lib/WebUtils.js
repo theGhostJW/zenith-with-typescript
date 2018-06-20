@@ -43,8 +43,8 @@ import clipBoardy from 'clipboardy';
 
 import * as _ from 'lodash';
 
-import sp from 'step-profiler';
-
+// import sp from 'step-profiler';
+// let prof = new sp({});
 
 
 export type SelectorOrElement = string | Element;
@@ -167,11 +167,7 @@ function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
       if (result === undefined){
         let targeElement = findElements[propName];
         result = read(targeElement);
-        debug('NOT CACHED: ' + show(result));
         targVals[propName] = result;
-      }
-      else {
-        debug('CACHED: ' + show(result));
       }
       return result;
     }
@@ -198,10 +194,7 @@ function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
   lookupTargets.forEach(setIfMatchesLookup);
 }
 
-let prof = new sp({});
 const setTablePriv = (onlyVisible: boolean) => (tableSelector: SelectorOrElement, columnDefs: string[], ...dataDefs: ReadResult[][]): void  => {
-  prof.start('setTable');
-
   let data = dataDefs,
       colCount = columnDefs.length;
 
@@ -217,24 +210,16 @@ const setTablePriv = (onlyVisible: boolean) => (tableSelector: SelectorOrElement
 
   ensure(lookupCols.length > 0, 'No lookup columns defined in columnDefs (these are prepended by a tild e.g. ~Product)');
 
-  prof.done('prechecks');
-
   let tbl = S(tableSelector),
       header = tbl.$('tr'),
       colMap = generateColMap(header);
 
-   prof.done('colmaps');
-   ensureAllColsInColMap(colMap, allCols);
+  ensureAllColsInColMap(colMap, allCols);
 
-  let lookUpObjs = generateLookupObjs(lookupCols, dataCols, columnDefs, data);
-  prof.done('lookUpObjs');
-
-  let lookupTargets = generateLookupTargets(tableSelector, lookupCols, dataCols, onlyVisible);
-  prof.done('lookupTargets');
+  let lookUpObjs = generateLookupObjs(lookupCols, dataCols, columnDefs, data),
+      lookupTargets = generateLookupTargets(tableSelector, lookupCols, dataCols, onlyVisible);
 
   doTableSet(lookUpObjs, lookupTargets);
-  prof.done('set');
-  debug(prof.toString());
 }
 
 export function setTable(tableSelector: SelectorOrElement, columnDefs: string[], ...dataDefs: ReadResult[][]): void {
@@ -370,9 +355,7 @@ export const mapCells = <T>(tableSelector: SelectorOrElement, cellFunc : CellFun
 // Does not allow for invisible first row
 function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true, maybeColMap: ?{[number]: string}): T[][] {
   let tbl = S(tableSelector);
-  prof.done('tbl Selector');
   let rows = tbl.$$('tr');
-  prof.done(' row selector');
   let visFilter = e => !visibleOnly || e.isVisible(),
       headerRow = _.head(rows),
       dataRows =  _.tail(rows);
@@ -382,7 +365,6 @@ function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T
   }
 
   let colMap: {[number]: string} = def(maybeColMap, generateColMap(headerRow));
-  prof.done('colMap');
   function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
     return function eachCellFunc(cell: Element, colIndex: number) {
       return cellFunc(cell, colMap[colIndex], rowIndex, colIndex, row);
@@ -390,7 +372,6 @@ function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T
   }
 
  let result = mapRows(rowFunc, visFilter, dataRows);
- prof.done('maprows');
  return result;
 }
 
@@ -1196,7 +1177,6 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
 
     // Proximal labels - non for
     if (result == null){
-      //let labels = addCoordsTxt(DEBUG_ALL_LABELS);
       let labels = addCoordsTxt(nonForLabels()),
           edts = addCoordsCheckable(edits);
       result = nearestEdit(key, edts, labels, wildcard, lblModifier);
