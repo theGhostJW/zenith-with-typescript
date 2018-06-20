@@ -132,16 +132,16 @@ describe('Table Utils', () => {
 
   describe('setTable', () => {
 
-    it.only('simple', () => {
+    it('simple', () => {
       rerun(smartBearLogIn, setTable, '#ctl00_MainContent_orderGrid',
                                                 ['~Name'     , 'idx0' ],
                                                 ['Steve Johns', true],
                                               );
     });
 
-    it('multiple', () => {
+    it.only('multiple', () => {
       rerun(smartBearLogIn, setTable, '#ctl00_MainContent_orderGrid',
-                                                ['~Name'     , '' ],
+                                                ['~Name'     , 'idx0' ],
                                                 ['Steve Johns', true],
                                                 ['Mark Smith',  true],
                                                 ['Clare Jefferson', true]

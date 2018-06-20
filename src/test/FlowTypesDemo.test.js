@@ -77,18 +77,18 @@ function fullName(given, last) {
 
 //************************** notThereness: undefined null and void and Maybe ***************************
 
-// function isBig(num: number): boolean {
-//   if (num > 100)
-//     return true;
-// }
-//
-// function callBig() {
-//   let v1: boolean = isBig(200),
-//       v11: boolean = isBig(10),
-//       v2: boolean = isBig(),
-//       v3: boolean = isBig(null),
-//       v4: boolean = isBig(undefined);
-// }
+function isBig(num: number = 10000000): boolean {
+  return num > 100;
+}
+
+function callBig() {
+  let v1: boolean = isBig(200),
+      //v11: boolean = isBig(10),
+      v2: boolean = isBig(),
+      v6: boolean = isBig(),
+    //  v3: boolean = isBig(null),
+      v4: boolean = isBig(undefined);
+}
 
 // fix 1 fix the function
 //
@@ -125,27 +125,30 @@ function isBig(num: number): ?boolean {
 // }
 
 // represnt possible absensce as null e.g. boolean | null
-// function propsNotThere() {
-//
-//   type Person = {
-//     given: string,
-//     last: string
-//   }
-//
-//   let p : Person = {
-//                       given: 'Janice'
-//                    };
-//
-//    let p1 : Person = {
-//                      given: 'Janice',
-//                      last: undefined
-//                    };
-//
-//     let p2 : Person = {
-//                      given: 'Janice',
-//                      last: null
-//                    };
-// }
+function propsNotThere() {
+
+  type Person = {
+    given: string,
+    last: string
+  }
+
+  type BitOfAPerson = $Supertype<Person>;
+
+  let p : BitOfAPerson = {
+                      given: 'Janice',
+                      dob: '1 Jan 1978'
+                   };
+
+   let p1 : BitOfAPerson = {
+                     given: 'Janice',
+                     last: undefined
+                   };
+
+    let p2 : BitOfAPerson = {
+                     given: 'Janice',
+                     last: null
+                   };
+}
 
 // Defaulting Values
 
@@ -156,7 +159,12 @@ function isBig(num: number): ?boolean {
 // Object Types
 // https://flow.org/en/docs/types/objects/
 
-// Unsearled
+
+ //----
+
+
+
+// Unsealed
 // function unsealed(obj: {}) {
 //   let str = obj.hello,
 //       str1 = obj.hello == null ? 'HOWDY' :  obj.hello,
@@ -171,11 +179,16 @@ function isBig(num: number): ?boolean {
 
 // Arrays
 // https://flow.org/en/docs/types/arrays/
+//
+
+// Tuples
+// https://flow.org/en/docs/types/arrays/
 
 
 // https://flow.org/en/docs/types/aliases/
 //
-//
+
+// https://flow.org/en/docs/types/tuples/
 
 // skip - https://flow.org/en/docs/types/opaque-types/
 

@@ -43,6 +43,8 @@ import clipBoardy from 'clipboardy';
 
 import * as _ from 'lodash';
 
+import sp from 'step-profiler';
+
 
 
 export type SelectorOrElement = string | Element;
@@ -121,7 +123,7 @@ function generateLookupObjs(lookupCols: string[], dataCols: string[], columnDefs
   return data.map(makeDef);
 }
 
-function generateLookupTargets(tableSelector: SelectorOrElement, lookupCols: string[], dataCols: string[]): LookUpTarget[] {
+function generateLookupTargets(tableSelector: SelectorOrElement, lookupCols: string[], dataCols: string[], visibleOnly: boolean): LookUpTarget[] {
   let lookupSet = new Set(lookupCols),
       dataSet = new Set(dataCols),
       result = [],
@@ -148,7 +150,7 @@ function generateLookupTargets(tableSelector: SelectorOrElement, lookupCols: str
      }
    }
 
-   mapCells(tableSelector, accumTarget);
+   mapCells(tableSelector, accumTarget, visibleOnly);
    return result;
 }
 
@@ -165,7 +167,11 @@ function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
       if (result === undefined){
         let targeElement = findElements[propName];
         result = read(targeElement);
+        debug('NOT CACHED: ' + show(result));
         targVals[propName] = result;
+      }
+      else {
+        debug('CACHED: ' + show(result));
       }
       return result;
     }
@@ -192,7 +198,10 @@ function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
   lookupTargets.forEach(setIfMatchesLookup);
 }
 
-export function setTable(tableSelector: SelectorOrElement, columnDefs: string[], ...dataDefs: ReadResult[][]): void {
+let prof = new sp({});
+const setTablePriv = (onlyVisible: boolean) => (tableSelector: SelectorOrElement, columnDefs: string[], ...dataDefs: ReadResult[][]): void  => {
+  prof.start('setTable');
+
   let data = dataDefs,
       colCount = columnDefs.length;
 
@@ -208,17 +217,32 @@ export function setTable(tableSelector: SelectorOrElement, columnDefs: string[],
 
   ensure(lookupCols.length > 0, 'No lookup columns defined in columnDefs (these are prepended by a tild e.g. ~Product)');
 
+  prof.done('prechecks');
+
   let tbl = S(tableSelector),
       header = tbl.$('tr'),
       colMap = generateColMap(header);
 
+   prof.done('colmaps');
    ensureAllColsInColMap(colMap, allCols);
 
-  let lookUpObjs = generateLookupObjs(lookupCols, dataCols, columnDefs, data),
-      lookupTargets = generateLookupTargets(tableSelector, lookupCols, dataCols);
+  let lookUpObjs = generateLookupObjs(lookupCols, dataCols, columnDefs, data);
+  prof.done('lookUpObjs');
+
+  let lookupTargets = generateLookupTargets(tableSelector, lookupCols, dataCols, onlyVisible);
+  prof.done('lookupTargets');
 
   doTableSet(lookUpObjs, lookupTargets);
+  prof.done('set');
+  debug(prof.toString());
+}
 
+export function setTable(tableSelector: SelectorOrElement, columnDefs: string[], ...dataDefs: ReadResult[][]): void {
+  setTablePriv(false)(tableSelector, columnDefs, ...dataDefs);
+}
+
+export function setTableFilterVisibleOnlySlow(tableSelector: SelectorOrElement, columnDefs: string[], ...dataDefs: ReadResult[][]): void {
+  setTablePriv(true)(tableSelector, columnDefs, ...dataDefs);
 }
 
 export function readTable(tableSelector: SelectorOrElement, columns: ?string[] = null, visibleOnly: boolean = true): {[string]: ReadResult}[] {
@@ -341,13 +365,15 @@ function generateColMap(row: Element) : {[number]: string} {
   return _.reduce(cells, addCol, {});
 }
 
-export const mapCells = <T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly?: boolean) => mapCellsPriv(tableSelector, cellFunc, visibleOnly);
+export const mapCells = <T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true) => mapCellsPriv(tableSelector, cellFunc, visibleOnly);
 
 // Does not allow for invisible first row
 function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true, maybeColMap: ?{[number]: string}): T[][] {
-  let tbl = S(tableSelector),
-      rows = tbl.$$('tr'),
-      visFilter = e => !visibleOnly || e.isVisible(),
+  let tbl = S(tableSelector);
+  prof.done('tbl Selector');
+  let rows = tbl.$$('tr');
+  prof.done(' row selector');
+  let visFilter = e => !visibleOnly || e.isVisible(),
       headerRow = _.head(rows),
       dataRows =  _.tail(rows);
 
@@ -356,14 +382,16 @@ function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T
   }
 
   let colMap: {[number]: string} = def(maybeColMap, generateColMap(headerRow));
-
+  prof.done('colMap');
   function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
     return function eachCellFunc(cell: Element, colIndex: number) {
       return cellFunc(cell, colMap[colIndex], rowIndex, colIndex, row);
     }
   }
 
- return mapRows(rowFunc, visFilter, dataRows);
+ let result = mapRows(rowFunc, visFilter, dataRows);
+ prof.done('maprows');
+ return result;
 }
 
 type ABORT = 'ABORT';
