@@ -1,9 +1,5 @@
 // @flow
 
-
-
-
-
 import {
   chk,
   chkEq,
@@ -14,7 +10,7 @@ import {
   chkWithMessage,
 } from '../lib/AssertionUtils';
 import { show } from '../lib/StringUtils';
-import { cast, debug, fail, waitRetry } from '../lib/SysUtils';
+import { cast, debug, debugStk, fail, waitRetry } from '../lib/SysUtils';
 import { read, rerun, set, setForm } from '../lib/WebUtils';
 import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLink, clickOrderLink,
         /* setForm,*/ getForm,  invalidUncheckCheckBox, linkByTextText,  links, mapCellsLog, mapCellsLogNoInvisibles,
@@ -67,7 +63,7 @@ describe('Table Utils', () => {
 
   describe('cell', () => {
 
-    it('first record', () => {
+    it.only('first record', () => {
       let params = {
                      Product: 'ScreenSaver',
                       Zip: 748

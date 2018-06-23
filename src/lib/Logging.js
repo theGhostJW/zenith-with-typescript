@@ -209,7 +209,6 @@ export type LogEntry = {
    //
    // Name this logger
 
-   //$FlowFixMe
    this.name = options.name;
 
    //
@@ -245,7 +244,6 @@ export type LogEntry = {
       meta: meta
     });
 
-    //$FlowFixMe
     fs.write(this.fd, logMessage + newLine(), (err, fd) => {
      // => [Error: EISDIR: illegal operation on a directory, open <directory>]
     });
@@ -259,7 +257,6 @@ export type LogEntry = {
     //
     // Name this logger
 
-    //$FlowFixMe
     this.name = options.name;
 
     //

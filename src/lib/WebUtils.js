@@ -27,12 +27,11 @@ import { hasText, lowerCase, lowerFirst, newLine, replaceAll, sameText,
          wildCardMatch } from './StringUtils';
 import {
         areEqual, callstackStrings, cast, def, delay, ensure,
-         ensureHasVal, ensureReturn, fail,
+         ensureHasVal, ensureReturn, fail, debug, debugStk,
         filePathFromCallStackLine, forceArray, functionNameFromFunction,
         hasValue, isNullEmptyOrUndefined, isSerialisable,
                                    stringConvertableToNumber,
-                                   waitRetry,
-                                   TEST_SUFFIXES
+                                   waitRetry
       } from './SysUtils';
 
 import { disconnectClient, interact,
@@ -153,8 +152,6 @@ function generateLookupTargets(tableSelector: SelectorOrElement, lookupCols: str
    mapCells(tableSelector, accumTarget, visibleOnly);
    return result;
 }
-
-const debug = (val: any, label: ?string) => label != null ? log(`${label}: ${show(val)}`) : log(`${show(val)}`)
 
 function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
 
@@ -1640,6 +1637,8 @@ export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
     stopSession();
    }
 }
+
+export const TEST_SUFFIXES = ['.endpoints.', '.integration.', '.test.'];
 
 function firstTestModuleInStack(): string {
   let fullStack = callstackStrings(),

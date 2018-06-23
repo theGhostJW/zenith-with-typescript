@@ -6,6 +6,7 @@ import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE } from './Fi
 import { log, logException } from '../lib/Logging';
 import {appendDelim, endsWith, hasText, lwrFirst, newLine, replaceAll,
       show, startsWith, stringToArray, subStrBetween, wildCardMatch, subStrBefore} from './StringUtils';
+import { sendWebUIDebugMessage } from './SeleniumIpcServer';
 
 import child_process from 'child_process';
 import deasync from 'deasync'
@@ -14,9 +15,6 @@ import * as deep from 'lodash-deep';
 import moment from 'moment';
 import * as os from 'os';
 import { parseString } from 'xml2js';
-
-
-export const TEST_SUFFIXES = ['.endpoints.', '.integration.', '.test.'];
 
 // https://stackoverflow.com/questions/30579940/reliable-way-to-check-if-objects-is-serializable-in-javascript
 export function isSerialisable(obj: mixed): boolean {
@@ -526,9 +524,11 @@ export function cast<T>(targ: any): T {
   return (targ: T);
 }
 
+let debugSink : string => void = s => sendWebUIDebugMessage(s) ? undefined : console.log(s);
+
 export function debugStk<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
-  console.log(appendDelim(_.toUpper(label), ': ', show(msgStr)) + newLine()  + '=========================' + newLine()  +
+  debugSink(appendDelim(_.toUpper(label), ': ', show(msgStr)) + newLine()  + '=========================' + newLine()  +
                                                                       callstackStrings().join(', ' + newLine()) + newLine()  +
                                                                       '=========================') ;
   return msgStr;
@@ -536,7 +536,7 @@ export function debugStk<T>(msg: T | () => T, label: string = 'DEBUG'): T {
 
 export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   let msgStr = typeof msg == 'function' ? msg() : msg;
-  console.log(appendDelim(label, ': ', show(msgStr)));
+  debugSink(appendDelim(label, ': ', show(msgStr)));
   return msgStr;
 }
 

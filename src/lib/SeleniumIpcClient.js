@@ -112,11 +112,16 @@ export function runClient() {
                     );
 
         when('connect',
-              (data) => {
-              }
+                (data) => {
+                }
+             );
 
-
+        when('Debug',
+                (data) => {
+                  debug(data, '');
+                }
         );
+
       }
     )
 

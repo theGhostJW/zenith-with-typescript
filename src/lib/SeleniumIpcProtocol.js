@@ -8,6 +8,7 @@ export type Protocol =   'InvocationResponse' |
                           'InvocationParams' |
                           'ClientSessionDone' |
                           'Log' |
+                          'Debug' |
                           'Exception' |
                           'Ping' |
                           'Pong' |

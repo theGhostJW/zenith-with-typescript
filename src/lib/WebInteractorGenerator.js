@@ -95,7 +95,9 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
                                    : `${beforeInfo.name}();`
 
 
-
+// this is so this does not give us false positives
+// when searchi for .only
+const O_N_L_Y = 'o' + 'nly';
 return   `
 
   let beforeRun = false;
@@ -124,7 +126,7 @@ return   `
       }
   }
 
-  describe.only('runner', () => {
+  describe.${O_N_L_Y}('runner', () => {
 
     it('interact', () => {
       startServer();

@@ -47,6 +47,14 @@ export function emitMessage(msgType: Protocol, msg?: mixed ) {
   emit(clientSocket, msgType, msg);
 }
 
+export function sendWebUIDebugMessage(msg: string): boolean {
+  let result = hasValue(clientSocket);
+  if (result){
+    emitMessage('Debug', 'FROM WEB UI PROCESS - ' + msg);
+  }
+  return result;
+}
+
 export function emitMessageIfSocketAssigned(msgType: Protocol, msg?: mixed ) {
   if (hasValue(clientSocket)){
      emit(clientSocket, msgType, msg);
