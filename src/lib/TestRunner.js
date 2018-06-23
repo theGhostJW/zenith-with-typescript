@@ -157,7 +157,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
   defaultLogParser(mockFileNameGenerator)(latestRawPath());
 }
 
-let allCases: Array<any> = [];
+let allCases: any[] = [];
 
 export type BaseRunConfig = {
   name: string,
@@ -203,7 +203,7 @@ let lastLoadedFileName = '??',
 // is home go home logic to be moved to web side when web interaction
 // rollover logic stays non web side
 export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: BaseCase<R, T, I, S, V>): void {
-  let namedCase: NamedCase<R, T, I, S, V> = ((testCase: any): NamedCase<R, T, I, S, V>);
+  let namedCase: NamedCase<R, T, I, S, V> = cast(testCase);
   namedCase.name = lastLoadedFileName;
   namedCase.path = lastLoadedFilePath;
   allCases.push(namedCase);
@@ -226,7 +226,7 @@ export type ItemRequired = {
                     id: number,
                     when: string,
                     then: string,
-                    validators: GenericValidator<*> | Array<GenericValidator<*>>
+                    validators: GenericValidator<*> | GenericValidator<*>[]
                   };
 
 export type BaseTestConfig = {
@@ -243,7 +243,7 @@ type NamedPathedObj<T> = T & {
   path: string
 }
 
-export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<R, T, *, *, *>> {
+export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): NamedCase<R, T, *, *, *>[] {
 
   function loadFile(name, pth) {
     // Delete cache entry to make sure the file is re-read from disk.
@@ -251,6 +251,8 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): Array<NamedCase<
     // Load function from file.
     lastLoadedFileName = name;
     lastLoadedFilePath = pth;
+    // this will invoke register on
+    // test that conforms to conventions
     var func = require(pth);
   }
 
