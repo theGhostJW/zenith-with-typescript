@@ -139,7 +139,7 @@ describe('Table Utils', () => {
                                               );
     });
 
-    it.only('multiple', () => {
+    it('multiple', () => {
       rerun(smartBearLogIn, setTable, '#ctl00_MainContent_orderGrid',
                                                 ['~Name'     , 'idx0' ],
                                                 ['Steve Johns', true],

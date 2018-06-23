@@ -30,7 +30,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
     }
 
     let webUI = hasText(testCase.name, WEB_FILE_FRAGMENT),
-        useMockForItem = (item) => canUseMock(testCase, runConfig, item, mockFileNameFunc),
+        useMockForItem = item => canUseMock(testCase, runConfig, item, mockFileNameFunc),
         canMockAllWebUi = webUI && itemList.every(useMockForItem);
 
     if (webUI && !canMockAllWebUi) {
@@ -164,6 +164,25 @@ export type BaseRunConfig = {
   mocked: boolean
 }
 
+// think about this later ~ complications around web
+// need to some how build go home logic into interactor
+// start by registering restart
+// export type Restart = {
+//   rollOver: () => void,
+//   goHome: () => void,
+//   isHome: () => boolean,
+// }
+//
+// function executeRestart(includeRollover: boolean, restart: Restart) {
+//   function executeStage<T>(stage: string, func: () => T) : T {
+//     try {
+//       log('')
+//     } catch (e) {
+//
+//     }
+//   }
+// }
+
 export type TestFilter<FR, FT> = (string, FT, FR) => boolean;
 
 export type RunParams<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> = {|
@@ -180,6 +199,9 @@ export type RunParams<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT
 let lastLoadedFileName = '??',
     lastLoadedFilePath = '??';
 
+// needs tor register restarts as well
+// is home go home logic to be moved to web side when web interaction
+// rollover logic stays non web side
 export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(testCase: BaseCase<R, T, I, S, V>): void {
   let namedCase: NamedCase<R, T, I, S, V> = ((testCase: any): NamedCase<R, T, I, S, V>);
   namedCase.name = lastLoadedFileName;
@@ -277,7 +299,6 @@ function exStage(stage: Action, stageName: string, preLog: Action, postLog: Acti
       postLog();
     }
   }
-
   return continu;
 }
 

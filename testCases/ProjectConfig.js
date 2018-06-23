@@ -37,8 +37,8 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
 }
 
 export function run(runConfig: RunConfig) {
-  let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
-  let runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  = setRunParamsDefaults(runConfig, testCases);
+  let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll(),
+      runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  = setRunParamsDefaults(runConfig, testCases);
   testRun(runParams);
 }
 
@@ -56,7 +56,7 @@ export type Country = "Australia" | "New Zealand";
 // could be partly moved to testRunner plus filters
 export type TestCaseEndPointParams<R, T, I, S, V> = {|
   testCase: BaseCase<R, T, I, S, V>,
-  selector?: Number |  $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean,
+  selector?: Number | $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean,
   mocked?: boolean,
   country?: Country,
   environment?: Environment,
