@@ -17,7 +17,7 @@ export const mockFileNameUseEnvironment: MockFileNameFunction<RunConfig> =
 
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
-  let allTestCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll();
+  let allTestCases: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[] = loadAll();
 
   let testCase: NamedCase<RunConfig, TestConfig, BaseItem, *, *> = cast(endPointConfig.testCase),
       testCaseConfig = testCase.testConfig,
@@ -26,7 +26,7 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
   testCase.name = cast(def(namedCase, {})).name;
   testCase.path = cast(def(namedCase, {})).path;
 
-  let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = [testCase],
+  let testCases: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[] = [testCase],
       runConfig = _.omit(endPointConfig,  'testCase', 'selector');
 
   runConfig.name = `Test Case EndPoint ~ ${testCase.name}`;
@@ -37,7 +37,7 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
 }
 
 export function run(runConfig: RunConfig) {
-  let testCases: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>> = loadAll(),
+  let testCases: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[] = loadAll(),
       runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  = setRunParamsDefaults(runConfig, testCases);
   testRun(runParams);
 }
@@ -56,11 +56,11 @@ export type Country = "Australia" | "New Zealand";
 // could be partly moved to testRunner plus filters
 export type TestCaseEndPointParams<R, T, I, S, V> = {|
   testCase: BaseCase<R, T, I, S, V>,
-  selector?: Number | $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean,
+  selector?: Number | $Supertype<I> | (testItem: I, fullList: I[]) => boolean,
   mocked?: boolean,
   country?: Country,
   environment?: Environment,
-  testCases?: Array<number|string> | number | string,
+  testCases?: (number|string)[] | number | string,
   depth?: Depth
 |}
 
@@ -69,7 +69,7 @@ export type RunConfig = {
   mocked: boolean,
   country?: Country,
   environment?: Environment,
-  testCases?: Array<number|string> | number | string,
+  testCases?: (number|string)[] | number | string,
   depth?: Depth
 }
 
@@ -78,7 +78,7 @@ export type FullRunConfig = {|
   mocked: boolean,
   country: Country,
   environment: Environment,
-  testCases: Array<number|string>,
+  testCases: (number|string)[],
   depth: Depth
 |}
 
@@ -87,8 +87,8 @@ export type TestConfig = {
   then: string,
   owner: string,
   enabled: boolean,
-  countries?: Array<Country> | Country,
-  environments?: Array<Environment> | Environment,
+  countries?: Country[] | Country,
+  environments?: Environment[] | Environment,
   depth?: Depth
 };
 
@@ -98,8 +98,8 @@ export type FullTestConfig = {|
   then: string,
   owner: string,
   enabled: boolean,
-  countries: Array<Country>,
-  environments: Array<Environment>,
+  countries: Country[],
+  environments: Environment[],
   depth: Depth
 |}
 
@@ -107,7 +107,7 @@ export type TestCase<I: BaseItem, S, V> = BaseCase<RunConfig, TestConfig, I, S, 
 
 export type Validator<V> = GenericValidator<V>
 
-export type Validators<V> = Validator<V> | Array<Validator<V>>
+export type Validators<V> = Validator<V> | Validator<V>[]
 
 export const register = <I: BaseItem, S, V>(testCase: TestCase<I, S, V>): void => caseRunner.register(testCase);
 
@@ -134,7 +134,7 @@ function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   return _.defaults(partialRunConfig, defaultprops);
 }
 
-function setRunParamsDefaults(runConfig: RunConfig, testList: Array<NamedCase<RunConfig, TestConfig, BaseItem, *, *>>): RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  {
+function setRunParamsDefaults(runConfig: RunConfig, testList: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[]): RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  {
   return {
     runConfig: runConfig,
     testList: testList,

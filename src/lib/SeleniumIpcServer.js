@@ -14,7 +14,7 @@ import * as ipc from 'node-ipc';
 /// STATE
 
 let doneSingleton = false,
-    invocationParamsSingleton: ?Array<mixed>;
+    invocationParamsSingleton: ?mixed[];
 
 export function isReloadableFile(path: string): boolean {
   return !hasText(path, 'node_modules')
@@ -33,11 +33,11 @@ export function setDone(done: boolean) {
   doneSingleton = done;
 }
 
-export function invocationParams() : ?Array<mixed> {
+export function invocationParams() : ?mixed[] {
   return invocationParamsSingleton;
 }
 
-export function setInvocationParams(invocationParams: ?Array<mixed>) {
+export function setInvocationParams(invocationParams: ?mixed[]) {
   invocationParamsSingleton = invocationParams;
 }
 

@@ -97,7 +97,7 @@ function check_with_incorrect_disabled_expectation(valState: ValState, valTime: 
   endDefect();
 }
 
-function  testItems(runConfig: RunConfig): Array<Item> {
+function  testItems(runConfig: RunConfig): Item[] {
   return [
     {
       id: 1,

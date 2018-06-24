@@ -45,7 +45,7 @@ export function callerString(filePathOnly: boolean = false): string {
 }
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
-export function callstackStrings(): Array<string> {
+export function callstackStrings(): string[] {
   // Save original Error.prepareStackTrace - don't know what this is
   let origPrepareStackTrace = Error.prepareStackTrace,
       stack = [];
@@ -165,12 +165,12 @@ export function waitRetry(isCompleteFunction: () => boolean, timeoutMs: number =
   return complete;
 }
 
-export function listProcesses(): Array<TaskListItem> {
+export function listProcesses(): TaskListItem[] {
   let taskList = child_process.execSync('tasklist', {timeout: 30000}).toString();
   return _parseTaskList(taskList);
 }
 
-export function _parseTaskList(taskList: string): Array<TaskListItem>{
+export function _parseTaskList(taskList: string): TaskListItem[]{
   let lines = taskList.split('\n').filter((s) => s.trim() != ''),
       headerLineIdx = lines.findIndex((s) => s.startsWith('=')),
       headerLine = lines[headerLineIdx],
@@ -220,7 +220,7 @@ export function valueTracker<T>(mapName: string, generatorFunction: (...args: an
     return result;
   }
 
-  function getOrNew(key: string, ...args: Array<any>): T {
+  function getOrNew(key: string, ...args: any[]): T {
     var result = hashMap[key];
     return isUndefined(result) ? newVal(key, ...args) : result;
   }
@@ -265,7 +265,7 @@ export function flattenObj(obj: {[string|number]: any}, allowDuplicateKeyOverwri
 
 export const hostName = () => os.hostname();
 
-export function setParts<T>(arLeftSet: Array<T>, arRightSet: Array<T>): [Array<T>, Array<T>, Array<T>] {
+export function setParts<T>(arLeftSet: T[], arRightSet: T[]): [T[], T[], T[]] {
 
   function intersect(ar1, ar2){
     var inIntersection = [],
@@ -295,7 +295,7 @@ export function setParts<T>(arLeftSet: Array<T>, arRightSet: Array<T>): [Array<T
 }
 
 
-export function forceArray<T>(...args: Array<Array<T> | T> ): Array<T> {
+export function forceT[](...args: (T[] | T)[] ): T[] {
 
   function forceArraySingleVal(val){
      return isUndefined(val) ? [] :
@@ -308,9 +308,9 @@ export function forceArray<T>(...args: Array<Array<T> | T> ): Array<T> {
          .value();
 }
 
-export function autoType(arr: Array<{[string]: string}>) : Array<{[string]: any}> {
+export function autoType(arr: {[string]: string}[]) : {[string]: any}[] {
 
-  let exclusions: Array<string> = arr.length === 0 ? [] : _.reduce(
+  let exclusions: string[] = arr.length === 0 ? [] : _.reduce(
                                                             arr[0],
                                                             (accum, val, key) => startsWith(val, '`') ? accum.concat(key) : accum,
                                                             []
@@ -469,7 +469,7 @@ function dateParser(){
   }
 }
 
-function dotToNulls(obj: {}, exclusions: Array<string>): {} {
+function dotToNulls(obj: {}, exclusions: string[]): {} {
   function dotToNull(val, key){
     return (val == '.') && !exclusions.includes(key) ? null : val;
   }
@@ -666,13 +666,13 @@ function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
   }
 
   // IndexSpecifier / or HOFIndex Specifier
-  ensure(_.isArray(mixedSpec) && ((mixedSpec: any): Array<any>).length === 1, 'expect this to be a single item array: ' + show(mixedSpec));
+  ensure(_.isArray(mixedSpec) && ((mixedSpec: any): any[]).length === 1, 'expect this to be a single item array: ' + show(mixedSpec));
 
   let dummy = (val : mixed, key : string | number) => {return undefined},
       indexer : IndexSpecifier = ((mixedSpec : any) : IndexSpecifier),
       item = indexer[0],
-      indexerSpec: FuncSpecifier = typeof item == 'function' ? (val: Array<any>) => { return _.find(val, ((item: any): ArrayItemPredicate)); } :
-                                    typeof item == 'number' ? (val: Array<any>) => {
+      indexerSpec: FuncSpecifier = typeof item == 'function' ? (val: any[]) => { return _.find(val, ((item: any): ArrayItemPredicate)); } :
+                                    typeof item == 'number' ? (val: any[]) => {
                                                                         let idx: number = ((item: any): number);
                                                                         return val.length > idx ? val[idx] : undefined;
                                                                       }  : dummy;
@@ -742,7 +742,7 @@ function partitionResults(parent: SeekInObjResultItem, searchType: SearchDirecti
     matchesThisSpecifier = isDefined(matchResult),
     matchesAllSpecifiers = matchesThisSpecifier && isLastSpecifier;
 
-    function newMatchInfo(val: mixed, key: string | number, specifiers: Array<FuncSpecifier>) : SeekInObjResultItem {
+    function newMatchInfo(val: mixed, key: string | number, specifiers: FuncSpecifier[]) : SeekInObjResultItem {
       return {parent: parent, value: val, key: key, specifiers: specifiers};
     };
 
@@ -766,16 +766,16 @@ function partitionResults(parent: SeekInObjResultItem, searchType: SearchDirecti
   };
 }
 
-function getResultValues(result: Array <SeekInObjResultItem>): Array<mixed> {
+function getResultValues(result: Array <SeekInObjResultItem>): mixed[] {
   return result.map((s: SeekInObjResultItem) => s.value);
 }
 
-export function seekInObj<T>(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?T {
+export function seekInObj<T>(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?T {
   let info = seekInObjWithInfo(target, specifier, ...otherSpecifiers);
   return info == null ? undefined : info.value;
 }
 
-export function setInObjn(target : {}, specifiers : Array <MixedSpecifier>, value: mixed): {}{
+export function setInObjn(target : {}, specifiers : MixedSpecifier[], value: mixed): {}{
   return setInObjnPrivate(false, target, specifiers, value);
 }
 
@@ -795,7 +795,7 @@ export function setInObj4(target : {}, specifier : MixedSpecifier, specifier1 : 
   return setInObjnPrivate(false, target, [specifier, specifier1, specifier2, specifier3], value);
 }
 
-function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : Array <MixedSpecifier>, value: mixed) : {} {
+function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : MixedSpecifier[], value: mixed) : {} {
 
   let [spec, ...otherSpecs] = specifiers,
       propInfo = noCheck ?  seekInObjNoCheckWithInfo(target, spec, ...otherSpecs) :  seekInObjWithInfo(target, spec, ...otherSpecs);
@@ -818,7 +818,7 @@ function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : Array <Mix
   return target;
 }
 
-export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?mixed {
+export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?mixed {
   let result = seekInObjNoCheckWithInfo(target, specifier, ...otherSpecifiers);
   return result == null ? undefined : result.value;
 }
@@ -843,7 +843,7 @@ const SEARCH_DIRECTIVE = {
 
 type SearchDirective = $Keys<typeof SEARCH_DIRECTIVE>;
 
-export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?SeekInObjResultItem {
+export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?SeekInObjResultItem {
   let allInfo = seekManyInObjWithInfo(target, specifier, ...otherSpecifiers);
   if (allInfo.length === 0){
     return undefined;
@@ -853,22 +853,22 @@ export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...ot
   }
 }
 
-export function seekInObjNoCheckWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): ?SeekInObjResultItem {
+export function seekInObjNoCheckWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?SeekInObjResultItem {
   let allInfo = seekInObjBase(target, 'singleton', specifier, ...otherSpecifiers);
   return allInfo.length === 0 ? null : allInfo[0];
 }
 
-export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
+export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): SeekInObjResultItem[] {
   return seekInObjBase(target, 'includeNested', specifier, ...otherSpecifiers);
 }
 
 export const seekAllInObj = _.flowRight([getResultValues, seekAllInObjWithInfo]); // flow issues _.flowRight(getResultValues, seekAllInObjWithInfo);
 
-export function seekManyInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
+export function seekManyInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): SeekInObjResultItem[] {
   return seekInObjBase(target, 'eachBranch', specifier, ...otherSpecifiers);
 }
 
-function seekInObjBase(target :? {}, searchType: SearchDirective, specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): Array<SeekInObjResultItem> {
+function seekInObjBase(target :? {}, searchType: SearchDirective, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): SeekInObjResultItem[] {
     if(typeof target != 'object') {
       return [];
     };

@@ -60,10 +60,10 @@ export type Element = {
   isSelected: () => boolean,
   isVisible: () => boolean,
   click: () => void,
-  setValue: (string | number | Array<string|number>) => void,
+  setValue: (string | number | (string|number)[]) => void,
   selectByVisibleText: string  => void,
   selectByValue: string  => void,
-  $$: string => Array<Element>,
+  $$: string => Element[],
   $: string => Element
 }
 
@@ -71,7 +71,7 @@ export type Element = {
 export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
 
 //$FlowFixMe
-export const SS: string => Array<Element> = s => $$(s);
+export const SS: string => Element[] = s => $$(s);
 
 /*
 ********************************************************************************
@@ -438,7 +438,7 @@ export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : S
  */
 
 
-export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelector: string): Array<Element> {
+export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelector: string): Element[] {
     let el = S(parentSelectorOrElement);
     return el.$$(manySelector);
 }
@@ -792,8 +792,8 @@ function forLabelsMapFromArray(labelLike: ElementWithForAndText[], idedEdits: {[
 
 type ElementWithForAndText =  Element & {for: string, text: string};
 type ClassifiedLabels = {
-                          forLbls: Array<ElementWithForAndText>,
-                          nonForLbls: Array<Element>
+                          forLbls: ElementWithForAndText[],
+                          nonForLbls: Element[]
                         };
 
 // label above / below Left / right / default (left the  above)
@@ -814,7 +814,7 @@ function sliceSearchModifier(str: string): [LabelSearchDirectionModifier, string
   return allModifiers.includes(modifier) ? [cast(modifier), str.slice(2) ]: ['*', str];
 }
 
-function partitionAddFor(nonEdits: Array<Element>): ClassifiedLabels {
+function partitionAddFor(nonEdits: Element[]): ClassifiedLabels {
 
   function clasifyElement(accum: ClassifiedLabels, label: Element) {
     let forTxt = label.getAttribute('for');
@@ -836,9 +836,9 @@ function partitionAddFor(nonEdits: Array<Element>): ClassifiedLabels {
 }
 
 type ElementWithPlaceHolder =  Element & {placeholder: string};
-function addPlaceHolders(edits: Array<Element>) : Array<ElementWithPlaceHolder>  {
+function addPlaceHolders(edits: Element[]) : ElementWithPlaceHolder[]  {
 
-  function addIfPlaceHolder(accum, elm) : Array<ElementWithPlaceHolder> {
+  function addIfPlaceHolder(accum, elm) : ElementWithPlaceHolder[] {
     let ph = elm.getAttribute('placeholder');
     if (ph != null){
       cast(elm).placeholder = ph;
@@ -847,7 +847,7 @@ function addPlaceHolders(edits: Array<Element>) : Array<ElementWithPlaceHolder> 
     return cast(accum);
   }
 
-  let unsorted: Array<ElementWithPlaceHolder> = edits.reduce(cast(addIfPlaceHolder), []);
+  let unsorted: ElementWithPlaceHolder[] = edits.reduce(cast(addIfPlaceHolder), []);
   return _.sortBy(unsorted, e => e.placeholder.length);
 }
 
@@ -894,12 +894,12 @@ function addLocationsAndCheckControl(locs: Element[]): ElementPlusLocIsCheckCont
                       });
 }
 
-function addLocations(locs: Array<Element>): Array<ElementPlusLoc> {
+function addLocations(locs: Element[]): ElementPlusLoc[] {
   return locs.map(addLocation);
 }
 
 type ElementPlusLocPlusText = $Subtype<Element> & {x: number, y: number, text: string}
-function addLocationsAndText(locs: Array<Element>): Array<ElementPlusLocPlusText> {
+function addLocationsAndText(locs: Element[]): ElementPlusLocPlusText[] {
   return _.sortBy(addLocations(locs).map(e => {
                                       e.text = e.getText();
                                       return e;
@@ -1012,14 +1012,14 @@ function nearestObject(targetLabel: ElementPlusLocPlusText, directionModifier: L
   }
 }
 
-function closestObject(targetLabel: ElementPlusLocPlusText, edts: Array<ElementPlusLocIsCheckControl>, directionModifier: LabelSearchDirectionModifier): Element | null {
+function closestObject(targetLabel: ElementPlusLocPlusText, edts: ElementPlusLocIsCheckControl[], directionModifier: LabelSearchDirectionModifier): Element | null {
   function chooseBestObject(bestSoFar, candidate){
     return nearestObject(targetLabel, directionModifier, candidate, bestSoFar);
   }
   return edts.reduce(chooseBestObject, null);
 }
 
-function nearestEdit(key: string, edts: Array<ElementPlusLoc>, labels: Array<ElementPlusLocPlusText>,
+function nearestEdit(key: string, edts: ElementPlusLoc[], labels: ElementPlusLocPlusText[],
                       wildcard: boolean, lblModifier: LabelSearchDirectionModifier): Element | null {
   // Note labels previously sorted by text length so will pick the match
   //with the shortest label
@@ -1051,7 +1051,7 @@ function addId(accum: {[string]: Element}, element: Element): {[string]: Element
 }
 
 export type SetterFunc = (Element, string | number | boolean) => void;
-export type FinderFunc = (key: string, editable: Array<Element>, nonEditable: ?Array<Element>) => ?Element;
+export type FinderFunc = (key: string, editable: Element[], nonEditable: ?Element[]) => ?Element;
 export type SetterValue = string | number | boolean;
 export type ValueWithFinderSetter = {
   value: SetterValue,
@@ -1060,7 +1060,7 @@ export type ValueWithFinderSetter = {
 }
 
 export function predicateToFinder(pred: (key: string, element: Element) => bool): FinderFunc {
-  return function finder(key: string, editable: Array<Element>, nonEditable: ?Array<Element>): ?Element {
+  return function finder(key: string, editable: Element[], nonEditable: ?Element[]): ?Element {
     return editable.find(element => pred(key, element));
   }
 }
@@ -1111,7 +1111,7 @@ function splitEditsNonEdits(accum: EditsNonEdits, element: Element) {
   return accum;
 }
 
-function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: () => {[string]: Element}, edits: Array<Element>, nonEdits: Array<Element>) {
+function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: () => {[string]: Element}, edits: Element[], nonEdits: Element[]) {
 
   const partitionAddForNonEdits = () => partitionAddFor(nonEdits),
         forLblMapFunc: () => {[string]: ElementWithForAndText} = () => forLabelsMapFromArray(forLabels(), idedEdits());
@@ -1125,11 +1125,11 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
       forLblMap = _.memoize(forLblMapFunc),
       sortedForTexts = _.memoize(sortedForTextsFunc);
 
-  function forLabels(): Array<ElementWithForAndText> {
+  function forLabels(): ElementWithForAndText[] {
     return partitionedForLabels().forLbls;
   }
 
-  function nonForLabels(): Array<Element> {
+  function nonForLabels(): Element[] {
     return partitionedForLabels().nonForLbls;
   }
 
@@ -1142,7 +1142,7 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
                               .value();
   }
 
-  return function defaultFinder(keyWithLabelDirectionModifier: string, edits: Array<Element>, nonEditable: Array<Element>): ?Element {
+  return function defaultFinder(keyWithLabelDirectionModifier: string, edits: Element[], nonEditable: Element[]): ?Element {
     // Ided fields and search modifiers (e.g. A~Female ~ female label above)
     let [lblModifier, key] = sliceSearchModifier(keyWithLabelDirectionModifier),
         result = idedEdits()[key],
@@ -1196,7 +1196,7 @@ function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
   }
 }
 
-function findNamedRadioGroup(searchTerm: string, edits: Array<ElementWithType>, wildCard: boolean) : Element | null {
+function findNamedRadioGroup(searchTerm: string, edits: ElementWithType[], wildCard: boolean) : Element | null {
   // string could be group name
   let atrPred = wildCard ?
                 s => s != null && wildCardMatch(s, searchTerm) :
@@ -1279,7 +1279,7 @@ export function setSelect(elementOrSelector: SelectorOrElement, visText: string)
 
 }
 
-function radioElements(containerElementOrSelector: SelectorOrElement, groupName: string | null = null, wantUniqueNameCheck: boolean = true): Array<Element> {
+function radioElements(containerElementOrSelector: SelectorOrElement, groupName: string | null = null, wantUniqueNameCheck: boolean = true): Element[] {
   let el = S(containerElementOrSelector),
       radioElements = el.$$('input[type=radio]'),
       groupNameSpecified = groupName != null;
@@ -1295,7 +1295,7 @@ function radioElements(containerElementOrSelector: SelectorOrElement, groupName:
   return radioElements;
 }
 
-function radioLabels(containerElementOrSelector: SelectorOrElement, candidateRadioElements: Array<Element>) {
+function radioLabels(containerElementOrSelector: SelectorOrElement, candidateRadioElements: Element[]) {
 
   let el = S(containerElementOrSelector),
       labels = el.$$("[for]"),
@@ -1338,7 +1338,7 @@ export function isRadioGroup(containerElementOrSelector: SelectorOrElement): boo
 }
 
 
-export function radioItemVals(containerElementOrSelector: SelectorOrElement, groupName: string | null = null) : Array<string> {
+export function radioItemVals(containerElementOrSelector: SelectorOrElement, groupName: string | null = null) : string[] {
   // type checker wants to handle nulls as well which are not realistic
   return cast(radioElements(containerElementOrSelector, groupName).map(e => e.getAttribute('value')));
 }
@@ -1590,7 +1590,7 @@ function signatureChanged(sig) {
   return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName, false), sig) : true;
 }
 
-export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => T, ...params: Array<any>): T {
+export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => T, ...params: any[]): T {
   let result;
   try {
     runClient();
@@ -1626,7 +1626,7 @@ export function zzzTestFunc() {
   return browser.getTitle();
 }
 
-export function browserEx(func: (...any) => any, ...params: Array<any>): mixed {
+export function browserEx(func: (...any) => any, ...params: any[]): mixed {
    try {
      let caller = firstTestModuleInStack();
      return browserExBase(null, caller, func, ...params);
@@ -1649,7 +1649,7 @@ function firstTestModuleInStack(): string {
   );
 }
 
-function launchSession<T>(before: (() => void) | null | string, func: (...any) => T, ...params: Array<any>): T {
+function launchSession<T>(before: (() => void) | null | string, func: (...any) => T, ...params: any[]): T {
    try {
      let caller = firstTestModuleInStack(),
      {
@@ -1666,7 +1666,7 @@ function launchSession<T>(before: (() => void) | null | string, func: (...any) =
    }
 }
 
-function rerunLoaded<T>(...params: Array<any>): T {
+function rerunLoaded<T>(...params: any[]): T {
    try {
      return interact(...params);
    }
@@ -1688,7 +1688,7 @@ function extractNamesAndSource(before: (() => void) | string | null, caller: str
   }
 }
 
-function browserExBase(before: (() => void) | null | string, caller: string, func: (...any) => any, ...params: Array<any>): mixed {
+function browserExBase(before: (() => void) | null | string, caller: string, func: (...any) => any, ...params: any[]): mixed {
   let {
       funcName,
       beforeFuncInfo,

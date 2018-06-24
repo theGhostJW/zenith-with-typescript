@@ -62,7 +62,7 @@ function check_when_text_contains_another(valState: ValState, valTime: moment$Mo
   checkTextContains(valState.when, 'another')
 }
 
-function  testItems(runConfig: RunConfig): Array<Item> {
+function  testItems(runConfig: RunConfig): Item[] {
   return [
     {
       id: 1,

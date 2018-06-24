@@ -52,7 +52,7 @@ export type CharacterEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1'
 /*
   try encodings on buiffer and return the ones that do not blow up
  */
-export function tryEncodings(buffer: any, options: Array<CharacterEncoding> = ['utf8', 'ascii', 'ucs2', 'base64', 'binary',  'hex'] ) {
+export function tryEncodings(buffer: any, options: CharacterEncoding[] = ['utf8', 'ascii', 'ucs2', 'base64', 'binary',  'hex'] ) {
 
   function decode(enc: CharacterEncoding): string {
     let result = 'DECODE ERROR';
@@ -241,7 +241,7 @@ export function subStrBetween(haystack: string, startDelim: string, endDelim: st
   return trim ? result.trim() : result;
 }
 
-export function trimChars(str: string, arChars: Array<string>): string {
+export function trimChars(str: string, arChars: string[]): string {
   ensure(!arChars.includes(''), 'Empty string passed in to trimChars char array (param: arChars) - you cannot trim an empty string');
 
   const inTrim = (char) => arChars.includes(char);
@@ -263,7 +263,7 @@ export function trimChars(str: string, arChars: Array<string>): string {
   return result;
 }
 
-export const parseCsv = (text: string, options: {[string]: string | boolean} = DEFAULT_CSV_PARSE_OPTIONS, wantAutoType: boolean = true): Array<{[string]: string}> => {
+export const parseCsv = (text: string, options: {[string]: string | boolean} = DEFAULT_CSV_PARSE_OPTIONS, wantAutoType: boolean = true): {[string]: string}[] => {
   let result = parseCsvSync(text, options);
   return wantAutoType ? autoType(result) : result;
 }
@@ -276,8 +276,8 @@ export const DEFAULT_CSV_PARSE_OPTIONS = {
                                           columns: true
                                         };
 
-export const stringToArray = (str: string): Array<string> => str.split(newLine());
-export const arrayToString = (ar: Array<string>): string => ar.join(newLine());
+export const stringToArray = (str: string): string[] => str.split(newLine());
+export const arrayToString = (ar: string[]): string => ar.join(newLine());
 
 export function trim(str: string): string {
   return _.trim(str);
@@ -305,7 +305,7 @@ const getRandomValuesFunc =
 type FieldTransformer = (val: any, key: string, obj: {[string]: any}) => any;
 type RowTransformer<T> = {[string]: any} => T;
 
-export function transformGroupedTable<T>(unTypedTable: Array<Array<{[string]: any}>>, rowTransformer: RowTransformer<T>) : Array<Array<T>> {
+export function transformGroupedTable<T>(unTypedTable: {[string]: any}[][], rowTransformer: RowTransformer<T>) : T[][] {
   return unTypedTable.map((row) => row.map(rowTransformer));
 }
 
@@ -313,78 +313,78 @@ function fieldToRowTransformer(fieldTransformer: FieldTransformer): ({[string]: 
   return (obj) => _.mapValues(obj, fieldTransformer);
 }
 
-export function stringToTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: Array<FieldTransformer>) : {[string]: Array<T>} {
+export function stringToTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : {[string]: T[]} {
   var sections = splitOnPropName(txt);
   return _.mapValues(sections, (txt) => stringToTable(txt, rowTransformer, ...fieldTransformers));
 }
 
-export function stringToGroupedTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: Array<FieldTransformer>) : {[string]: Array<Array<T>>} {
+export function stringToGroupedTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : {[string]: T[][]} {
   var sections = splitOnPropName(txt);
   return _.mapValues(sections, (txt) => stringToGroupedTable(txt, rowTransformer, ...fieldTransformers));
 }
 
 
-export function stringToTable<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: Array<FieldTransformer>) : Array<T> {
+export function stringToTable<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : T[] {
   let result = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
   result = transformGroupedTable(result, rowTransformer);
   return safeCheckedFirst(result);
 }
 
-export function stringToGroupedTableDefinedTabSize<T>(txt: string, spaceCountToTab: number = 2, rowTransformer: RowTransformer<T>, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<T>> {
+export function stringToGroupedTableDefinedTabSize<T>(txt: string, spaceCountToTab: number = 2, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : T[][] {
   let result = stringToGroupedTableLooseTypedDefinedTabSize(txt, spaceCountToTab, ...fieldTransformers);
   return transformGroupedTable(result, rowTransformer);
 }
 
-export function stringToGroupedTable<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<T>> {
+export function stringToGroupedTable<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : T[][] {
   return stringToGroupedTableDefinedTabSize(txt, 2, rowTransformer, ...fieldTransformers);
 }
 
-export function stringToTableLooseTyped(txt: string, ...fieldTransformers: Array<FieldTransformer>) : Array<{[string]: any}> {
-  let result: Array<Array<{[string]: any}>> = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
+export function stringToTableLooseTyped(txt: string, ...fieldTransformers: FieldTransformer[]) : {[string]: any}[] {
+  let result: {[string]: any}[][] = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
   return safeCheckedFirst(result);
 }
 
-function safeCheckedFirst<T>(nested: Array<Array<T>>): Array<T> {
+function safeCheckedFirst<T>(nested: T[][]): T[] {
   ensure(nested.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
   return nested.length === 0 ? [] : nested[0];
 }
 
-export function stringToGroupedTableLooseTyped(txt: string, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<{[string]: any}>> {
+export function stringToGroupedTableLooseTyped(txt: string, ...fieldTransformers: FieldTransformer[]) : {[string]: any}[][] {
   return stringToGroupedTableLooseTypedDefinedTabSize(txt, 2, ...fieldTransformers);
 }
 
 const stdLinesAndSplit = (str: string) => standardiseLineEndings(str).split(newLine());
 
-export function stringToGroupedTableLooseTypedDefinedTabSize(txt: string, spaceCountToTab: number = 2, ...fieldTransformers: Array<FieldTransformer>) : Array<Array<{[string]: any}>> {
+export function stringToGroupedTableLooseTypedDefinedTabSize(txt: string, spaceCountToTab: number = 2, ...fieldTransformers: FieldTransformer[]) : {[string]: any}[][] {
   let lines = stdLinesAndSplit(txt),
       result = linesToGroupedObjects(lines, '', spaceCountToTab).map(autoType);
 
   return applyFieldTransformers(result, fieldTransformers);
 }
 
-function applyFieldTransformers(target: Array<Array<{[string]: any}>>, fieldTransformers: Array<FieldTransformer>): Array<Array<{[string]: any}>> {
+function applyFieldTransformers(target: {[string]: any}[][], fieldTransformers: FieldTransformer[]): {[string]: any}[][] {
   let rowTrans = fieldTransformers.map(fieldToRowTransformer);
 
-  function transformRows(rows: Array<{[string]: any}>): Array<{[string]: any}> {
+  function transformRows(rows: {[string]: any}[]): {[string]: any}[] {
     return _.reduce(rowTrans, (accum, rowTrans) => accum.map(rowTrans), rows);
   }
 
   return target.map(transformRows);
 }
 
-function linesToGroupedObjects(lines: Array<string>, errorInfo: string, spaceCountToTab: number) : Array<Array<{[string]: any}>>  {
+function linesToGroupedObjects(lines: string[], errorInfo: string, spaceCountToTab: number) : {[string]: any}[][]  {
   let headAndLines = headerAndRemainingLines(lines, spaceCountToTab),
-      header: Array<string> = headAndLines.header,
-      groups: Array<Array<string>> = headAndLines.groups,
-      arrToObjs: (Array<string>) => Array<{[string]: any}> = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
-      result: Array<Array<{[string]: any}>> = _.map(groups, arrToObjs);
+      header: string[] = headAndLines.header,
+      groups: string[][]= headAndLines.groups,
+      arrToObjs: (string[]) => {[string]: any}[] = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
+      result: {[string]: any}[][] = _.map(groups, arrToObjs);
 
    return result;
 }
 
-function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: Array<string>): (Array<string>) => Array<{[string]: any}>  {
-  return (lines: Array<string>): Array<{[string]: any}> => {
-    function makeObjs(accum: Array<{}>, fields: Array<string>, idx: number): Array<{}> {
+function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: string[]): (string[]) => {[string]: any}[]  {
+  return (lines: string[]): {[string]: any}[] => {
+    function makeObjs(accum: {}[], fields: string[], idx: number): {}[] {
       ensureReturn(header.length === fields.length, errorInfo + ' row no: ' + idx +
                                             ' has incorrect number of elements expect: ' + header.length +
                                             ' actual is: ' + fields.length,
@@ -416,11 +416,11 @@ function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, 
 }
 
 type HeaderAndLines = {
-    header: Array<string>,
-    groups: Array<Array<string>>
+    header: string[],
+    groups: string[][]
 }
 
-function headerAndRemainingLines(lines: Array<string>, spaceCountToTab: number){
+function headerAndRemainingLines(lines: string[], spaceCountToTab: number){
 
   function pushGroup(accum){
     let newGroup = [];
@@ -465,9 +465,9 @@ function headerAndRemainingLines(lines: Array<string>, spaceCountToTab: number){
   }
 
   var propsAndLines = _.reduce(lines, filterLine, {
-                                            groups: ([] : Array<Array<string>>),
-                                            activeGroup: ((null: any): ?Array<string>),
-                                            props: ([] : Array<string>),
+                                            groups: ([] : string[][]),
+                                            activeGroup: ((null: any): ?string[]),
+                                            props: ([] : string[]),
                                             lastLine: '',
                                             started: false,
                                             done: false,
@@ -572,7 +572,7 @@ function splitOnPropName(txt: string) : {[string]: string}{
 
   let result = _.reduce(lines, buildSection,  {
                                           result: {},
-                                          active: (null: ?Array<string>)
+                                          active: (null: ?string[])
                                         }
                                         ).result;
 

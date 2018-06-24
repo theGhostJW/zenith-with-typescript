@@ -131,7 +131,7 @@ describe('callstackStrings', () => {
 
 describe('random ', () => {
 
-  function probTest(func: () => number, expectedVals: Array<string>) {
+  function probTest(func: () => number, expectedVals: string[]) {
     _.chain(1000)
       .times(func)
       .groupBy(_.identity)

@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 
 export type TestCaseFilter = TestFilter<FullRunConfig, FullTestConfig>;
 
-export const filters: Array<TestCaseFilter> = [
+export const filters: TestCaseFilter[] = [
     is_enabled,
     in_list,
     test_depth,

@@ -120,7 +120,7 @@ function issuesText(issues: IssuesList, valTime: string, valState: any): string 
   let nameEncountered = false,
       timestampEncountered = false;
 
-  function pushLine(accum: Array<string>, str: string) {
+  function pushLine(accum: string[], str: string) {
     if (str.includes('- name:')) {
       if (nameEncountered){
         accum.push('');
@@ -175,7 +175,7 @@ function valText(iteration: Iteration, mocked: boolean): string {
   return `validation${mocked ? ' MOCKED' : ''}:` + newLine() + padProps(result, true, '  - ');
 }
 
-function joinIssues(issues: Array<string>) {
+function joinIssues(issues: string[]) {
   return issues.length > 0 ? issues.join(', ') : 'passed';
 }
 
@@ -208,7 +208,7 @@ function deUnderscore(str: string): string {
   return replaceAll(str, '_', ' ')
 }
 
-export function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects> }): string {
+export function outOfTestError(outOfTest: { issues?: ErrorsWarningsDefects[] }): string {
   let issues = outOfTest.issues;
 
   if (issues == null){
@@ -238,7 +238,7 @@ export function outOfTestError(outOfTest: { issues?: Array<ErrorsWarningsDefects
   }
 }
 
-function toStringPairs(obj): Array<[string, string]> {
+function toStringPairs(obj): [string, string][] {
 
   let toStr = (val) => typeof val == 'object' ? replaceAll(show(val), newLine(), '') : show(val);
 
@@ -338,7 +338,7 @@ export function summaryBlock(summary: FullSummaryInfo): string {
       headerLine = `Summary - ${name}`,
       heading = majorHeaderBlock(headerLine, false);
 
-  let seekInSumm = (specifier: MixedSpecifier, ...otherSpecifiers : Array <MixedSpecifier>): string => show(seekInObj(runSummary, specifier, ...otherSpecifiers)),
+  let seekInSumm = (specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): string => show(seekInObj(runSummary, specifier, ...otherSpecifiers)),
   basic = {
     start: startTime,
     end: endTime,

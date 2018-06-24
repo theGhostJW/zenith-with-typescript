@@ -177,7 +177,7 @@ export function setSmartbearcapsLwrAddress(){
   setForm(FORM_ID, vals, setWithCaps);
 }
 
-function findById(key: string, editable: Array<Element>, nonEditable: ?Array<Element>) : ?Element {
+function findById(key: string, editable: Element[], nonEditable: ?Element[]) : ?Element {
   return editable.find(e => idAttribute(e) == key);
 }
 

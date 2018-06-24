@@ -351,7 +351,7 @@ export function consoleLogger() {
     });
 }
 
-const rawLogFilePaths: Array<string> = [];
+const rawLogFilePaths: string[] = [];
 
 // base name of a full path ~ duplicated because of load timing issues
 function fileOrFolderNameDuplicate(fullPath: string): string {
@@ -394,7 +394,7 @@ function logFileBaseDuplicate(fileName: string = ''): string {
   return path.join(projectDirDuplicate(), 'logs', fileName);
 }
 
-function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string, Array<string>] {
+function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string, string[]] {
 
   let tried = [];
   function isProjectDir(dir : string): boolean {

@@ -471,7 +471,7 @@ describe('stringToTableLooseTyped', () => {
 
   describe('simple', () => {
 
-    let actual: Array<{[string]: any}> = [];
+    let actual: {[string]: any}[] = [];
 
     before(() => {
       actual = stringToTableLooseTyped(SIMPLE_TABLE);
@@ -521,7 +521,7 @@ describe('stringToGroupedTableLooseTyped', () => {
 
   describe('simple', () => {
 
-    let actual: Array<Array<{[string]: any}>> = [];
+    let actual: {[string]: any}[][] = [];
 
     before(() => {
       actual = stringToGroupedTableLooseTyped(SIMPLE_TABLE);
@@ -546,7 +546,7 @@ describe('stringToGroupedTableLooseTyped', () => {
 
   describe('truly sectioned', () => {
 
-    let actual: Array<Array<{[string]: any}>> = [];
+    let actual: {[string]: any}[][] = [];
 
     before(() => {
       actual = stringToGroupedTableLooseTyped(SECTIONED_TABLE);

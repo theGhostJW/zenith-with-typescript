@@ -172,9 +172,9 @@ describe('fileToLines / fromLines', () => {
 
   let path: string = tempFile('lines.txt');
 
-  function roundTripTest(arr: Array<string>) {
+  function roundTripTest(arr: string[]) {
     linesToFile(arr, path);
-    let actual: Array<string>  = fileToLines(path);
+    let actual: string[]  = fileToLines(path);
     chkEq(arr, actual);
   }
 

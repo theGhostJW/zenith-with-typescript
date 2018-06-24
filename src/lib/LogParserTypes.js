@@ -29,10 +29,10 @@ export type Iteration = {|
 export type ErrorsWarningsDefects = {
   name: string,
   infoType: StateStage,
-  warnings: Array<LogEntry>,
-  errors: Array<LogEntry>,
-  type2Errors: Array<LogEntry>,
-  knownDefects: Array<LogEntry>
+  warnings: LogEntry[],
+  errors: LogEntry[],
+  type2Errors: LogEntry[],
+  knownDefects: LogEntry[]
 }
 
 export type RunElementType = 'IterationInfo' | 'OutOfTestErrors';
@@ -45,7 +45,7 @@ const STATE_STAGE = {
 
 export type StateStage = $Keys<typeof STATE_STAGE>;
 
-export type IssuesList = Array<ErrorsWarningsDefects>;
+export type IssuesList = ErrorsWarningsDefects[];
 
 export type RunSummary = {|
   runConfig: {[string]: string},
@@ -125,7 +125,7 @@ export type RunState = {|
   mocked: boolean,
   testItem: {},
   validationInfo: {},
-  passedValidators: Array<string>,
+  passedValidators: string[],
 
   testErrorLogged: boolean,
   testType2ErrorLogged: boolean,
@@ -138,9 +138,9 @@ export type RunState = {|
   iterationKnownDefectLogged: boolean,
 
 
-  validatorIssues: Array<ErrorsWarningsDefects>,
-  inTestIssues: Array<ErrorsWarningsDefects>,
-  outOfTestIssues: Array<ErrorsWarningsDefects>,
+  validatorIssues: ErrorsWarningsDefects[],
+  inTestIssues: ErrorsWarningsDefects[],
+  outOfTestIssues: ErrorsWarningsDefects[],
 
   activeIssues: ?ErrorsWarningsDefects
 |};

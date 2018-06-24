@@ -18,7 +18,7 @@ export function disconnectClient() {
   ipc.disconnect(INTERACT_SOCKET_NAME);
 }
 
-export function clientEmit(msgType: Protocol, msg?: Array<mixed> ) {
+export function clientEmit(msgType: Protocol, msg?: mixed[] ) {
   ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
@@ -40,7 +40,7 @@ export function sendClientDone() {
   clientEmit('ClientSessionDone');
 }
 
-export function sendInvocationParams(...params?: Array<mixed>) {
+export function sendInvocationParams(...params?: mixed[]) {
   clientEmit('InvocationParams', params);
 }
 

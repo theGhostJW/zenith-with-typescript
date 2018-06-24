@@ -170,7 +170,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
          logOutOfTestErrors(state);
 
 
-         let issues: Array<ErrorsWarningsDefects> = forceArray(state.inTestIssues, state.validatorIssues);
+         let issues: ErrorsWarningsDefects[] = forceArray(state.inTestIssues, state.validatorIssues);
          issues = issues.filter(i => hasIssues(i));
 
 

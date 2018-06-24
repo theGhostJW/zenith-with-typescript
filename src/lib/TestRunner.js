@@ -53,15 +53,15 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
 
 export type EndPointInfo<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
   testCase: BaseCase<R, T, I, S, V>,
-  selector?: Number |  $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean
+  selector?: Number |  $Supertype<I> | (testItem: I, fullList: I[]) => boolean
 }
 
-export function filterTestItems<FR>(testItems: Array<BaseItem>, fltr: (testItem: BaseItem, fullList: Array<BaseItem>) => boolean ): Array<BaseItem> {
+export function filterTestItems<FR>(testItems: BaseItem[], fltr: (testItem: BaseItem, fullList: BaseItem[]) => boolean ): BaseItem[] {
   let predicate = (testItem: BaseItem): boolean => fltr(testItem, testItems);
   return testItems.filter(predicate);
 }
 
-export function itemFilter<I: BaseItem>(selector?: Number |  $Supertype<I> | (testItem: I, fullList: Array<I>) => boolean): (testItem: I, fullList: Array<I>) => boolean {
+export function itemFilter<I: BaseItem>(selector?: Number |  $Supertype<I> | (testItem: I, fullList: I[]) => boolean): (testItem: I, fullList: I[]) => boolean {
   if (selector == null){
     return lastItem;
   }
@@ -81,12 +81,12 @@ export function itemFilter<I: BaseItem>(selector?: Number |  $Supertype<I> | (te
 }
 
 // endpoint item filters
-export function lastItem(testItem: BaseItem, fullList: Array<BaseItem>): boolean {
+export function lastItem(testItem: BaseItem, fullList: BaseItem[]): boolean {
   return areEqual(_.last(fullList), testItem);
 }
 
-export function matchesProps<I: BaseItem>(target: $Supertype<I>): (testItem: I, fullList: Array<BaseItem>) => boolean {
-  return function propsMatch(testItem: BaseItem, fullList: Array<BaseItem>): boolean {
+export function matchesProps<I: BaseItem>(target: $Supertype<I>): (testItem: I, fullList: BaseItem[]) => boolean {
+  return function propsMatch(testItem: BaseItem, fullList: BaseItem[]): boolean {
     return _.chain(target)
             .keys()
             .every(k => areEqual(target[k], testItem[k]))
@@ -94,15 +94,15 @@ export function matchesProps<I: BaseItem>(target: $Supertype<I>): (testItem: I, 
   }
 }
 
-export function idFilter(id: number): (testItem: BaseItem, fullList: Array<BaseItem>) => boolean {
+export function idFilter(id: number): (testItem: BaseItem, fullList: BaseItem[]) => boolean {
   return matchesProps({id: id});
 }
 
-export function allItems(testItem: BaseItem, fullList: Array<BaseItem>) {
+export function allItems(testItem: BaseItem, fullList: BaseItem[]) {
   return true;
 }
 
-export type ItemFilter<I: BaseItem> = (I, Array<I>) => boolean
+export type ItemFilter<I: BaseItem> = (I, I[]) => boolean
 
 export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
 
@@ -123,7 +123,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
 
   let filterResult = filterTests(testList, t => testConfigDefaulter(t.testConfig), testFilters, runConfig);
   logFilterLog(filterResult.log);
-  testList = ((filterResult.items: any): Array<NamedCase<R, T, *, *, *>>);
+  testList = ((filterResult.items: any): NamedCase<R, T, *, *, *>[]);
 
   logStartRun(runName, runConfig);
   try {
@@ -186,13 +186,13 @@ export type BaseRunConfig = {
 export type TestFilter<FR, FT> = (string, FT, FR) => boolean;
 
 export type RunParams<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, FT: BaseTestConfig> = {|
-  testList: Array<NamedCase<R, T, *, *, *>>,
+  testList: NamedCase<R, T, *, *, *>[],
   runConfig: R,
   testConfigDefaulter: T => FT,
   runConfigDefaulter: R => FR,
   testRunner: TestRunner<FR, FT>,
   itemRunner: ItemRunner<FR, *>,
-  testFilters: Array<TestFilter<FR, FT>>,
+  testFilters: TestFilter<FR, FT>[],
   mockFileNameGenerator: (itemId: ?number, testName: string, runConfig: R) => string
 |}
 
@@ -217,7 +217,7 @@ export type BaseCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
   prepState: (S, I, R) => V,
   summarise: (runConfig: R, item: I, apState: S, valState: V) => string | null,
   mockFileName?: (item: I, runConfig: R) => string,
-  testItems: (runConfig: R) => Array<I>
+  testItems: (runConfig: R) => I[]
 }
 
 export type BaseItem = $Subtype<ItemRequired>;
@@ -271,7 +271,7 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): NamedCase<R, T, 
   return cast(allCases);
 }
 
-function runValidators<V>(validators: GenericValidator<V> | Array<GenericValidator<V>>, valState: V, valTime: moment$Moment) {
+function runValidators<V>(validators: GenericValidator<V> | GenericValidator<V>[], valState: V, valTime: moment$Moment) {
   validators = forceArray(validators);
   function validate(validator){
     let currentValidator = functionNameFromFunction(validator);
@@ -382,11 +382,11 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
 }
 
 export type FilterResult<C> = {
-  items: Array<C>,
+  items: C[],
   log: {[string]: string}
 }
 
-export function filterTests<T, TC, R>(testCases: Array<NamedPathedObj<T>>, configExtractor: T => TC, predicates: Array<(string, TC, R) => boolean>, runConfig: R): FilterResult<T> {
+export function filterTests<T, TC, R>(testCases: NamedPathedObj<T>[], configExtractor: T => TC, predicates: ((string, TC, R) => boolean)[], runConfig: R): FilterResult<T> {
 
   let predicateNames = predicates.map(functionNameFromFunction);
 

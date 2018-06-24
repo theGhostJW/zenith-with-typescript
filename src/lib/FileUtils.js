@@ -192,8 +192,8 @@ export const listFolders = (baseDir: string) => listPaths(baseDir, false);
 export const listFiles = (baseDir: string) => listPaths(baseDir, true);
 
 
-function listPaths(baseDir: string, wantFiles: boolean) : Array<string> {
-  let result : Array<string> = [],
+function listPaths(baseDir: string, wantFiles: boolean) : string[] {
+  let result : string[] = [],
       pushIt = (name : string, path: string) => {result.push(path);};
 
   if (wantFiles) {
@@ -381,11 +381,11 @@ export function stringToFile(str : string, path : string, encoding : CharacterEn
   return path;
 }
 
-export function fileToLines(path : string, encoding : CharacterEncoding = 'utf8') : Array<string> {
+export function fileToLines(path : string, encoding : CharacterEncoding = 'utf8') : string[] {
   return fs.readFileSync(path, encoding).split(newLine());
 }
 
-export function linesToFile(lines : Array<string>, path : string, encoding : CharacterEncoding = 'utf8') {
+export function linesToFile(lines : string[], path : string, encoding : CharacterEncoding = 'utf8') {
   fs.writeFileSync(path, lines.join(newLine()), encoding);
 }
 
@@ -441,7 +441,7 @@ export function seekFolder(startFileOrFolder : string, pathPredicate : (path : s
 
 export function pathExists(path : string) : boolean {return fs.existsSync(path);}
 
-function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string, Array<string>] {
+function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string, string[]] {
 
   let tried = [];
   function isProjectDir(dir : string): boolean {
