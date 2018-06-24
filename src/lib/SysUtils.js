@@ -295,7 +295,7 @@ export function setParts<T>(arLeftSet: T[], arRightSet: T[]): [T[], T[], T[]] {
 }
 
 
-export function forceT[](...args: (T[] | T)[] ): T[] {
+export function forceArray<T>(...args: (T[]|T)[] ): T[] {
 
   function forceArraySingleVal(val){
      return isUndefined(val) ? [] :
