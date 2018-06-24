@@ -18,6 +18,34 @@ import * as _ from 'lodash';
 import { defaultLogParser } from '../lib/LogParser'
 import * as webLauncher from '../lib/WebLauncher';
 
+// think about this later ~ complications around web
+// need to some how build go home logic into interactor
+// start by registering restart
+export type Restart = {
+  rollOver: () => void,
+  goHome: () => void,
+  isHome: () => boolean,
+}
+
+export function doNothingRestart(): Restart {
+  return {
+    rollOver: () => undefined,
+    goHome: () =>  undefined,
+    isHome: () => true
+  };
+}
+
+//
+// function executeRestart(includeRollover: boolean, restart: Restart) {
+//   function executeStage<T>(stage: string, func: () => T) : T {
+//     try {
+//       log('')
+//     } catch (e) {
+//
+//     }
+//   }
+// }
+
 export type MockFileNameFunction<R> = (itemId: ?number, testName: string, runConfig: R) => string
 
 const WEB_FILE_FRAGMENT = '.web.';
@@ -35,6 +63,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
 
     if (webUI && !canMockAllWebUi) {
       webLauncher.launchWebInteractor(testCase.path, null, 'interactor', false);
+
       try {
         itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
       } catch (e) {
@@ -42,7 +71,6 @@ export function defaultTestRunner(itemFilter?: ItemFilter<*>){
       } finally {
         webLauncher.stopSession()
       }
-
 
     } else {
       itemList.forEach((item) => itemRunner(testCase, runConfig, item, mockFileNameFunc));
@@ -163,25 +191,6 @@ export type BaseRunConfig = {
   name: string,
   mocked: boolean
 }
-
-// think about this later ~ complications around web
-// need to some how build go home logic into interactor
-// start by registering restart
-// export type Restart = {
-//   rollOver: () => void,
-//   goHome: () => void,
-//   isHome: () => boolean,
-// }
-//
-// function executeRestart(includeRollover: boolean, restart: Restart) {
-//   function executeStage<T>(stage: string, func: () => T) : T {
-//     try {
-//       log('')
-//     } catch (e) {
-//
-//     }
-//   }
-// }
 
 export type TestFilter<FR, FT> = (string, FT, FR) => boolean;
 
