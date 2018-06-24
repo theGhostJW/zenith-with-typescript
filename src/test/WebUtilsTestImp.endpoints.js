@@ -63,7 +63,7 @@ describe('Table Utils', () => {
 
   describe('cell', () => {
 
-    it.only('first record', () => {
+    it('first record', () => {
       let params = {
                      Product: 'ScreenSaver',
                       Zip: 748
@@ -173,7 +173,8 @@ describe('setForm', () => {
      // chkEq(expected, actual)
   });
 
-  // Radio set by group name
+
+  // FRAMEWORK DEMO
   it('setForm ~ FORLABELS', () => {
     let input = FORM_INPUT_FOR_LABELS;
     rerun(smartbearOrders, setForm, FORM_ID, input);
@@ -202,7 +203,8 @@ describe('setForm', () => {
 
 });
 
-describe('getForm', () => {
+// FRAMEWORK DEMO
+describe.only('getForm', () => {
   it('getForm - orders', () => {
     rerun(smartbearOrders, getForm, FORM_ID);
   });

@@ -26,6 +26,9 @@
 
 //************************** Motivation ***************************
 
+// FRAMEWORK DEMO
+// + yarn run testCoverage and look in coverage for html
+// + endpoints ~ WebUtilsTestImp.endpoints.js
 function fullName(given, last) {
   if (given === 'John'){
     return given + ' The Rampaging Bunny ' + last;
