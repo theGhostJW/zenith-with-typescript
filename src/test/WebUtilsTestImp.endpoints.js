@@ -175,7 +175,7 @@ describe('setForm', () => {
 
 
   // FRAMEWORK DEMO
-  it('setForm ~ FORLABELS', () => {
+  it.only('setForm ~ FORLABELS', () => {
     let input = FORM_INPUT_FOR_LABELS;
     rerun(smartbearOrders, setForm, FORM_ID, input);
   });
@@ -204,7 +204,7 @@ describe('setForm', () => {
 });
 
 // FRAMEWORK DEMO
-describe.only('getForm', () => {
+describe('getForm', () => {
   it('getForm - orders', () => {
     rerun(smartbearOrders, getForm, FORM_ID);
   });
