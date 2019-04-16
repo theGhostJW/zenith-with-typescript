@@ -66,14 +66,19 @@ const PROJECT_PATH : string = 'C:\\ZWTF',
 
 describe('fileLastModified', () => {
 
-  it('simple', () => {
+  it.only('simple', () => {
     let time = now(),
         dir = forceDirectory(combine(tempFile(), createGuidTruncated(10))),
         fileOne = stringToFile('dfhfjhds', combine(dir, 'file.txt')),
         modTime = fileLastModified(fileOne);
         // burn some millisecs
-        stringToFile('dfhfjhds', combine(dir, 'file.txt'));
-        let afterTime = now();
+    stringToFile('dfhfjhds', combine(dir, 'file.txt'));
+    
+    let 
+      afterTime = now();
+
+    debug(time);
+    debug(afterTime);
 
     chk(time.isBefore(modTime));
     chk(modTime.isBefore(afterTime));

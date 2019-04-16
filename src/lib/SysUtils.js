@@ -525,19 +525,20 @@ export function cast<T>(targ: any): T {
 }
 
 let debugSink : string => void = s => sendWebUIDebugMessage(s) ? undefined : console.log(s);
+let callOrVal : <T>(T | () => T) => T = msg => typeof msg === 'function' ? cast(msg)() : cast(msg);
 
 export function debugStk<T>(msg: T | () => T, label: string = 'DEBUG'): T {
-  let msgStr = typeof msg == 'function' ? msg() : msg;
+  let msgStr = callOrVal(msg);
   debugSink(appendDelim(_.toUpper(label), ': ', show(msgStr)) + newLine()  + '=========================' + newLine()  +
                                                                       callstackStrings().join(', ' + newLine()) + newLine()  +
                                                                       '=========================') ;
-  return msgStr;
+  return cast(msgStr);
 }
 
 export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
-  let msgStr = typeof msg == 'function' ? msg() : msg;
+  let msgStr = callOrVal(msg);
   debugSink(appendDelim(label, ': ', show(msgStr)));
-  return msgStr;
+  return cast(msgStr);
 }
 
 export function def <T> (val : ?T, defaultVal: T): T {

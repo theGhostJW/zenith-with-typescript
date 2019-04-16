@@ -124,11 +124,11 @@ function readLogCell(cell: Element, rowIndex: number, colIndex: number, row: Ele
  return rslt;
 }
 
-export function mapCellsSimpleLog(selector: string) {
+export function mapCellsSimpleLog<T>(selector: string) : string [][] {
   return mapCellsSimple(selector, readLogCell, false);
 }
 
-export function mapCellsSimpleLogNoInvisibles(selector: string) {
+export function mapCellsSimpleLogNoInvisibles<T>(selector: string): string [][] {
   return mapCellsSimple(selector, readLogCell);
 }
 
