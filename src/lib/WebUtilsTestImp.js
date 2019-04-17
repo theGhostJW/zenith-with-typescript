@@ -139,11 +139,11 @@ function readHeadedLogCell(cell: Element, colTitle: string, rowIndex: number, co
  return rslt;
 }
 
-export function mapCellsLogNoInvisibles(selector: string) {
+export function mapCellsLogNoInvisibles(selector: string): string [][] {
   return mapCells(selector, readHeadedLogCell);
 }
 
-export function mapCellsLog(selector: string) {
+export function mapCellsLog(selector: string): string [][] {
   return mapCells(selector, readHeadedLogCell, false);
 }
 

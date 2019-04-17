@@ -364,7 +364,7 @@ function fileWriter(destPath: string){
          iStr = (arrayLineSeparator ? newLine() : '') + iStr + '- ';
          nStr = nStr + '  ';
        }
-       str = _.map(str.split(newLine()), (s, i) => (i === 0 ? iStr : nStr) + s).join(newLine());
+       str = _.map(str.split(newLine()), (s, i : number) => (i === 0 ? iStr : nStr) + s).join(newLine());
      }
 
      //$FlowFixMe

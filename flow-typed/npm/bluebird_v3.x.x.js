@@ -1,5 +1,5 @@
-// flow-typed signature: bfa7d48ab09e276a17cfaf9654244b0a
-// flow-typed version: da30fe6876/bluebird_v3.x.x/flow_>=v0.47.x
+// flow-typed signature: 9fffa8c024100c66306c9956875e8df1
+// flow-typed version: 34fbdaa6f3/bluebird_v3.x.x/flow_>=v0.70.x
 
 type Bluebird$RangeError = Error;
 type Bluebird$CancellationErrors = Error;
@@ -54,11 +54,17 @@ declare type $Promisable<T> = Promise<T> | T;
 declare class Bluebird$Disposable<R> {}
 
 declare class Bluebird$Promise<+R> extends Promise<R> {
+  static RangeError: Class<Bluebird$RangeError>;
+  static CancellationErrors: Class<Bluebird$CancellationErrors>;
+  static TimeoutError: Class<Bluebird$TimeoutError>;
+  static RejectionError: Class<Bluebird$RejectionError>;
+  static OperationalError: Class<Bluebird$OperationalError>;
+
   static Defer: Class<Bluebird$Defer>;
   static PromiseInspection: Class<Bluebird$PromiseInspection<*>>;
 
-  static all<T, Elem: $Promisable<T>>(
-    Promises: Iterable<Elem> | $Promisable<Iterable<Elem>>
+  static all<T>(
+    Promises: $Promisable<Iterable<$Promisable<T>>>
   ): Bluebird$Promise<Array<T>>;
   static props(
     input: Object | Map<*, *> | $Promisable<Object | Map<*, *>>
@@ -173,7 +179,7 @@ declare class Bluebird$Promise<+R> extends Promise<R> {
   ): (...args: any) => Bluebird$Promise<T>;
 
   static cast<T>(value: $Promisable<T>): Bluebird$Promise<T>;
-  //static bind(ctx: any): Bluebird$Promise<void>;
+  // static bind(ctx: any): Bluebird$Promise<void>;
   static is(value: any): boolean;
   static longStackTraces(): void;
 
@@ -186,14 +192,21 @@ declare class Bluebird$Promise<+R> extends Promise<R> {
   constructor(
     callback: (
       resolve: (result?: $Promisable<R>) => void,
-      reject: (error?: any) => void
+      reject: (error?: any) => void,
+      onCancel?: (fn?: () => void) => void,
     ) => mixed
   ): void;
+  then(onFulfill: null | void, onReject: null | void): Bluebird$Promise<R>;
   then<U>(
-    onFulfill?: (value: R) => $Promisable<U>,
-    onReject?: (error: any) => $Promisable<U>
+    onFulfill: null | void,
+    onReject: (error: any) => Promise<U> | U
+  ): Bluebird$Promise<R | U>;
+  then<U>(
+    onFulfill: (value: R) => Promise<U> | U,
+    onReject: null | void | ((error: any) => Promise<U> | U)
   ): Bluebird$Promise<U>;
-
+  catch(onReject: null | void): Promise<R>;
+  catch<U>(onReject?: (error: any) => $Promisable<U>): Bluebird$Promise<U>;
   catch<U, ErrorT: Error>(
     err: Class<ErrorT>,
     onReject: (error: ErrorT) => $Promisable<U>
@@ -209,7 +222,6 @@ declare class Bluebird$Promise<+R> extends Promise<R> {
     err3: Class<ErrorT>,
     onReject: (error: ErrorT) => $Promisable<U>
   ): Bluebird$Promise<U>;
-  catch<U>(onReject?: (error: any) => $Promisable<U>): Bluebird$Promise<U>;
   caught<U, ErrorT: Error>(
     err: Class<ErrorT>,
     onReject: (error: Error) => $Promisable<U>
@@ -239,7 +251,7 @@ declare class Bluebird$Promise<+R> extends Promise<R> {
   timeout(ms: number, message?: string): Bluebird$Promise<R>;
   cancel(): void;
 
-  bind(ctx: any): Bluebird$Promise<R>;
+  // bind(ctx: any): Bluebird$Promise<R>;
   call(propertyName: string, ...args: Array<any>): Bluebird$Promise<any>;
   throw(reason: Error): Bluebird$Promise<R>;
   thenThrow(reason: Error): Bluebird$Promise<R>;
@@ -300,6 +312,8 @@ declare class Bluebird$Promise<+R> extends Promise<R> {
     disposable: Bluebird$Disposable<T>,
     handler: (value: T) => $Promisable<A>
   ): Bluebird$Promise<A>;
+
+  suppressUnhandledRejections(): void;
 }
 
 declare class Bluebird$Defer {

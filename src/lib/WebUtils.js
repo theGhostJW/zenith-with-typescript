@@ -347,7 +347,9 @@ function generateColMap(row: Element) : {[number]: string} {
   return _.reduce(cells, addCol, {});
 }
 
-export const mapCells = <T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true) => mapCellsPriv(tableSelector, cellFunc, visibleOnly);
+export function mapCells<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true): T[][] {
+  return mapCellsPriv(tableSelector, cellFunc, visibleOnly);
+} 
 
 // Does not allow for invisible first row
 function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true, maybeColMap: ?{[number]: string}): T[][] {
