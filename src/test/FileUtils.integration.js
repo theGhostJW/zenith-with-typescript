@@ -7,6 +7,7 @@ import type { LogAttributes } from '../lib/Logging';
 
 import {chk, chkEq, chkEqJson, chkFalse, chkHasText, chkWithMessage} from '../lib/AssertionUtils';
 import { now } from '../lib/DateTimeUtils';
+import { delay } from '../lib/SysUtils';
 import {
   clearDirectory,
   combine,
@@ -58,30 +59,23 @@ import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { createGuidTruncated, hasText } from '../lib/StringUtils';
 import { areEqual, debug } from '../lib/SysUtils';
 
-
-const PROJECT_PATH : string = 'C:\\ZWTF',
-      SOURCE_DIR: string = 'C:\\ZWTF\\src',
+// Assumes local dir is ZenithFlow
+const PROJECT_PATH : string = 'C:\\ZenithFlow',
+      SOURCE_DIR: string = PROJECT_PATH + '\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
-
 
 describe('fileLastModified', () => {
 
-  it.only('simple', () => {
-    let time = now(),
-        dir = forceDirectory(combine(tempFile(), createGuidTruncated(10))),
+  it('simple', () => {
+    let dir = forceDirectory(combine(tempFile(), createGuidTruncated(10))),
         fileOne = stringToFile('dfhfjhds', combine(dir, 'file.txt')),
         modTime = fileLastModified(fileOne);
         // burn some millisecs
-    stringToFile('dfhfjhds', combine(dir, 'file.txt'));
+    delay(1);
+    stringToFile('modified', fileOne);
     
-    let 
-      afterTime = now();
-
-    debug(time);
-    debug(afterTime);
-
-    chk(time.isBefore(modTime));
-    chk(modTime.isBefore(afterTime));
+    let modTime2 = fileLastModified(fileOne);
+    chk(modTime.isBefore(modTime2));
   });
 
 });
