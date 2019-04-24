@@ -47,6 +47,13 @@
     deepmerge "^2.0.1"
     glob "^7.1.2"
 
+"@wdio/dot-reporter@^5.7.8":
+  version "5.7.8"
+  resolved "https://registry.yarnpkg.com/@wdio/dot-reporter/-/dot-reporter-5.7.8.tgz#1c0806e66a2ee355da325b11f25886711489078d"
+  dependencies:
+    "@wdio/reporter" "^5.7.8"
+    chalk "^2.3.0"
+
 "@wdio/local-runner@^5.7.15":
   version "5.7.15"
   resolved "https://registry.yarnpkg.com/@wdio/local-runner/-/local-runner-5.7.15.tgz#87ccff83694c535fa5a2651715d94fc3bf6a18d6"
@@ -71,6 +78,12 @@
   resolved "https://registry.yarnpkg.com/@wdio/repl/-/repl-5.7.13.tgz#3bd636e0e6abfebac52ffcc5886029a5db955a91"
   dependencies:
     "@wdio/config" "^5.7.13"
+
+"@wdio/reporter@^5.7.8":
+  version "5.7.8"
+  resolved "https://registry.yarnpkg.com/@wdio/reporter/-/reporter-5.7.8.tgz#41a6efaeda7403050c15283a9b51e2bb4bad6f77"
+  dependencies:
+    fs-extra "^7.0.1"
 
 "@wdio/runner@^5.7.15":
   version "5.7.15"
@@ -4919,10 +4932,6 @@ verror@1.10.0:
 vhost@~3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/vhost/-/vhost-3.0.2.tgz#2fb1decd4c466aa88b0f9341af33dc1aff2478d5"
-
-wdio-dot-reporter@^0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/wdio-dot-reporter/-/wdio-dot-reporter-0.0.10.tgz#facfb7c9c5984149951f59cbc3cd0752101cf0e0"
 
 wdio-mocha-framework@^0.6.4:
   version "0.6.4"
