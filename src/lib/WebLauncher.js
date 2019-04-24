@@ -21,7 +21,7 @@ import * as _ from 'lodash';
 import request from 'sync-request';
 
 import * as ipc from 'node-ipc';
-import * as wd from 'webdriverio';
+import Launcher from '@wdio/cli';
 import * as fs from 'file-system';
 import child_process from 'child_process';
 
@@ -116,7 +116,7 @@ export function startWdioServer(config: {}) {
     let failed = false;
     startSeleniumServerOnce();
     //$FlowFixMe
-    let wdio = new wd.Launcher('.\\wdio.conf.js', config);
+    let wdio = new Launcher('.\\wdio.conf.js', config);
     log('Launching file: ' + cast(config).specs.join(', '));
     wdio.run().then(function (code) {
       if (code != 0){
