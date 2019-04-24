@@ -46,7 +46,9 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
       title = 'NO URL IN ITEM - TITLE IS N/A';
 
   if (url != null){
-    browser.url(url),
+    log("Going url:" + url);
+    browser.url(url);
+    log("Gone:" + url)
     title = browser.getTitle();
   }
 
