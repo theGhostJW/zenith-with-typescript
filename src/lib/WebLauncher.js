@@ -52,7 +52,7 @@ export function interact<T>(...params?: mixed[]): T {
     clearInvocationResponse();
     sendInvocationParams(...params);
     log('Waiting interaction response');
-    let complete = waitRetry(() => invocationResponse() != null, 600000),
+    let complete = waitRetry(() => invocationResponse() != null, 20000),
         result: T = invocationResponse() == null ? fail('Interactor Timeout Error') : cast(invocationResponse());
     return result
   } catch (e) {
@@ -114,7 +114,7 @@ function launchWdioClientAndServer(config: {}) {
 export function startWdioServer(config: {}) {
   try {
     let failed = false;
-    startSeleniumServerOnce();
+    //startSeleniumServerOnce();
     //$FlowFixMe
     let wdio = new Launcher('.\\wdio.conf.js', config);
     log('Launching file: ' + cast(config).specs.join(', '));

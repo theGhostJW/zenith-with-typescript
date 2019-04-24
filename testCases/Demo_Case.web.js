@@ -42,6 +42,7 @@ type ValState = {|
 |}
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
+  log("starting");
   let url = item.url,
       title = 'NO URL IN ITEM - TITLE IS N/A';
 
