@@ -21,6 +21,7 @@ import * as _ from 'lodash';
 import request from 'sync-request';
 
 import * as ipc from 'node-ipc';
+//$FlowFixMe
 import Launcher from '@wdio/cli';
 import * as fs from 'file-system';
 import child_process from 'child_process';

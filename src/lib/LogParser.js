@@ -695,6 +695,7 @@ function filterLog(str: string) {
 
 export function defaultLogParser<R>(mockFileNameGenerator: (itemId: ?number, testName: string, runConfig: R) => string) {
   return function parseLogDefault(fullPath: string): FullSummaryInfo {
+    debug(fullPath, "DEBUG FULL PATH")
     let fullSummary: FullSummaryInfo = {
       rawFile: '',
       elementsFile: '',
@@ -720,6 +721,7 @@ function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => 
 
     let yml = false;
     try {
+      debug(str, "Yamilisation");
       let entry = yamlToObj(str);
 
       yml = true;
