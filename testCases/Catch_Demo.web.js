@@ -43,9 +43,11 @@ type DState = {|
   title: string
 |}
 
+const catchUrl : string = "https://www.catch.com.au/";
+
 export function interactor(item: Item, runConfig: RunConfig): ApState {
   log("starting");
-  let url = item.url,
+  let url = catchUrl,
       title = 'NO URL IN ITEM - TITLE IS N/A',
       actualUrl = 'NO URL IN ITEM - URL IS N/A';
 
