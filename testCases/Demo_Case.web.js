@@ -56,7 +56,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
     delay(5000);
     title = browser.getTitle();
     actualUrl = browser.getUrl();
-    // change 3 - console.log(title);
     log(title);
   }
 

@@ -59,7 +59,6 @@ const ZWTF_USES = trimLines(`
 `);
 
 const NPM_USES = trimLines(`
-  // change 2 -- remove below import * as wd from '@wdio/sync';
   import * as wd from 'webdriverio';
   import * as ipc from 'node-ipc';
   import * as _ from 'lodash';
