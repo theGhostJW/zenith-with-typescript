@@ -14,7 +14,6 @@ import * as mkdirp from 'mkdirp';
 import type { Protocol } from './SeleniumIpcProtocol';
 import { emitMessageIfSocketAssigned } from './SeleniumIpcServer';
 
-
 // may have issues loading so duplicated from FileUtils
 function combineDuplicate(root : string, ...childPaths : Array < string >) {
   return path.join(root, ...childPaths);
@@ -324,7 +323,7 @@ function newWinstton() {
 
   forceDirectoryDuplicate(subDir);
 
-  let isWebDriverProcess = hasText(process.mainModule.filename, 'webdriverio');
+  let isWebDriverProcess = hasText(process.mainModule.filename, '@wdio');
   return new (winston.Logger)({
     transports: isWebDriverProcess ? [ ipcLogger() ] : [
                                                         consoleLogger(),
