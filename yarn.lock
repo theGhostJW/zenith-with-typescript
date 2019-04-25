@@ -96,6 +96,14 @@
     gaze "^1.1.2"
     webdriverio "^5.7.15"
 
+"@wdio/sync@^5.7.13":
+  version "5.7.13"
+  resolved "https://registry.yarnpkg.com/@wdio/sync/-/sync-5.7.13.tgz#4f6651c011ecd6b99858f4795243ae2c519e0d20"
+  dependencies:
+    "@wdio/config" "^5.7.13"
+    "@wdio/logger" "^5.7.8"
+    fibers "^3.1.1"
+
 "@wdio/utils@^5.7.8":
   version "5.7.8"
   resolved "https://registry.yarnpkg.com/@wdio/utils/-/utils-5.7.8.tgz#e1a4ebd243cc3fb2a948c23904a56d1d6187757d"
@@ -1976,7 +1984,7 @@ fd-slicer@~1.1.0:
   dependencies:
     pend "~1.2.0"
 
-fibers@^3.0.0:
+fibers@^3.0.0, fibers@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/fibers/-/fibers-3.1.1.tgz#0238902ca938347bd779523692fbeefdf4f688ab"
   dependencies:

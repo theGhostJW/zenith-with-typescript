@@ -86,6 +86,10 @@ export function defaultConfig(): {} {
     // If you only want to run your tests until a specific amount of tests have failed use
     
     // FROM OLD
+    // By default WebdriverIO commands are executed in a synchronous way using
+    // the wdio-sync package. If you still want to run your tests in an async way
+    // e.g. using promises you can set the sync option to false.
+    // change 1 -- sync: true,
     // Enables colors for log output.
     coloredLogs: true,
     //

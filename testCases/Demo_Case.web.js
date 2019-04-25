@@ -2,7 +2,7 @@
 
 import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
-import { debug, fail, waitRetry } from '../src/lib/SysUtils';
+import { debug, fail, waitRetry, delay } from '../src/lib/SysUtils';
 import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
 import { toTempString } from '../src/lib/FileUtils';
 import { show } from '../src/lib/StringUtils';
@@ -33,29 +33,36 @@ export type Item = {|
 
 export type ApState = {|
   id: number,
+  url: string,
   observation: string
 |}
 
 type ValState = {|
   id: number,
+  url: string,
   title: string
 |}
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
   log("starting");
   let url = item.url,
-      title = 'NO URL IN ITEM - TITLE IS N/A';
+      title = 'NO URL IN ITEM - TITLE IS N/A',
+      actualUrl = 'NO URL IN ITEM - URL IS N/A';
 
   if (url != null){
     log("Going url:" + url);
     browser.url(url);
-    log("Gone:" + url)
+    log("Gone:" + url);
+    delay(5000);
     title = browser.getTitle();
-    log(t);
+    actualUrl = browser.getUrl();
+    // change 3 - console.log(title);
+    log(title);
   }
 
   return {
     id: item.id,
+    url: actualUrl,
     observation: title
   }
 }
@@ -63,6 +70,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
 function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState {
   return {
     id: apState.id,
+    url: apState.url,
     title: apState.observation
   }
 }
