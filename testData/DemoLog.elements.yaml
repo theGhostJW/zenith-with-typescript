@@ -41,7 +41,7 @@ item:
   then: i get the result
   validators: check_has_another
 mocked: false
-valState:
+dState:
   when: I run a test
 apState:
   id: 3456789
@@ -135,7 +135,7 @@ item:
   then: i get another result
   validators: check_has_another
 mocked: false
-valState:
+dState:
   when: I run another test
 apState: {}
 passedValidators:
@@ -191,7 +191,7 @@ item:
     - check_with_disabled_expectation
     - check_with_incorrect_disabled_expectation
 mocked: false
-valState:
+dState:
   id: 1
 apState: {}
 passedValidators:
@@ -283,7 +283,7 @@ item:
     - check_less_than_2
     - check_less_than_3
 mocked: false
-valState:
+dState:
   id: 2
 apState: {}
 passedValidators:
@@ -360,7 +360,7 @@ item:
   then: i get another result
   validators: check_bad_validator
 mocked: false
-valState:
+dState:
   id: 3
 apState: {}
 passedValidators: []
@@ -430,7 +430,7 @@ item:
   then: i get another result
   validators: check_bad_validator
 mocked: false
-valState: ''
+dState: ''
 apState: {}
 passedValidators: []
 issues:
@@ -523,7 +523,7 @@ item:
   then: i get the result
   validators: check_has_another
 mocked: false
-valState: ''
+dState: ''
 apState: {}
 passedValidators: []
 issues:

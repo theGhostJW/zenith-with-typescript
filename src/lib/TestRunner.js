@@ -218,13 +218,13 @@ export function register<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>
   allCases.push(namedCase);
 }
 
-export type GenericValidator<V> = (valState: V, valTime: moment$Moment) => void
+export type GenericValidator<V> = (dState: V, valTime: moment$Moment) => void
 
 export type BaseCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
   testConfig: T,
   interactor: (item: I, runConfig: R) => S,
   prepState: (S, I, R) => V,
-  summarise: (runConfig: R, item: I, apState: S, valState: V) => string | null,
+  summarise: (runConfig: R, item: I, apState: S, dState: V) => string | null,
   mockFileName?: (item: I, runConfig: R) => string,
   testItems: (runConfig: R) => I[]
 }
@@ -280,13 +280,13 @@ export function loadAll<R: BaseRunConfig, T: BaseTestConfig>(): NamedCase<R, T, 
   return cast(allCases);
 }
 
-function runValidators<V>(validators: GenericValidator<V> | GenericValidator<V>[], valState: V, valTime: moment$Moment) {
+function runValidators<V>(validators: GenericValidator<V> | GenericValidator<V>[], dState: V, valTime: moment$Moment) {
   validators = forceArray(validators);
   function validate(validator){
     let currentValidator = functionNameFromFunction(validator);
     logStartValidator(currentValidator);
     try {
-      validator(valState, valTime);
+      validator(dState, valTime);
     } catch (e) {
       throw('Exception thrown in validator: ' + currentValidator + newLine() + show(e));
     }
@@ -337,7 +337,7 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
  logStartIteration(item.id, testName, item.when, item.then, validatorsToString(item));
  try {
     let apState: S,
-        valState: V,
+        dState: V,
         continu = true,
         useMock = canUseMock(baseCase, runConfig, item, mockFileNameFunc),
         valTime,
@@ -361,21 +361,21 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
                         () => logEndInteraction(apState, useMock),
                         continu);
 
-    continu = exStage(() => {valState = baseCase.prepState(apState, item, runConfig)},
+    continu = exStage(() => {dState = baseCase.prepState(apState, item, runConfig)},
                               'Preparing Validation Info',
                               logPrepValidationInfoStart,
-                              () => logPrepValidationInfoEnd(valState),
+                              () => logPrepValidationInfoEnd(dState),
                               continu);
 
-    continu = exStage(() => runValidators(item.validators, valState, valTime),
+    continu = exStage(() => runValidators(item.validators, dState, valTime),
                               'Running Validators',
-                              () => logValidationStart(valTime, valState),
+                              () => logValidationStart(valTime, dState),
                               logValidationEnd,
                               continu);
 
     let summary = '';
     continu = exStage(() => {
-                              summary = def(baseCase.summarise(runConfig, item, apState, valState), 'NULL')
+                              summary = def(baseCase.summarise(runConfig, item, apState, dState), 'NULL')
                             },
                             'Generating Summary',
                             logStartIterationSummary,

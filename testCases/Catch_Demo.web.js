@@ -28,7 +28,7 @@ export type Item = {|
   when: string,
   then: string,
   data?: string,
-  validators: Validators<ValState>
+  validators: Validators<DState>
 |}
 
 export type ApState = {|
@@ -37,7 +37,7 @@ export type ApState = {|
   observation: string
 |}
 
-type ValState = {|
+type DState = {|
   id: number,
   url: string,
   title: string
@@ -62,7 +62,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   }
 }
 
-function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState {
+function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
   return {
     id: apState.id,
     url: apState.url,
@@ -70,7 +70,7 @@ function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState
   }
 }
 
-function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string | null {
+function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
   return null;
 }
 
@@ -78,27 +78,27 @@ function mockFilename(item: Item, runConfig: RunConfig) {
   return '';
 }
 
-function check_id_less_than_2(valState: ValState, valTime: moment$Moment) {
+function check_id_less_than_2(dState: DState, valTime: moment$Moment) {
   expectDefect('should fail');
-  check(valState.id < 2, 'expect less than 2', `${valState.id} should be less than 2`);
+  check(dState.id < 2, 'expect less than 2', `${dState.id} should be less than 2`);
   endDefect();
 }
 
-function check_less_than_3(valState: ValState, valTime: moment$Moment) {
-  check(valState.id < 3, 'expect less than 2')
+function check_less_than_3(dState: DState, valTime: moment$Moment) {
+  check(dState.id < 3, 'expect less than 2')
 }
 
-function check_bad_validator(valState: ValState, valTime: moment$Moment) {
+function check_bad_validator(dState: DState, valTime: moment$Moment) {
   throw('ARGGGHHHHHH!!!')
 }
 
-function check_with_disabled_expectation(valState: ValState, valTime: moment$Moment) {
+function check_with_disabled_expectation(dState: DState, valTime: moment$Moment) {
   expectDefect('should not fail', false);
   check(true, 'true is true');
   endDefect();
 }
 
-function check_with_incorrect_disabled_expectation(valState: ValState, valTime: moment$Moment) {
+function check_with_incorrect_disabled_expectation(dState: DState, valTime: moment$Moment) {
   expectDefect('should fail', false);
   checkFalse(true, 'false is true');
   endDefect();
@@ -151,7 +151,7 @@ function  testItems(runConfig: RunConfig): Item[] {
   ];
 }
 
-export const testCase: TestCase<Item, ApState, ValState>  = {
+export const testCase: TestCase<Item, ApState, DState>  = {
   testConfig: config,
   interactor: interactor,
   prepState: prepState,

@@ -75,13 +75,13 @@ export const logEndInteraction = (
                                   mocked: boolean) => specialMessage('InteractorEnd', 'PopFolder')('End Interaction', {mocked: mocked, apState: apState});
 
 export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')('Start Validation Prep');
-export const logPrepValidationInfoEnd = (valState: any) => specialMessage('PrepValidationInfoEnd')('End Validation Prep', {valState: valState});
+export const logPrepValidationInfoEnd = (dState: any) => specialMessage('PrepValidationInfoEnd')('End Validation Prep', {dState: dState});
 
 export const logStartIterationSummary = () => specialMessage('StartSummary')('Start Summary');
 export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
-export const logValidationStart = (valTime: moment$Moment, valState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
+export const logValidationStart = (valTime: moment$Moment, dState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
                                                                                                                                     valTime: timeToShortDateTimeHyphenatedMs(valTime),
-                                                                                                                                    valState: valState
+                                                                                                                                    dState: dState
                                                                                                                                   });
 
 export const logValidationEnd = () => specialMessage('ValidationEnd', 'PopFolder')('End Validation');

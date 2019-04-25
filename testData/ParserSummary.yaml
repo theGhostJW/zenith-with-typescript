@@ -1,5 +1,5 @@
-rawFile: 'C:\ZWTF\testData\DemoLog.raw.yaml'
-elementsFile: 'C:\ZWTF\testData\DemoLog.elements.yaml'
+rawFile: 'C:\ZenithFlow\testData\DemoLog.raw.yaml'
+elementsFile: 'C:\ZenithFlow\testData\DemoLog.elements.yaml'
 testSummaries:
   Another_Demo_Case:
     testConfig:

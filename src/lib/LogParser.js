@@ -183,7 +183,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
            testConfig: state.testConfig,
            item: state.testItem,
            mocked: state.mocked,
-           valState: def(seekInObj(state, 'validationInfo', 'valState'), ''),
+           dState: def(seekInObj(state, 'validationInfo', 'dState'), ''),
            apState: state.apstate,
            passedValidators: state.passedValidators,
            issues: issues
