@@ -50,13 +50,9 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
       actualUrl = 'NO URL IN ITEM - URL IS N/A';
 
   if (url != null){
-    log("Going url:" + url);
     browser.url(url);
-    log("Gone:" + url);
-    delay(5000);
     title = browser.getTitle();
     actualUrl = browser.getUrl();
-    log(title);
   }
 
   return {
