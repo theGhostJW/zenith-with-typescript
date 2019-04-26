@@ -54,7 +54,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
 
   if (url != null){
     browser.url(url);
-    title = browser.getTitle();
     actualUrl = browser.getUrl();
   }
 

@@ -11,6 +11,7 @@ import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from
 import { register } from '../testCases/ProjectConfig';
 import { check, checkFalse} from '../src/lib/CheckUtils';
 import * as wd from 'webdriverio';
+// import { SSNested, S } from '../src/lib/WebUtils';
 import moment from 'moment';
 
 
@@ -34,6 +35,7 @@ export type Item = {|
 export type ApState = {|
   id: number,
   url: string,
+  linkList: [string],
   observation: string
 |}
 
@@ -62,6 +64,13 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
 
   let url = browser.getUrl();
   log("Got URL");   
+  $("a.is-category:nth-child(1)").click();
+  
+  const catList = $(
+                    "html.js.no-webp body.chunky-prices article#mainContentBlock.main-content section.container.grid-row div.category-visualiser div.category-visualiser__card div.category-visualiser__section.category-visualiser__subcategories div.category-visualiser__section-body ul.category-visualiser__subcategories-list")
+                    .$$("a")
+                    .filter(e => e.isDisplayedInViewport())
+                    .map(e => e.getText());
 
   let title = browser.getTitle();
   log("Got title");
@@ -81,6 +90,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   return {
     id: item.id,
     url: url,
+    linkList: catList,
     observation: title
   }
 }
