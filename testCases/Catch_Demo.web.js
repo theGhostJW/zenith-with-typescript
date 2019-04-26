@@ -15,8 +15,8 @@ import moment from 'moment';
 
 
 let config: TestConfig = {
-  when: 'I cannot think of anything ~ Demo_Case',
-  then: 'I just write something',
+  when: 'I go to catch',
+  then: 'I get caught',
   owner: 'JW',
   enabled: true,
   countries: ['New Zealand', 'Australia']
@@ -43,23 +43,44 @@ type DState = {|
   title: string
 |}
 
-const catchUrl : string = "https://www.catch.com.au/";
+const catchUrl : string = "https://www.catch.com.au";
+/*
+ login
+ choose category 
+ mouse over category 
+ list categories
+ click each check no 404 ing
+
+
+
+*/
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
-  log("starting");
-  let url = catchUrl,
-      title = 'NO URL IN ITEM - TITLE IS N/A',
-      actualUrl = 'NO URL IN ITEM - URL IS N/A';
+  log("Going URL");
+  browser.url(catchUrl);
+  log("Gone URL");
 
-  if (url != null){
-    browser.url(url);
-    title = browser.getTitle();
-    actualUrl = browser.getUrl();
-  }
+  let url = browser.getUrl();
+  log("Got URL");   
+
+  let title = browser.getTitle();
+  log("Got title");
+
+  //$('a.is-category:nth-child(1)').moveTo();
+  //delay(5000);
+  // let url = catchUrl,
+  //     title = 'NO URL IN ITEM - TITLE IS N/A',
+  //     actualUrl = 'NO URL IN ITEM - URL IS N/A';
+
+  // if (url != null){
+  //   browser.url(url);
+  //   title = browser.getTitle();
+  //   actualUrl = browser.getUrl();
+  // }
 
   return {
     id: item.id,
-    url: actualUrl,
+    url: url,
     observation: title
   }
 }

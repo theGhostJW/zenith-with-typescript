@@ -13,9 +13,12 @@ import { check, checkFalse} from '../src/lib/CheckUtils';
 import * as wd from 'webdriverio';
 import moment from 'moment';
 
-
+// TODO: check and fail if there are identical configs
+// TODO: change from when / then to title
+// TODO: revive webutils
+// TODO: autorestart gheko driver
 let config: TestConfig = {
-  when: 'I cannot think of anything ~ Demo_Case',
+  when: 'I cannot think of anything ~ Demo Web Case',
   then: 'I just write something',
   owner: 'JW',
   enabled: true,

@@ -2,7 +2,7 @@
 
 import {it, describe} from 'mocha';
 
-import { debug } from '../src/lib/SysUtils';
+import { debug, fail } from '../src/lib/SysUtils';
 import * as _ from 'lodash';
 
 import { allItems } from '../src/lib/TestRunner';
