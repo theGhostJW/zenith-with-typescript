@@ -1,6 +1,6 @@
 //@flow
 
-import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
+import {debug, debugStk, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING, timeStampedRawPath } from '../lib/Logging';
 import { newLine, show, subStrBefore, replaceAll, hasText, appendDelim} from '../lib/StringUtils';
@@ -90,13 +90,10 @@ function environment(runConfig: {[string]: mixed}): string {
 
 function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: ?number, testName: string, R) => string) {
 
-//item: Item, runConfig: RunConfig, valTime: moment$Moment
-//
-
  let item = def(seekInObj(iteration, 'item'), {}),
      script = show(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
      id = item.id,
-     destFile = mockFileNameFunc(id, script, runConfig),
+     destFile = mockFileNameFunc(id, script + '.js', runConfig),  // script has extension removed TODO: investigate fix properly - what if we leave it on
      mockInfo = {
                  runConfig: runConfig,
                  valTime: seekInObj(iteration, 'valTime'),

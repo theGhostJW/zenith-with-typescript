@@ -322,13 +322,15 @@ function validatorsToString(item): {} {
   return result;
 }
 
+
+
 function canUseMock<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) : boolean {
-  if (runConfig.mocked){
+  function mockExists(){
     let mockFileName = mockFileNameFunc(item.id, baseCase.name, runConfig),
         mockPath = mockFile(mockFileName);
     return pathExists(mockPath);
   }
-  return false;
+  return runConfig.mocked && mockExists();
 }
 
 export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, runConfig: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) {

@@ -1,6 +1,5 @@
 // @flow
 
-import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
 import { debug, fail, waitRetry, delay } from '../src/lib/SysUtils';
 import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
@@ -9,7 +8,7 @@ import { show } from '../src/lib/StringUtils';
 import child_process from 'child_process'
 import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
 import { register } from '../testCases/ProjectConfig';
-import { check, checkFalse} from '../src/lib/CheckUtils';
+import { check, checkFalse, checkEqual} from '../src/lib/CheckUtils';
 import * as wd from 'webdriverio';
 // import { SSNested, S } from '../src/lib/WebUtils';
 import moment from 'moment';
@@ -25,81 +24,51 @@ let config: TestConfig = {
 
 export type Item = {|
   id: number,
-  url?: string,
   when: string,
   then: string,
-  data?: string,
+  dataTarget: string,
+  expectedLinks: string[],
   validators: Validators<DState>
 |}
 
 export type ApState = {|
   id: number,
   url: string,
-  linkList: [string],
-  observation: string
+  pageTitle: string,
+  linkList: string[],
 |}
 
 type DState = {|
-  id: number,
-  url: string,
-  title: string
+  expectedLinks: string[],
+  linkList: string[]
 |}
 
 const catchUrl : string = "https://www.catch.com.au";
-/*
- login
- choose category 
- mouse over category 
- list categories
- click each check no 404 ing
-
-
-
-*/
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
-  log("Going URL");
   browser.url(catchUrl);
-  log("Gone URL");
-
-  let url = browser.getUrl();
-  log("Got URL");   
-  $("a.is-category:nth-child(1)").click();
+  $(`a[data-target="${item.dataTarget}"]`).click();
   
   const catList = $(
                     "html.js.no-webp body.chunky-prices article#mainContentBlock.main-content section.container.grid-row div.category-visualiser div.category-visualiser__card div.category-visualiser__section.category-visualiser__subcategories div.category-visualiser__section-body ul.category-visualiser__subcategories-list")
                     .$$("a")
                     .filter(e => e.isDisplayedInViewport())
-                    .map(e => e.getText());
-
-  let title = browser.getTitle();
-  log("Got title");
-
-  //$('a.is-category:nth-child(1)').moveTo();
-  //delay(5000);
-  // let url = catchUrl,
-  //     title = 'NO URL IN ITEM - TITLE IS N/A',
-  //     actualUrl = 'NO URL IN ITEM - URL IS N/A';
-
-  // if (url != null){
-  //   browser.url(url);
-  //   title = browser.getTitle();
-  //   actualUrl = browser.getUrl();
-  // }
+                    .map(e => e.getText()),
+        title = browser.getTitle(),
+        url = browser.getUrl();
 
   return {
     id: item.id,
     url: url,
-    linkList: catList,
-    observation: title
+    pageTitle: title,
+    linkList: catList
   }
 }
 
 function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
   return {
-    id: apState.id,
-    url: apState.url,
-    title: apState.observation
+    expectedLinks: item.expectedLinks,
+    linkList: apState.linkList
   }
 }
 
@@ -107,79 +76,96 @@ function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: D
   return null;
 }
 
-function mockFilename(item: Item, runConfig: RunConfig) {
-  return '';
+// TODO: - exception thrown in validator eg when calling non existent 
+// function - check error message passed through correctly
+// TODO: change assertion utils and checkUtils to be the same API
+function check_expected_links(dState: DState, valTime: moment$Moment) {
+  checkEqual(dState.expectedLinks, dState.linkList, "links should be the same");
 }
 
-function check_id_less_than_2(dState: DState, valTime: moment$Moment) {
-  expectDefect('should fail');
-  check(dState.id < 2, 'expect less than 2', `${dState.id} should be less than 2`);
-  endDefect();
-}
-
-function check_less_than_3(dState: DState, valTime: moment$Moment) {
-  check(dState.id < 3, 'expect less than 2')
-}
-
-function check_bad_validator(dState: DState, valTime: moment$Moment) {
-  throw('ARGGGHHHHHH!!!')
-}
-
-function check_with_disabled_expectation(dState: DState, valTime: moment$Moment) {
-  expectDefect('should not fail', false);
-  check(true, 'true is true');
-  endDefect();
-}
-
-function check_with_incorrect_disabled_expectation(dState: DState, valTime: moment$Moment) {
-  expectDefect('should fail', false);
-  checkFalse(true, 'false is true');
-  endDefect();
-}
+const womansLinks = ["Women's Clothing",
+            "Women's Shoes",
+            "Jewellery",
+            "Watches",
+            "Sunglasses",
+            "Handbags",
+            "Luggage",
+            "Hats",
+            "Wallets",
+            'Accessories',
+            "Intimate Apparel",
+            "Backpacks"];
 
 function  testItems(runConfig: RunConfig): Item[] {
   return [
     {
-      id: 1,
-      when: 'I run a test',
-      then: 'i get the result',
-      url: 'http://google.com',
-      validators: [
-        check_id_less_than_2,
-        check_with_disabled_expectation,
-        check_with_incorrect_disabled_expectation
-      ]
+      id: 100,
+      when: "the women's list is visited",
+      then: 'the shop by category list is as expected',
+      dataTarget: 'womens-fashion',
+      expectedLinks: ["Women's Clothing",
+            "Women's Shoes",
+            "Jewellery",
+            "Watches",
+            "Sunglasses",
+            "Handbags",
+            "Luggage",
+            "Hats",
+            "Wallets",
+            'Accessories',
+            "Intimate Apparel",
+            "Backpacks"],
+      validators: check_expected_links
     },
-
     {
-      id: 2,
-      when: 'I run another test',
-      then: 'i get another result',
-      url: 'http://webdriver.io/api.html',
-      validators: [
-        check_id_less_than_2,
-        check_less_than_3
-      ]
+      id: 200,
+      when: "the mens's list is visited",
+      then: 'the shop by category list is as expected',
+      dataTarget: 'mens-fashion',
+      expectedLinks: [
+          "Men's Clothing",
+          "Men's Shoes",
+          "Workwear",
+          "Watches",
+          "Sunglasses",
+          "Bags",
+          "Luggage",
+          "Hats",
+          "Wallets",
+          "Accessories",
+          "Jewellery",
+          "Backpacks"],
+      validators: check_expected_links
     },
-
     {
-      id: 3,
-      when: 'I run another test',
-      then: 'i get another result',
-      data: 'random info used in test',
-      validators: [
-        check_bad_validator
-      ]
+      id: 300,
+      when: "the mens's list is visited with an incorrect expected list",
+      then: 'we get an error',
+      dataTarget: 'mens-fashion',
+      expectedLinks: [
+          "Men's Clothing",
+          "Men's Shoes",
+          "Workwear",
+          "Watches",
+          "Sunglasses",
+          "Bags",
+          "Luggage",
+          "Hats",
+          "Wallets",
+          "Accessories",
+          "Jewellery",
+          "Mens Stuff",
+          "Backpacks"],
+      validators: check_expected_links
     },
-
     {
-      id: 4,
-      when: 'I run another test',
-      then: 'i get another result',
-      validators: [
-        check_bad_validator
-      ]
-    }
+      id: 400,
+      when: "there is an interactor error",
+      then: 'we get an error error',
+      dataTarget: 'cats-fashion',
+      expectedLinks: [],
+      validators: check_expected_links
+    },
 
   ];
 }

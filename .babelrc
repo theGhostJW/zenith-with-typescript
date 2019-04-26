@@ -1,4 +1,5 @@
 {
+  "retainLines": true,
   "presets": [
     "flow",
     "env"

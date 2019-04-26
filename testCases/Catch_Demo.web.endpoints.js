@@ -14,9 +14,13 @@ describe('endPoint', () => {
   it.only('demo endpoint', () => {
      testCaseEndPoint(
        {
+       mocked: false,
        testCase: testCase,
-       selector: 1
+      // selector: 200
      }
     );
   });
 });
+
+//TODO: error on empty list for endpoint selector
+
