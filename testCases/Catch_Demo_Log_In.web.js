@@ -1,7 +1,7 @@
 // @flow
 
 import * as _ from 'lodash';
-import { debug, fail, waitRetry, def } from '../src/lib/SysUtils';
+import { debug, fail, waitRetry, def, delay } from '../src/lib/SysUtils';
 import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
 import { toTempString, fileToString } from '../src/lib/FileUtils';
 import { show, sameText  } from '../src/lib/StringUtils';
@@ -80,19 +80,25 @@ const validPassword = () => fileToString("C:\\Demo\\creds.txt");
 
 function logIn(userName: string, password: string){
   browser.url(catchUrl);
-  $('a[href="#loginModal"]').click();
+  delay(5000);
+  $('a[href*="login"]').click();
   populateLoginForm(userName, password);
 }
 
 function populateLoginForm(userName: string, password: string){
+  $('#login_email').setValue(userName);
+  $('#login_password').setValue(password);
+  $('iframe').waitForDisplayed(20000);
+  $('iframe').click();
+  $('#button-login').click();
 }
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
   const userName = item.userName,
         password = def(item.invalidPassword, validPassword());
 
+ 
   logIn(userName, password);
-
   
   // const catList = $(
   //                   "html.js.no-webp body.chunky-prices article#mainContentBlock.main-content section.container.grid-row div.category-visualiser div.category-visualiser__card div.category-visualiser__section.category-visualiser__subcategories div.category-visualiser__section-body ul.category-visualiser__subcategories-list")
