@@ -78,7 +78,6 @@ const validPassword = () => fileToString("C:\\Demo\\creds.txt");
 
 function logIn(userName: string, password: string){
   browser.url(catchUrl);
-  delay(5000);
   $('a[href*="login"]').click();
   populateLoginForm(userName, password);
 }
@@ -88,9 +87,10 @@ function logIn(userName: string, password: string){
 function populateLoginForm(userName: string, password: string){
   $('#login_email').setValue(userName);
   $('#login_password').setValue(password);
-  $('iframe').waitForDisplayed(20000);
-  delay(505);
-  $('iframe').click(40, 40);
+  browser.debug();
+  // if ($('iframe').isExisting()){
+  //   $('iframe').click(40, 40);
+  // }
   $('#button-login').click();
 }
 

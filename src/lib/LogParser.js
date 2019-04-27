@@ -279,6 +279,7 @@ export function initalState(rawFilePath: string): RunState {
                 timestamp: '',
                 iterationSummary: '',
                 iterationStart: '',
+                runStart: '',
 
                 indent: 0,
                 testConfig: null,
