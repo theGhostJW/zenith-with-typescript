@@ -14,8 +14,8 @@ import moment from 'moment';
 
 
 let config: TestConfig = {
-  when: 'I go to catch',
-  then: 'I get caught',
+  when: 'a log in is performed',
+  then: 'access is granted or denied as expected',
   owner: 'JW',
   enabled: true,
   countries: ['New Zealand', 'Australia']
@@ -35,7 +35,6 @@ export type ApState = {|
   url: string,
   pageTitle: string,
   userName: string,
-  invalidPassword: ?string,
   logInModelVisible: boolean,
   errors: string[]
 |}
@@ -50,11 +49,10 @@ type DState = {|
 
 const validUserName = "theghostjw@gmail.com.au";
 
-//TODO: Template variable names to a , i rc
 function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   return {
     userNameValid: sameText(validUserName, a.userName),
-    passwordValid: a.invalidPassword == null,
+    passwordValid: i.invalidPassword == null,
     loggedIn: a.logInModelVisible,
     expectedErrors: i.expectedErrors,
     errors: a.errors,
@@ -72,7 +70,6 @@ function check_not_logged_in(d: DState, valTime: moment$Moment) {
 function check_errors(d: DState, valTime: moment$Moment) {
   checkEqual(d.expectedErrors, d.errors, "errors should equal");
 }
-
 
 const catchUrl : string = "https://www.catch.com.au";
 const validPassword = () => fileToString("C:\\Demo\\creds.txt");
@@ -105,7 +102,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
     url: browser.getUrl(),
     pageTitle: browser.getTitle(),
     userName: userName,
-    invalidPassword: password === validPassword() ? null : password,
     logInModelVisible: isLoggedIn(),
     errors: []
  }
