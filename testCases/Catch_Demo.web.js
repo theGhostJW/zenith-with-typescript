@@ -41,6 +41,14 @@ type DState = {|
   linkList: string[]
 |}
 
+// TODO: use apstate only
+function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
+  return {
+    expectedLinks: item.expectedLinks,
+    linkList: apState.linkList
+  }
+}
+
 const catchUrl : string = "https://www.catch.com.au";
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
@@ -62,14 +70,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   }
 }
 
-// TODO: use apstate only
-function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
-  return {
-    expectedLinks: item.expectedLinks,
-    linkList: apState.linkList
-  }
-}
-
 // TODO: get rid of summaries
 function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
   return null;
@@ -81,19 +81,6 @@ function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: D
 function check_expected_links(dState: DState, valTime: moment$Moment) {
   checkEqual(dState.expectedLinks, dState.linkList, "links should be the same");
 }
-
-const womansLinks = ["Women's Clothing",
-            "Women's Shoes",
-            "Jewellery",
-            "Watches",
-            "Sunglasses",
-            "Handbags",
-            "Luggage",
-            "Hats",
-            "Wallets",
-            'Accessories',
-            "Intimate Apparel",
-            "Backpacks"];
 
 function  testItems(runConfig: RunConfig): Item[] {
   return [
