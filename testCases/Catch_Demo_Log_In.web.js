@@ -100,7 +100,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
         password = def(item.invalidPassword, validPassword());
 
   logIn(userName, password);
-  browser.debug();
 
   return {
     url: browser.getUrl(),
