@@ -36,9 +36,7 @@ export type ApState = {|
   pageTitle: string,
   userName: string,
   invalidPassword: ?string,
-  errorMessage: ?string,
   logInModelVisible: boolean,
-  userModelVisible: boolean,
   errors: string[]
 |}
 
@@ -85,39 +83,36 @@ function logIn(userName: string, password: string){
   populateLoginForm(userName, password);
 }
 
+
+//https://www.wired.com/2014/12/google-one-click-recaptcha/
 function populateLoginForm(userName: string, password: string){
   $('#login_email').setValue(userName);
   $('#login_password').setValue(password);
   $('iframe').waitForDisplayed(20000);
-  $('iframe').click();
+  delay(505);
+  $('iframe').click(40, 40);
   $('#button-login').click();
 }
 
+function isLoggedIn() : boolean {
+  return $('a[href="/my-account/details"').isExisting()
+}
+
+//todo screenshot video
 export function interactor(item: Item, runConfig: RunConfig): ApState {
   const userName = item.userName,
         password = def(item.invalidPassword, validPassword());
 
- 
   logIn(userName, password);
-  
-  // const catList = $(
-  //                   "html.js.no-webp body.chunky-prices article#mainContentBlock.main-content section.container.grid-row div.category-visualiser div.category-visualiser__card div.category-visualiser__section.category-visualiser__subcategories div.category-visualiser__section-body ul.category-visualiser__subcategories-list")
-  //                   .$$("a")
-  //                   .filter(e => e.isDisplayedInViewport())
-  //                   .map(e => e.getText()),
-  //       title = browser.getTitle(),
-  //       url = browser.getUrl();
 
-  // return  {
-  //   url: string,
-  //   pageTitle: string,
-  //   userName: string,
-  //   invalidPassword: ?string,
-  //   errorMessage: ?string,
-  //   logInModelVisible: boolean,
-  //   userModelVisible: boolean,
-  //   errors: string[]
-  // }
+  return {
+    url: browser.getUrl(),
+    pageTitle: browser.getTitle(),
+    userName: userName,
+    invalidPassword: password === validPassword() ? null : password,
+    logInModelVisible: isLoggedIn(),
+    errors: []
+ }
 }
 
 function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
