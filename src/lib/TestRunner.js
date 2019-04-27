@@ -15,7 +15,7 @@ import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
 import moment from 'moment';
 import { now, strToMoment } from '../lib/DateTimeUtils';
 import * as _ from 'lodash';
-import { defaultLogParser } from '../lib/LogParser'
+import { defaultLogParser, destPath } from '../lib/LogParser'
 import * as webLauncher from '../lib/WebLauncher';
 
 // think about this later ~ complications around web
@@ -182,9 +182,27 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
     logEndRun(runName);
   }
 
-  defaultLogParser(mockFileNameGenerator)(latestRawPath());
+  console.log("");
+  console.log("... parsing results");
+  console.log("");
+
+  const {
+    rawFile,
+    runSummary
+  } = defaultLogParser(mockFileNameGenerator)(latestRawPath());
+
+  const message = "\n\n=== Summary ===\n" + show(runSummary) +
+      "\n=== Logs ===\nraw: " + rawFile +
+      "\nfull: " + destPath(rawFile, 'raw', 'full') +
+      "\nissues: " + destPath(rawFile, 'raw', 'issues') +
+      "\n";
+
+  log(message);
+  console.log("");
+
 }
 
+//TODO: Fix endtime starttime being used
 let allCases: any[] = [];
 
 export type BaseRunConfig = {

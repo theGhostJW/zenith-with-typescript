@@ -88,6 +88,7 @@ function environment(runConfig: {[string]: mixed}): string {
   return show(def(runConfig['environment'], ''));
 }
 
+// TODO: what is writemock doing here
 function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: ?number, testName: string, R) => string) {
 
  let item = def(seekInObj(iteration, 'item'), {}),
@@ -203,7 +204,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
        case 'RunEnd':
          fullSummary.runSummary = {
               runConfig: state.runConfig,
-              startTime: state.timestamp,
+              startTime: state.runStart,
               endTime: def(entry.timestamp, ''),
               filterLog: state.filterLog,
               stats: state.runStats
@@ -336,7 +337,7 @@ function clearErrorInfo(state: RunState): void {
   state.activeIssues = null;
 }
 
-function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
+export function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
   sourceFilePart = '.' + sourceFilePart + '.';
 
   ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
@@ -551,6 +552,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       // other state changes handled in reseter
       resetDefectAndStats();
       state.runConfig = configObj(entry);
+      state.runStart = state.timestamp;
       state.runName = state.runConfig.name;
       state.indent = 1;
       break;

@@ -10,13 +10,12 @@ import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from
 import { register } from '../testCases/ProjectConfig';
 import { check, checkFalse, checkEqual} from '../src/lib/CheckUtils';
 import * as wd from 'webdriverio';
-// import { SSNested, S } from '../src/lib/WebUtils';
 import moment from 'moment';
 
 
 let config: TestConfig = {
-  when: 'I go to catch',
-  then: 'I get caught',
+  when: 'pages are viewed',
+  then: 'sub-menus are as expected',
   owner: 'JW',
   enabled: true,
   countries: ['New Zealand', 'Australia']
@@ -32,7 +31,6 @@ export type Item = {|
 |}
 
 export type ApState = {|
-  id: number,
   url: string,
   pageTitle: string,
   linkList: string[],
@@ -58,13 +56,13 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
         url = browser.getUrl();
 
   return {
-    id: item.id,
     url: url,
     pageTitle: title,
     linkList: catList
   }
 }
 
+// TODO: use apstate only
 function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
   return {
     expectedLinks: item.expectedLinks,
@@ -72,6 +70,7 @@ function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
   }
 }
 
+// TODO: get rid of summaries
 function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
   return null;
 }
