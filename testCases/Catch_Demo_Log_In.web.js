@@ -50,26 +50,27 @@ type DState = {|
 
 const validUserName = "theghostjw@gmail.com.au";
 
-function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
+//TODO: Template variable names to a , i rc
+function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   return {
-    userNameValid: sameText(validUserName, apState.userName),
-    passwordValid: apState.invalidPassword == null,
-    loggedIn: apState.logInModelVisible,
-    expectedErrors: item.expectedErrors,
-    errors: apState.errors,
+    userNameValid: sameText(validUserName, a.userName),
+    passwordValid: a.invalidPassword == null,
+    loggedIn: a.logInModelVisible,
+    expectedErrors: i.expectedErrors,
+    errors: a.errors,
   }
 }
 
-function check_logged_in(dState: DState, valTime: moment$Moment) {
-  check(dState.loggedIn);
+function check_logged_in(d: DState, valTime: moment$Moment) {
+  check(d.loggedIn);
 }
 
-function check_not_logged_in(dState: DState, valTime: moment$Moment) {
-  checkFalse(dState.loggedIn);
+function check_not_logged_in(d: DState, valTime: moment$Moment) {
+  checkFalse(d.loggedIn);
 }
 
-function check_errors(dState: DState, valTime: moment$Moment) {
-  checkEqual(dState.expectedErrors, dState.errors, "errors should equal");
+function check_errors(d: DState, valTime: moment$Moment) {
+  checkEqual(d.expectedErrors, d.errors, "errors should equal");
 }
 
 
@@ -80,18 +81,13 @@ function logIn(userName: string, password: string){
   browser.url(catchUrl);
   $('a[href*="login"]').click();
   populateLoginForm(userName, password);
+  browser.keys(["Tab", "Enter"]);
 }
-
 
 //https://www.wired.com/2014/12/google-one-click-recaptcha/
 function populateLoginForm(userName: string, password: string){
   $('#login_email').setValue(userName);
   $('#login_password').setValue(password);
-  browser.debug();
-  // if ($('iframe').isExisting()){
-  //   $('iframe').click(40, 40);
-  // }
-  $('#button-login').click();
 }
 
 function isLoggedIn() : boolean {
@@ -104,6 +100,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
         password = def(item.invalidPassword, validPassword());
 
   logIn(userName, password);
+  browser.debug();
 
   return {
     url: browser.getUrl(),
@@ -115,7 +112,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
  }
 }
 
-function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
+function summarise(runConfig: RunConfig, item: Item, a: ApState, dState: DState): string | null {
   return null;
 }
 

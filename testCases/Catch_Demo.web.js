@@ -41,11 +41,10 @@ type DState = {|
   linkList: string[]
 |}
 
-// TODO: use apstate only
-function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
+function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   return {
-    expectedLinks: item.expectedLinks,
-    linkList: apState.linkList
+    expectedLinks: i.expectedLinks,
+    linkList: a.linkList
   }
 }
 
