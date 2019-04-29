@@ -18,17 +18,19 @@ describe('endPoints ', () => {
 
 
 describe('run', () => {
-
   const runConfig = {
     name: 'Test Test Run',
     mocked: false,
     country: 'Australia',
     environment: 'TST',
-    testCases: [],
+    testCases: [
+                "Catch_Demo.web", 
+                "Catch_Demo_Log_In.web"
+              ],
     depth: 'Regression'
   };
 
-  it('demo Test Run', () => {
+  it.only('Catch Test Run', () => {
     run(runConfig);
   });
 
