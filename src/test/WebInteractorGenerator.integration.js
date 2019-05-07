@@ -14,7 +14,7 @@ describe('generateAndDumpTestFile', () => {
       isUrl: true,
       name: 'http:\\google.com.au'
     };
-    generateAndDumpTestFile(before, 'interactor',  'C:\\ZWTF\\src\\test\\WebInteractorGenerator.integration.js', 'C:\\ZWTF\\temp\\WebInteractor.js', true);
+    generateAndDumpTestFile(before, 'interactor',  'C:\\ZenithFlow\\src\\test\\WebInteractorGenerator.integration.js', 'C:\\ZenithFlow\\temp\\WebInteractor.js', true);
     let actual = fromTempString('WebInteractor.js', false);
     chkHasText(actual, 'startServer();');
   });

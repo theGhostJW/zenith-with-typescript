@@ -21,7 +21,8 @@ import * as _ from 'lodash';
 import request from 'sync-request';
 
 import * as ipc from 'node-ipc';
-import * as wd from 'webdriverio';
+//$FlowFixMe
+import Launcher from '@wdio/cli';
 import * as fs from 'file-system';
 import child_process from 'child_process';
 
@@ -52,7 +53,7 @@ export function interact<T>(...params?: mixed[]): T {
     clearInvocationResponse();
     sendInvocationParams(...params);
     log('Waiting interaction response');
-    let complete = waitRetry(() => invocationResponse() != null, 600000),
+    let complete = waitRetry(() => invocationResponse() != null, 180000),
         result: T = invocationResponse() == null ? fail('Interactor Timeout Error') : cast(invocationResponse());
     return result
   } catch (e) {
@@ -114,9 +115,9 @@ function launchWdioClientAndServer(config: {}) {
 export function startWdioServer(config: {}) {
   try {
     let failed = false;
-    startSeleniumServerOnce();
+    //startSeleniumServerOnce();
     //$FlowFixMe
-    let wdio = new wd.Launcher('.\\wdio.conf.js', config);
+    let wdio = new Launcher('.\\wdio.conf.js', config);
     log('Launching file: ' + cast(config).specs.join(', '));
     wdio.run().then(function (code) {
       if (code != 0){

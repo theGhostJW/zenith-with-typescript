@@ -44,7 +44,7 @@ summary: |-
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:44'
 valTime: 2017-11-25 11-28-22-299
-valState:
+dState:
   someWords: YES WE CAN
 elementType: IterationInfo
 testConfig:

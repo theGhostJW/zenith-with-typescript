@@ -1,6 +1,6 @@
 //@flow
 
-import {debug, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
+import {debug, debugStk, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
 import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
 import { RECORD_DIVIDER, FOLDER_NESTING, timeStampedRawPath } from '../lib/Logging';
 import { newLine, show, subStrBefore, replaceAll, hasText, appendDelim} from '../lib/StringUtils';
@@ -88,15 +88,13 @@ function environment(runConfig: {[string]: mixed}): string {
   return show(def(runConfig['environment'], ''));
 }
 
+// TODO: what is writemock doing here
 function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: ?number, testName: string, R) => string) {
-
-//item: Item, runConfig: RunConfig, valTime: moment$Moment
-//
 
  let item = def(seekInObj(iteration, 'item'), {}),
      script = show(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
      id = item.id,
-     destFile = mockFileNameFunc(id, script, runConfig),
+     destFile = mockFileNameFunc(id, script + '.js', runConfig),  // script has extension removed TODO: investigate fix properly - what if we leave it on
      mockInfo = {
                  runConfig: runConfig,
                  valTime: seekInObj(iteration, 'valTime'),
@@ -183,7 +181,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
            testConfig: state.testConfig,
            item: state.testItem,
            mocked: state.mocked,
-           valState: def(seekInObj(state, 'validationInfo', 'valState'), ''),
+           dState: def(seekInObj(state, 'validationInfo', 'dState'), ''),
            apState: state.apstate,
            passedValidators: state.passedValidators,
            issues: issues
@@ -206,7 +204,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
        case 'RunEnd':
          fullSummary.runSummary = {
               runConfig: state.runConfig,
-              startTime: state.timestamp,
+              startTime: state.runStart,
               endTime: def(entry.timestamp, ''),
               filterLog: state.filterLog,
               stats: state.runStats
@@ -281,6 +279,7 @@ export function initalState(rawFilePath: string): RunState {
                 timestamp: '',
                 iterationSummary: '',
                 iterationStart: '',
+                runStart: '',
 
                 indent: 0,
                 testConfig: null,
@@ -339,7 +338,7 @@ function clearErrorInfo(state: RunState): void {
   state.activeIssues = null;
 }
 
-function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
+export function destPath(rawPath: string, sourceFilePart: string, destFilePart: string, destDir?: string): string {
   sourceFilePart = '.' + sourceFilePart + '.';
 
   ensure(hasText(rawPath, sourceFilePart, true), `rawPath does not conform to naming conventions (should contain ${sourceFilePart}) ${rawPath}`);
@@ -554,6 +553,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       // other state changes handled in reseter
       resetDefectAndStats();
       state.runConfig = configObj(entry);
+      state.runStart = state.timestamp;
       state.runName = state.runConfig.name;
       state.indent = 1;
       break;

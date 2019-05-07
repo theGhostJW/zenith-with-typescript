@@ -85,7 +85,7 @@ popControl: PushFolder
 message: Start Validation
 additionalInfo: |
   valTime: 2017-10-14 16-03-22-098
-  valState:
+  dState:
     when: I run a test
 -------------------------------
 timestamp: '2017-10-14 16:03:22'
@@ -192,7 +192,7 @@ popControl: PushFolder
 message: Start Validation
 additionalInfo: |
   valTime: 2017-10-14 16-03-22-121
-  valState:
+  dState:
     when: I run another test
 -------------------------------
 timestamp: '2017-10-14 16:03:22'
@@ -299,7 +299,7 @@ popControl: PushFolder
 message: Start Validation
 additionalInfo: |
   valTime: 2017-10-14 16-03-22-152
-  valState:
+  dState:
     id: 1
 -------------------------------
 timestamp: '2017-10-14 16:03:22'
@@ -382,7 +382,7 @@ popControl: PushFolder
 message: Start Validation
 additionalInfo: |
   valTime: 2017-10-14 16-03-22-178
-  valState:
+  dState:
     id: 2
 -------------------------------
 timestamp: '2017-10-14 16:03:22'
@@ -513,7 +513,7 @@ popControl: PushFolder
 message: Start Validation
 additionalInfo: |
   valTime: 2017-10-14 16-03-22-202
-  valState:
+  dState:
     id: 3
 -------------------------------
 timestamp: '2017-10-14 16:03:22'

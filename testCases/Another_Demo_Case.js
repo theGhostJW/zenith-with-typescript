@@ -25,7 +25,7 @@ type ApState = {|
   obs: string
 |}
 
-type ValState = {|
+type DState = {|
   when: string
 |}
 
@@ -37,13 +37,13 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   }
 }
 
-function prepState(apState: ApState, item: Item, runConfig: RunConfig): ValState {
+function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
   return {
     when: apState.theWhen
   }
 }
 
-function summarise(runConfig: RunConfig, item: Item, apState: ApState, valState: ValState): string | null {
+function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
   return null;
 }
 
@@ -55,11 +55,11 @@ type Item = {|
   id: number,
   when: string,
   then: string,
-  validators: Validators<ValState>
+  validators: Validators<DState>
 |}
 
-function check_when_text_contains_another(valState: ValState, valTime: moment$Moment) {
-  checkTextContains(valState.when, 'another')
+function check_when_text_contains_another(dState: DState, valTime: moment$Moment) {
+  checkTextContains(dState.when, 'another')
 }
 
 function  testItems(runConfig: RunConfig): Item[] {
@@ -83,7 +83,7 @@ function  testItems(runConfig: RunConfig): Item[] {
   ];
 }
 
-export const testCase: TestCase<Item, ApState, ValState>  = {
+export const testCase: TestCase<Item, ApState, DState>  = {
   testConfig: config,
   interactor: interactor,
   prepState: prepState,

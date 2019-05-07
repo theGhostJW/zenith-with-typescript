@@ -12,9 +12,9 @@ import { show } from '../src/lib/StringUtils';
 import { fileOrFolderNameNoExt } from '../src/lib/FileUtils';
 import * as _ from 'lodash';
 
-export const mockFileNameUseEnvironment: MockFileNameFunction<RunConfig> =
-                  (itemId, testName, runConfig) => fileOrFolderNameNoExt(testName) + '_' + show(itemId) + '_' + show(runConfig.environment) + '.yaml';
-
+export function mockFileNameUseEnvironment(itemId: ?number, testName: string, runConfig: RunConfig){
+  return fileOrFolderNameNoExt(testName) + '_' + show(itemId) + '_' + show(runConfig.environment) + '.yaml';
+}
 
 export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
   let allTestCases: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[] = loadAll();

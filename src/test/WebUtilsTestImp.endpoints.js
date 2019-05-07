@@ -175,7 +175,7 @@ describe('setForm', () => {
 
 
   // FRAMEWORK DEMO
-  it.only('setForm ~ FORLABELS', () => {
+  it('setForm ~ FORLABELS', () => {
     let input = FORM_INPUT_FOR_LABELS;
     rerun(smartbearOrders, setForm, FORM_ID, input);
   });

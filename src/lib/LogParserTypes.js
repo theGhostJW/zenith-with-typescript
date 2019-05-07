@@ -107,6 +107,7 @@ export type RunState = {|
   runStats: RunStats,
   filterLog: {[string]: string},
   runName: string,
+  runStart: string,
   rawFile: string,
   runConfig: {},
   timestamp: string,
