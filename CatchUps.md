@@ -533,7 +533,7 @@ function longerThan(minLength) {
   }
 }
 
-unction isLonger(str) {
+function isLonger(str) {
   return str.length > 4
 }
 
