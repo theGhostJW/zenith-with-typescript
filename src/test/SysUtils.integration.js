@@ -5,8 +5,11 @@ import {datePlus, now, today} from '../lib/DateTimeUtils';
 import {chk, chkEq, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
 import {createGuidTruncated, hasText} from '../lib/StringUtils';
 import { fromTestDataString } from '../lib/FileUtils';
-import {cast, waitRetry, debug, executeFile,
-      executeRunTimeFile, killTask, listProcesses,
+import {cast, waitRetry, debug, 
+      executeFileSynch,
+      executeFileAsynch,
+      executeRunTimeFileAsynch,
+      executeRunTimeFileSynch, killTask, listProcesses,
       xmlToObj } from '../lib/SysUtils';
 import * as _ from 'lodash';
 
@@ -23,14 +26,19 @@ describe('xmlToObj', () => {
 });
 
 
+
+// may need more work handle stdIn / out and error
+
+
+
 describe('executeFileRunTimeFile', () => {
 
   it('non-existant', () => {
-    chkExceptionText(() => executeRunTimeFile('Blahh'), 'does not exist');
+    chkExceptionText(() => executeFileAsynch('Blahh'), 'does not exist');
   });
 
   it('exists', () => {
-    executeRunTimeFile('emptybat.bat');
+    executeFileSynch('emptybat.bat');
   });
 
 });
@@ -39,11 +47,11 @@ describe.skip('executeFile', () => {
 
   const TARGET_PATH = '"C:\\Program Files\\Notepad++\\notepad++.exe"';
   it('async', () => {
-    executeFile(TARGET_PATH);
+    executeFileAsynch(TARGET_PATH);
   });
 
   it('sync', () => {
-    executeFile(TARGET_PATH, false);
+    executeFileSynch(TARGET_PATH);
   });
 });
 

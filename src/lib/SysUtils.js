@@ -110,21 +110,30 @@ export type TaskListItem = {
   memUsage: number
 }
 
-// may need more work split asynch and handle stdIn / out and error
-export function executeFile(path: string, async: boolean = true) {
-  if (async) {
-    log(`executing ${path} async`);
-    child_process.exec(path);
-  } else {
-    log(`executing ${path} synch`);
-    child_process.execSync(path);
-  }
+function ensureFilePath(path: string) : string {
+  return ensureReturn(pathExists(path), path, 'file does not exist: ' + path);
 }
 
-export function executeRunTimeFile(fileNameNoPath: string, async: boolean = true) {
-  let target = runTimeFile(fileNameNoPath);
-  ensure(pathExists(target), 'file does not exist: ' + target);
-  executeFile(runTimeFile(fileNameNoPath), async);
+// may need more work split asynch and handle stdIn / out and error
+export function executeFileSynch(path: string): Buffer {
+ ensureFilePath(path);
+ log(`executing ${path} synch`);
+ return child_process.execSync(path);
+}
+
+export function executeFileAsynch(path: string): number {
+  ensureFilePath(path);
+  log(`executing ${path} async`);
+  const cp = child_process.exec(path);
+  return cp.pid
+}
+
+export function executeRunTimeFileAsynch(fileNameNoPath: string) : number {
+  return executeFileAsynch(runTimeFile(fileNameNoPath));
+}
+
+export function executeRunTimeFileSynch(fileNameNoPath: string) : Buffer {
+  return executeFileSynch(runTimeFile(fileNameNoPath));
 }
 
 export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 10000): boolean {
