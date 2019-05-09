@@ -128,7 +128,7 @@ export function executeFileAsynch(path: string): number {
   return cp.pid
 }
 
-export function executeRunTimeFileAsynch(fileNameNoPath: string) : number {
+export function executeRunTimeFileAsynch(fileNameNoPath: string): number {
   return executeFileAsynch(runTimeFile(fileNameNoPath));
 }
 
@@ -136,20 +136,31 @@ export function executeRunTimeFileSynch(fileNameNoPath: string) : Buffer {
   return executeFileSynch(runTimeFile(fileNameNoPath));
 }
 
-export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 10000): boolean {
-  let taskTokill = listProcesses().find(pred),
-      result = false;
+export function findTask(pred : (TaskListItem) => boolean): ?TaskListItem {
+  return listProcesses().find(pred);
+}
 
-  if (taskTokill != null) {
-    result = true;
-    log(`Killing task pid: ${show(taskTokill)}`);
-    child_process.execSync(`taskkill /im ${taskTokill.pid} /t /f`, {timeout: timeoutMs})
+export function taskExists(pred : (TaskListItem) => boolean): bool {
+  return listProcesses().some(pred);
+}
+
+// forcefully kills a task if found - 
+// will return true if no matching tasks found or 
+// mis able to kill all matching tasks
+export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 30000): bool {
+  const taskTokill = findTask(pred);
+  if (taskTokill == null) {
+    return true;
   }
 
-  if (result) {
-    killTask(pred, timeoutMs);
+  log(`Killing task: ${show(taskTokill)}`);
+  child_process.execSync(`taskkill /im ${taskTokill.pid} /t /f`, {timeout: timeoutMs});
+
+  if (findTask(t => t.pid === taskTokill.pid) != null){
+    return false;
   }
-  return result;
+
+  return killTask(pred, timeoutMs);
 }
 
 export function delay(ms: number) {

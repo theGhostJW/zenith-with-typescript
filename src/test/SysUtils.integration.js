@@ -34,11 +34,11 @@ describe('xmlToObj', () => {
 describe('executeFileRunTimeFile', () => {
 
   it('non-existant', () => {
-    chkExceptionText(() => executeFileAsynch('Blahh'), 'does not exist');
+    chkExceptionText(() => executeRunTimeFileAsynch('Blahh'), 'does not exist');
   });
 
   it('exists', () => {
-    executeFileSynch('emptybat.bat');
+    executeRunTimeFileSynch('emptybat.bat');
   });
 
 });
@@ -55,18 +55,16 @@ describe.skip('executeFile', () => {
   });
 });
 
-describe.skip('killTask', () => {
+describe('killTask', () => {
 
-  // it('success firefox - firefox must be running', () => {
-  //   let result = killTask((t) => hasText(t.imageName, 'firefox'));
-  //   chk(result);
-  // });
+   it.skip('success firefox - firefox must be running', () => {
+     let result = killTask((t) => hasText(t.imageName, 'firefox'));
+     chk(result);
+   });
 
-  it('failure non existant process ', () => {
-    let result = killTask((t) => hasText(t.imageName, 'dcfsjkfksdhfsdklfsdhfjkl'));
-    chkFalse(result);
+  it('non existant process ', () => {
+    chk(killTask((t) => hasText(t.imageName, 'dcfsjkfksdhfsdklfsdhfjkl')));
   });
-
 
 });
 

@@ -1,11 +1,11 @@
 // @flow
 
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import { debug, waitRetry, cast } from '../lib/SysUtils';
+import { debug, waitRetry, cast, listProcesses, killTask } from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { seleniumStatus, seleniumRunning, startSelenium, checkStartSelenium } from '../lib/WebLauncher';
+import { seleniumStatus, seleniumRunning, startGeckoDriver, checkStartGeckoDriver, killGeckoDriver } from '../lib/WebLauncher';
 
 describe('seleniumStatus', () => {
 
@@ -25,19 +25,25 @@ describe('seleniumRunning', () => {
 
 });
 
-
 describe('startSelenium', () => {
 
   it('run', () => {
-    startSelenium()
+    //toTemp(listProcesses(), "beforeProcesses.yaml");
+    const started = startGeckoDriver();
+    chk(started);
+    //toTemp(listProcesses(), "afterProcesses.yaml");
+    killGeckoDriver();
   });
 
 });
 
 describe('checkStartSelenium', () => {
 
-  it('run', () => {
-    checkStartSelenium();
+  it.only('run', () => {
+    checkStartGeckoDriver();
+    checkStartGeckoDriver();
+    checkStartGeckoDriver();
+    checkStartGeckoDriver();
   });
 
 });

@@ -11,7 +11,7 @@ import { log, logError, lowLevelLogging, logWarning } from './Logging';
 import { show, trimChars } from './StringUtils';
 
 import {cast, debug, ensure, ensureHasVal, fail, waitRetry, translateErrorObj,
-        def,  seekInObj, executeRunTimeFile } from './SysUtils';
+        def,  seekInObj, executeRunTimeFileAsynch, killTask, taskExists } from './SysUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
 
 import { generateAndDumpTestFile } from './WebInteractorGenerator';
@@ -34,10 +34,43 @@ export {
 } from './SeleniumIpcClient';
 
 export const SELENIUM_BASE_URL = 'http://localhost:4444/';
-export const SELENIUM_BAT_NAME = 'selenium-server-standalone-3.8.1.jar';
 
 export function waitConnected(timeout: number, wantConnected: boolean = true) {
   return waitRetry(() => isConnected() == wantConnected, timeout);
+}
+
+// todo: other drivers
+export function checkStartDriver(runTimeBatch: string, imageName: string, timeoutMs: number = 30000): bool {
+  return driverRunning(imageName) || startDriver(runTimeBatch, imageName, timeoutMs);
+}
+
+export function startDriver(runTimeBatch: string, imageName: string, timeoutMs: number = 30000): bool {
+  // was startSelenium.bat
+  executeRunTimeFileAsynch(runTimeBatch);
+  return waitRetry(() => driverRunning(imageName), timeoutMs);
+}
+
+export function killDriver(imageName: string): bool {
+  return killTask(p => p.imageName === imageName);
+}
+
+export function driverRunning(imageName: string): bool {
+  return taskExists(p => p.imageName === imageName);
+}
+
+const geckoDriverImage = "geckodriver.exe",
+      geckoDriverBat = 'launchGeckoDriver.bat';
+
+export function startGeckoDriver(): bool {
+  return startDriver(geckoDriverBat, geckoDriverImage);
+}
+
+export function killGeckoDriver(): bool {
+  return killDriver(geckoDriverImage);
+}
+
+export function checkStartGeckoDriver() : bool {
+  return checkStartDriver(geckoDriverBat, geckoDriverImage);
 }
 
 export function stopSession() {
@@ -59,14 +92,6 @@ export function interact<T>(...params?: mixed[]): T {
   } catch (e) {
     return fail(e);
   }
-}
-
-let seleniumLaunched = false;
-function startSeleniumServerOnce() {
-  if (!seleniumLaunched){
-    checkStartSelenium();
-  }
-  seleniumLaunched = true;
 }
 
 export {
@@ -92,7 +117,7 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
   const out = fs.openSync(logFile('launchWdioServerDetached-out.log'), 'w'),
         err = fs.openSync(logFile('launchWdioServerDetached-err.log'), 'w'),
         proDir = projectDir(),
-        //executeRunTimeFile('launchWebIOServer.bat', false);
+        //executeRunTimeFile('launchGeckoDriver.bat', false);
         child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
                                                       cwd: proDir,
                                                       detached: true,
@@ -115,7 +140,7 @@ function launchWdioClientAndServer(config: {}) {
 export function startWdioServer(config: {}) {
   try {
     let failed = false;
-    //startSeleniumServerOnce();
+    checkStartGeckoDriver();
     //$FlowFixMe
     let wdio = new Launcher('.\\wdio.conf.js', config);
     log('Launching file: ' + cast(config).specs.join(', '));
@@ -160,20 +185,6 @@ export function launchWebInteractor(soucePath: string, beforeInfo: BeforeRunInfo
   } catch (e) {
     fail(e);
   }
-}
-
-export function checkStartSelenium() {
-  let running = seleniumRunning();
-  if (!running){
-    log('Starting Selenium WebDriver Server');
-    startSelenium();
-    let started = waitRetry(seleniumRunning, 60000, () => {}, 1000);
-    ensure(started, 'checkStartSelenium - selenium stand alone server did not start');
-  }
-}
-
-export function startSelenium() {
-  executeRunTimeFile('startSelenium.bat', false);
 }
 
 function seleniumSubUrl(subPath: string) {

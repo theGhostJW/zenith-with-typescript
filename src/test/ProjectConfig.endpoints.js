@@ -30,7 +30,7 @@ describe('run', () => {
     depth: 'Regression'
   };
 
-  it.only('Catch Test Run', () => {
+  it('Catch Test Run', () => {
     run(runConfig);
   });
 
