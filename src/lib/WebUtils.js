@@ -37,7 +37,8 @@ import {
 
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
-          runClient, sendClientDone, stopSession, waitConnected } from './WebLauncher';
+          runClient, sendClientDone, stopSession, waitConnected,
+          checkStartGeckoDriver } from './WebLauncher';
 
 import clipBoardy from 'clipboardy';
 
@@ -1594,6 +1595,8 @@ function signatureChanged(sig) {
 }
 
 export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => T, ...params: any[]): T {
+  // delete checkStartGeckoDriver();
+  // debug("after checkStartGeckoDriver");
   let result;
   try {
     runClient();

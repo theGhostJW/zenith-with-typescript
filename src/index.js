@@ -366,6 +366,6 @@
 // export {
 //   checkStartSelenium,
 //   startSelenium,
-//   seleniumRunning,
+//   geckoRunning,
 //   seleniumStatus
 // } from './lib/WebLauncher';

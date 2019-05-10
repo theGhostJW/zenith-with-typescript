@@ -2,23 +2,24 @@
 
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
 import { debug, waitRetry, cast, listProcesses, killTask } from '../lib/SysUtils';
-import { toTemp, toTempString } from '../lib/FileUtils';
+import { toTemp, toTempString, runTimeFile } from '../lib/FileUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { seleniumStatus, seleniumRunning, startGeckoDriver, checkStartGeckoDriver, killGeckoDriver } from '../lib/WebLauncher';
+import { geckoStatus, geckoRunning, startGeckoDriver, checkStartGeckoDriver, killGeckoDriver } from '../lib/WebLauncher';
+import child_process from 'child_process';
 
 describe('seleniumStatus', () => {
 
   it('show', () => {
-    console.log(seleniumStatus());
+    console.log(geckoStatus());
   });
 
 });
 
-describe('seleniumRunning', () => {
+describe('geckoRunning', () => {
 
   it('show', () => {
-    let isRunning = seleniumRunning();
+    let isRunning = geckoRunning();
     chk(isRunning);
     //chkFalse(isRunning);
   });
@@ -27,23 +28,35 @@ describe('seleniumRunning', () => {
 
 describe('startSelenium', () => {
 
+  it('kill', () => {
+    //toTemp(listProcesses(), "beforeProcesses.yaml");
+    //toTemp(listProcesses(), "afterProcesses.yaml");
+    killGeckoDriver();
+  });
+
   it('run', () => {
     //toTemp(listProcesses(), "beforeProcesses.yaml");
     const started = startGeckoDriver();
     chk(started);
     //toTemp(listProcesses(), "afterProcesses.yaml");
-    killGeckoDriver();
+    //killGeckoDriver();
   });
 
 });
 
 describe('checkStartSelenium', () => {
+  it('startGecko True', () => {
+    killGeckoDriver();
+    startGeckoDriver();
+  })
 
-  it.only('run', () => {
-    checkStartGeckoDriver();
-    checkStartGeckoDriver();
-    checkStartGeckoDriver();
-    checkStartGeckoDriver();
-  });
+  it('startGecko', () => {
+    //startGeckoDriver();
+    killGeckoDriver();
+   // const child = child_process.exec('C:\ZenithFlow\runTimeFileslaunchGeckoDriver.bat');
+                                                  
+    //debug("beforeunref");
+    //child.unref();
+  })
 
 });

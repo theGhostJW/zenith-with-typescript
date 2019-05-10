@@ -5,7 +5,7 @@ import { runClient, invocationResponse, clearInvocationResponse, activeSocket,
           sendInvocationParams, sendClientDone, isConnected } from './SeleniumIpcClient';
 
 import { stringToFile, tempFile, toTempString, toTemp, fromTemp, projectDir,
-         logFile, combine } from './FileUtils';
+         logFile, combine, fileToString } from './FileUtils';
 import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
 import { log, logError, lowLevelLogging, logWarning } from './Logging';
 import { show, trimChars } from './StringUtils';
@@ -40,21 +40,21 @@ export function waitConnected(timeout: number, wantConnected: boolean = true) {
 }
 
 // todo: other drivers
-export function checkStartDriver(runTimeBatch: string, imageName: string, timeoutMs: number = 30000): bool {
-  return driverRunning(imageName) || startDriver(runTimeBatch, imageName, timeoutMs);
+export function checkStartDriver(runTimeBatch: string, isReady: () => bool, timeoutMs: number = 30000): bool {
+  return isReady() || startDriver(runTimeBatch, isReady, timeoutMs);
 }
 
-export function startDriver(runTimeBatch: string, imageName: string, timeoutMs: number = 30000): bool {
+export function startDriver(runTimeBatch: string, isReady: () => bool, timeoutMs: number = 30000): bool {
   // was startSelenium.bat
   executeRunTimeFileAsynch(runTimeBatch);
-  return waitRetry(() => driverRunning(imageName), timeoutMs);
+  return waitRetry(isReady, timeoutMs);
 }
 
 export function killDriver(imageName: string): bool {
   return killTask(p => p.imageName === imageName);
 }
 
-export function driverRunning(imageName: string): bool {
+export function imageProcessRunning(imageName: string): bool {
   return taskExists(p => p.imageName === imageName);
 }
 
@@ -62,7 +62,7 @@ const geckoDriverImage = "geckodriver.exe",
       geckoDriverBat = 'launchGeckoDriver.bat';
 
 export function startGeckoDriver(): bool {
-  return startDriver(geckoDriverBat, geckoDriverImage);
+  return startDriver(geckoDriverBat, geckoRunning);
 }
 
 export function killGeckoDriver(): bool {
@@ -70,7 +70,7 @@ export function killGeckoDriver(): bool {
 }
 
 export function checkStartGeckoDriver() : bool {
-  return checkStartDriver(geckoDriverBat, geckoDriverImage);
+  return checkStartDriver(geckoDriverBat, geckoRunning);
 }
 
 export function stopSession() {
@@ -106,25 +106,36 @@ export function launchDetachedWdioServerInstance() {
   // //toDo: whats the deal with ipclogger in logging
   let config = fromTemp(weDriverTempConfigFileName, false);
   console.log(config);
+  console.log("DEBUG STARTING WEBDRIVERIO SERVER");
+  console.log("Reinstate later");
+  //TODO: reinstate when finsished
   startWdioServer(config);
   console.log('DONE');
 }
 
 export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean) {
+  checkStartGeckoDriver();
   let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeInfo, functionName, dynamicModuleLoading);
   toTemp(webDriverConfig, weDriverTempConfigFileName, false);
-
+   
+  debug(tempFile(weDriverTempConfigFileName), "webDriverConfig");
+  debug("starting");
   const out = fs.openSync(logFile('launchWdioServerDetached-out.log'), 'w'),
         err = fs.openSync(logFile('launchWdioServerDetached-err.log'), 'w'),
-        proDir = projectDir(),
-        //executeRunTimeFile('launchGeckoDriver.bat', false);
-        child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
+        proDir = projectDir();
+  
+  checkStartGeckoDriver();
+  debug("after checkStartGeckoDriver");
+  const child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
                                                       cwd: proDir,
                                                       detached: true,
                                                       stdio: [ 'ignore', out, err]
                                                     }
                                                   );
+
+  debug("beforeunref");
   child.unref();
+  debug("after unref");
 }
 
 function launchWdioClientAndServer(config: {}) {
@@ -138,17 +149,23 @@ function launchWdioClientAndServer(config: {}) {
 }
 
 export function startWdioServer(config: {}) {
+  console.log("DEBUG startWdioServer!!");
   try {
     let failed = false;
-    checkStartGeckoDriver();
+    // console.log("DEBUG STARTING DRIVER!!");
+    // checkStartGeckoDriver();
+    // console.log("DEBUG DRIVER Started");
     //$FlowFixMe
     let wdio = new Launcher('.\\wdio.conf.js', config);
+    console.log("LAUNCHER ASSIGNED");
+    console.log('Launching file: ' + cast(config).specs.join(', '));
+    console.log('CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
     log('Launching file: ' + cast(config).specs.join(', '));
     wdio.run().then(function (code) {
       if (code != 0){
         logError(`WebDriver test launcher returned non zero response code: ${show(code)}`);
+        failed = true;
       }
-      failed = true;
     }, function (error) {
       logError('Launcher failed to start the test', error.stacktrace);
       failed = true;
@@ -187,15 +204,15 @@ export function launchWebInteractor(soucePath: string, beforeInfo: BeforeRunInfo
   }
 }
 
-function seleniumSubUrl(subPath: string) {
+function geckoSubUrl(subPath: string) {
   return SELENIUM_BASE_URL + trimChars(subPath, ['/']);
 }
 
-export function seleniumStatus(): {} {
+export function geckoStatus(): {} {
 
   let response;
   try {
-    response = request('GET', seleniumSubUrl('/wd/hub/status'));
+    response = request('GET', geckoSubUrl('/status'));
   } catch (e) {
     response = translateErrorObj(e);
     response.ready = false;
@@ -209,7 +226,19 @@ export function seleniumStatus(): {} {
   }
 }
 
-export function seleniumRunning(): boolean {
-  let status = seleniumStatus();
-  return def(seekInObj(status, 'ready'), false);
+export function geckoRunning(): boolean {
+  function isReady() {
+    let status = geckoStatus();
+    return def(seekInObj(status, 'ready'), false);
+  }
+
+ //TODO: bug here when session already running - ready will be false
+ // will need work for parrellel runs
+  if (imageProcessRunning(geckoDriverImage)){
+    let result = waitRetry(isReady, 10000);
+    ensure(result, "Timeout waiting for gecko driver to be ready - status at timeout: " + show(geckoStatus()));
+    return true;
+  }
+  
+  return false;
 }

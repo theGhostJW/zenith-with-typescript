@@ -2,7 +2,7 @@
 
 import * as _ from 'lodash';
 import { now } from '../lib/DateTimeUtils';
-import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE } from './FileUtils';
+import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE, parentDir } from './FileUtils';
 import { log, logException } from '../lib/Logging';
 import {appendDelim, endsWith, hasText, lwrFirst, newLine, replaceAll,
       show, startsWith, stringToArray, subStrBetween, wildCardMatch, subStrBefore} from './StringUtils';
@@ -123,8 +123,9 @@ export function executeFileSynch(path: string): Buffer {
 
 export function executeFileAsynch(path: string): number {
   ensureFilePath(path);
+  let wd = parentDir(path);
   log(`executing ${path} async`);
-  const cp = child_process.exec(path);
+  const cp = child_process.exec(path, {cwd: wd});
   return cp.pid
 }
 

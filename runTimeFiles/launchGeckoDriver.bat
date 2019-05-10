@@ -1,1 +1,1 @@
-geckodriver.exe --port 4444
+start geckodriver.exe --port 4444
