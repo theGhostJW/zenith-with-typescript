@@ -1595,8 +1595,6 @@ function signatureChanged(sig) {
 }
 
 export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => T, ...params: any[]): T {
-  // delete checkStartGeckoDriver();
-  // debug("after checkStartGeckoDriver");
   let result;
   try {
     runClient();

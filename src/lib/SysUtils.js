@@ -121,6 +121,7 @@ export function executeFileSynch(path: string): Buffer {
  return child_process.execSync(path);
 }
 
+//todo: typed options corresponding to child_process - after change to typescript
 export function executeFileAsynch(path: string): number {
   ensureFilePath(path);
   let wd = parentDir(path);
