@@ -70,7 +70,8 @@ export type Element = {
 }
 
 //$FlowFixMe
-export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
+export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) 
+                                                                   : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
 
 //$FlowFixMe
 export const SS: string => Element[] = s => $$(s);
