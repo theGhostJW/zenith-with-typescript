@@ -15,8 +15,6 @@ import moment from 'moment';
 
 // TODO: check and fail if there are identical configs
 // TODO: change from when / then to title
-// TODO: revive webutils
-// TODO: autorestart gheko driver
 let config: TestConfig = {
   when: 'I cannot think of anything ~ Demo Web Case',
   then: 'I just write something',

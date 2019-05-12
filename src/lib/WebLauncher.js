@@ -102,15 +102,8 @@ export const rerunClient = runClient;
 
 const weDriverTempConfigFileName = 'webdriverIO.config';
 export function launchDetachedWdioServerInstance() {
-  console.log('Before from temp');
-  // //toDo: whats the deal with ipclogger in logging
   let config = fromTemp(weDriverTempConfigFileName, false);
-  console.log(config);
-  console.log("DEBUG STARTING WEBDRIVERIO SERVER");
-  console.log("Reinstate later");
-  //TODO: reinstate when finsished
   startWdioServer(config);
-  console.log('DONE');
 }
 
 export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean) {

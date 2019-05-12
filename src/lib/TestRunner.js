@@ -202,7 +202,6 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
 
 }
 
-//TODO: Fix endtime starttime being used
 let allCases: any[] = [];
 
 export type BaseRunConfig = {

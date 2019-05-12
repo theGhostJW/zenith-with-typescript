@@ -1,6 +1,5 @@
 // @flow
 
-//TODO: fix for new webdriver
 import {
   combine,
   copyFile,

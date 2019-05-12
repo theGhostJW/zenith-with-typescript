@@ -983,9 +983,6 @@ export function hasValue(arg : mixed): boolean {
     ? false
     : _.isArray(arg)
       ? true
-      : _.isObject(arg)
-        ? (notFalseVal('exists') && notFalseVal('Exists')) //TODO - this is specific to TC UI unfound UI items update for testCafe
-        : true;
 }
 
 // flow issues with lodash
