@@ -965,24 +965,7 @@ export function isUndefined(arg : mixed): boolean {
 }
 
 export function hasValue(arg : mixed): boolean {
-
-  function notFalseVal(key : string): boolean {
-    if(arg != null && typeof arg === 'object') {
-      let val : mixed = arg[key];
-      if (val != null) {
-        return (typeof val === 'boolean') && val;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    };
-  }
-
-  return isNullEmptyOrUndefined(arg)
-    ? false
-    : _.isArray(arg)
-      ? true
+  return !isNullEmptyOrUndefined(arg);
 }
 
 // flow issues with lodash

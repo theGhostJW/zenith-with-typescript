@@ -1651,18 +1651,6 @@ describe('hasValue', () => {
     result = hasValue(obj);
     chk(result);
 
-    result = hasValue({exists: true});
-    chk(result);
-
-    result = hasValue({Exists: true});
-    chk(result);
-
-    result = hasValue({exists: false});
-    chkFalse(result);
-
-    result = hasValue({Exists: false});
-    chkFalse(result);
-
     result = hasValue({});
     chk(result);
   });
