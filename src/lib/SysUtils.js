@@ -846,7 +846,7 @@ export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...oth
   return result == null ? undefined : result.value;
 }
 
-export const seekManyInObj = _.flowRight([getResultValues, seekManyInObjWithInfo]); // flowIssues _.flowRight(getResultValues, seekManyInObjWithInfo);
+export const seekManyInObj = _.flowRight([getResultValues, seekManyInObjWithInfo]); 
 
 function addressOfSeekResult(seekResult: SeekInObjResultItem) : string {
   let strKey = show(seekResult.key);

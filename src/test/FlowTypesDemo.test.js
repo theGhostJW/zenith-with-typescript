@@ -93,7 +93,7 @@ function callBig() {
       v4: boolean = isBig(undefined);
 }
 
-// fix 1 fix the function
+// 1 fix the function
 //
 // const isBig: number => boolean = n => n > 100
 //
@@ -105,7 +105,7 @@ function callBig() {
 //       v4: boolean = isBig(1);
 // }
 
-// fix 2 - return type - bad
+// 2 - return type - bad
 
 // use maybe / void / optional / default
 
