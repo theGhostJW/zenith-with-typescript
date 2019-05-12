@@ -31,14 +31,13 @@ import {
          ensureHasVal, ensureReturn, fail, debug, debugStk,
         filePathFromCallStackLine, forceArray, functionNameFromFunction,
         hasValue, isNullEmptyOrUndefined, isSerialisable,
-                                   stringConvertableToNumber,
-                                   waitRetry
+        stringConvertableToNumber, waitRetry
       } from './SysUtils';
 
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
           runClient, sendClientDone, stopSession, waitConnected,
-          checkStartGeckoDriver } from './WebLauncher';
+          checkStartGeckoDriver, killGeckoDriver } from './WebLauncher';
 
 import clipBoardy from 'clipboardy';
 
@@ -49,9 +48,8 @@ import * as _ from 'lodash';
 
 
 export type SelectorOrElement = string | Element;
+// an incomplete type safe facade over element
 export type Element = {
-  hcode: number,
-  sessionId: any,
   getText: () => string,
   getValue: () => string,
   getTagName: () => string,
@@ -60,18 +58,58 @@ export type Element = {
   getHTML: () => string,
   getAttribute: string => string | null,
   isSelected: () => boolean,
-  isVisible: () => boolean,
+  isDisplayed: () => boolean,
+  isDisplayedInViewport: () => boolean,
   click: () => void,
-  setValue: (string | number | (string|number)[]) => void,
+  setValue: (string) => void,
   selectByVisibleText: string  => void,
   selectByValue: string  => void,
   $$: string => Element[],
   $: string => Element
 }
 
+/* All existing - review again when moved to TS - I think element exists 
+element
+
+    addValue
+    clearValue
+    click
+    doubleClick
+    dragAndDrop
+    getAttribute
+    getCSSProperty
+    getHTML
+    getLocation
+    getProperty
+    getSize
+    getTagName
+    getText
+    getValue
+    isDisplayed
+    isDisplayedInViewport
+    isEnabled
+    isExisting
+    isFocused
+    isSelected
+    moveTo
+    saveScreenshot
+    scrollIntoView
+    selectByAttribute
+    selectByIndex
+    selectByVisibleText
+    setValue
+    shadow$$
+    shadow$
+    touchAction
+    waitForDisplayed
+    waitForEnabled
+    waitForExist
+    waitUntil
+
+*/
+
 //$FlowFixMe
-export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) 
-                                                                   : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
+export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
 
 //$FlowFixMe
 export const SS: string => Element[] = s => $$(s);
@@ -358,7 +396,7 @@ export function mapCells<T>(tableSelector: SelectorOrElement, cellFunc : CellFun
 function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true, maybeColMap: ?{[number]: string}): T[][] {
   let tbl = S(tableSelector);
   let rows = tbl.$$('tr');
-  let visFilter = e => !visibleOnly || e.isVisible(),
+  let visFilter = e => !visibleOnly || e.isDisplayedInViewport(),
       headerRow = _.head(rows),
       dataRows =  _.tail(rows);
 
@@ -425,7 +463,7 @@ function mapRows<T>(colProcessorCreator: (Element, number) => (Element, number) 
 export function mapCellsSimple<T>(tableSelector: SelectorOrElement, cellFunc : SimpleCellFunc<T>, visibleOnly: boolean = true): T[][] {
   let tbl = S(tableSelector),
       rows = tbl.$$('tr'),
-      visFilter = (e: Element) => !visibleOnly || e.isVisible();
+      visFilter = (e: Element) => !visibleOnly || e.isDisplayedInViewport();
 
   function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
     return function eachCellFunc(cell: Element, colIndex: number) {
@@ -875,7 +913,7 @@ type ElementPlusLocIsCheckControl = $Subtype<ElementPlusLoc> & {
 
 function addLocation(el:$Subtype<Element>): ElementPlusLoc {
   let loc = el.getLocation(),
-      size = el.getElementSize();
+      size = el.getSize();
 
   el.x = loc.x,
   el.y = loc.y;
@@ -1354,7 +1392,7 @@ export function isElement(candidate: mixed): boolean {
         _.isObject(candidate) &&
         !_.isArray(candidate) && (
           !_.isUndefined(cast(candidate).ELEMENT) ||
-          !_.isUndefined(cast(candidate).hCode)
+          !_.isUndefined(cast(candidate).getHTML)
         )
 }
 
@@ -1371,37 +1409,48 @@ function readSelect(elementOrSelector: SelectorOrElement) : string {
   return el.getValue();
 }
 
-export function setInput(elementOrSelector: SelectorOrElement, value: string | number) {
+export function setInput(elementOrSelector: SelectorOrElement, value: string) {
   let el = S(elementOrSelector);
   el.setValue(value);
 }
 
-/*
-WebElement parent = we.findElement(By.xpath(""));
+export function parent(elementOrSelector: SelectorOrElement, prd: Element => bool = _ => true): Element | null {
+  
+  ensureHasVal(elementOrSelector, "parent function: elementOrSelector is null");
 
- */
-
-export function parent(elementOrSelector: SelectorOrElement): Element | null {
-
-  let el = S(elementOrSelector),
-      result = null;
-
-  try {
-    result = el.$('..');
-  } catch (e) {
-     let eTxt = e.toString(),
-         known = hasText(eTxt, 'attached to the DOM', true) ||
+  function handleKnown<a, b>(f: () => a, dflt: b): a | b {
+    let rslt = null;
+    try {
+      rslt = f()
+    } catch (e) {
+      let eTxt = e.toString(),
+          known = hasText(eTxt, 'attached to the DOM', true) ||
                   hasText(eTxt, 'element could not be located', true);
-
-     if (known){
-       result = null;
-     }
-     else {
-       fail('parent function failed', e);
-     }
+      if (known){
+        rslt = dflt;
+      }
+      else {
+        fail('parent function failed', e);
+      }
+    }
+    return rslt;
   }
 
-  return result;
+  function nxtParent(elChild: SelectorOrElement){
+    function rawParent(): Element | null {
+      let el = S(elChild);
+      return  el.$('..');
+    }
+
+    return handleKnown(rawParent, null);
+  }
+
+  function nearestParent(el0) {
+    let el1 = nxtParent(el0);
+    return el1 == null || handleKnown(() => prd(el1), false) ? el1 : nearestParent(el1);
+  }
+
+  return nearestParent(elementOrSelector);
 }
 
 // need date later
@@ -1459,7 +1508,7 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
 
       case 'input':
         if (wantSet) {
-          setInput(el, cast(value));
+          setInput(el, show(value));
         }
         break;
 
@@ -1508,7 +1557,7 @@ function isCheckBoxType(type: string): boolean {
    return sameText(type, 'checkbox');
 }
 
-function elementType(el: Element) {
+export function elementType(el: Element) {
   return def(el.getAttribute('type'), '');
 }
 
@@ -1571,7 +1620,7 @@ export function url(url: string) {
 }
 
 export function click(elementSelector: string) {
-  browser.click(elementSelector);
+  S(elementSelector).click();
 }
 
 /***********************************************************************************************
@@ -1662,7 +1711,10 @@ function launchSession<T>(before: (() => void) | null | string, func: (...any) =
        beforeFuncInfo,
        sourcePath
      } = extractNamesAndSource(before, caller, func);
+     
+     killGeckoDriver();
      launchWdioServerDetached(sourcePath, beforeFuncInfo, funcName, true);
+
      ensure(waitConnected(30000), 'Timed out waiting on interactor');
      return cast(interact(...params));
    }

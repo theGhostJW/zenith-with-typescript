@@ -114,18 +114,14 @@ export function launchDetachedWdioServerInstance() {
 }
 
 export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean) {
-  checkStartGeckoDriver();
   let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeInfo, functionName, dynamicModuleLoading);
   toTemp(webDriverConfig, weDriverTempConfigFileName, false);
    
-  debug(tempFile(weDriverTempConfigFileName), "webDriverConfig");
-  debug("starting");
   const out = fs.openSync(logFile('launchWdioServerDetached-out.log'), 'w'),
         err = fs.openSync(logFile('launchWdioServerDetached-err.log'), 'w'),
         proDir = projectDir();
   
   checkStartGeckoDriver();
-  debug("after checkStartGeckoDriver");
   const child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
                                                       cwd: proDir,
                                                       detached: true,
@@ -133,9 +129,7 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
                                                     }
                                                   );
 
-  debug("beforeunref");
   child.unref();
-  debug("after unref");
 }
 
 function launchWdioClientAndServer(config: {}) {
@@ -227,15 +221,17 @@ export function geckoStatus(): {} {
 }
 
 export function geckoRunning(): boolean {
-  function isReady() {
+  // if connected to a session ready status will be false
+  // so just testing status is there 
+  function hasStatus() {
     let status = geckoStatus();
-    return def(seekInObj(status, 'ready'), false);
+    return status != null;
   }
 
  //TODO: bug here when session already running - ready will be false
  // will need work for parrellel runs
   if (imageProcessRunning(geckoDriverImage)){
-    let result = waitRetry(isReady, 10000);
+    let result = waitRetry(hasStatus, 10000);
     ensure(result, "Timeout waiting for gecko driver to be ready - status at timeout: " + show(geckoStatus()));
     return true;
   }

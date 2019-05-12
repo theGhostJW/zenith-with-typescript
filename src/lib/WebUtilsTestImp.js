@@ -8,7 +8,7 @@ import {show} from '../lib/StringUtils';
 
 import {cast, debug, waitRetry} from '../lib/SysUtils';
 import {
-          browserEx, click, clickLink,
+          browserEx, click, clickLink, elementType,
           elementIs, getForm, idAttribute, linkByText,
           links,  mapCellsSimple, parent, predicateToFinder, radioItemVals,
           read, rerun, set, setChecked,
@@ -29,7 +29,6 @@ export {    clickLink,
             setSelect,
             setForm,
             getForm,
-            parent,
             mapCellsSimple,
             cell,
             readCell,
@@ -112,6 +111,16 @@ export const FORM_INPUT_PROXIMAL_LABELS = {
      'Expire*': '12/24'
    }
 
+export function parentHtml(selector: SelectorOrElement): string {
+  let p = parent(selector)
+  return p != null ? p.getHTML() : "PARENT EMPTY";
+}
+
+export function parentTableHtml(selector: SelectorOrElement): string {
+  let p = parent(selector, e => e.getTagName() === "table");
+  return p != null ? p.getHTML() : "PARENT EMPTY";
+}
+
 export function cellVal(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult {
   let cl = cell(tableSelector, lookUpVals, valueCol);
   return cl == undefined ? null : read(cl);
@@ -147,8 +156,6 @@ export function mapCellsLog(selector: string): string [][] {
   return mapCells(selector, readHeadedLogCell, false);
 }
 
-
-
 export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_MOSTLY_IDS)
                                       .clone()
                                       .omit('ctl00_MainContent_fmwOrder_cardList')
@@ -182,7 +189,6 @@ function findById(key: string, editable: Element[], nonEditable: ?Element[]) : ?
 }
 
 export function setWithFindByIdOnlyAndLwrStreetName(){
-  // #ctl00_MainContent_fmwOrder_cardList_2
   let vals = _.clone(FORM_INPUT_ALL_IDS);
   vals.ctl00_MainContent_fmwOrder_TextBox2 = cast(withSetter('22 Vernon Street', setWithLwr));
   setForm(FORM_ID, vals, setWithCaps, findById);
@@ -198,24 +204,6 @@ export function setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder(){
                                                     (k, e) => e.getAttribute('name') == k
                                                   );
   setForm(FORM_ID, vals, setWithCaps, findById);
-}
-
-export function recursiveParent() {
-
-  function topParent(el) {
-    let result = parent(el);
-
-    if (result == null){
-      return el;
-    }
-    else {
-      return topParent(result)
-    }
-  }
-
-  let rslt = topParent('#ctl00_MainContent_fmwOrder_cardList_0');
-  // Only sort of working can't gettext on top parent
-  return rslt;
 }
 
 export function basicSet() {

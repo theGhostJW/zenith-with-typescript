@@ -9,18 +9,19 @@ import {
   chkHasText,
   chkWithMessage,
 } from '../lib/AssertionUtils';
-import { show } from '../lib/StringUtils';
+import { show, startsWith } from '../lib/StringUtils';
 import { cast, debug, debugStk, fail, waitRetry } from '../lib/SysUtils';
 import { read, rerun, set, setForm } from '../lib/WebUtils';
 import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLink, clickOrderLink,
         /* setForm,*/ getForm,  invalidUncheckCheckBox, linkByTextText,  links, mapCellsLog, mapCellsLogNoInvisibles,
-        mapCellsSimple, mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parent, radioItemVals,
-        readCell,readSetRadioGroup, recursiveParent,  setRadioGroup,  setReadInput,
+        mapCellsSimple, mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parentHtml, radioItemVals,
+        readCell,readSetRadioGroup, parentTableHtml,  setRadioGroup,  setReadInput,
         setReadProduct,  setSelect, setSmartbearcaps, setSmartbearcapsLwrAddress, setThisForm,
         setWithFindByIdOnlyAndLwrStreetName, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder, smartBearLogIn,  smartbearOrders,
         readTable, setTable, AVAILABLE_PRODUCTS, CARD_LIST_ID,
         FORM_ID, FORM_INPUT_FOR_LABELS,
         FORM_INPUT_MOSTLY_IDS,
+        FORM_INPUT_ALL_IDS,
         FORM_INPUT_PROXIMAL_LABELS,
         FORM_INPUT_RADIO_NAME,
         PRODUCT_SELECTOR,
@@ -151,26 +152,13 @@ describe('Table Utils', () => {
 describe('setForm', () => {
 
   it('setForm ~ ids', () => {
-    // let actual = rerun(smartbearOrders, setFormWithIds),
-    //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
-    //                  .defaults(FORM_INPUT)
-    //                  .mapValues(show)
-    //                  .value();
-
-    //chkEq(expected, actual)
+    rerun(smartbearOrders, setForm, FORM_ID, FORM_INPUT_ALL_IDS);
   });
 
   // Radio set by group name
   it('setForm ~ radio group by name', () => {
     let input = FORM_INPUT_RADIO_NAME;
     rerun(smartbearOrders, setForm, FORM_ID, input);
-     // let actual = ,
-     //     expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
-     //                 .defaults(FORM_INPUT)
-     //                 .mapValues(show)
-     //                 .value();
-     //
-     // chkEq(expected, actual)
   });
 
 
@@ -203,16 +191,15 @@ describe('setForm', () => {
 
 });
 
-// FRAMEWORK DEMO
 describe('getForm', () => {
   it('getForm - orders', () => {
     rerun(smartbearOrders, getForm, FORM_ID);
   });
 })
 
-describe('getFormDump test', () => {
+describe('another setform test', () => {
 
-  it('getForm demo', () => {
+  it('setform demo', () => {
     let params = {
       product: 'FamilyAlbum',
 		  pricePerUnit: 100,
@@ -225,22 +212,22 @@ describe('getFormDump test', () => {
 
 });
 
+// - is this an impl thing
 describe('parent', () => {
-
   it('simple', () => {
-    let result = rerun(smartbearOrders, parent, '#ctl00_MainContent_fmwOrder_cardList_0');
-    debug(result);
+    let result = rerun(smartbearOrders, parentHtml, '#ctl00_MainContent_fmwOrder_cardList_0');
+    chk(startsWith(result, '<td><input id="ctl00_MainContent_fmwOrder_cardList_0"'));
   });
 
-  it('recursive to top', () => {
-    let result = rerun(smartbearOrders, recursiveParent);
-    // Only sort of working can't gettext on top parent
-    chk(result != null);
+  it('with predicate', () => {
+    let result = rerun(smartbearOrders, parentTableHtml, '#ctl00_MainContent_fmwOrder_cardList_0');
+    chk(startsWith(result, '<table id="ctl00_MainContent_fmwOrder_cardList"'));
   });
 
 });
 
-describe('full form set ~ hard coded', () => {
+// up to here
+describe.only('full form set ~ hard coded', () => {
   it('set and read', () => {
     let actual = rerun(smartbearOrders, basicSet),
         expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
