@@ -201,7 +201,7 @@ export function geckoStatus(): {} {
   try {
     response = request('GET', geckoSubUrl('/status'));
   } catch (e) {
-    response = translateErrorObj(e);
+    response = translateErrorObj(e, 'exception thrown getting geckoServer Status');
     response.ready = false;
   }
 

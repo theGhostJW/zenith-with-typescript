@@ -177,7 +177,7 @@ export function testRun<R: BaseRunConfig, FR: BaseRunConfig, T: BaseTestConfig, 
     testList.forEach(runTestInstance);
 
   } catch (e) {
-    logException(`Exception thrown in test run`, translateErrorObj(e));
+    logException(`Exception thrown in test run`, translateErrorObj(e, `Exception thrown in test run`));
   } finally {
     logEndRun(runName);
   }
@@ -321,7 +321,7 @@ function exStage(stage: Action, stageName: string, preLog: Action, postLog: Acti
       stage();
     }
     catch (e) {
-      logException(`Exception Thrown ${stageName}`, translateErrorObj(e));
+      logException(`Exception Thrown ${stageName}`, translateErrorObj(e, `Exception Thrown ${stageName}`));
       continu = false;
     } finally {
       postLog();

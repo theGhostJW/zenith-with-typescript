@@ -1295,27 +1295,43 @@ export const nameAttribute: Element => string | null = e => e.getAttribute('name
 export const idAttribute: Element => string | null = e => e.getAttribute('id');
 
 export function setSelect(elementOrSelector: SelectorOrElement, visText: string): void {
+  debug(elementOrSelector, "eorselector");
+  debug(visText, "vistxt");
+
   let el = S(elementOrSelector),
       isSet = false;
 
+  debug(el, 'el');
+
+  function isNotFoundError(e){
+    let msg = debug(e.message, 'msg');
+    return debug(hasText(msg,'An element could not be located') ||
+           hasText(msg,"because element wasn't found") ||
+           hasText(msg, 'Malformed type for "elementId" parameter of command'), 'isNotFoundError');
+  }
+    
   try {
+    debug(visText, 'visText - 1');
     el.selectByVisibleText(visText);
     isSet = true;
   } catch (e) {
-    if (!hasText(e.message,'An element could not be located')){
-      fail(e);
+    debug(e.message, "Message 1");
+    if (!isNotFoundError(e)) {
+      throw(e);
     }
   }
 
   if (!isSet){
     try {
-      el.selectByValue(visText);
+      debug(visText, 'val1 - 1');
+      el.selectByAttribute('value', visText);
     } catch (e) {
-      if (hasText(e.message,'An element could not be located')){
-        e.message = 'Element could not be located either by visible text or by value.' + newLine() +
-                    e.message;
+      debug(e.message, "Message 2");
+      if (!isNotFoundError(e)){
+        throw(e);
       }
-      fail('Element could not be located either by visible text or by value.', e);
+      debug("Fail Pending");
+      fail('Select element could not be located either by visible text or by value: ' + visText, e);
     }
   }
 

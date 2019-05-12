@@ -90,7 +90,7 @@ export const logStartValidator = (name: string) => specialMessage('ValidatorStar
 export const logEndValidator = (name: string) => specialMessage('ValidatorEnd', 'PopFolder')(name);
 
 export const logException = (message: string, exceptionObj: any) => {
-  let errobj = translateErrorObj(exceptionObj);
+  let errobj = translateErrorObj(exceptionObj, message);
   logError(message,
       show(exceptionObj),
       {

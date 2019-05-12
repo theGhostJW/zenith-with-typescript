@@ -226,8 +226,7 @@ describe('parent', () => {
 
 });
 
-// up to here
-describe.only('full form set ~ hard coded', () => {
+describe('full form set ~ hard coded', () => {
   it('set and read', () => {
     let actual = rerun(smartbearOrders, basicSet),
         expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
@@ -253,10 +252,10 @@ describe('select', () => {
     chkEq(AVAILABLE_PRODUCTS.reverse(), allProducts);
   });
 
-  it('invalid select', () => {
+  it.only('invalid select', () => {
     chkExceptionText(
-       () => rerun(smartbearOrders, setSelect, 'Lexus'),
-      'An element could not be located'
+       () => rerun(smartbearOrders, setSelect, '#ctl00_MainContent_fmwOrder_ddlProduct', 'Lexus'), 
+      'could not be located either by visible text or by value'
     )
   });
 

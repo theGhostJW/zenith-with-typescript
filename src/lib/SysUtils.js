@@ -86,17 +86,23 @@ export function randomInt0(upperBound: number) {
   return randomInt(0, upperBound);
 }
 
-export function translateErrorObj(e: any) : any {
+export function translateErrorObj(e: any, description: string) : any {
   let errObj;
   if (_.isObject(e) && hasValue(e.stack)) {
-    errObj = {
-      name: e.name,
-      message: e.message,
-      stack: e.stack
+    errObj = { 
+      failureDescription: description,
+      exceptionInfo: {
+        name: e.name,
+        message: e.message,
+        stack: e.stack
+      }
     }
   }
   else {
-    errObj = e;
+    errObj = { 
+      failureDescription: description,
+      exceptionInfo: e
+    }
   }
   return errObj;
 }
@@ -574,7 +580,7 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
 
 // a fudge to keep the type checker happy
 export function fail<T>(description: string, e: any): T {
-  let err = e == null ? failInfoObj(description) : translateErrorObj(e);
+  let err = translateErrorObj(e, description);
   logException(description, err);
   throw err;
 }
