@@ -43,10 +43,6 @@ function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
   }
 }
 
-function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
-  return null;
-}
-
 function mockFilename(item: Item, runConfig: RunConfig) {
   return '';
 }
@@ -87,7 +83,6 @@ export const testCase: TestCase<Item, ApState, DState>  = {
   testConfig: config,
   interactor: interactor,
   prepState: prepState,
-  summarise: summarise,
   testItems: testItems
 }
 

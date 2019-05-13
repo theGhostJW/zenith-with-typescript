@@ -107,10 +107,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
  }
 }
 
-function summarise(runConfig: RunConfig, item: Item, a: ApState, dState: DState): string | null {
-  return null;
-}
-
 function  testItems(runConfig: RunConfig): Item[] {
   return [
     {
@@ -129,7 +125,6 @@ export const testCase: TestCase<Item, ApState, DState>  = {
   testConfig: config,
   interactor: interactor,
   prepState: prepState,
-  summarise: summarise,
   testItems: testItems
 }
 

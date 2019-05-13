@@ -9,7 +9,7 @@ export type LogIterationConfig = {
 }
 
 export type Iteration = {|
-   summary: string,
+   dState: string,
    startTime: string,
    endTime:  string,
    valTime: string,

@@ -70,11 +70,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   }
 }
 
-// TODO: get rid of summaries
-function summarise(runConfig: RunConfig, item: Item, apState: ApState, dState: DState): string | null {
-  return null;
-}
-
 // TODO: - exception thrown in validator eg when calling non existent 
 // function - check error message passed through correctly
 // TODO: change assertion utils and checkUtils to be the same API
@@ -160,7 +155,6 @@ export const testCase: TestCase<Item, ApState, DState>  = {
   testConfig: config,
   interactor: interactor,
   prepState: prepState,
-  summarise: summarise,
   testItems: testItems
 }
 

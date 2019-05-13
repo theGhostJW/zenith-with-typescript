@@ -260,7 +260,6 @@
 //   logEndInteraction,
 //   logPrepValidationInfoStart,
 //   logPrepValidationInfoEnd,
-//   logStartIterationSummary,
 //   logIterationSummary,
 //   logValidationStart,
 //   logValidationEnd,

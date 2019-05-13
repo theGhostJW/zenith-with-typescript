@@ -8,9 +8,9 @@ import {
 import { show, newLine, hasText} from '../lib/StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logEndIteration, logError, pushLogFolder, popLogFolder, log,
-          logIterationSummary, logFilterLog, logException, logValidationStart,
+          logFilterLog, logException, logValidationStart,
           logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
-          logStartIterationSummary, logEndInteraction, logPrepValidationInfoStart,
+          logEndInteraction, logPrepValidationInfoStart,
           logPrepValidationInfoEnd, latestRawPath } from '../lib/Logging';
 import moment from 'moment';
 import { now, strToMoment } from '../lib/DateTimeUtils';
@@ -241,7 +241,6 @@ export type BaseCase<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S, V> = {
   testConfig: T,
   interactor: (item: I, runConfig: R) => S,
   prepState: (S, I, R) => V,
-  summarise: (runConfig: R, item: I, apState: S, dState: V) => string | null,
   mockFileName?: (item: I, runConfig: R) => string,
   testItems: (runConfig: R) => I[]
 }
@@ -391,16 +390,6 @@ export function runTestItem<R: BaseRunConfig, T: BaseTestConfig, I: BaseItem, S,
                               () => logValidationStart(valTime, dState),
                               logValidationEnd,
                               continu);
-
-    let summary = '';
-    continu = exStage(() => {
-                              summary = def(baseCase.summarise(runConfig, item, apState, dState), 'NULL')
-                            },
-                            'Generating Summary',
-                            logStartIterationSummary,
-                            () => logIterationSummary(summary),
-                            continu
-                          );
 }
   catch (e) {
     logException('Exception thrown in iteration');

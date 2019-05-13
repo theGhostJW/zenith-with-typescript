@@ -77,8 +77,6 @@ export const logEndInteraction = (
 export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')('Start Validation Prep');
 export const logPrepValidationInfoEnd = (dState: any) => specialMessage('PrepValidationInfoEnd')('End Validation Prep', {dState: dState});
 
-export const logStartIterationSummary = () => specialMessage('StartSummary')('Start Summary');
-export const logIterationSummary = (summary: string) => specialMessage('Summary')(summary);
 export const logValidationStart = (valTime: moment$Moment, dState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
                                                                                                                                     valTime: timeToShortDateTimeHyphenatedMs(valTime),
                                                                                                                                     dState: dState

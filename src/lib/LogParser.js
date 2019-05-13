@@ -127,7 +127,6 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
  function rawToElements(rawPath: string, fullSummary: FullSummaryInfo): (RunState, LogEntry) => RunState {
 
    let resultPath = destPath(rawPath, 'raw', 'elements'),
-      // Here separating writer and summariser
        writeToFile = fileRecordWriter(resultPath),
        lastRunStats: RunStats = nullRunStats(),
        testStatKeys = _.keys(emptyTestStats());
