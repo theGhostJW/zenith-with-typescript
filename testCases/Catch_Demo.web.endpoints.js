@@ -16,7 +16,7 @@ describe('endPoint', () => {
        {
        mocked: false,
        testCase: testCase,
-       selector: allItems
+       selector: 100
      }
     );
   });

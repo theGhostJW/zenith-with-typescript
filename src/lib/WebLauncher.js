@@ -144,9 +144,8 @@ export function startWdioServer(config: {}) {
     // console.log("DEBUG DRIVER Started");
     //$FlowFixMe
     let wdio = new Launcher('.\\wdio.conf.js', config);
-    console.log("LAUNCHER ASSIGNED");
-    console.log('Launching file: ' + cast(config).specs.join(', '));
-    console.log('CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
+    // console.log('Launching file: ' + cast(config).specs.join(', '));
+    // console.log('CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
     log('Launching file: ' + cast(config).specs.join(', '));
     wdio.run().then(function (code) {
       if (code != 0){
@@ -185,6 +184,7 @@ export function launchWebInteractor(soucePath: string, beforeInfo: BeforeRunInfo
   try {
       clearInvocationResponse();
       let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeInfo, functionName, dynamicModuleLoading);
+      geckoRestartIfNotReady();
       launchWdioClientAndServer(webDriverConfig);
   } catch (e) {
     fail(e);
@@ -213,12 +213,24 @@ export function geckoStatus(): {} {
   }
 }
 
+export function geckoRestartIfNotReady() {
+  if (!geckoReady()){
+    if (imageProcessRunning(geckoDriverImage)){
+      killGeckoDriver();
+    }
+    startGeckoDriver();
+  }
+}
+
+export function geckoReady(): boolean {
+  return geckoRunning() && def(seekInObj(geckoStatus(), 'value', 'ready'), false);
+}
+
 export function geckoRunning(): boolean {
   // if connected to a session ready status will be false
   // so just testing status is there 
   function hasStatus() {
-    let status = geckoStatus();
-    return status != null;
+    return geckoStatus() != null;
   }
 
  //TODO: bug here when session already running - ready will be false

@@ -283,7 +283,7 @@ export function smartbearOrders() {
   clickOrderLink();
 }
 
-export function checkUncheck(): bool {
+export function checkUncheck(): any {
   setChecked('#ctl00_MainContent_fmwOrder_cardList_0', true);
   setChecked('#ctl00_MainContent_fmwOrder_cardList_1', true);
   setChecked('#ctl00_MainContent_fmwOrder_cardList_2', true);
