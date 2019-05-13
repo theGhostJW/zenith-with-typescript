@@ -11,7 +11,7 @@ import {
           browserEx, click, clickLink, elementType,
           elementIs, getForm, idAttribute, linkByText,
           links,  mapCellsSimple, parent, predicateToFinder, radioItemVals,
-          read, rerun, set, setChecked,
+          read, rerun, set, setChecked, getUrl,
           setForm, setInput, setRadioGroup, setSelect,
           url, withFinder, withPredicate,
           withSetter, zzzTestFunc, S, SS
@@ -22,7 +22,7 @@ import {mapCells, cell} from './WebUtils';
 import * as _ from 'lodash';
 
 
-export {    clickLink,
+export {    
             links,
             radioItemVals,
             setRadioGroup,
@@ -110,6 +110,11 @@ export const FORM_INPUT_PROXIMAL_LABELS = {
       'Card Nr*': '12345678',
      'Expire*': '12/24'
    }
+
+export function clickLinkReturnUrl(lnk: string): string {
+  clickLink(lnk);
+  return getUrl();
+}
 
 export function parentHtml(selector: SelectorOrElement): string {
   let p = parent(selector)
@@ -256,8 +261,9 @@ export function checkReturnChecked() {
 }
 
 
-export function clickOrderLink() {
-  clickLink(s => s === 'Order')
+export function clickOrderLink(): string {
+  clickLink(s => s === 'Order');
+  return getUrl();
 }
 
 export function smartBearLogIn() {
@@ -265,6 +271,11 @@ export function smartBearLogIn() {
   set('#ctl00_MainContent_username', 'Tester');
   set('#ctl00_MainContent_password', 'test');
   click('#ctl00_MainContent_login_button');
+  return getUrl();
+}
+
+export function smartBearLogInVoid() {
+  smartBearLogIn();
 }
 
 export function smartbearOrders() {
@@ -272,10 +283,11 @@ export function smartbearOrders() {
   clickOrderLink();
 }
 
-export function checkUncheck() {
+export function checkUncheck(): bool {
   setChecked('#ctl00_MainContent_fmwOrder_cardList_0', true);
   setChecked('#ctl00_MainContent_fmwOrder_cardList_1', true);
   setChecked('#ctl00_MainContent_fmwOrder_cardList_2', true);
+  return read('#ctl00_MainContent_fmwOrder_cardList_2');
 }
 
 export function invalidUncheckCheckBox() {

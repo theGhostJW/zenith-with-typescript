@@ -117,8 +117,8 @@ return   `
 
           emitMessage('InvocationResponse', response);
         } catch (e) {
-          let err = translateErrorObj(e);
-          logException('Failed in Selenium Interaction', err);
+          let err = translateErrorObj(e, 'Failed in WebDriver Interaction');
+          logException('Failed in WebDriver Interaction', err);
           emitMessage('Exception', err);
         } finally {
           setInvocationParams(null);

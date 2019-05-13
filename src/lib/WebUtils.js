@@ -1634,6 +1634,10 @@ export function url(url: string) {
   browser.url(url);
 }
 
+export function getUrl(): string {
+  return browser.getUrl();
+}
+
 export function click(elementSelector: string) {
   S(elementSelector).click();
 }
