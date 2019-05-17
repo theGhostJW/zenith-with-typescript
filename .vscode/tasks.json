@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "tsc-watch",
+      "command": "tsc",
+      "args": ["-w", "-p", "."],
+      "type":"shell",
+      "isBackground": true,
+      "group":"build",
+      "problemMatcher": "$tslint5",
+      "presentation":{
+        "reveal": "always",
+      }
+    }
+  ]
+}
