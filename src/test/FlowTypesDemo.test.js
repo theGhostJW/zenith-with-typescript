@@ -111,7 +111,7 @@ function callBig() {
 
 const showBig : (b: boolean) => string = b => b ? 'BIG' : 'small';
 
-function isBig(num: number): ?boolean {
+function isBig2(num: number): ?boolean {
   if (num > 100)
     return true
   else

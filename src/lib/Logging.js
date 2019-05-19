@@ -291,6 +291,7 @@ export type LogEntry = {
 
 let rawTimeStampLogDir: string = '',
     rawTimeStampLogFilePath: string = '';
+
 export const logger = newWinstton();
 
 export const latestRawPath = () => logFileBaseDuplicate('latest.raw.yaml');
@@ -311,9 +312,6 @@ function nowLogFormatted() {
 }
 
 function newWinstton() {
-  if (logger) {
-    logger.close();
-  }
 
   let rightNow = nowLogFormatted(), // have to use local method as not all modules loaded
       subDir = combineDuplicate(logFileBaseDuplicate(), rightNow);
@@ -323,11 +321,11 @@ function newWinstton() {
 
   let isWebDriverProcess = hasText(process.mainModule.filename, '@wdio');
   return new (winston.Logger)({
-    transports: isWebDriverProcess ? [ ipcLogger() ] : [
-                                                        consoleLogger(),
-                                                        fileLogger(logFileBaseDuplicate('latest.raw.yaml')),
-                                                        fileLogger(rawTimeStampLogFilePath)
-                                                      ]
+                  transports: isWebDriverProcess ? [ ipcLogger() ] : [
+                                                    consoleLogger(),
+                                                    fileLogger(logFileBaseDuplicate('latest.raw.yaml')),
+                                                    fileLogger(rawTimeStampLogFilePath)
+                                                  ]
   });
 }
 
@@ -404,8 +402,8 @@ function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string
   return [projFolder, tried];
 }
 
-let projectDirSingleton: ?string = null;
-export function projectDirDuplicate() : string {
+var projectDirSingleton: ?string = null;
+function projectDirDuplicate() : string {
 
   if (projectDirSingleton == null){
     let seedName = module.filename,

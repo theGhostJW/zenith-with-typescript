@@ -15,8 +15,8 @@ import {
 import {newLine, show, replaceAll} from '../lib/StringUtils';
 import type { CharacterEncoding } from '../lib/StringUtils';
 import {logWarning, log, logError, timeStampedLogDir} from '../lib/Logging';
-import {parse, join, relative } from 'path';
-import * as path from 'path';
+//import {parse, join, relative } from 'path';
+import * as p from 'path';
 import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
 import * as del from 'del';
@@ -27,7 +27,7 @@ import { toMoment } from '../lib/DateTimeUtils'
 import lineByLine from 'n-readlines';
 
 
-export const PATH_SEPARATOR = path.sep;
+export const PATH_SEPARATOR = p.sep;
 
 const TEMP_STR_FILES : {
   [string] : boolean
@@ -74,8 +74,8 @@ export function relativeToAbsolute (relativePath: string, basePath: string): str
   let nUpLn, sDir = "",
       sPath = basePath;
 
-  sPath = replaceAll(sPath, path.sep, '/');
-  relativePath = replaceAll(relativePath, path.sep, '/');
+  sPath = replaceAll(sPath, p.sep, '/');
+  relativePath = replaceAll(relativePath, p.sep, '/');
 
   sPath = sPath.replace(/[^\/]*$/, relativePath.replace(/(\/|^)(?:\.?\/+)+/g, "$1"));
 
@@ -84,10 +84,10 @@ export function relativeToAbsolute (relativePath: string, basePath: string): str
     nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))[0].length; // I assume list cannot be empty due to for condition
     sDir = (sDir + sPath.substring(nStart, nEnd)).replace(new RegExp("(?:\\\/+[^\\\/]*){0," + ((nUpLn - 1) / 3) + "}$"), "/");
   }
-  return replaceAll(sDir + sPath.substr(nStart), '/', path.sep) ;
+  return replaceAll(sDir + sPath.substr(nStart), '/', p.sep) ;
 }
 
-export const relativePath = relative;
+export const relativePath = p.relative;
 
 export function zipAll(sourceDir: string, destPath: string, fileFilter: (fileName: string, filePath: string) => boolean = (p, s) => true ): string {
 
@@ -96,7 +96,7 @@ export function zipAll(sourceDir: string, destPath: string, fileFilter: (fileNam
  let zip = nodeZip();
 
  function archiveFile(name, path) {
-   let relPath = relative(sourceDir, path);
+   let relPath = p.relative(sourceDir, path);
    zip.file(relPath, fs.readFileSync(path));
  }
 
@@ -133,7 +133,7 @@ export function toTempString(str : string, fileName : ?string, wantWarning : boo
 
 // base name of a full path
 export function fileOrFolderName(fullPath: string): string {
-  let parts = path.parse(fullPath);
+  let parts = p.parse(fullPath);
   return parts.base;
 }
 
@@ -215,7 +215,7 @@ export function eachFolder(baseDir : string, directoryFunc : (folderName : strin
 }
 
 export function parentDir(baseDir: string): string {
-  return path.parse(baseDir).dir;
+  return p.parse(baseDir).dir;
 }
 
 // https://github.com/douzi8/file-match#filter-description
@@ -223,7 +223,7 @@ export function parentDir(baseDir: string): string {
 //
 //     *.js only match js files in current dir.
 //     **/*.js match all js files.
-//     path/*.js match js files in path.
+//     path/*.js match js files in p.
 //     !*.js exclude js files in current dir.
 //     .{jpg,png,gif} means jpg, png or gif
 //
@@ -360,18 +360,18 @@ export function forceDirectory(path : string) : string {
 }
 
 export function defaultExtension(path : string, defExt : string) : string {
-  let parts = parse(path);
+  let parts = p.parse(path);
   return hasValue(fileExtension(path))
     ? path
     : changeExtension(path, defExt);
 }
 
 export function changeExtension(path : string, newExt : string) : string {
-  let parts = parse(path);
-  return join(parts.dir, parts.name + newExt);
+  let parts = p.parse(path);
+  return p.join(parts.dir, parts.name + newExt);
 }
 
-export function fileExtension(path : string) : string {return parse(path).ext;}
+export function fileExtension(path : string) : string {return p.parse(path).ext;}
 
 export function fileToString(path : string, encoding : CharacterEncoding = 'utf8') : string {
   return fs.readFileSync(path, encoding);
@@ -427,7 +427,7 @@ function subFile(subDir :string, fileName: ?string) : string {
 }
 
 export function combine(root : string, ...childPaths : Array < string >) {
-  return path.join(root, ...childPaths);
+  return p.join(root, ...childPaths);
 }
 
 export function seekFolder(startFileOrFolder : string, pathPredicate : (path : string) => boolean) :
@@ -435,9 +435,9 @@ export function seekFolder(startFileOrFolder : string, pathPredicate : (path : s
     return hasValue(startFileOrFolder)
       ? pathPredicate(startFileOrFolder)
         ? startFileOrFolder
-        : areEqual(path.dirname(startFileOrFolder), startFileOrFolder)
+        : areEqual(p.dirname(startFileOrFolder), startFileOrFolder)
           ? null
-          : seekFolder(path.dirname(startFileOrFolder), pathPredicate): null;
+          : seekFolder(p.dirname(startFileOrFolder), pathPredicate): null;
   }
 
 export function pathExists(path : string) : boolean {return fs.existsSync(path);}

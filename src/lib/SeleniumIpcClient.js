@@ -40,7 +40,7 @@ export function sendClientDone() {
   clientEmit('ClientSessionDone');
 }
 
-export function sendInvocationParams(...params?: mixed[]) {
+export function sendInvocationParams(...params: mixed[]) {
   clientEmit('InvocationParams', params);
 }
 

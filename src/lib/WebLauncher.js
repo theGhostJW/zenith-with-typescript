@@ -80,7 +80,7 @@ export function stopSession() {
   }
 }
 
-export function interact<T>(...params?: mixed[]): T {
+export function interact<T>(...params: mixed[]): T {
   try {
     ensureHasVal(activeSocket(), 'socket not assigned')
     clearInvocationResponse();
