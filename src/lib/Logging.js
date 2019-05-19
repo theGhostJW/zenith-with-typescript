@@ -14,6 +14,8 @@ import * as mkdirp from 'mkdirp';
 import type { Protocol } from './SeleniumIpcProtocol';
 import { emitMessageIfSocketAssigned } from './SeleniumIpcServer';
 
+let ipcLogs = 0;
+
 // may have issues loading so duplicated from FileUtils
 function combineDuplicate(root : string, ...childPaths : Array < string >) {
   return path.join(root, ...childPaths);
@@ -367,7 +369,6 @@ export function fileLogger(filePath: string) {
     });
 }
 
-let ipcLogs = 0;
 export function ipcLogger() {
   return new (winston.transports.IPCLogger)({
       name: `ipc logger ${(ipcLogs++).toString()}`,
