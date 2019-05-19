@@ -67,7 +67,6 @@ export function tryEncodings(buffer: any, options: CharacterEncoding[] = ['utf8'
   return _.transform(options, (acc, en) => acc[en] = decode(en), {})
 }
 
-
 export function lwrFirst(str: ?string) {
   return str == null ? str : str.charAt(0).toLowerCase() + str.slice(1);
 }
@@ -215,7 +214,6 @@ export function templateLoader(templateString: string): {} => string {
 export function loadTemplate(templateString: string, data: {}): string {
   return templateLoader(templateString)(data);
 }
-
 
 export function loadTemplatePositional(templateString: string, ...data: any): string {
   // note lodays does not work with numeric keys so can't use lodash templating for this

@@ -1,5 +1,7 @@
+import * as S from '../lib/StringUtils';
+
 function sayHello(name: string): void {
-  console.log(`Hello ${name}!`);
+  console.log(S.upperCase(`Hello ${name}!`));
 }
 
 sayHello("Bill");
