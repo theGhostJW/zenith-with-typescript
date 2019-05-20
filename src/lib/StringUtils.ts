@@ -1,20 +1,9 @@
-// @flow
-
-import { def, debug, hasValue, ensure, autoType, objToYaml, ensureReturn, areEqual,
+import { def, hasValue, ensure, autoType, objToYaml, areEqual,
           cast, xmlToObj, deepMapValues } from '../lib/SysUtils';
-import { toTemp, toTempString } from '../lib/FileUtils';
-import S from 'string';
 import * as _ from 'lodash';
 import parseCsvSync from 'csv-parse/lib/sync';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
-import xmlFormatter from 'xml-formatter';
-
-
-export type XmlFormatOptions = {
-    stripComments?: boolean,
-    indentation?: string,
-    debug?: boolean
-}
+import { format, XmlFormatOptions } from 'xml-formatter';
 
 const XML_DEF_OPTS: XmlFormatOptions  =  {
     stripComments: true,
@@ -23,7 +12,7 @@ const XML_DEF_OPTS: XmlFormatOptions  =  {
 }
 
 export function formatXml(xml: string, options: XmlFormatOptions = XML_DEF_OPTS) : string {
-  return xmlFormatter(xml, options);
+  return format(xml, options);
 }
 
 /*
