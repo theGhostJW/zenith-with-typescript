@@ -1,9 +1,12 @@
 import { def, hasValue, ensure, autoType, objToYaml, areEqual,
           cast, xmlToObj, deepMapValues } from '../lib/SysUtils';
-import * as _ from 'lodash';
+
+import _ from 'lodash' 
+
 import parseCsvSync from 'csv-parse/lib/sync';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
 import { format, XmlFormatOptions } from 'xml-formatter';
+import { any } from 'bluebird';
 
 const XML_DEF_OPTS: XmlFormatOptions  =  {
     stripComments: true,
@@ -56,12 +59,12 @@ export function tryEncodings(buffer: any, options: CharacterEncoding[] = ['utf8'
   return _.transform(options, (acc, en) => acc[en] = decode(en), {})
 }
 
-export function lwrFirst(str: ?string) {
+export function lwrFirst(str?: string) {
   return str == null ? str : str.charAt(0).toLowerCase() + str.slice(1);
 }
 
 function ALLOWABLE_PROP_CHARS(){
-  function firstChar(str){
+  function firstChar(str: string){
     return str.slice(0, 1);
   }
 
@@ -73,17 +76,6 @@ function ALLOWABLE_PROP_CHARS(){
                       .concat(_.map(_.range(0, 11), show))
                       .value();
 
-}
-
-function containsNonAlphaNumericOrUnderscore(str){
-
-  var allowable = ALLOWABLE_PROP_CHARS();
-
-  function notAllowed(chr){
-    return !allowable.includes(chr);
-  }
-
-  return _.some(str.split(''), notAllowed);
 }
 
 // just to get stingify to look pretty
@@ -103,7 +95,7 @@ export function propsObjectStringFromXml(xmlStr: string): string {
 export function convertXmlToSimpleTemplate(xml: string){
   var lines = standardiseLineEndings(xml).split(newLine());
 
-  function makeTemplateLineIfSimple(str){
+  function makeTemplateLineIfSimple(str: string){
     let tagName = subStrBetween(str, '<','>'),
         result = str;
 
@@ -121,7 +113,7 @@ export function convertXmlToSimpleTemplate(xml: string){
 }
 
 
-function transformSection(dataObj: {}, transformerFunc: (string, {}) => string, transformedTemplate: string, unTransformedTemplate: string, sectionName: string){
+function transformSection(dataObj: {}, transformerFunc: (s: string, {}) => string, transformedTemplate: string, unTransformedTemplate: string, sectionName: string){
   let parts = templateSectionParts(unTransformedTemplate, sectionName),
       transformedSection = transformerFunc(parts.section, dataObj);
 
@@ -131,8 +123,29 @@ function transformSection(dataObj: {}, transformerFunc: (string, {}) => string, 
       };
 }
 
-export function loadSectionedTemplate(template: string, transformers: {[string]: (string,  { [string|number]: ?string|number }) => string}, data: {}): string {
+export function templateLoader(templateString: string): (({}) => string) {
+  _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+  return _.template(templateString);
+}
 
+export function loadTemplate(templateString: string, data: {}): string {
+  return templateLoader(templateString)(data);
+}
+
+export function loadTemplatePositional(templateString: string, ...data: any): string {
+  // note lodash does not work with numeric keys so can't use lodash templating for this
+  function applyKey(accum, val, idx) {
+    let tag = '{{' + show(idx) + '}}'
+    return replaceAll(accum, tag, show(val))
+  }
+  return data.reduce(applyKey, templateString);
+}
+
+
+type ReturnType = string|number|null
+
+//export function loadSectionedTemplate(template: string, transformers: {[string]: (string,  {}) => string}, data: {}): string {
+export function loadSectionedTemplate(template: string, transformers: {[string]: (string,  { [string|number]: ReturnType}) => string}, data: {}): string {
 
     function applyTransformer(accum, transformerFunc: (string, {}) => string, sectionName: string){
       return transformSection(data[sectionName],
@@ -195,23 +208,6 @@ export function templateParts(template: string, recordStart: string, recordFinis
          };
 }
 
-export function templateLoader(templateString: string): {} => string {
-  _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-  return _.template(templateString);
-}
-
-export function loadTemplate(templateString: string, data: {}): string {
-  return templateLoader(templateString)(data);
-}
-
-export function loadTemplatePositional(templateString: string, ...data: any): string {
-  // note lodays does not work with numeric keys so can't use lodash templating for this
-  function applyKey(accum, val, idx) {
-    let tag = '{{' + show(idx) + '}}'
-    return replaceAll(accum, tag, show(val))
-  }
-  return data.reduce(applyKey, templateString);
-}
 
 export function trimLines(str: string) {
   return standardiseLineEndings(str).split(newLine()).map(s => s.trim()).join(newLine());
@@ -290,7 +286,7 @@ const getRandomValuesFunc =
 
 
 type FieldTransformer = (val: any, key: string, obj: {[string]: any}) => any;
-type RowTransformer<T> = {[string]: any} => T;
+type RowTransformer<T> = ({[string]: any}) => T;
 
 export function transformGroupedTable<T>(unTypedTable: {[string]: any}[][], rowTransformer: RowTransformer<T>) : T[][] {
   return unTypedTable.map((row) => row.map(rowTransformer));
@@ -359,17 +355,19 @@ function applyFieldTransformers(target: {[string]: any}[][], fieldTransformers: 
   return target.map(transformRows);
 }
 
+
 function linesToGroupedObjects(lines: string[], errorInfo: string, spaceCountToTab: number) : {[string]: any}[][]  {
   let headAndLines = headerAndRemainingLines(lines, spaceCountToTab),
       header: string[] = headAndLines.header,
       groups: string[][]= headAndLines.groups,
-      arrToObjs: (string[]) => {[string]: any}[] = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
+      arrToObjs: (arr: string[]) => Map<string, any>[] = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
+     // arrToObjs: ((string[]) => {[string]: any}[]) = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
       result: {[string]: any}[][] = _.map(groups, arrToObjs);
 
    return result;
 }
 
-function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: string[]): (string[]) => {[string]: any}[]  {
+function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: string[]): (arr: string[]) => {[string]: any}[]  {
   return (lines: string[]): {[string]: any}[] => {
     function makeObjs(accum: {}[], fields: string[], idx: number): {}[] {
       ensureReturn(header.length === fields.length, errorInfo + ' row no: ' + idx +
@@ -453,7 +451,7 @@ function headerAndRemainingLines(lines: string[], spaceCountToTab: number){
 
   var propsAndLines = _.reduce(lines, filterLine, {
                                             groups: ([] : string[][]),
-                                            activeGroup: ((null: any): ?string[]),
+                                            activeGroup: ((null: any): string[] | null),
                                             props: ([] : string[]),
                                             lastLine: '',
                                             started: false,
@@ -468,16 +466,16 @@ function headerAndRemainingLines(lines: string[], spaceCountToTab: number){
 
 }
 
-function makeSplitTrimFunction(spaceCountToTab){
-  function tabReplace(txt){
+function makeSplitTrimFunction(spaceCountToTab: number){
+  function tabReplace(txt: string){
     return spaceCountToTab < 1 ? txt : replaceAll(txt, ' '.repeat(spaceCountToTab), '\t');
   }
 
-  function splitLine(line){
+  function splitLine(line: string){
     return dedupeTabSpaces(line).split('\t');
   }
 
-  function trimElements(elems){
+  function trimElements(elems: [string]){
     return _.map(elems, trim);
   }
 
@@ -559,7 +557,7 @@ function splitOnPropName(txt: string) : {[string]: string}{
 
   let result = _.reduce(lines, buildSection,  {
                                           result: {},
-                                          active: (null: ?string[])
+                                          active: (null: string[] | null)
                                         }
                                         ).result;
 
@@ -591,11 +589,11 @@ export function upperFirst(str: string): string  {
   return str.length > 0 ? str.charAt(0).toUpperCase() + str.slice(1): str;
 }
 
-export const upperCase : string => string = (s) => s.toUpperCase();
+export const upperCase : (s: string) => string = (s) => s.toUpperCase();
 
-export const lowerCase : string => string = (s) => s.toLowerCase();
+export const lowerCase : (s: string) => string = (s) => s.toLowerCase();
 
-export function appendDelim(str1: ?string, delim: string, str2: ?string){
+export function appendDelim(str1?: string, delim: string, str2?: string){
    str1 = def(str1, "");
    delim = def(delim, "");
    str2 = def(str2, "");
@@ -673,16 +671,16 @@ export function show<T>(val : T): string {
   }
 }
 
-export function startsWith(str: ?string, preFix: string) : boolean {
+export function startsWith(str?: string, preFix: string) : boolean {
   return str != null ? str.indexOf(preFix) === 0 : false;
 }
 
 
-export function endsWith(str: ?string, suffix: string) {
+export function endsWith(str?: string, suffix: string) {
   return str != null ?  str.indexOf(suffix, str.length - suffix.length) !== -1 : false;
 }
 
-export function hasText(hayStack: ?string, needle: string, caseSensitive: boolean = false): boolean {
+export function hasText(hayStack?: string, needle: string, caseSensitive: boolean = false): boolean {
   return hayStack == null ? false :
                             caseSensitive ? hayStack.includes(needle) :
                                             hayStack.toLowerCase().includes(needle.toLowerCase()) ;

@@ -4,13 +4,17 @@
     {
       "label": "tsc-watch",
       "command": "tsc",
-      "args": ["-w", "-p", "."],
-      "type":"shell",
+      "args": [
+        "-w",
+        "-p",
+        "."
+      ],
+      "type": "shell",
       "isBackground": true,
-      "group":"build",
+      "group": "build",
       "problemMatcher": "$tslint5",
-      "presentation":{
-        "reveal": "always",
+      "presentation": {
+        "reveal": "always"
       }
     }
   ]

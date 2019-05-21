@@ -26,7 +26,7 @@ describe('formatXml', () => {
 
 describe('tryEncodings', () => {
 
-  it('basic', () => {
+  it.only('basic', () => {
     let str = 'HEllo there I am a string',
         buff = Buffer.from(str, 'ascii'),
         venc = tryEncodings(buff);
