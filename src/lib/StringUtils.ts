@@ -1,12 +1,11 @@
 import { def, hasValue, ensure, autoType, objToYaml, areEqual,
           cast, xmlToObj, deepMapValues } from '../lib/SysUtils';
 
-import _ from 'lodash' 
+const _ : _.LoDashStatic = require('lodash');
 
 import parseCsvSync from 'csv-parse/lib/sync';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
 import { format, XmlFormatOptions } from 'xml-formatter';
-import { any } from 'bluebird';
 
 const XML_DEF_OPTS: XmlFormatOptions  =  {
     stripComments: true,
@@ -42,9 +41,9 @@ The character encodings currently supported by Node.js include:
 export type CharacterEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
 
 /*
-  try encodings on buiffer and return the ones that do not blow up
+  try encodings on buffer and return the ones that do not blow up
  */
-export function tryEncodings(buffer: any, options: CharacterEncoding[] = ['utf8', 'ascii', 'ucs2', 'base64', 'binary',  'hex'] ) {
+export function tryEncodings(buffer: any, options: CharacterEncoding[] = ['utf8', 'ascii', 'ucs2', 'base64', 'binary',  'hex'] ): Map<CharacterEncoding, string> {
 
   function decode(enc: CharacterEncoding): string {
     let result = 'DECODE ERROR';
@@ -56,26 +55,11 @@ export function tryEncodings(buffer: any, options: CharacterEncoding[] = ['utf8'
     return result;
   }
 
-  return _.transform(options, (acc, en) => acc[en] = decode(en), {})
+  return _.transform(options, (acc, en) => acc.set(en, decode(en)), new Map<CharacterEncoding, string>())
 }
 
 export function lwrFirst(str?: string) {
   return str == null ? str : str.charAt(0).toLowerCase() + str.slice(1);
-}
-
-function ALLOWABLE_PROP_CHARS(){
-  function firstChar(str: string){
-    return str.slice(0, 1);
-  }
-
-  return _.chain(_.range(65, 91))
-                      .concat(_.range(97, 123))
-                      .map(String.fromCharCode)
-                      .map(firstChar)
-                      .concat('_')
-                      .concat(_.map(_.range(0, 11), show))
-                      .value();
-
 }
 
 // just to get stingify to look pretty
@@ -113,7 +97,7 @@ export function convertXmlToSimpleTemplate(xml: string){
 }
 
 
-function transformSection(dataObj: {}, transformerFunc: (s: string, {}) => string, transformedTemplate: string, unTransformedTemplate: string, sectionName: string){
+function transformSection(dataObj: {}, transformerFunc: (s: string, {}) => string, transformedTemplate: string, unTransformedTemplate: string, sectionName: string): SectionAccum {
   let parts = templateSectionParts(unTransformedTemplate, sectionName),
       transformedSection = transformerFunc(parts.section, dataObj);
 
@@ -134,21 +118,22 @@ export function loadTemplate(templateString: string, data: {}): string {
 
 export function loadTemplatePositional(templateString: string, ...data: any): string {
   // note lodash does not work with numeric keys so can't use lodash templating for this
-  function applyKey(accum, val, idx) {
+  function applyKey(accum: string, val: any, idx: number) {
     let tag = '{{' + show(idx) + '}}'
     return replaceAll(accum, tag, show(val))
   }
   return data.reduce(applyKey, templateString);
 }
 
+interface SectionAccum {
+  transformedTemplate: string,
+  unTransformedTemplate: string
+};
 
-type ReturnType = string|number|null
+export function loadSectionedTemplate(template: string, transformers: Map<string, (s: string, m: {}) => string>, data: {}): string {
 
-//export function loadSectionedTemplate(template: string, transformers: {[string]: (string,  {}) => string}, data: {}): string {
-export function loadSectionedTemplate(template: string, transformers: {[string]: (string,  { [string|number]: ReturnType}) => string}, data: {}): string {
-
-    function applyTransformer(accum, transformerFunc: (string, {}) => string, sectionName: string){
-      return transformSection(data[sectionName],
+    function applyTransformer(accum: SectionAccum, transformerFunc: (t: string, d: {}) => string, sectionName: string): SectionAccum {
+      return transformSection( (<{}>(<any>data)[sectionName]),
                                       transformerFunc,
                                       accum.transformedTemplate,
                                       accum.unTransformedTemplate,
@@ -156,7 +141,7 @@ export function loadSectionedTemplate(template: string, transformers: {[string]:
                                       );
     }
 
-    let transformed = _.reduce(transformers, applyTransformer, {
+    let transformed = _.reduce(transformers, <any>applyTransformer, {
                                                                    transformedTemplate: '',
                                                                    unTransformedTemplate: template
                                                                   });
@@ -227,7 +212,7 @@ export function subStrBetween(haystack: string, startDelim: string, endDelim: st
 export function trimChars(str: string, arChars: string[]): string {
   ensure(!arChars.includes(''), 'Empty string passed in to trimChars char array (param: arChars) - you cannot trim an empty string');
 
-  const inTrim = (char) => arChars.includes(char);
+  const inTrim = (chr: string) => arChars.includes(chr);
 
   while (inTrim(str.substr(0, 1))){
     str = str.substr(1);
@@ -246,8 +231,8 @@ export function trimChars(str: string, arChars: string[]): string {
   return result;
 }
 
-export const parseCsv = (text: string, options: {[string]: string | boolean} = DEFAULT_CSV_PARSE_OPTIONS, wantAutoType: boolean = true): {[string]: string}[] => {
-  let result = parseCsvSync(text, options);
+export const parseCsv = (text: string, options: {[key:string]: string | boolean} = DEFAULT_CSV_PARSE_OPTIONS, wantAutoType: boolean = true): {[key:string]: string}[] => {
+  let result = (<any>parseCsvSync)(text, options);
   return wantAutoType ? autoType(result) : result;
 }
 
@@ -266,7 +251,8 @@ export function trim(str: string): string {
   return _.trim(str);
 }
 
-const lut = Array(256).fill().map((_, i) => (i < 16 ? '0' : '') + (i).toString(16));
+const lut = (<any>Array(256)).fill().map((_: any, i: number) => (i < 16 ? '0' : '') + (i).toString(16));
+// @ts-ignore
 const formatUuid = ({d0, d1, d2, d3}) =>
   lut[d0       & 0xff]        + lut[d0 >>  8 & 0xff] + lut[d0 >> 16 & 0xff] + lut[d0 >> 24 & 0xff] + '-' +
   lut[d1       & 0xff]        + lut[d1 >>  8 & 0xff] + '-' +
@@ -285,31 +271,36 @@ const getRandomValuesFunc =
   });
 
 
-type FieldTransformer = (val: any, key: string, obj: {[string]: any}) => any;
-type RowTransformer<T> = ({[string]: any}) => T;
+type FieldTransformer = (val: any, key: string, obj: {[key:string]: any}) => any;
+type RowTransformer<T> = (m:{[key:string]: any}) => T;
 
-export function transformGroupedTable<T>(unTypedTable: {[string]: any}[][], rowTransformer: RowTransformer<T>) : T[][] {
+export function transformGroupedTable<T>(unTypedTable: {[key:string]: any}[][], rowTransformer: RowTransformer<T>) : T[][] {
   return unTypedTable.map((row) => row.map(rowTransformer));
 }
 
-function fieldToRowTransformer(fieldTransformer: FieldTransformer): ({[string]: any}) => {[string]: any} {
+function fieldToRowTransformer(fieldTransformer: FieldTransformer): (m:{[key:string]: any}) => {[k:string]: any} {
   return (obj) => _.mapValues(obj, fieldTransformer);
 }
 
-export function stringToTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : {[string]: T[]} {
+export function stringToTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : {[k:string]: T[]} {
   var sections = splitOnPropName(txt);
   return _.mapValues(sections, (txt) => stringToTable(txt, rowTransformer, ...fieldTransformers));
 }
 
-export function stringToGroupedTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : {[string]: T[][]} {
+export function stringToGroupedTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : {[k:string]: T[][]} {
   var sections = splitOnPropName(txt);
   return _.mapValues(sections, (txt) => stringToGroupedTable(txt, rowTransformer, ...fieldTransformers));
 }
 
+function safeCheckedFirst<T>(nested: T[][]): T[] {
+  ensure(nested.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
+  return nested.length === 0 ? [] : nested[0];
+}
 
 export function stringToTable<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : T[] {
   let result = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
   result = transformGroupedTable(result, rowTransformer);
+  // @ts-ignore
   return safeCheckedFirst(result);
 }
 
@@ -322,33 +313,28 @@ export function stringToGroupedTable<T>(txt: string, rowTransformer: RowTransfor
   return stringToGroupedTableDefinedTabSize(txt, 2, rowTransformer, ...fieldTransformers);
 }
 
-export function stringToTableLooseTyped(txt: string, ...fieldTransformers: FieldTransformer[]) : {[string]: any}[] {
-  let result: {[string]: any}[][] = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
+export function stringToTableLooseTyped(txt: string, ...fieldTransformers: FieldTransformer[]) : {[k:string]: any}[] {
+  let result: {[k:string]: any}[][] = stringToGroupedTableLooseTyped(txt, ...fieldTransformers);
   return safeCheckedFirst(result);
 }
 
-function safeCheckedFirst<T>(nested: T[][]): T[] {
-  ensure(nested.length < 2, 'loading nested rows with stringToTable - use stringToGroupedTable for such cases');
-  return nested.length === 0 ? [] : nested[0];
-}
-
-export function stringToGroupedTableLooseTyped(txt: string, ...fieldTransformers: FieldTransformer[]) : {[string]: any}[][] {
+export function stringToGroupedTableLooseTyped(txt: string, ...fieldTransformers: FieldTransformer[]) : {[k:string]: any}[][] {
   return stringToGroupedTableLooseTypedDefinedTabSize(txt, 2, ...fieldTransformers);
 }
 
 const stdLinesAndSplit = (str: string) => standardiseLineEndings(str).split(newLine());
 
-export function stringToGroupedTableLooseTypedDefinedTabSize(txt: string, spaceCountToTab: number = 2, ...fieldTransformers: FieldTransformer[]) : {[string]: any}[][] {
+export function stringToGroupedTableLooseTypedDefinedTabSize(txt: string, spaceCountToTab: number = 2, ...fieldTransformers: FieldTransformer[]) : {[k:string]: any}[][] {
   let lines = stdLinesAndSplit(txt),
       result = linesToGroupedObjects(lines, '', spaceCountToTab).map(autoType);
 
   return applyFieldTransformers(result, fieldTransformers);
 }
 
-function applyFieldTransformers(target: {[string]: any}[][], fieldTransformers: FieldTransformer[]): {[string]: any}[][] {
+function applyFieldTransformers(target: {[k:string]: any}[][], fieldTransformers: FieldTransformer[]): {[k:string]: any}[][] {
   let rowTrans = fieldTransformers.map(fieldToRowTransformer);
 
-  function transformRows(rows: {[string]: any}[]): {[string]: any}[] {
+  function transformRows(rows: {[k:string]: any}[]): {[k:string]: any}[] {
     return _.reduce(rowTrans, (accum, rowTrans) => accum.map(rowTrans), rows);
   }
 
@@ -356,29 +342,26 @@ function applyFieldTransformers(target: {[string]: any}[][], fieldTransformers: 
 }
 
 
-function linesToGroupedObjects(lines: string[], errorInfo: string, spaceCountToTab: number) : {[string]: any}[][]  {
+function linesToGroupedObjects(lines: string[], errorInfo: string, spaceCountToTab: number) : {[k:string]: any}[][]  {
   let headAndLines = headerAndRemainingLines(lines, spaceCountToTab),
       header: string[] = headAndLines.header,
-      groups: string[][]= headAndLines.groups,
-      arrToObjs: (arr: string[]) => Map<string, any>[] = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
+      groups: string[][] = headAndLines.groups,
+      arrToObjs = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
      // arrToObjs: ((string[]) => {[string]: any}[]) = makeArrayToObjectsFunction(errorInfo, spaceCountToTab, header),
-      result: {[string]: any}[][] = _.map(groups, arrToObjs);
+      result: {[k:string]: any}[][] = _.map(groups, arrToObjs);
 
    return result;
 }
 
-function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: string[]): (arr: string[]) => {[string]: any}[]  {
-  return (lines: string[]): {[string]: any}[] => {
+function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, header: string[]): (arr: string[]) => {[k:string]: any}[]  {
+  return (lines: string[]): {[k:string]: any}[] => {
     function makeObjs(accum: {}[], fields: string[], idx: number): {}[] {
-      ensureReturn(header.length === fields.length, errorInfo + ' row no: ' + idx +
+      ensure(header.length === fields.length, errorInfo + ' row no: ' + idx +
                                             ' has incorrect number of elements expect: ' + header.length +
-                                            ' actual is: ' + fields.length,
-                                            'property names' +  newLine() +
-                                            header.join(', ') +  newLine() +
-                                            'fields' +  newLine() +
-                                            fields.join(', ')
+                                            ' actual is: ' + fields.length + '. ' + 'property names' +  newLine() +
+                                            header.join(', ') +  newLine() + 'fields' +  newLine() + fields.join(', ')
                                           );
-      function addProp(accum: {[string]: any} , prpVal: [string, string]): {[string]: any} {
+      function addProp(accum: {[k:string]: any} , prpVal: [string, string]): {[k:string]: any} {
         accum[prpVal[0]] = prpVal[1];
         return accum;
       }
@@ -386,7 +369,8 @@ function makeArrayToObjectsFunction(errorInfo: string, spaceCountToTab: number, 
       function makeRecord(){
        return _.chain(header)
                 .zip(fields)
-                .reduce(addProp, ({}: {[string]: any}) )
+                // @ts-ignore
+                .reduce(addProp, <{[k:string]: any}>{})
                 .value();
       }
       accum.push(makeRecord());
@@ -407,13 +391,23 @@ type HeaderAndLines = {
 
 function headerAndRemainingLines(lines: string[], spaceCountToTab: number){
 
-  function pushGroup(accum){
-    let newGroup = [];
+  interface Accum {
+    groups: string[][],
+    activeGroup: string[],
+    props: string[],
+    lastLine: string,
+    started: boolean,
+    done: boolean,
+    nullLineEncountered: boolean
+  }
+
+  function pushGroup(accum: Accum){
+    let newGroup = <string[]>[];
     accum.groups.push(newGroup);
     accum.activeGroup = newGroup;
   }
 
-  function filterLine(accum, line){
+  function filterLine(accum: Accum, line: string){
 
     if (accum.done){
       return accum;
@@ -450,9 +444,9 @@ function headerAndRemainingLines(lines: string[], spaceCountToTab: number){
   }
 
   var propsAndLines = _.reduce(lines, filterLine, {
-                                            groups: ([] : string[][]),
-                                            activeGroup: ((null: any): string[] | null),
-                                            props: ([] : string[]),
+                                            groups: <string[][]>[],
+                                            activeGroup: <string[]>[],
+                                            props: <string[]>[],
                                             lastLine: '',
                                             started: false,
                                             done: false,
@@ -460,8 +454,8 @@ function headerAndRemainingLines(lines: string[], spaceCountToTab: number){
                                           });
 
   return {
-      header: propsAndLines.props,
-      groups: propsAndLines.groups
+    header: propsAndLines.props,
+    groups: propsAndLines.groups
   };
 
 }
@@ -479,7 +473,7 @@ function makeSplitTrimFunction(spaceCountToTab: number){
     return _.map(elems, trim);
   }
 
-  return function splitTrim(str){
+  return function splitTrim(str: string){
      return _.flowRight([trimElements, splitLine, tabReplace])(str);
     // flow issues: return _.flowRight(trimElements, splitLine, tabReplace)(str);
   }
@@ -497,7 +491,7 @@ function replaceWithTabs(str: string, strToReplace: string, lastLength: number =
   return len === lastLength ? str : replaceWithTabs(str, strToReplace, len);
 }
 
-function isGroupDivider(line){
+function isGroupDivider(line: string){
   return hasText(line, '----');
 }
 
@@ -538,16 +532,21 @@ export function capFirst(str: string): string {
   return hasValue(str) ? str.charAt(0).toUpperCase() + str.slice(1): str;
 }
 
-function splitOnPropName(txt: string) : {[string]: string}{
+function splitOnPropName(txt: string) : {[k:string]: string}{
 
   let lines = stdLinesAndSplit(txt);
 
-  function buildSection(accum, line){
+  interface Accum {
+    result: {},
+    active: string[] | null
+  };
+
+  function buildSection(accum: Accum, line: string){
     if (hasText(line, '::')){
       var prop = subStrBefore(line, '::');
-      ensure(!hasValue(accum[prop]), 'Duplicate property names in text');
-      accum.result[prop] = [];
-      accum.active = accum.result[prop];
+      ensure(!hasValue((<any>accum)[prop]), 'Duplicate property names in text');
+      (<any>accum).result[prop] = [];
+      accum.active = (<any>accum).result[prop];
     }
     else if (accum.active != null){
       accum.active.push(line);
@@ -557,11 +556,11 @@ function splitOnPropName(txt: string) : {[string]: string}{
 
   let result = _.reduce(lines, buildSection,  {
                                           result: {},
-                                          active: (null: string[] | null)
+                                          active: (<string[] | null>null)
                                         }
                                         ).result;
 
-  result = _.mapValues(result, (ar) => ar.join(newLine()));
+  result = _.mapValues(result, (ar: string[]) => ar.join(newLine()));
   return result;
 }
 
@@ -593,11 +592,7 @@ export const upperCase : (s: string) => string = (s) => s.toUpperCase();
 
 export const lowerCase : (s: string) => string = (s) => s.toLowerCase();
 
-export function appendDelim(str1?: string, delim: string, str2?: string){
-   str1 = def(str1, "");
-   delim = def(delim, "");
-   str2 = def(str2, "");
-
+export function appendDelim(str1: string = "", delim: string = "", str2: string = ""){
    return (str1 === "" || str2 === "") ? str1 + str2 : str1 + delim + str2;
  };
 
@@ -618,7 +613,7 @@ export function wildCardMatch(hayStack: string, needlePattern: string, caseSensi
     needlePattern = lowerCase(needlePattern);
   }
 
-  function findNextPattern(accum, fragment){
+  function findNextPattern(accum: {result: boolean, remainder: string}, fragment: string){
     if (!checkForAll && !accum.result){
       return false;
     }
@@ -652,7 +647,7 @@ export function show<T>(val : T): string {
 
   switch (typeof val) {
     case 'object':
-      return val._isAMomentObject ? timeToSQLDateTimeSec(cast(val)) : objToYaml(val);
+      return (<any>val)._isAMomentObject ? timeToSQLDateTimeSec(cast(val)) : objToYaml(val);
 
     case 'boolean':
       return val ? 'true' : 'false';
@@ -671,16 +666,16 @@ export function show<T>(val : T): string {
   }
 }
 
-export function startsWith(str?: string, preFix: string) : boolean {
+export function startsWith(str: string | undefined | null, preFix: string) : boolean {
   return str != null ? str.indexOf(preFix) === 0 : false;
 }
 
 
-export function endsWith(str?: string, suffix: string) {
-  return str != null ?  str.indexOf(suffix, str.length - suffix.length) !== -1 : false;
+export function endsWith(str: string | undefined | null, suffix: string) {
+  return str != null ? str.indexOf(suffix, str.length - suffix.length) !== -1 : false;
 }
 
-export function hasText(hayStack?: string, needle: string, caseSensitive: boolean = false): boolean {
+export function hasText(hayStack: string | undefined | null, needle: string, caseSensitive: boolean = false): boolean {
   return hayStack == null ? false :
                             caseSensitive ? hayStack.includes(needle) :
                                             hayStack.toLowerCase().includes(needle.toLowerCase()) ;

@@ -1,9 +1,13 @@
-import * as S from '../lib/StringUtils';
-import * as _ from 'lodash';
 
-function sayHello(name: string): void {
+
+const _ : _.LoDashStatic = require('lodash');
+
+function testLodash(): number[] {
   //console.log(S.upperCase(`Hello ${name}!`));
-  //_.map()
-}
+  function square(n: number) {
+    return n * n;
+  }
+   
 
-sayHello("Bill");
+  return _.map([4, 8], square);
+}
