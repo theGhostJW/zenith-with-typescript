@@ -48,11 +48,14 @@ import {
 import { toTempString } from '../lib/FileUtils';
 import {show, hasText} from '../lib/StringUtils';
 import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage, chkHasText} from '../lib/AssertionUtils';
-import * as _ from 'lodash';
-import { PROCESS_LIST } from '../test/SysUtils.data.test';
+const _ = require('lodash');
+import { PROCESS_LIST } from './SysUtils.data.test';
 import { log } from '../lib/Logging';
 
-const showTarget = v => debug('\n' + show(v))
+function showTarget(v:any): void {
+  debug('\n' + show(v));
+}
+
 
 describe('isSerialisable', () => {
 
@@ -136,7 +139,7 @@ describe('random ', () => {
       .times(func)
       .groupBy(_.identity)
       .toPairs()
-      .each(kv => {
+      .each((kv: any) => {
         let k = kv[0],
             v = kv[1];
         chkWithMessage(expectedVals.includes(k), `key ${show(k)}`);
@@ -206,7 +209,7 @@ describe('deepReduceValues', () => {
             }
       };
 
-    function addProp(accum, value, address){
+    function addProp(accum: any, value: any, address: any){
       accum[address] = value;
       return accum;
     };
@@ -426,12 +429,12 @@ describe('autoType', () => {
                }
              ];
 
-     function makeTypeCheck(typeMap) {
+     function makeTypeCheck(typeMap: any) {
        return function chkTypes(obj: {}) {
-         function typeChk(val, key) {
+         function typeChk(val: any, key: any) {
            let expectedType = typeMap[key],
                actualType = typeof val,
-               id = (obj: any).id;
+               id = (<any>obj).id;
            chkWithMessage(expectedType == actualType, `id: ${id} - ${key} - expected: ${expectedType} - actual: ${actualType} - ${val}`);
          }
          _.each(obj, typeChk);
@@ -597,7 +600,7 @@ describe('objToYaml / YamlToObj', () => {
                     Another_Demo_Case.js: Accepted
                 `;
     let actual = yamlToObj(yaml, true);
-    chkEq('info', actual.level);
+    chkEq('info', (<any>actual).level);
   });
 
 
@@ -605,18 +608,17 @@ describe('objToYaml / YamlToObj', () => {
 
 interface ValKey {
   key : string | number,
-  value : mixed
+  value : any
 }
 
-function valKeys(searcInfo : Array < $Subtype < ValKey >>) : Array < ValKey > {
+function valKeys(searcInfo: ValKey[]) {
   return searcInfo.map((a : ValKey) => {
     return {key: a.key, value: a.value}
   });
 }
 
-function chkValKeys(expected, actual : Array < $Subtype <
-  ? ValKey >>) {
-  actual = valKeys(actual);
+function chkValKeys(expected: any, actual?: ValKey[]) {
+  actual = actual == null ? actual : valKeys(actual);
   chkEq(expected, actual);
 }
 
@@ -733,7 +735,7 @@ describe('setInObj1..4', () => {
                 }
                };
 
-  let targ = () => {return (_.cloneDeep(base) : any);}
+  let targ = () => {return (_.cloneDeep(base));}
 
   it('setInObj1 - sets property', () => {
     let expected = targ();
@@ -857,13 +859,14 @@ describe('seekInObjxxx - derived functions', () => {
 
     it('single item', () => {
       showTarget(EG_OBJ)
-      debug(seekInObjWithInfo(EG_OBJ, 'moreInfo'))
+      var morInfo = seekInObjWithInfo(EG_OBJ, 'moreInfo');
+      debug(morInfo);
       chkValKeys([
         {
           key: 'moreInfo',
           value: 'Hi there'
         }
-      ], [seekInObjWithInfo(EG_OBJ, 'moreInfo')]);
+      ], morInfo == null ? [] : [morInfo]);
     });
 
     it('missing item', () => {
@@ -882,13 +885,14 @@ describe('seekInObjxxx - derived functions', () => {
 
     it('seekInObjNoCheckWithInfo ambiguous - no error', () => {
       showTarget(EG_OBJ);
-      debug(seekInObjNoCheck(EG_OBJ, 'store', 'category'), "seekInObjNoCheck(EG_OBJ, 'store', 'category')");
+      const cat = seekInObjNoCheckWithInfo(EG_OBJ, 'store', 'category')
+      debug(cat, "seekInObjNoCheck(EG_OBJ, 'store', 'category')");
       chkValKeys([
         {
           "key": "category",
           "value": "fiction"
         }
-      ], [seekInObjNoCheckWithInfo(EG_OBJ, 'store', 'category')]);
+      ], cat == null ? [] : [cat]);
     });
 
     it('seekInObjNoCheck ambiguous - no error', () => {
@@ -1117,10 +1121,10 @@ describe('seekManyInObjWithInfo', () => {
         }
       };
 
-      let expected = [],
-        actual = seekManyInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
+      let expected = <any>[],
+          actual = seekManyInObjWithInfo(targ, 'child', 'grandChild', 'blah', [2], 'final');
 
-      chkEq(expected, []);
+      chkEq(expected, actual);
     });
 
     it('simple prop - deeply nested', () => {
@@ -1238,8 +1242,8 @@ describe('seekManyInObjWithInfo', () => {
     });
 
     it('object specifier missing prop', () => {
-      let expected = [],
-        actual = seekManyInObjWithInfo(EG_OBJ, {
+      let expected = <any>[],
+          actual = seekManyInObjWithInfo(EG_OBJ, {
           noWhereProp: "M*"
         }, 'moreInfo');
       chkEq(expected, actual);
@@ -1299,13 +1303,12 @@ describe('seekManyInObjWithInfo', () => {
       });
 
       it('simple nested no property', () => {
-        let expected = [];
+        let expected = <any>[];
         chkEq(expected, seekManyInObjWithInfo(EG_OBJ1, 'blahg', [0]));
       });
 
       it('simple nested out of bounds', () => {
-        let expected = [];
-        chkEq(expected, seekManyInObjWithInfo(EG_OBJ1, 'blah', [1]));
+        chkEq([], seekManyInObjWithInfo(EG_OBJ1, 'blah', [1]));
       });
 
     });
@@ -1344,15 +1347,11 @@ describe('seekManyInObjWithInfo', () => {
           }
         ];
 
-        function hasSwansTitle(val) {
-          return hasText(((val : any) : {
-            book: {
-              title: string
-            }
-          })['book']['title'], 'swans');
+        function hasSwansTitle(val: any) {
+          return hasText(val['book']['title'], 'swans');
         }
 
-        function isTwo(val) {
+        function isTwo(val: any) {
           return val === 2;
         }
 
@@ -1422,9 +1421,7 @@ describe('areEqual', () => {
     chk(areEqual(22.0000000001, 22.0000000001));
   });
 
-  let val1,
-    val2;
-  val1 = {
+  let val1 = {
     a: {
       b: 1.2222,
       c: 5.667
@@ -1433,8 +1430,7 @@ describe('areEqual', () => {
     b: new Date(1977, 8, 9),
     c: 66,
     d: 'hi'
-  }
-
+  },
   val2 = {
     b: new Date(1977, 8, 9),
     c: 66,
@@ -1598,7 +1594,8 @@ describe('def', () => {
   it('def - empty string', () => {
     /* empty string is treated as a value and not defaulted */
     let myVar = "",
-      deffedVar = def(myVar, 1);
+      uno = "1",
+      deffedVar: string = def(myVar, uno);
     chkEq("", deffedVar);
   });
 
@@ -1612,8 +1609,8 @@ describe('def', () => {
 describe('hasValue', () => {
 
   it('hasValue - all', () => {
-    var obj,
-      result;
+    var obj: any,
+      result: any;
 
     result = hasValue(obj);
     chkFalse(result);
@@ -1643,7 +1640,7 @@ describe('hasValue', () => {
     result = hasValue(0);
     chk(result);
 
-    var obj = Array(1, 2, 3)
+    obj = [1, 2, 3];
     result = hasValue(obj);
     chk(result);
 

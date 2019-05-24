@@ -1,25 +1,26 @@
-// @flow
+const _ : _.LoDashStatic = require('lodash');
 
-import * as _ from 'lodash';
-import { now } from '../lib/DateTimeUtils';
+import { now } from './DateTimeUtils';
 import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE, parentDir } from './FileUtils';
-import { log, logException } from '../lib/Logging';
+import { log, logException } from './Logging';
 import {appendDelim, endsWith, hasText, lwrFirst, newLine, replaceAll,
-      show, startsWith, stringToArray, subStrBetween, wildCardMatch, subStrBefore} from './StringUtils';
+      show, startsWith, subStrBetween, wildCardMatch, subStrBefore} from './StringUtils';
 import { sendWebUIDebugMessage } from './SeleniumIpcServer';
 
 import child_process from 'child_process';
-import deasync from 'deasync'
 import * as yaml from 'js-yaml';
+
 import * as deep from 'lodash-deep';
-import moment from 'moment';
 import * as os from 'os';
-import { parseString } from 'xml2js';
+const moment = require('moment');
+const  xjs = require('xml2js');
+const deasync = require('deasync');
+
 
 // https://stackoverflow.com/questions/30579940/reliable-way-to-check-if-objects-is-serializable-in-javascript
-export function isSerialisable(obj: mixed): boolean {
+export function isSerialisable(obj: any): boolean {
 
-  const nestedSerialisable = ob => (_.isPlainObject(ob) || _.isArray(ob))  &&
+  const nestedSerialisable = (ob: any) => (_.isPlainObject(ob) || _.isArray(ob))  &&
                                     _.every(cast(ob), isSerialisable);
 
   return  _.overSome([
@@ -48,7 +49,7 @@ export function callerString(filePathOnly: boolean = false): string {
 export function callstackStrings(): string[] {
   // Save original Error.prepareStackTrace - don't know what this is
   let origPrepareStackTrace = Error.prepareStackTrace,
-      stack = [];
+      stack = <string[]>[];
   try {
     Error.prepareStackTrace = (_, stack) => stack;
     // Create a new `Error`, which automatically gets `stack`
@@ -67,8 +68,8 @@ export function isFrameworkProject(): boolean {
 
 export function xmlToObj(xml: string): {} {
 
-  let result;
-  parseString(xml, {explicitArray: false, tagNameProcessors: [lwrFirst], attributeNameProcessors: [lwrFirst]}, (err, rslt) => {
+  let result = <null|{}>null;
+  xjs.parseString(xml, {explicitArray: false, tagNameProcessors: [lwrFirst], attributeNameProcessors: [lwrFirst]}, (err: any, rslt: string) => {
     if (err != null){
       throw err;
     }
@@ -88,13 +89,13 @@ export function randomInt0(upperBound: number) {
 
 export function translateErrorObj(e: any, description: string) : any {
   let errObj;
-  if (_.isObject(e) && hasValue(e.stack)) {
+  if (_.isObject(e) && hasValue((<any>e).stack)) {
     errObj = { 
       failureDescription: description,
       exceptionInfo: {
-        name: e.name,
-        message: e.message,
-        stack: e.stack
+        name: (<any>e).name,
+        message: (<any>e).message,
+        stack: (<any>e).stack
       }
     }
   }
@@ -144,18 +145,18 @@ export function executeRunTimeFileSynch(fileNameNoPath: string) : Buffer {
   return executeFileSynch(runTimeFile(fileNameNoPath));
 }
 
-export function findTask(pred : (TaskListItem) => boolean): ?TaskListItem {
+export function findTask(pred : (i:TaskListItem) => boolean): TaskListItem | undefined {
   return listProcesses().find(pred);
 }
 
-export function taskExists(pred : (TaskListItem) => boolean): bool {
+export function taskExists(pred : (t:TaskListItem) => boolean): boolean {
   return listProcesses().some(pred);
 }
 
 // forcefully kills a task if found - 
 // will return true if no matching tasks found or 
 // mis able to kill all matching tasks
-export function killTask(pred : (TaskListItem) => boolean, timeoutMs: number = 30000): bool {
+export function killTask(pred : (t:TaskListItem) => boolean, timeoutMs: number = 30000): boolean {
   const taskTokill = findTask(pred);
   if (taskTokill == null) {
     return true;
@@ -198,12 +199,12 @@ export function listProcesses(): TaskListItem[] {
   return _parseTaskList(taskList);
 }
 
-export function _parseTaskList(taskList: string): TaskListItem[]{
+export function _parseTaskList(taskList: string): TaskListItem[] {
   let lines = taskList.split('\n').filter((s) => s.trim() != ''),
       headerLineIdx = lines.findIndex((s) => s.startsWith('=')),
       headerLine = lines[headerLineIdx],
       headerLineSegmentLens = (headerLine == null ? [] : headerLine.split(' ')).map((s) => s.length),
-      headerLineIdxs = headerLineSegmentLens.reduce((accum, len, idx) => {
+      headerLineIdxs = headerLineSegmentLens.reduce((accum: number[], len, idx) => {
         let start = idx > 0 ? accum[idx - 1] : 0;
         start = start + idx; // single space separators
         accum.push(start + len);
@@ -215,7 +216,7 @@ export function _parseTaskList(taskList: string): TaskListItem[]{
   ensure(headerLineIdxs.length == 5, 'unexpected count of header lines');
 
   let processLines = lines.slice(headerLineIdx + 1);
-  const convertLine = (s) => {
+  const convertLine = (s: string) => {
     return {
       imageName: s.slice(0, headerLineIdxs[0]).trim(),
       pid: parseInt(s.slice(headerLineIdxs[0], headerLineIdxs[1])),
@@ -227,13 +228,13 @@ export function _parseTaskList(taskList: string): TaskListItem[]{
   return processLines.map(convertLine);
 }
 
-export function functionNameFromFunction(func: mixed) : string {
+export function functionNameFromFunction(func: any) : string {
   var str = show(func);
   return subStrBetween(str, 'function', '(').trim();
 }
 
 export function valueTracker<T>(mapName: string, generatorFunction: (...args: any) => T){
-  let hashMap : {[string]: T} = {};
+  let hashMap : {[k:string]: T} = {};
 
   function newVal(key: string, ...args: any): T {
     ensure(isUndefined(hashMap[key]), 'Name for key: ' + key + ' already created in ' + mapName);
@@ -265,12 +266,12 @@ _.deepMapValues(object, function(value, path){
     return path + ' is ' + value)
 });
  */
-export const deepMapValues = deep.deepMapValues;
+export const deepMapValues = (<any>deep).deepMapValues;
 
-export function deepReduceValues<T>(obj: {[string|number]: any}, func: (accum: T, val: any, propertyPath: string, baseObj: {[string|number]: any}) => T, accum: T): T{
+export function deepReduceValues<T>(obj: {}, func: (accum: T, val: any, propertyPath: string, baseObj: {}) => T, accum: T): T{
   // func(accum, value, propertyPath, baseObj)
   let thisAccum = accum;
-  function executeFunc(value, propertyPath){
+  function executeFunc(value: any, propertyPath: string){
     thisAccum = func(thisAccum, value, propertyPath, obj);
   }
 
@@ -278,14 +279,14 @@ export function deepReduceValues<T>(obj: {[string|number]: any}, func: (accum: T
   return thisAccum;
 }
 
-export function flattenObj(obj: {[string|number]: any}, allowDuplicateKeyOverwrites: boolean = false): {[string|number]: any} {
+export function flattenObj(obj: {}, allowDuplicateKeyOverwrites: boolean = false): {} {
 
-  var result: {[string|number]: any} = {}
+  var result: {} = {}
   function flattenKey(val: any, path: string): void {
     let lastDot = path.lastIndexOf('.'),
          key = lastDot == -1 ? path : path.slice(lastDot + 1);
-    ensure(allowDuplicateKeyOverwrites || !hasValue(result[key]), 'the key: ' + key + ' would appear more than once in the flattened object');
-    result[key] = val;
+    ensure(allowDuplicateKeyOverwrites || (<any>result)[key] == null, 'the key: ' + key + ' would appear more than once in the flattened object');
+    (<any>result)[key] = val;
   }
   deepMapValues(obj, flattenKey);
   return result;
@@ -295,18 +296,18 @@ export const hostName = () => os.hostname();
 
 export function setParts<T>(arLeftSet: T[], arRightSet: T[]): [T[], T[], T[]] {
 
-  function intersect(ar1, ar2){
-    var inIntersection = [],
-        uniqueToFirst = [];
+  function intersect(ar1: T[], ar2: T[]){
+    var inIntersection = <T[]>[],
+        uniqueToFirst = <T[]>[];
 
-    function isInar2(item){
-      function equalsTarg(ar2Item){
+    function isInar2(item: T){
+      function equalsTarg(ar2Item: T){
         return areEqual(ar2Item, item);
       }
       return _.find(ar2, equalsTarg)
     }
 
-    function clasify(ar1Item){
+    function clasify(ar1Item: T){
       var pushTo = isInar2(ar1Item) ? inIntersection : uniqueToFirst;
       pushTo.push(ar1Item);
     }
@@ -323,37 +324,39 @@ export function setParts<T>(arLeftSet: T[], arRightSet: T[]): [T[], T[], T[]] {
 }
 
 
-export function forceArray<T>(...args: (T[]|T)[] ): T[] {
+export function forceArray<T>(...args: (T[]|T|undefined)[] ): T[] {
 
-  function forceArraySingleVal(val){
+  function forceArraySingleVal(val: T): T[] {
      return isUndefined(val) ? [] :
-             _.isArray(val) ? val : [val];
+             _.isArray(val) ? _.flattenDeep(val) : [val];
   }
 
- return _.chain(args)
-         .map(forceArraySingleVal)
-         .flatten(true)
-         .value();
+  // @ts-ignore
+  return _.chain(args)
+          .map(forceArraySingleVal)
+          .flatten()
+          .value();
 }
 
-export function autoType(arr: {[string]: string}[]) : {[string]: any}[] {
+export function autoType(arr: {[k:string]: string}[]) : {[k:string]: any}[] {
 
-  let exclusions: string[] = arr.length === 0 ? [] : _.reduce(
-                                                            arr[0],
-                                                            (accum, val, key) => startsWith(val, '`') ? accum.concat(key) : accum,
-                                                            []
-                                                          );
+  let exclusions: string[] = 
+      arr.length === 0 ? [] : _.reduce(
+                                        arr[0],
+                                        (accum: string[], val, key) => startsWith(val, '`') ? accum.concat(key) : accum,
+                                        []
+                                      );
 
-  function nullDotProps(obj: {[string]: string}){
-    return dotToNulls(((obj: any): {}), exclusions)
+  function nullDotProps(obj: {[k:string]: string}){
+    return dotToNulls(obj, exclusions)
   }
 
   var result = arr.map(nullDotProps);
 
-  function validateParsers(parsers, obj){
+  function validateParsers(parsers: any, obj: any){
 
-    function compatitableParser(remainingParsers, key){
-      function canParse(parser){
+    function compatitableParser(remainingParsers: any, key: string){
+      function canParse(parser: any){
         var result = !exclusions.includes(key) && parser.canParse(obj[key]);
         return result;
       }
@@ -364,28 +367,32 @@ export function autoType(arr: {[string]: string}[]) : {[string]: any}[] {
     return result;
   }
 
+  function firstOrNull<T>(arr: T[]): T | null {
+    return arr.length > 0 ? arr[0] : null;
+  }
+
+  function parseFields(obj: {}){
+    function parseField(val: any, key: string | number){
+      var psr = (<any>validParsers)[key];
+      return _.isNull(psr) ? val : psr.parse(val);
+    }
+    return _.mapValues(obj, parseField);
+  }
+
   if (result.length > 0){
     var parsers = _.mapValues(result[0], _.constant(allParsers()));
     var validParsers = _.reduce(result, validateParsers, parsers);
-    function firstOrNull(arr){
-      return arr.length > 0 ? arr[0] : null;
-    }
+
     validParsers = _.mapValues(validParsers, firstOrNull);
 
-    function parseFields(obj){
-      function parseField(val, key){
-        var psr = validParsers[key];
-        return _.isNull(psr) ? val : psr.parse(val);
-      }
-      return _.mapValues(obj, parseField);
-    }
+ 
 
     result = _.map(result, parseFields);
 
     let rec0 = result[0];
 
-    function mutateBackTickedprops(val, key, obj) {
-      obj[key] = typeof val == 'string' && startsWith(val, '`') ? val.slice(1, val.length) : val;
+    function mutateBackTickedprops(val: any, key: string | number, obj: {}): any {
+      (<any>obj)[key] = typeof val == 'string' && startsWith(val, '`') ? val.slice(1, val.length) : val;
     }
 
     // mutates underlying values
@@ -408,13 +415,13 @@ function allParsers(){
              );
 }
 
-function wrapParser(parser){
+function wrapParser(parser: any){
   return {
     name: parser.name,
-    canParse: function(val){
+    canParse: function(val: any){
                       return val == null || _.isString(val) && parser.canParse(val);
                     },
-    parse:  function(val){
+    parse:  function(val: any){
                       return val == null  || !_.isString(val) ? val : parser.parse(val);
                     }
   };
@@ -423,11 +430,11 @@ function wrapParser(parser){
 function boolParser(){
   const BOOL_CHARS = ['Y', 'N', 'T', 'F'];
 
-  function parse(val){
+  function parse(val: string){
      return _.includes(['Y', 'T'], val);
   }
 
-  function canParse(val){
+  function canParse(val: string){
     return _.includes(BOOL_CHARS, val);
   }
 
@@ -440,11 +447,11 @@ function boolParser(){
 
 function numberParser(){
 
-  function parse(val){
+  function parse(val: any){
      return val.search('.') > -1 ? parseFloat(val): parseInt(val);
   }
 
-  function canParse(val){
+  function canParse(val: any){
     return stringConvertableToNumber(val);
   }
 
@@ -458,9 +465,9 @@ function numberParser(){
 function dateParser(){
 
   // assumes null and str check already done
-  function isNumber(str){
+  function isNumber(str: string){
     var els = str.split('');
-    function isNumChar(chr){
+    function isNumChar(chr: string){
       return chr.charCodeAt(0) > 47 && chr.charCodeAt(0) < 58;
     }
 
@@ -468,11 +475,11 @@ function dateParser(){
     return nonNums.length < 2;
   }
 
-  function parse(val){
+  function parse(val: string){
      return moment(val, 'YYYY-MM-DD');
   }
 
-  function canParse(val){
+  function canParse(val: any){
     let result = false,
         pr = null;
 
@@ -498,14 +505,14 @@ function dateParser(){
 }
 
 function dotToNulls(obj: {}, exclusions: string[]): {} {
-  function dotToNull(val, key){
+  function dotToNull(val: any, key: any){
     return (val == '.') && !exclusions.includes(key) ? null : val;
   }
   return _.mapValues(obj, dotToNull);
 }
 
-export function objToYaml(obj: mixed, useRefs: boolean = false) : string {
-  return ((yaml.safeDump(obj, {skipInvalid: true, noRefs: !useRefs }): any): string) ;
+export function objToYaml(obj: any, useRefs: boolean = false) : string {
+  return (<any>yaml).safeDump(obj, {skipInvalid: true, noRefs: !useRefs });
 }
 
 function trimLine1Leading(str: string): string {
@@ -526,12 +533,12 @@ function trimLine1Leading(str: string): string {
     else {
       let prefix = _.repeat(' ', n);
 
-      function ensureEmpty(str, idx) {
+      function ensureEmpty(str: string, idx: number) {
         ensure(str.trim() == '', `Bad padding line ${idx}: stars with less spaces than leading line [${str}]`);
         return str;
       }
 
-      function trimLine(line, idx) {
+      function trimLine(line: string, idx: number) {
         return line.startsWith(prefix) ? line.slice(n) : ensureEmpty(line, idx);
       }
       return lines.map(trimLine).join(newLine());
@@ -544,18 +551,18 @@ function trimLine1Leading(str: string): string {
 
 export function yamlToObj<T>(yamlStr: string, trimLeadingSpaceBaseOnFirstLine: boolean = false): T {
   yamlStr = trimLeadingSpaceBaseOnFirstLine ? trimLine1Leading(yamlStr): yamlStr;
-  let untypedVal: any = yaml.safeLoad(yamlStr);
-	return (untypedVal: T);
+  let untypedVal: any = (<any>yaml).safeLoad(yamlStr);
+	return (<T>untypedVal);
 }
 
 export function cast<T>(targ: any): T {
-  return (targ: T);
+  return <T>targ;
 }
 
-let debugSink : string => void = s => sendWebUIDebugMessage(s) ? undefined : console.log(s);
-let callOrVal : <T>(T | () => T) => T = msg => typeof msg === 'function' ? cast(msg)() : cast(msg);
+let debugSink : (s:string) => void = s => sendWebUIDebugMessage(s) ? undefined : console.log(s);
+let callOrVal : <T>(p: T | void) => T = msg => typeof msg === 'function' ? (msg)() : msg;
 
-export function debugStk<T>(msg: T | () => T, label: string = 'DEBUG'): T {
+export function debugStk<T>(msg: (p: T | void) => T, label: string = 'DEBUG'): T {
   let msgStr = callOrVal(msg);
   debugSink(appendDelim(_.toUpper(label), ': ', show(msgStr)) + newLine()  + '=========================' + newLine()  +
                                                                       callstackStrings().join(', ' + newLine()) + newLine()  +
@@ -563,13 +570,13 @@ export function debugStk<T>(msg: T | () => T, label: string = 'DEBUG'): T {
   return cast(msgStr);
 }
 
-export function debug<T>(msg: T | () => T, label: string = 'DEBUG'): T {
+export function debug<T>(msg: ((p:T | void) => T) | T, label: string = 'DEBUG'): T {
   let msgStr = callOrVal(msg);
   debugSink(appendDelim(label, ': ', show(msgStr)));
   return cast(msgStr);
 }
 
-export function def <T> (val : ?T, defaultVal: T): T {
+export function def <T> (val : T | undefined | null, defaultVal: T): T {
     // != null === not null or undefined
   return val == null ? defaultVal : val;
 }
@@ -578,8 +585,7 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
   return _.isEqualWith(val1, val2, eqCustomiser);
 }
 
-// a fudge to keep the type checker happy
-export function fail<T>(description: string, e: any): T {
+export function fail<T>(description: string, e?: any): T {
   let err = translateErrorObj(e, description);
   logException(description, err);
   throw err;
@@ -604,29 +610,29 @@ export function ensure(condition : boolean, failMsg : string = '') {
   }
 }
 
-export function ensureHasVal<T>(successVal: ?T, failMsg : string = '') : T {
+export function ensureHasVal<T>(successVal: T | null | undefined, failMsg : string = '') : T {
   if(successVal == null) {
     throw new Error('value must not be null or undefined - ' + failMsg);
   }
   return successVal;
 }
 
-export function ensureHasValAnd<T>(successVal: ?T, predicate: (T) => boolean, failMsg : string = '') : T {
+export function ensureHasValAnd<T>(successVal:T | null | undefined, predicate: (p:T) => boolean, failMsg : string = '') : T {
   let result = ensureHasVal(successVal, failMsg);
   return ensureReturn(predicate(result), result, failMsg);
 }
 
-function eqCustomiser <T, U> (val1 : T, val2 : U) : void | boolean {
+function eqCustomiser <T, U> (val1 : T, val2 : U) : undefined | boolean {
   return typeof val1 == 'string' && typeof val2 == 'string'
     ? val1.valueOf() == val2.valueOf()
     : undefined;
 }
 
-export type MixedSpecifier = string | Predicate | IndexSpecifier | {};
+export type anySpecifier = string | Predicate | IndexSpecifier | {};
 
-export type Predicate = (val : mixed, key : string | number) => bool;
+export type Predicate = (val : any, key : string | number) => boolean;
 
-type ArrayItemPredicate = (val : mixed) => bool;
+type ArrayItemPredicate = (val : any) => boolean;
 
 type FuncSpecifier = (val : any, key : string | number) => any;
 
@@ -639,31 +645,32 @@ type SeekInObjResultItem = {
   specifiers: Array <FuncSpecifier>
 };
 
-function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
+function standardiseSpecifier(anySpec: anySpecifier) : FuncSpecifier {
 
   // assume predicate
-  if(typeof mixedSpec === 'function') {
-    return function keyMatch(val : mixed, key : string | number) : any {
-      return ((mixedSpec: any) : Predicate)(val, key) ? val : undefined;
+  if(typeof anySpec === 'function') {
+    return function keyMatch(val: any, key: string | number) : any {
+      return anySpec(val, key) ? val : undefined;
     }
   }
 
-  if (typeof mixedSpec == 'string' || typeof mixedSpec == 'number') {
-    let matcher = typeof mixedSpec == 'string' && hasText(mixedSpec, '*') ? wildCardMatch : areEqual;
-    return function keyMatch(val : mixed, key : string | number) : any {
-      return matcher(show(key), show(mixedSpec)) ? val : undefined;
+  if (typeof anySpec == 'string' || typeof anySpec == 'number') {
+    let matcher = typeof anySpec == 'string' && hasText(anySpec, '*') ? wildCardMatch : areEqual;
+    return function keyMatch(val : any, key : string | number) : any {
+      return matcher(show(key), show(anySpec)) ? val : undefined;
     }
   }
 
-  if (isPOJSO(mixedSpec)) {
-    return function keyMatch(val : mixed, key : string | number) : any {
+  //todo - more testing on this 
+  if (isPOJSO(anySpec)) {
+    return function keyMatch(val : any, key : string | number) : any {
       if (isPOJSO(val)) {
-        let specObj = ((mixedSpec: any): {}),
-            valObj = ((val: any): {}),
+        let specObj = <{}>anySpec,
+            valObj = <{}>val,
             specKeys = _.keys(specObj),
             valKeys = _.keys(valObj);
 
-        function matchesKeys(keys) {
+        function matchesKeys(keys: string[]) {
 
           if (areEqual(keys, [])){
             return true;
@@ -673,8 +680,8 @@ function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
                 valKey = _.find(valKeys, (vk) => wildCardMatch(vk, specKey, true));
 
             if (valKey != null){
-              let valPropVal = valObj[valKey],
-                  specPropVal = specObj[specKey];
+              let valPropVal = (<any>valObj)[valKey],
+                  specPropVal = (<any>specObj)[specKey];
 
               return  _.isString(valPropVal) &&
                       _.isString(specPropVal) &&
@@ -695,41 +702,41 @@ function standardiseSpecifier(mixedSpec: MixedSpecifier) : FuncSpecifier {
   }
 
   // IndexSpecifier / or HOFIndex Specifier
-  ensure(_.isArray(mixedSpec) && ((mixedSpec: any): any[]).length === 1, 'expect this to be a single item array: ' + show(mixedSpec));
+  ensure(_.isArray(anySpec) && (anySpec).length === 1, 'expect this to be a single item array: ' + show(anySpec));
 
-  let dummy = (val : mixed, key : string | number) => {return undefined},
-      indexer : IndexSpecifier = ((mixedSpec : any) : IndexSpecifier),
+  let dummy = (val : any, key : string | number) => {return undefined},
+      indexer : IndexSpecifier = <IndexSpecifier>anySpec,
       item = indexer[0],
-      indexerSpec: FuncSpecifier = typeof item == 'function' ? (val: any[]) => { return _.find(val, ((item: any): ArrayItemPredicate)); } :
+      indexerSpec: FuncSpecifier = typeof item == 'function' ? (val: any[]) => { return _.find(val, <ArrayItemPredicate>item); } :
                                     typeof item == 'number' ? (val: any[]) => {
-                                                                        let idx: number = ((item: any): number);
+                                                                        let idx: number = <number>item;
                                                                         return val.length > idx ? val[idx] : undefined;
                                                                       }  : dummy;
 
-  ensure(indexerSpec !== dummy, 'array indexer must be a single element array of function or integer: [int] or [(val) => bool]');
+  ensure(indexerSpec !== dummy, 'array indexer must be a single element array of function or integer: [int] or [(val) => boolean]');
 
-  return function indexmatch(val : mixed, key : string | number): any {
+  return function indexmatch(val : any, key : string | number): any {
     return _.isArray(val) ? indexerSpec(val, key) : undefined;
   }
 }
 
-type GenerationMatchResult = {
+interface GenerationMatchResult {
   fullyMatched: Array <SeekInObjResultItem>,
   remainingCandidates: Array <SeekInObjResultItem>
 };
 
-type ReducerResult = {
+interface ReducerResult {
     done: boolean,
     result: GenerationMatchResult
 };
 
-function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, searchType: SearchDirective) : ?GenerationMatchResult {
+function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, searchType: SearchDirective): GenerationMatchResult | null | undefined {
   let
     baseVal = parent.value,
     specifers = parent.specifiers,
     result = {
-      fullyMatched: ([] : Array <SeekInObjResultItem>),
-      remainingCandidates: ([] : Array <SeekInObjResultItem>)
+      fullyMatched: <SeekInObjResultItem[]>[],
+      remainingCandidates: <SeekInObjResultItem[]>[]
     };
 
   if (specifers.length > 0 &&  typeof baseVal == 'object') {
@@ -740,7 +747,7 @@ function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, searchType: Se
         result: result
       };
 
-    function resultPartition(accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
+    function resultPartition(accum: ReducerResult, val: any, key: string | number) : ReducerResult {
       return partitionResults(parent, searchType, accum, val, key);
     }
 
@@ -750,11 +757,11 @@ function matchFirstSpecifierOnTarget(parent: SeekInObjResultItem, searchType: Se
   }
 }
 
-export function isPOJSO(val: mixed): boolean {
+export function isPOJSO(val: any): boolean {
   return _.isObject(val) &&  !_.isArray(val);
 }
 
-function partitionResults(parent: SeekInObjResultItem, searchType: SearchDirective, accum: ReducerResult, val: mixed, key: string | number) : ReducerResult {
+function partitionResults(parent: SeekInObjResultItem, searchType: SearchDirective, accum: ReducerResult, val: any, key: string | number) : ReducerResult {
   if (accum.done){
     return accum;
   }
@@ -771,7 +778,7 @@ function partitionResults(parent: SeekInObjResultItem, searchType: SearchDirecti
     matchesThisSpecifier = isDefined(matchResult),
     matchesAllSpecifiers = matchesThisSpecifier && isLastSpecifier;
 
-    function newMatchInfo(val: mixed, key: string | number, specifiers: FuncSpecifier[]) : SeekInObjResultItem {
+    function newMatchInfo(val: any, key: string | number, specifiers: FuncSpecifier[]) : SeekInObjResultItem {
       return {parent: parent, value: val, key: key, specifiers: specifiers};
     };
 
@@ -795,36 +802,36 @@ function partitionResults(parent: SeekInObjResultItem, searchType: SearchDirecti
   };
 }
 
-function getResultValues(result: Array <SeekInObjResultItem>): mixed[] {
+function getResultValues(result: Array <SeekInObjResultItem>): any[] {
   return result.map((s: SeekInObjResultItem) => s.value);
 }
 
-export function seekInObj<T>(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?T {
+export function seekInObj<T>(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers: anySpecifier[]): T | undefined {
   let info = seekInObjWithInfo(target, specifier, ...otherSpecifiers);
   return info == null ? undefined : info.value;
 }
 
-export function setInObjn(target : {}, specifiers : MixedSpecifier[], value: mixed): {}{
+export function setInObjn(target : {}, specifiers : anySpecifier[], value?: any): {}{
   return setInObjnPrivate(false, target, specifiers, value);
 }
 
-export function setInObj1(target : {}, specifier : MixedSpecifier, value: mixed): {}{
+export function setInObj1(target : {}, specifier : anySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier], value);
 }
 
-export function setInObj2(target : {}, specifier : MixedSpecifier, specifier1 : MixedSpecifier, value: mixed): {}{
+export function setInObj2(target : {}, specifier : anySpecifier, specifier1 : anySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier, specifier1], value);
 }
 
-export function setInObj3(target : {}, specifier : MixedSpecifier, specifier1 : MixedSpecifier, specifier2: MixedSpecifier, value: mixed): {}{
+export function setInObj3(target : {}, specifier : anySpecifier, specifier1 : anySpecifier, specifier2: anySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier, specifier1, specifier2], value);
 }
 
-export function setInObj4(target : {}, specifier : MixedSpecifier, specifier1 : MixedSpecifier, specifier2: MixedSpecifier, specifier3: MixedSpecifier, value: mixed): {}{
+export function setInObj4(target : {}, specifier : anySpecifier, specifier1 : anySpecifier, specifier2: anySpecifier, specifier3: anySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier, specifier1, specifier2, specifier3], value);
 }
 
-function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : MixedSpecifier[], value: mixed) : {} {
+function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : anySpecifier[], value: any) : {} {
 
   let [spec, ...otherSpecs] = specifiers,
       propInfo = noCheck ?  seekInObjNoCheckWithInfo(target, spec, ...otherSpecs) :  seekInObjWithInfo(target, spec, ...otherSpecs);
@@ -847,7 +854,7 @@ function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : MixedSpeci
   return target;
 }
 
-export function seekInObjNoCheck(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?mixed {
+export function seekInObjNoCheck(target: null | undefined | {}, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): any {
   let result = seekInObjNoCheckWithInfo(target, specifier, ...otherSpecifiers);
   return result == null ? undefined : result.value;
 }
@@ -864,15 +871,21 @@ function objectAddresses(allInfo: Array <SeekInObjResultItem>): string {
   return allInfo.map(addressOfSeekResult).join(', ');
 }
 
+interface SearchDirectiveMap  {
+  includeNested: number,
+  eachBranch: number,
+  singleton: number
+};
+
 const SEARCH_DIRECTIVE = {
   includeNested: 2,
   eachBranch: 1,
   singleton: 0
 };
 
-type SearchDirective = $Keys<typeof SEARCH_DIRECTIVE>;
+type SearchDirective = keyof SearchDirectiveMap;
 
-export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?SeekInObjResultItem {
+export function seekInObjWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem | undefined {
   let allInfo = seekManyInObjWithInfo(target, specifier, ...otherSpecifiers);
   if (allInfo.length === 0){
     return undefined;
@@ -882,36 +895,37 @@ export function seekInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...ot
   }
 }
 
-export function seekInObjNoCheckWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): ?SeekInObjResultItem {
+export function seekInObjNoCheckWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem | null | undefined {
   let allInfo = seekInObjBase(target, 'singleton', specifier, ...otherSpecifiers);
   return allInfo.length === 0 ? null : allInfo[0];
 }
 
-export function seekAllInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): SeekInObjResultItem[] {
+export function seekAllInObjWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem[] {
   return seekInObjBase(target, 'includeNested', specifier, ...otherSpecifiers);
 }
 
 export const seekAllInObj = _.flowRight([getResultValues, seekAllInObjWithInfo]); // flow issues _.flowRight(getResultValues, seekAllInObjWithInfo);
 
-export function seekManyInObjWithInfo(target :? {}, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): SeekInObjResultItem[] {
+export function seekManyInObjWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem[] {
   return seekInObjBase(target, 'eachBranch', specifier, ...otherSpecifiers);
 }
 
-function seekInObjBase(target :? {}, searchType: SearchDirective, specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): SeekInObjResultItem[] {
+function seekInObjBase(target: {} | null | undefined, searchType: SearchDirective, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem[] {
     if(typeof target != 'object') {
       return [];
     };
 
-    function getNextGeneration(itemResult : SeekInObjResultItem): ?GenerationMatchResult {
+    function getNextGeneration(itemResult : SeekInObjResultItem): GenerationMatchResult | null | undefined {
       return matchFirstSpecifierOnTarget(itemResult, searchType);
     };
 
-    function pluckFlatten(baseArray, propName): Array <SeekInObjResultItem> {
+    function pluckFlatten(baseArray: GenerationMatchResult[], propName: string | number): SeekInObjResultItem[]{
       let result = _.chain(baseArray)
                           .map(propName)
                           .flatten()
                           .value();
-      return ((result: any): Array <SeekInObjResultItem>);
+
+      return <any>result;
     }
 
 
@@ -931,8 +945,7 @@ function seekInObjBase(target :? {}, searchType: SearchDirective, specifier: Mix
           let
             nextParam = {
              fullyMatched: fullyMatched,
-             remainingCandidates: remainingCandidates,
-             done: false
+             remainingCandidates: remainingCandidates
            };
            return widthSearch(nextParam);
          }
@@ -951,42 +964,41 @@ function seekInObjBase(target :? {}, searchType: SearchDirective, specifier: Mix
       },
       seedResult: GenerationMatchResult = {
         fullyMatched: [],
-        remainingCandidates: [seedResultItem],
-        done: false
+        remainingCandidates: [seedResultItem]
       };
 
     return widthSearch(seedResult);
 }
 
-export function isNullEmptyOrUndefined(arg : mixed): boolean {
+export function isNullEmptyOrUndefined(arg : any): boolean {
   return !(arg != null) || arg === '';
 }
 
-export function isDefined(arg : mixed): boolean {
+export function isDefined(arg : any): boolean {
   return typeof arg !== 'undefined';
 }
 
-export function isUndefined(arg : mixed): boolean {
+export function isUndefined(arg : any): boolean {
   return !isDefined(arg);
 }
 
-export function hasValue(arg : mixed): boolean {
+export function hasValue(arg: any): boolean {
   return !isNullEmptyOrUndefined(arg);
 }
 
 // flow issues with lodash
-export function all < a > (predicate : (a) => boolean, arr : Array < a >): boolean {
-  return arr.reduce((accum, item) => accum && predicate(item), true);
+export function all < a > (predicate : (a: any) => boolean, arr : Array < a >): boolean {
+  return arr.reduce((accum, item) => accum && predicate(item), <boolean>true);
 }
 
-export function stringConvertableToNumber(val: ?string): boolean {
+export function stringConvertableToNumber(val: string | null | undefined): boolean {
 
   if(val == null)
     return false;
 
-  function isNumChars(str) {
+  function isNumChars(str: string) {
 
-    function isDot(chr) {
+    function isDot(chr: string) {
       return chr === '.';
     }
 
@@ -1020,8 +1032,7 @@ export function xOr(val1 : boolean, val2 : boolean): boolean {
 export function areEqualWithTolerance(expectedNumber : number | string, actualNumber : number | string, tolerance : number = 0) {
   let deemedEqual = _.isEqual(actualNumber, expectedNumber);
 
-  function parseNumIfPossible(val : number | string) :
-    ? number {
+  function parseNumIfPossible(val : number | string) : number | null {
       return typeof val === 'string'
         ? stringConvertableToNumber(val) ? parseFloat(val) : null
           : (typeof val === 'number'  ? val : null);

@@ -718,6 +718,10 @@
   version "4.14.130"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.130.tgz#04b3a690d5f4fc34579963c99adae067b8c8eb5a"
 
+"@types/mocha@^5.2.6":
+  version "5.2.6"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.6.tgz#b8622d50557dd155e9f2f634b7d68fd38de5e94b"
+
 "@types/node-ipc@^9.1.1":
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/@types/node-ipc/-/node-ipc-9.1.1.tgz#81eb93874b5c7a8e0bd0ca3265a6661bd2b3a52b"

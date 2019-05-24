@@ -1,4 +1,4 @@
-import { def, hasValue, ensure, autoType, objToYaml, areEqual,
+import { hasValue, ensure, autoType, objToYaml, areEqual,
           cast, xmlToObj, deepMapValues } from '../lib/SysUtils';
 
 const _ : _.LoDashStatic = require('lodash');
@@ -592,8 +592,10 @@ export const upperCase : (s: string) => string = (s) => s.toUpperCase();
 
 export const lowerCase : (s: string) => string = (s) => s.toLowerCase();
 
-export function appendDelim(str1: string = "", delim: string = "", str2: string = ""){
-   return (str1 === "" || str2 === "") ? str1 + str2 : str1 + delim + str2;
+export function appendDelim(str1: string | null | undefined, delim: string = "", str2:  string | null | undefined){
+  str1 = str1 == null ? "" : str1;
+  str2 = str2 == null ? "" : str2;
+  return (str1 == '' || str2 == '') ? str1 + str2 : str1 + delim + str2;
  };
 
 export function replaceAll(hayStack: string, needle: string, replacement: string, caseSensitive: boolean = false): string {

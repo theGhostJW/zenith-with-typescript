@@ -1,9 +1,9 @@
 // @flow
 
-import {test, describe} from 'mocha'
-import {chk, chkEq, chkEqJson, chkException, chkExceptionText, chkFalse, chkHasText} from '../lib/AssertionUtils';
+import {describe} from 'mocha'
+import {chk, chkEq, chkException, chkExceptionText, chkFalse, chkHasText} from '../lib/AssertionUtils';
 import {datePlus, now, strToMoment, timeToSQLDateTimeSec, today} from '../lib/DateTimeUtils';
-import { toTemp, toTempString } from '../lib/FileUtils';
+import { toTempString } from '../lib/FileUtils';
 import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate, createGuid, createGuidTruncated, endsWith, hasText,
   loadSectionedTemplate, loadTemplate, loadTemplatePositional, lowerCase, lowerFirst, newLine, parseCsv, propsObjectStringFromXml,
   removeSection, replaceAll, sameText, standardiseLineEndings, startsWith, stringToArray, stringToGroupedTable,
@@ -11,9 +11,9 @@ import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate
   stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, show,
   trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, tryEncodings, formatXml,
   DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
-import {areEqual, debug, deepMapValues, def, flattenObj, forceArray } from '../lib/SysUtils';
-import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, UNFORMATTED_XML } from '../test/StringUtils.data.test';
-import * as _ from 'lodash'
+import {areEqual, flattenObj, forceArray } from '../lib/SysUtils';
+import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, UNFORMATTED_XML } from './StringUtils.data.test';
+const _ : _.LoDashStatic = require('lodash');
 
 describe('formatXml', () => {
 
@@ -31,7 +31,7 @@ describe('tryEncodings', () => {
         buff = Buffer.from(str, 'ascii'),
         venc = tryEncodings(buff);
 
-    chkEq(venc['ascii'], str);
+    chkEq((<any>venc)['ascii'], str);
   });
 
 });
@@ -148,17 +148,17 @@ describe('loadSectionedTemplate', () => {
                         }
           };
 
-    function accountsTransformer(xmlTemplate, accountsObj){
+    function accountsTransformer(xmlTemplate: string, accountsObj: {}){
 
       let arrAccounts = forceArray(accountsObj),
           accountTemplate = templateSectionParts(xmlTemplate, 'account').section,
-          sectionToRemove = accountsObj.unformattedAddress == null ?
+          sectionToRemove = (<any>accountsObj).unformattedAddress == null ?
                                                                     'unformattedAddress' :
                                                                     'formattedAddress';
 
       accountTemplate = removeSection(accountTemplate, sectionToRemove);
 
-      function transformAccount(accountObj){
+      function transformAccount(accountObj: any){
         var flattened = flattenObj(accountObj)
         return loadTemplate(accountTemplate, flattened);
       }
@@ -174,7 +174,7 @@ describe('loadSectionedTemplate', () => {
                         batch: loadTemplate,
                         accounts: accountsTransformer
                       },
-        result = loadSectionedTemplate(template, transformers, data);
+        result = loadSectionedTemplate(template, <any>transformers, data);
 
      chkFalse(hasText(result, '{{'));
   });
@@ -212,8 +212,10 @@ describe('loadTemplate / loadTemplatePositional', () => {
                    last: 'Doe'
                   };
 
-    chkException(() => loadTemplate(TEMPLATE, DATA), e => true,
-                                    () => 'checking for any exception the way the template works is weird');
+    chkException(
+                  () => loadTemplate(TEMPLATE, DATA), 
+                  (e: any) => true,
+                  () => 'checking for any exception the way the template works is weird');
   });
 
   it('loadTemplatePositional ~ basic template load', () => {
@@ -336,7 +338,7 @@ describe('trimChars', () => {
   });
 
   it('empty trim chars array', () => {
-    let trimAr = [],
+    let trimAr = <any>[],
         target = 'aabcccdf}b',
         actual = trimChars(target, trimAr);
 
@@ -414,12 +416,12 @@ describe('capFirst', () => {
 
 });
 
-function rowTransformer(untyped): RecType {
+function rowTransformer(untyped: any): RecType {
   untyped.dob = untyped.dob ? 'OLD' : 'YOUNG';
-  return ((untyped: any): RecType);
+  return (<any>untyped);
 }
 
-const fieldTransformer = (val: mixed, key) => key == 'address' ? val ? 'SUCCESS' : 'FAIL' : val;
+const fieldTransformer = (val: any, key: string) => key == 'address' ? val ? 'SUCCESS' : 'FAIL' : val;
 
 describe('stringToTableMap', () => {
 
@@ -471,7 +473,7 @@ describe('stringToTableLooseTyped', () => {
 
   describe('simple', () => {
 
-    let actual: {[string]: any}[] = [];
+    let actual: {[k:string]: any}[] = [];
 
     before(() => {
       actual = stringToTableLooseTyped(SIMPLE_TABLE);
@@ -489,8 +491,9 @@ describe('stringToTableLooseTyped', () => {
   });
 
   describe('with field transformer', () => {
-
+    // @ts-ignore
     let trans1 = (val, key, obj) => val && key === 'address' ? 'YO ADDRESS' : val,
+        // @ts-ignore
         trans2 = (val, key, obj) => val && key === 'drivers' ? 'YO DRIVER' : val;
 
      it('single transformer', () => {
@@ -521,7 +524,7 @@ describe('stringToGroupedTableLooseTyped', () => {
 
   describe('simple', () => {
 
-    let actual: {[string]: any}[][] = [];
+    let actual: {[k:string]: any}[][] = [];
 
     before(() => {
       actual = stringToGroupedTableLooseTyped(SIMPLE_TABLE);
@@ -546,7 +549,7 @@ describe('stringToGroupedTableLooseTyped', () => {
 
   describe('truly sectioned', () => {
 
-    let actual: {[string]: any}[][] = [];
+    let actual: {[k:string]: any}[][] = [];
 
     before(() => {
       actual = stringToGroupedTableLooseTyped(SECTIONED_TABLE);

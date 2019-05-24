@@ -1,11 +1,8 @@
-// @flow
-
-import {test, describe} from 'mocha';
-import {datePlus, now, today} from '../lib/DateTimeUtils';
+import {describe} from 'mocha';
 import {chk, chkEq, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
-import {createGuidTruncated, hasText} from '../lib/StringUtils';
+import {hasText} from '../lib/StringUtils';
 import { fromTestDataString } from '../lib/FileUtils';
-import {cast, waitRetry, debug, 
+import {cast, waitRetry, 
       executeFileSynch,
       executeFileAsynch,
       executeRunTimeFileAsynch,
@@ -19,7 +16,7 @@ describe('xmlToObj', () => {
 
     let xml = fromTestDataString('books.xml'),
         obj = cast(xmlToObj(xml)),
-        recCount = obj.catalog.book.length;
+        recCount = (<any>obj).catalog.book.length;
 
      chkEq(12, recCount);
   });
@@ -82,8 +79,8 @@ describe('listProcesses', function() {
 describe('waitRetry', () => {
 
   it('failure 2 secs 1 sec retry', function() {
-    this.timeout(30000);
-    let actual = waitRetry(() => false, 2000, () => {}, 1000);
+    //this.timeout(30000); - reinstate with try finallly if not working
+    let actual = waitRetry(() => false, 1000, () => {}, 100);
     chkFalse(actual);
   });
 
