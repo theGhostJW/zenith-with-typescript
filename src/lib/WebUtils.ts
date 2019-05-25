@@ -1,5 +1,3 @@
-// @flow
-
 import {
   combine,
   copyFile,
@@ -35,12 +33,12 @@ import {
 
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
-          runClient, sendClientDone, stopSession, waitConnected,
+          runClient, stopSession, waitConnected,
           checkStartGeckoDriver, killGeckoDriver } from './WebLauncher';
 
 import clipBoardy from 'clipboardy';
 
-import * as _ from 'lodash';
+const _ = require('lodash')
 
 // import sp from 'step-profiler';
 // let prof = new sp({});
@@ -48,23 +46,24 @@ import * as _ from 'lodash';
 
 export type SelectorOrElement = string | Element;
 // an incomplete type safe facade over element
-export type Element = {
+export interface Element {
   getText: () => string,
   getValue: () => string,
   getTagName: () => string,
   getLocation: () => {x: number, y: number},
   getElementSize: () => {width: number, height: number},
   getHTML: () => string,
-  getAttribute: string => string | null,
+  getAttribute: (s:string) => string | undefined,
   isSelected: () => boolean,
   isDisplayed: () => boolean,
   isDisplayedInViewport: () => boolean,
   click: () => void,
-  setValue: (string) => void,
-  selectByVisibleText: string  => void,
-  selectByValue: string  => void,
-  $$: string => Element[],
-  $: string => Element
+  setValue: (s:string) => void,
+  selectByVisibleText: (text: string)  => void,
+  selectByValue: (value:string)  => void,
+  selectByAttribute: (attribute: string, value: string)  => void,
+  $$: (css:string) => Element[],
+  $: (css:string) => Element
 }
 
 /* All existing - review again when moved to TS - I think element exists 
@@ -107,11 +106,12 @@ element
 
 */
 
-//$FlowFixMe
-export const S : SelectorOrElement => Element = s => _.isString(s) ? $(s) : ensureReturn(isElement(s), s, `${JSON.stringify(s)} is not a string or Element`);
+export const S : (selectorOrElement: SelectorOrElement) => Element = selectorOrElement => (typeof(selectorOrElement) === "string") 
+                                                                          ? $(selectorOrElement) 
+                                                                          : <any>ensureReturn(isElement(selectorOrElement), selectorOrElement, `${JSON.stringify(selectorOrElement)} is not a string or Element`);
 
-//$FlowFixMe
-export const SS: string => Element[] = s => $$(s);
+
+export const SS: (css:string) => Element[] = css => <any>$$(css);
 
 /*
 ********************************************************************************
@@ -124,13 +124,13 @@ export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, co
 export type ReadResult = boolean | string | null;
 
 type LookUpDef = {
-  findVals: {[string]: ReadResult},
-  setVals: {[string]: ReadResult}
+  findVals: {[k:string]: ReadResult},
+  setVals: {[k:string]: ReadResult}
 }
 
 type LookUpTarget = {
-  findElements: {[string]: Element},
-  setElements: {[string]: Element}
+  findElements: {[k:string]: Element},
+  setElements: {[k:string]: Element}
 }
 
 function generateLookupObjs(lookupCols: string[], dataCols: string[], columnDefs: string[],  data: ReadResult[][]): LookUpDef[] {
@@ -165,7 +165,7 @@ function generateLookupObjs(lookupCols: string[], dataCols: string[], columnDefs
 function generateLookupTargets(tableSelector: SelectorOrElement, lookupCols: string[], dataCols: string[], visibleOnly: boolean): LookUpTarget[] {
   let lookupSet = new Set(lookupCols),
       dataSet = new Set(dataCols),
-      result = [],
+      result = <LookUpTarget[]>[],
       active: LookUpTarget = {
         findElements: {},
         setElements: {}
@@ -196,7 +196,7 @@ function generateLookupTargets(tableSelector: SelectorOrElement, lookupCols: str
 function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
 
   function setIfMatchesLookup(target: LookUpTarget) {
-    let targVals: {[string]: ReadResult} = {},
+    let targVals: {[k:string]: ReadResult} = {},
         {findElements, setElements} = target;
 
     function targVal(propName: string) {
@@ -213,14 +213,14 @@ function doTableSet(lookUpDefs: LookUpDef[], lookupTargets: LookUpTarget[]) {
       let lkups = lDef.findVals;
       return _.chain(lkups)
               .keys()
-              .every(k => areEqual(lkups[k], targVal(k)))
+              .every((k:any) => areEqual(lkups[k], targVal(k)))
               .value()
     }
 
     let matchingDef = lookUpDefs.find(defMatchesTarget);
     if (matchingDef != null){
       let newVals = matchingDef.setVals;
-      function setTarget(val, key) {
+      function setTarget(val: any, key: any) {
         set(setElements[key], val);
       }
 
@@ -267,20 +267,20 @@ export function setTableFilterVisibleOnlySlow(tableSelector: SelectorOrElement, 
   setTablePriv(true)(tableSelector, columnDefs, ...dataDefs);
 }
 
-export function readTable(tableSelector: SelectorOrElement, columns: ?string[] = null, visibleOnly: boolean = true): {[string]: ReadResult}[] {
+export function readTable(tableSelector: SelectorOrElement, columns: string[] | null | undefined, visibleOnly: boolean = true): {[k:string]: ReadResult}[] {
   let tbl = S(tableSelector),
       header = tbl.$('tr'),
       colMap = generateColMap(header),
       columnSubset = columns == null ? null : new Set(columns),
       lastRowIndex = -1,
-      thisRow: {[string]: ReadResult} = {},
-      result: {[string]: ReadResult}[] = [];
+      thisRow: {[k:string]: ReadResult} = {},
+      result: {[k:string]: ReadResult}[] = [];
 
    if (columns != null) {
      ensureAllColsInColMap(colMap, columns);
    }
 
-   const include = colTitle => columnSubset == null ? true : columnSubset.has(colTitle);
+   const include = (colTitle: string) => columnSubset == null ? true : columnSubset.has(colTitle);
    function readSingleCell(cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) {
 
      if (lastRowIndex !== rowIndex){
@@ -298,19 +298,19 @@ export function readTable(tableSelector: SelectorOrElement, columns: ?string[] =
   return result;
 }
 
-export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult | void {
+export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[k:string]: ReadResult}, valueCol: string): ReadResult | void {
   let cl = cell(tableSelector, lookUpVals, valueCol);
   return cl == undefined ? undefined : read(cl);
 }
 
-function ensureAllColsInColMap(colMap: {[number]: string}, lookUpNames: string[]){
+function ensureAllColsInColMap(colMap: {[k:number]: string}, lookUpNames: string[]){
   let colNames: string[] = _.values(colMap),
       missing = _.difference(lookUpNames, colNames);
 
   ensure(missing.length === 0, `The following column names referenced in the arguments to this function do not appear in the table header: ${missing.join(', ')}. Possible values are: ${colNames.join(', ')}`);
 }
 
-export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): Element | void {
+export function cell(tableSelector: SelectorOrElement, lookUpVals: {[K:string]: ReadResult}, valueCol: string): Element | void {
   let tbl = S(tableSelector),
       header = tbl.$('tr'),
       colMap = generateColMap(header),
@@ -324,8 +324,8 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: Re
   // rather than rewrite flow control
   let accum = {
     rowUnmatched: false,
-    value: (undefined: ?Element),
-    result: (undefined: ?Element),
+    value: (<Element|undefined>undefined),
+    result: (<Element|undefined>undefined),
     resultSet: false
   },
   lastRowIdx = -1,
@@ -334,8 +334,8 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: Re
   function reset() {
     accum = {
       rowUnmatched: false,
-      value: (undefined: ?Element),
-      result: (undefined: ?Element),
+      value: (<Element|undefined>undefined),
+      result: (<Element|undefined>undefined),
       resultSet: false
     }
   }
@@ -377,9 +377,9 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[string]: Re
   return accum.resultSet ? accum.result : undefined;
 }
 
-function generateColMap(row: Element) : {[number]: string} {
+function generateColMap(row: Element) : {[k:number]: string} {
   let cells = row.$$('th, td');
-  function addCol(accum: {[number]: string}, el : Element, idx: number): {[number]: string} {
+  function addCol(accum: {[k:number]: string}, el : Element, idx: number): {[k:number]: string} {
     let colName = trim(show(read(el)));
     accum[idx] = colName == '' ? 'idx' + show(idx) : colName;
     return accum;
@@ -392,10 +392,10 @@ export function mapCells<T>(tableSelector: SelectorOrElement, cellFunc : CellFun
 } 
 
 // Does not allow for invisible first row
-function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true, maybeColMap: ?{[number]: string}): T[][] {
+function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T>, visibleOnly: boolean = true, maybeColMap?: {[k:number]: string}): T[][] {
   let tbl = S(tableSelector);
   let rows = tbl.$$('tr');
-  let visFilter = e => !visibleOnly || e.isDisplayedInViewport(),
+  let visFilter = (e:Element) => !visibleOnly || e.isDisplayedInViewport(),
       headerRow = _.head(rows),
       dataRows =  _.tail(rows);
 
@@ -403,7 +403,7 @@ function mapCellsPriv<T>(tableSelector: SelectorOrElement, cellFunc : CellFunc<T
     return [];
   }
 
-  let colMap: {[number]: string} = def(maybeColMap, generateColMap(headerRow));
+  let colMap: {[k:number]: string} = def(maybeColMap, generateColMap(headerRow));
   function rowFunc(row: Element, rowIndex: number): (cell: Element, colIndex: number) => T {
     return function eachCellFunc(cell: Element, colIndex: number) {
       return cellFunc(cell, colMap[colIndex], rowIndex, colIndex, row);
@@ -431,7 +431,7 @@ function mapImplementedWithTransform<I, T>(source: I[], mapper: (input: I, index
   return _.transform(source, transformer, []);
 }
 
-function mapRows<T>(colProcessorCreator: (Element, number) => (Element, number) => T | ABORT, elementFilter: Element => boolean, rows: Element[]): T[][] {
+function mapRows<T>(colProcessorCreator: (e:Element, n:number) => (e:Element, n:number) => T | ABORT, elementFilter: (e:Element) => boolean, rows: Element[]): T[][] {
 
   let aborted = false;
 
@@ -485,14 +485,14 @@ export function SSNested(parentSelectorOrElement: SelectorOrElement, manySelecto
     return el.$$(manySelector);
 }
 
-type FormItems =  {
-                   allEdits: ElementPlusLocIsCheckControl[],
-                   editsRemaining: ElementPlusLocIsCheckControl[],
-                   nonEditsRemaining: ElementPlusLocIsCheckControl[],
-                   result: {[string]: string},
-                   data: {[string]: mixed},
-                   dataType: {[string]: string},
-                   sumTypes:  {[string]: string[]},
+interface FormItems {
+                   allEdits: ElementPlusLoc[],
+                   editsRemaining: ElementPlusLoc[],
+                   nonEditsRemaining: ElementPlusLoc[],
+                   result: {[k:string]: string},
+                   data: {[k:string]: any},
+                   dataType: {[k:string]: string},
+                   sumTypes:  {[k:string]: string[]},
                  };
 
 export const ZZForTest = {
@@ -502,7 +502,7 @@ export const ZZForTest = {
 
 function toPropString(labelStr: string): string {
 
-   function splitOnNonChars(accum, chr) {
+   function splitOnNonChars(accum: any, chr: any) {
      let code = chr.charCodeAt(0),
          isAlphaNum = code > 64 && code < 91 || code > 96 && code < 123 || code > 47 && code < 58,
          {words, inWord} = accum,
@@ -528,15 +528,15 @@ function toPropString(labelStr: string): string {
      return '???????'
    }
    else {
-     let capsWrds = forceArray(lowerCase(firstWrd), _.tail(words).map(w => upperFirst(lowerCase(w))));
+     let capsWrds = forceArray(lowerCase(firstWrd), _.tail(words).map((w:string) => upperFirst(lowerCase(w))));
      return capsWrds.join('');
    }
 }
 
-function nearestLabel(edit: ElementPlusLocIsCheckControl, nonEditsRemaining: ElementPlusLocIsCheckControl[]) : ?ElementPlusLocIsCheckControl {
-  const calcDistance = l => distanceLabelToDataObject(edit, l, '*');
+function nearestLabel(edit: ElementPlusLoc, nonEditsRemaining: ElementPlusLoc[]) : ElementPlusLoc {
+  const calcDistance = (l: any) => distanceLabelToDataObject(edit, l, '*');
 
-  function bestCandidate(accum, lbl) {
+  function bestCandidate(accum: any, lbl: any) {
     let distance = calcDistance(lbl),
         txt = lbl.getText();
 
@@ -551,13 +551,13 @@ function nearestLabel(edit: ElementPlusLocIsCheckControl, nonEditsRemaining: Ele
     }
   }
 
-  _.reduce(nonEditsRemaining, bestCandidate, {
+  return _.reduce(nonEditsRemaining, bestCandidate, {
                                               distance: Number.MAX_VALUE,
                                               result: null
                                             });
 }
 
-function placeholderOrLabelText(edit: ElementPlusLocIsCheckControl, nonEditsRemaining: ElementPlusLocIsCheckControl[]) : {altIdStr: string | null, nonEdit: ElementPlusLocIsCheckControl | null} {
+function placeholderOrLabelText(edit: ElementPlusLoc, nonEditsRemaining: ElementPlusLoc[]) : {altIdStr: string | null, nonEdit: ElementPlusLoc | null} {
   let ph = edit.getAttribute('placeholder'),
       altIdStr = null,
       nonEdit = null;
@@ -582,21 +582,21 @@ function placeholderOrLabelText(edit: ElementPlusLocIsCheckControl, nonEditsRema
 
 }
 
-const isRadioOfName = (name: string) => (edit: ElementPlusLocIsCheckControl) => edit.getAttribute('type') == 'radio' && nameAttribute(edit) == name;
+const isRadioOfName = (name: string) => (edit: ElementPlusLoc) => edit.getAttribute('type') == 'radio' && nameAttribute(edit) == name;
 
-function radioOptions(name: string, allEdits: ElementPlusLocIsCheckControl[]): string[] {
-  return allEdits
+function radioOptions(name: string, allEdits: ElementPlusLoc[]): string[] {
+  return <any>allEdits
             .filter(isRadioOfName(name))
             .map(e => e.getAttribute('value'))
             .filter(hasValue);
 }
 
-function selectOptions(edit: ElementPlusLocIsCheckControl): string[] {
+function selectOptions(edit: ElementPlusLoc): string[] {
   let options = edit.$$('option');
-  return options.map(o => o.getText());
+  return options.map((o: Element) => o.getText());
 }
 
-function radioValue(name: string, allEdits: ElementPlusLocIsCheckControl[]): string | null {
+function radioValue(name: string, allEdits: ElementPlusLoc[]): string | null | undefined {
   var radio = allEdits.find(isRadioOfName(name));
   return radio == null ? null : radio.getAttribute('value');
 }
@@ -644,7 +644,7 @@ function getNextFormItems(items: FormItems): FormItems {
    }
 
    if (!namedRadio){
-     let val = read(edit),
+     let val = <any>read(edit),
          isSelect = isSelectElement(edit);
 
      val = typeof val == 'string' && stringConvertableToNumber(val) ? Number.parseFloat(cast(val)) : val;
@@ -675,14 +675,14 @@ export const isSelectElement = elementIs('select')
 
 function extractFormInfo(parentElementorSelector: SelectorOrElement): FormItems {
   let {edits, nonEdits} = editsNonEdits(parentElementorSelector),
-      elPos = (e0, e1) => e0.top - e1.top != 0 ? e0.top - e1.top : e0.left - e1.left;
+      elPos = (e0: ElementPlusLoc, e1: ElementPlusLoc) => e0.top - e1.top != 0 ? e0.top - e1.top : e0.left - e1.left;
 
- edits = addLocationsAndCheckControl(edits).sort(elPos);
- nonEdits = addLocationsAndCheckControl(nonEdits).sort(elPos);
+ let editsL = addLocationsAndCheckControl(edits).sort(elPos),
+     nonEditsL = addLocationsAndCheckControl(nonEdits).sort(elPos);
  return getNextFormItems({
-                          allEdits: edits,
-                          editsRemaining: edits,
-                          nonEditsRemaining: nonEdits,
+                          allEdits: editsL,
+                          editsRemaining: editsL,
+                          nonEditsRemaining: nonEditsL,
                           result: {},
                           data: {},
                           dataType: {},
@@ -690,27 +690,28 @@ function extractFormInfo(parentElementorSelector: SelectorOrElement): FormItems 
                         });
 }
 
-function typeDeclaration(types, typeName): string {
-  return `export type ${typeName} = \n\t${types.map(s => `'${s}'`).join('\n\t| ')};`
+
+function typeDeclaration(types: any, typeName: string): string {
+  return `export type ${typeName} = \n\t${types.map((s:string) => `'${s}'`).join('\n\t| ')};`
 }
 
-function typeLines(dataType: {[string]: string}): string {
-  let lines = _.map(dataType, (v, n) => '\t\t' + n + ': ' + v);
+function typeLines(dataType: {[k:string]: string}): string {
+  let lines = _.map(dataType, (v:string, n:string) => '\t\t' + n + ': ' + v);
   return lines.join(',\n');
 }
 
-function formParamLines(result: {[string]: string}): string {
-  let lines = _.map(result, (v, n) => '\t\t' + n + ': ' + v);
+function formParamLines(result: {[k:string]: string}): string {
+  let lines = _.map(result, (v: string, n: string) => '\t\t' + n + ': ' + v);
   return lines.join(',\n');
 }
 
-function dataLines(data: {[string]: mixed}, dataType: {[string]: string}) {
-  function valShow(name, typeName) {
+function dataLines(data: {[k:string]: any}, dataType: {[k:string]: string}) {
+  function valShow(name: string, typeName: string) {
     let val = show(data[name]);
     return typeName == 'boolean' || typeName == 'number' ? val : "'" + val + "'";
   }
 
-  let lines = _.map(dataType, (v, n) => '\t\t' + n + ': ' + valShow(n,v));
+  let lines = _.map(dataType, (v: string, n: string) => '\t\t' + n + ': ' + valShow(n,v));
   return lines.join(',\n');
 }
 
@@ -753,7 +754,7 @@ export function getForm(parentElementorSelector: SelectorOrElement): string {
   let result = formatFormInfo(extractFormInfo(parentElementorSelector));
   log(result);
   toTempString(result);
-  clipBoardy.write(result);
+  (<any>clipBoardy).write(result);
   log('sourcecode copied to clipboard');
   return result;
 }
@@ -769,7 +770,7 @@ function editsNonEdits(parentElementorSelector: SelectorOrElement): EditsNonEdit
 }
 
 // do not move onto multiple lines ~ confuses symbold view
-export function setForm(parentElementorSelector: SelectorOrElement, valMap: {[string]: SetterValue | ValueWithFinderSetter}, setter: SetterFunc = set, finder?: FinderFunc): void {
+export function setForm(parentElementorSelector: SelectorOrElement, valMap: {[k:string]: SetterValue | ValueWithFinderSetter}, setter: SetterFunc = set, finder?: FinderFunc): void {
 
   type ElementInfo = {
                      elementMap: {},
@@ -785,18 +786,18 @@ export function setForm(parentElementorSelector: SelectorOrElement, valMap: {[st
   function deconstructFindElement(accum: ElementInfo, val: SetterValue | ValueWithFinderSetter, key: string): ElementInfo {
 
     let isCustomObj = _.isObject(val),
-        trueVal: SetterValue = cast(isCustomObj ? ensureHasVal(cast(val).value, 'setform custom object must have value property defined') : val),
-        customSetter: ?SetterFunc = isCustomObj ? cast(val).setter : undefined,
-        finder: FinderFunc = cast(isCustomObj && val.finder != null ? val.finder : findElement),
-        target: ?Element = finder(key, edits, nonEdits);
+        trueVal: SetterValue = cast(isCustomObj ? ensureHasVal((<any>val).value, 'setform custom object must have value property defined') : val),
+        customSetter: SetterFunc | null | undefined = isCustomObj ? (<any>val).setter : undefined,
+        finder: FinderFunc = cast(isCustomObj && (<any>val).finder != null ? (<any>val).finder : findElement),
+        target: Element | null | undefined = finder(key, edits);
 
     if (target == null) {
       accum.failedMappings.push(`Could not find matching input element for: ${key} is setForm: {${key}: ${show(trueVal)}, ...}`);
     }
     else {
-      accum.customSetters[key] = customSetter;
-      accum.trueVals[key] = trueVal;
-      accum.elementMap[key] = target;
+      (<any>accum).customSetters[key] = customSetter;
+      (<any>accum).trueVals[key] = trueVal;
+      (<any>accum).elementMap[key] = target;
     }
 
     return accum;
@@ -812,19 +813,19 @@ export function setForm(parentElementorSelector: SelectorOrElement, valMap: {[st
       safeSetter = handledSet(setter, elementInfo.customSetters),
       trueVals = elementInfo.trueVals;
 
-  _.each(elementInfo.elementMap, (e, k) => safeSetter(e, k, trueVals[k]));
+  _.each(elementInfo.elementMap, (e: Element, k: string) => safeSetter(e, k, trueVals[k]));
 
   let fails = elementInfo.failedMappings;
   ensure(fails.length === 0, `setForm failures:\n ${fails.join('\n')}`);
 }
 
 
-function forLabelsMapFromArray(labelLike: ElementWithForAndText[], idedEdits: {[string]: Element}): {} {
+function forLabelsMapFromArray(labelLike: ElementWithForAndText[], idedEdits: {[k:string]: Element}): {} {
 
   function addLabelLike(accum: {}, label: ElementWithForAndText): {} {
     let lblTxt = label.text;
     if (lblTxt != null){
-      accum[lblTxt] = idedEdits[label.for];
+      (<any>accum)[lblTxt] = (<any>idedEdits)[label.for];
     }
     return accum;
   }
@@ -880,20 +881,20 @@ function partitionAddFor(nonEdits: Element[]): ClassifiedLabels {
 type ElementWithPlaceHolder =  Element & {placeholder: string};
 function addPlaceHolders(edits: Element[]) : ElementWithPlaceHolder[]  {
 
-  function addIfPlaceHolder(accum, elm) : ElementWithPlaceHolder[] {
+  function addIfPlaceHolder(accum: ElementWithPlaceHolder[], elm: Element) : ElementWithPlaceHolder[] {
     let ph = elm.getAttribute('placeholder');
     if (ph != null){
-      cast(elm).placeholder = ph;
-      accum.push(elm);
+      (<any>elm).placeholder = ph;
+      accum.push(<ElementWithPlaceHolder>elm);
     }
     return cast(accum);
   }
 
-  let unsorted: ElementWithPlaceHolder[] = edits.reduce(cast(addIfPlaceHolder), []);
-  return _.sortBy(unsorted, e => e.placeholder.length);
+  let unsorted: ElementWithPlaceHolder[] = edits.reduce(addIfPlaceHolder, []);
+  return _.sortBy(unsorted, (e: ElementWithPlaceHolder) => e.placeholder.length);
 }
 
-type ElementPlusLoc = $Subtype<Element> & {
+interface ElementPlusLoc extends Element {
                                             x: number,
                                             y: number,
                                             left: number,
@@ -906,53 +907,45 @@ type ElementPlusLoc = $Subtype<Element> & {
                                             horizontalCentre: number
                                           };
 
-type ElementPlusLocIsCheckControl = $Subtype<ElementPlusLoc> & {
-                                            isCheckControl: boolean
-                                          }
-
-function addLocation(el:$Subtype<Element>): ElementPlusLoc {
+function addLocation(el: Element): ElementPlusLoc {
   let loc = el.getLocation(),
-      size = el.getSize();
+      size = el.getElementSize(),
+      elpl = <ElementPlusLoc>el;
 
-  el.x = loc.x,
-  el.y = loc.y;
-  el.left = loc.x;
-  el.right = loc.x + size.width;
-  el.top = loc.y;
-  el.bottom = loc.y + size.height;
-  el.width = size.width;
-  el.height = size.height;
-  el.verticalCentre = loc.y + size.height/2;
-  el.horizontalCentre = loc.x + size.width/2;
-  return el;
+  elpl.x = loc.x,
+  elpl.y = loc.y;
+  elpl.left = loc.x;
+  elpl.right = loc.x + size.width;
+  elpl.top = loc.y;
+  elpl.bottom = loc.y + size.height;
+  elpl.width = size.width;
+  elpl.height = size.height;
+  elpl.verticalCentre = loc.y + size.height/2;
+  elpl.horizontalCentre = loc.x + size.width/2;
+  return elpl;
 }
 
-function addLocationsAndCheckControl(locs: Element[]): ElementPlusLocIsCheckControl[] {
-  return locs.
-            map(addLocation).
-            map(el => {
-                        el.isCheckControl = isCheckable(el);
-                        return el;
-                      });
+function addLocationsAndCheckControl(locs: Element[]): ElementPlusLoc[] {
+  return locs.map(addLocation);
 }
 
 function addLocations(locs: Element[]): ElementPlusLoc[] {
   return locs.map(addLocation);
 }
 
-type ElementPlusLocPlusText = $Subtype<Element> & {x: number, y: number, text: string}
+interface ElementPlusLocPlusText extends ElementPlusLoc {x: number, y: number, text: string}
 function addLocationsAndText(locs: Element[]): ElementPlusLocPlusText[] {
-  return _.sortBy(addLocations(locs).map(e => {
-                                      e.text = e.getText();
+  return _.sortBy(addLocations(locs).map((e: ElementPlusLoc) => {
+                                      (<any>e).text = e.getText();
                                       return e;
                                     }),
-                                    e => e.text.length
+                                    (e:ElementPlusLocPlusText) => e.text.length
                                   );
 }
 
-function pointsOverlap(lowerBound1, upperBound1, lowerBound2, upperBound2){
+function pointsOverlap(lowerBound1: number, upperBound1: number, lowerBound2: number, upperBound2: number){
 
-  function liesWithin(target, lowerBound, upperBound){
+  function liesWithin(target: number, lowerBound: number, upperBound: number){
     return (target >= lowerBound && target <= upperBound);
   }
 
@@ -962,7 +955,7 @@ function pointsOverlap(lowerBound1, upperBound1, lowerBound2, upperBound2){
           liesWithin(upperBound2, lowerBound1, upperBound1);
 }
 
-function centrePassesThroughTarget(candidate: ElementPlusDistance, targetLabel: ElementPlusLocPlusText, directionModifier: LabelSearchDirectionModifier): boolean {
+function centrePassesThroughTarget(candidate: ElementPlusDistance, targetLabel: ElementPlusLoc, directionModifier: LabelSearchDirectionModifier): boolean {
 
   let horizonallyAligned = targetLabel.horizontalCentre < candidate.right && targetLabel.horizontalCentre > candidate.left,
       verticallyAligned = targetLabel.verticalCentre > candidate.top && targetLabel.verticalCentre < candidate.bottom;
@@ -972,33 +965,33 @@ function centrePassesThroughTarget(candidate: ElementPlusDistance, targetLabel: 
          horizonallyAligned || verticallyAligned;
 }
 
-function distanceLabelToDataObject(candidate, targetLabel, directionModifier: LabelSearchDirectionModifier){
-  function veritcalOverlap(targetLabel, candidate){
+function distanceLabelToDataObject(candidate: ElementPlusLoc, targetLabel: ElementPlusLoc, directionModifier: LabelSearchDirectionModifier): number | null {
+  function veritcalOverlap(targetLabel: ElementPlusLoc, candidate: ElementPlusLoc){
     return pointsOverlap(candidate.top, candidate.bottom, targetLabel.top, targetLabel.bottom);
   }
 
-  function editPixToRight(candidate, targetLabel){
+  function editPixToRight(candidate: ElementPlusLoc, targetLabel: ElementPlusLoc){
     let result = targetLabel.right <= candidate.left && veritcalOverlap(targetLabel, candidate) ?
            candidate.left - targetLabel.right: null;
     return result;
   }
 
-  function editPixToLeft(candidate, targetLabel){
+  function editPixToLeft(candidate: ElementPlusLoc, targetLabel: ElementPlusLoc){
     let result = targetLabel.left >= candidate.left /* using .left not .right because some labels envelop their control esp clickable controls */ && veritcalOverlap(targetLabel, candidate) ?
                   Math.max(targetLabel.left - candidate.right, 0) : null;
     return result;
   }
 
-  function horizontalOverlap(targetLabel, candidate){
+  function horizontalOverlap(targetLabel: ElementPlusLoc, candidate: ElementPlusLoc){
     return pointsOverlap(candidate.left, candidate.right, targetLabel.left, targetLabel.right);
   }
 
-  function editPixAbove(candidate, targetLabel){
+  function editPixAbove(candidate: ElementPlusLoc, targetLabel: ElementPlusLoc){
     return targetLabel.top >= candidate.bottom  && horizontalOverlap(targetLabel, candidate) ?
           targetLabel.top - candidate.bottom: null;
   }
 
-  function editPixBelow(candidate, targetLabel){
+  function editPixBelow(candidate: ElementPlusLoc, targetLabel: ElementPlusLoc){
     return targetLabel.bottom <= candidate.top && horizontalOverlap(targetLabel, candidate) ?
          candidate.top - targetLabel.bottom: null;
   }
@@ -1023,7 +1016,7 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
       let distanceFromTarget = def(editPixToRight(candidate, targetLabel), editPixBelow(candidate, targetLabel));
 
       // only look to left of label if chkbox or radio ~ note the flip see above
-      if (candidate.isCheckControl){
+      if (isCheckable(candidate)){
         var pixLeft = editPixToLeft(candidate, targetLabel); // candidate to left of lbl
         if (pixLeft != null && (distanceFromTarget == null || pixLeft < distanceFromTarget) ){
           distanceFromTarget = pixLeft;
@@ -1033,14 +1026,17 @@ function distanceLabelToDataObject(candidate, targetLabel, directionModifier: La
   }
 }
 
-type ElementPlusDistance = $Subtype<Element> & {distanceFromTarget: ?number, labelCentred: boolean}
+interface ElementPlusDistance extends ElementPlusLoc {
+                                                distanceFromTarget?: number, 
+                                                labelCentred: boolean
+                                              }
 
-function nearestObject(targetLabel: ElementPlusLocPlusText, directionModifier: LabelSearchDirectionModifier, candidate: ElementPlusDistance, bestSoFar: ElementPlusDistance | null){
+function nearestObject(targetLabel: ElementPlusLoc, directionModifier: LabelSearchDirectionModifier, candidate: ElementPlusDistance, bestSoFar: ElementPlusDistance | null){
   let distanceFromTarget = distanceLabelToDataObject(candidate, targetLabel, directionModifier);
 
   const distanceFromTargetCloser = () => {
     return distanceFromTarget == null || bestSoFar == null ? false :
-              distanceFromTarget < bestSoFar.distanceFromTarget ||
+              distanceFromTarget < (<any>bestSoFar).distanceFromTarget ||
               distanceFromTarget === bestSoFar.distanceFromTarget && !bestSoFar.labelCentred;
   }
 
@@ -1054,18 +1050,18 @@ function nearestObject(targetLabel: ElementPlusLocPlusText, directionModifier: L
   }
 }
 
-function closestObject(targetLabel: ElementPlusLocPlusText, edts: ElementPlusLocIsCheckControl[], directionModifier: LabelSearchDirectionModifier): Element | null {
-  function chooseBestObject(bestSoFar, candidate){
+function closestObject(targetLabel: ElementPlusDistance, edts: ElementPlusDistance[], directionModifier: LabelSearchDirectionModifier): Element | null {
+  function chooseBestObject(bestSoFar: ElementPlusDistance | null, candidate: ElementPlusDistance){
     return nearestObject(targetLabel, directionModifier, candidate, bestSoFar);
   }
   return edts.reduce(chooseBestObject, null);
 }
 
-function nearestEdit(key: string, edts: ElementPlusLoc[], labels: ElementPlusLocPlusText[],
+function nearestEdit(key: string, edts: ElementPlusDistance[], labels: ElementPlusLocPlusText[],
                       wildcard: boolean, lblModifier: LabelSearchDirectionModifier): Element | null {
   // Note labels previously sorted by text length so will pick the match
   //with the shortest label
-  let pred : ElementPlusLocPlusText => boolean = wildcard ? e => wildCardMatch(e.text, key) : e => e.text === key,
+  let pred : (e:ElementPlusLocPlusText) => boolean = wildcard ? e => wildCardMatch(e.text, key) : e => e.text === key,
       targetLabel = _.find(labels, pred);
 
   return targetLabel == null ? null : closestObject(targetLabel, edts, lblModifier);
@@ -1076,7 +1072,7 @@ function addType(elements: Element[]): ElementWithType[] {
   function addEl(accum: ElementWithType[], e: Element) {
     let type = e.getAttribute('type');
     if (type != null){
-      cast(e).type = type;
+      (<any>e).type = type;
       accum.push(cast(e));
     }
     return accum;
@@ -1084,7 +1080,7 @@ function addType(elements: Element[]): ElementWithType[] {
   return elements.reduce(addEl, []);
 }
 
-function addId(accum: {[string]: Element}, element: Element): {[string]: Element} {
+function addId(accum: {[k:string]: Element}, element: Element): {[k:string]: Element} {
    let id = idAttribute(element);
    if (id != null){
      accum[id] = element;
@@ -1092,8 +1088,8 @@ function addId(accum: {[string]: Element}, element: Element): {[string]: Element
    return accum;
 }
 
-export type SetterFunc = (Element, string | number | boolean) => void;
-export type FinderFunc = (key: string, editable: Element[], nonEditable: ?Element[]) => ?Element;
+export type SetterFunc = (element:Element, value: string | number | boolean) => void;
+export type FinderFunc = (key: string, editable: Element[]) => Element | undefined | null;
 export type SetterValue = string | number | boolean;
 export type ValueWithFinderSetter = {
   value: SetterValue,
@@ -1101,17 +1097,17 @@ export type ValueWithFinderSetter = {
   setter?: SetterFunc
 }
 
-export function predicateToFinder(pred: (key: string, element: Element) => bool): FinderFunc {
-  return function finder(key: string, editable: Element[], nonEditable: ?Element[]): ?Element {
-    return editable.find(element => pred(key, element));
+export function predicateToFinder(pred: (key: string, element: Element) => boolean): FinderFunc {
+  return function finder(key: string, editable: Element[]): Element | undefined | null {
+    return editable.find((element:Element) => pred(key, element));
   }
 }
 
 export function withSetter(value: SetterValue | ValueWithFinderSetter, setter: SetterFunc): ValueWithFinderSetter {
   return _.isObject(value) ?
                     {
-                      value: ensureHasVal(cast(value).value, 'withSetter value object value property is null or undefined'),
-                      finder: cast(value).finder,
+                      value: ensureHasVal((<any>value).value, 'withSetter value object value property is null or undefined'),
+                      finder: (<any>value).finder,
                       setter: setter
                     } :
                     {
@@ -1124,9 +1120,9 @@ export function withSetter(value: SetterValue | ValueWithFinderSetter, setter: S
 export function withFinder(value: SetterValue | ValueWithFinderSetter, finder: FinderFunc): ValueWithFinderSetter {
   return _.isObject(value) ?
                     {
-                      value: ensureHasVal(cast(value).value, 'withFinder value object value property is null or undefined'),
+                      value: ensureHasVal((<any>value).value, 'withFinder value object value property is null or undefined'),
                       finder: finder,
-                      setter: cast(value).setter
+                      setter: (<any>value).setter
                     } :
                     {
                       value: cast(value),
@@ -1134,7 +1130,7 @@ export function withFinder(value: SetterValue | ValueWithFinderSetter, finder: F
                     };
 }
 
-export function withPredicate(value: SetterValue | ValueWithFinderSetter, predicate: (key: string, element: Element) => bool): ValueWithFinderSetter {
+export function withPredicate(value: SetterValue | ValueWithFinderSetter, predicate: (key: string, element: Element) => boolean): ValueWithFinderSetter {
   let finder = predicateToFinder(predicate);
   return withFinder(value, finder);
 }
@@ -1153,10 +1149,10 @@ function splitEditsNonEdits(accum: EditsNonEdits, element: Element) {
   return accum;
 }
 
-function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: () => {[string]: Element}, edits: Element[], nonEdits: Element[]) {
+function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: () => {[k:string]: Element}, edits: Element[], nonEdits: Element[]) {
 
   const partitionAddForNonEdits = () => partitionAddFor(nonEdits),
-        forLblMapFunc: () => {[string]: ElementWithForAndText} = () => forLabelsMapFromArray(forLabels(), idedEdits());
+        forLblMapFunc: () => {[k:string]: ElementWithForAndText} = () => forLabelsMapFromArray(forLabels(), idedEdits());
 
   let editsWithPlaceHolders = _.memoize(addPlaceHolders),
       addCoords = _.memoize(addLocations),
@@ -1180,14 +1176,14 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
   function sortedForTextsFunc(): string[] {
     return _.chain(forLabels())
                               .map('text')
-                              .sortBy(t => t.length)
+                              .sortBy((t:ElementWithForAndText[]) => t.length)
                               .value();
   }
 
-  return function defaultFinder(keyWithLabelDirectionModifier: string, edits: Element[], nonEditable: Element[]): ?Element {
+  return function defaultFinder(keyWithLabelDirectionModifier: string, edits: Element[]): Element | null {
     // Ided fields and search modifiers (e.g. A~Female ~ female label above)
     let [lblModifier, key] = sliceSearchModifier(keyWithLabelDirectionModifier),
-        result = idedEdits()[key],
+        result = <Element | null | undefined>idedEdits()[key],
         wildcard = result == null && (typeof key == 'string') && key.includes('*');
 
     // Named radio group
@@ -1204,13 +1200,13 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
     if (result == null && wildcard){
       // for labels
 
-      let lblText = sortedForTexts().find(t => wildCardMatch(t, key));
+      let lblText = sortedForTexts().find((t:string )=> wildCardMatch(t, key));
       result = lblText == null ? null : forLblMap()[lblText];
     }
 
     // Placeholders
     if (result == null){
-      let pred : ElementWithPlaceHolder => boolean = wildcard ? e => wildCardMatch(e.placeholder, key) : e => e.placeholder === key;
+      let pred : (e:ElementWithPlaceHolder) => boolean = wildcard ? e => wildCardMatch(e.placeholder, key) : e => e.placeholder === key;
       result = editsWithPlaceHolders(edits).find(pred);
     }
 
@@ -1226,7 +1222,7 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
 
 }
 
-function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
+function handledSet(setter: SetterFunc, customSetters: {[K:string]: SetterFunc}) {
   return function handledSet(element: Element, key: string, value: SetterValue) {
     try {
       let setterFunc = def(customSetters[key], setter);
@@ -1241,13 +1237,13 @@ function handledSet(setter: SetterFunc, customSetters: {[string]: SetterFunc}) {
 function findNamedRadioGroup(searchTerm: string, edits: ElementWithType[], wildCard: boolean) : Element | null {
   // string could be group name
   let atrPred = wildCard ?
-                s => s != null && wildCardMatch(s, searchTerm) :
-                s => s === searchTerm,
+                (s:string | null | undefined) => s != null && wildCardMatch(s, searchTerm) :
+                (s:string | null | undefined) => s === searchTerm,
       namedRadios = edits.filter(e => e.type === 'radio' && atrPred(nameAttribute(e)));
   return namedRadios.length > 0 ? commonParent(namedRadios) : null;
 }
 
-function commonParent(radios: $Subtype<Element>[]) : Element | null {
+function commonParent(radios: Element[]) : Element | null {
   let radiosLength = radios.length;
   if (radiosLength === 0) {
     return null;
@@ -1256,7 +1252,7 @@ function commonParent(radios: $Subtype<Element>[]) : Element | null {
   let fst = radios[0],
       name = nameAttribute(fst);
 
-  function parentOfAll(chld) {
+  function parentOfAll(chld: Element): Element | null {
     let prnt = parent(chld);
     if(prnt != null){
       let theseRadios = radioElements(prnt, name);
@@ -1274,7 +1270,7 @@ function canEditTag(tagName: string) {
   return ['input', 'select'].includes(tagName);
 }
 
-function canEditTypeAttr(typeAttr: ?string) {
+function canEditTypeAttr(typeAttr: string | null | undefined) {
   const blackList = ['submit', 'reset', 'button', 'hidden'];
   return typeAttr == null || !blackList.includes(typeAttr);
 }
@@ -1291,15 +1287,15 @@ function canEdit(element: Element) {
 // may be required with strange inputs
 export const BACKSPACE = '\uE003';
 
-export const nameAttribute: Element => string | null = e => e.getAttribute('name');
-export const idAttribute: Element => string | null = e => e.getAttribute('id');
+export const nameAttribute: (e:Element) => string | null | undefined = e => e.getAttribute('name');
+export const idAttribute: (e:Element) => string | null | undefined = e => e.getAttribute('id');
 
 export function setSelect(elementOrSelector: SelectorOrElement, visText: string): void {
 
   let el = S(elementOrSelector),
       isSet = false;
 
-  function isNotFoundError(e){
+  function isNotFoundError(e:any){
     let msg = e.message;
     return hasText(msg,'An element could not be located') ||
            hasText(msg,"because element wasn't found") ||
@@ -1350,9 +1346,9 @@ function radioLabels(containerElementOrSelector: SelectorOrElement, candidateRad
       labels = el.$$("[for]"),
       radioIds = candidateRadioElements.reduce(addId, {});
 
- function idExists(lbl) {
+ function idExists(lbl: Element) {
    let forAttr = lbl.getAttribute('for');
-   return forAttr != null && radioIds[forAttr];
+   return forAttr != null && (<any>radioIds)[forAttr];
  }
 
   return labels.filter(idExists);
@@ -1393,12 +1389,12 @@ export function radioItemVals(containerElementOrSelector: SelectorOrElement, gro
 }
 
 
-export function isElement(candidate: mixed): boolean {
+export function isElement(candidate: any): boolean {
   return candidate != null &&
         _.isObject(candidate) &&
         !_.isArray(candidate) && (
-          !_.isUndefined(cast(candidate).ELEMENT) ||
-          !_.isUndefined(cast(candidate).getHTML)
+          !_.isUndefined((<any>candidate).ELEMENT) ||
+          !_.isUndefined((<any>candidate).getHTML)
         )
 }
 
@@ -1420,11 +1416,11 @@ export function setInput(elementOrSelector: SelectorOrElement, value: string) {
   el.setValue(value);
 }
 
-export function parent(elementOrSelector: SelectorOrElement, prd: Element => bool = _ => true): Element | null {
+export function parent(elementOrSelector: SelectorOrElement, prd: (e:Element) => boolean = _ => true): Element | null {
   
   ensureHasVal(elementOrSelector, "parent function: elementOrSelector is null");
 
-  function handleKnown<a, b>(f: () => a, dflt: b): a | b {
+  function handleKnown<a, b>(f: () => a, dflt: b): a | b | null {
     let rslt = null;
     try {
       rslt = f()
@@ -1451,9 +1447,9 @@ export function parent(elementOrSelector: SelectorOrElement, prd: Element => boo
     return handleKnown(rawParent, null);
   }
 
-  function nearestParent(el0) {
+  function nearestParent(el0: SelectorOrElement): Element | null {
     let el1 = nxtParent(el0);
-    return el1 == null || handleKnown(() => prd(el1), false) ? el1 : nearestParent(el1);
+    return el1 == null || handleKnown(() => prd(<Element>el1), false) ? el1 : nearestParent(el1);
   }
 
   return nearestParent(elementOrSelector);
@@ -1476,7 +1472,7 @@ export function set(elementOrSelector: SelectorOrElement, value: string | number
   setPrivate(true, elementOrSelector, value);
 }
 
-function findSettable(element: Element): ?Element {
+function findSettable(element: Element): Element | undefined {
   let els = element.$$('*');
   return els.find(isSetable);
 }
@@ -1491,7 +1487,7 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
       bool = _.isBoolean(value),
       tagName = el.getTagName();
 
-  const isIsNot = b => `is${b ? '' : ' not'}`;
+  const isIsNot = (b: any) => `is${b ? '' : ' not'}`;
   if (checkable !== bool && wantSet && tagName !== 'td'){
     fail(`set - type mismatch - value type ${isIsNot(bool)} boolean but element ${isIsNot(checkable)} a radio button or checkbox.`);
   }
@@ -1564,7 +1560,7 @@ function isCheckBoxType(type: string): boolean {
 }
 
 export function elementType(el: Element) {
-  return def(el.getAttribute('type'), '');
+  return def(el.getAttribute('type'), <string>'');
 }
 
 export function isCheckable(elementOrSelector: SelectorOrElement) {
@@ -1580,7 +1576,7 @@ export function isCheckableType(type: string) {
 
 export function setChecked(elementOrSelector: SelectorOrElement, checkedVal: boolean) {
   let el = S(elementOrSelector),
-      type = def(el.getAttribute('type'), ''),
+      type = def<string>(el.getAttribute('type'), ''),
       isRadio = sameText(type, 'radio'),
       isCheckBox = sameText(type, 'checkbox');
 
@@ -1598,10 +1594,12 @@ export function setChecked(elementOrSelector: SelectorOrElement, checkedVal: boo
 
 }
 
-export const clickLink = (displayTextOrFunc: string | string => boolean) => linkByText(displayTextOrFunc).click();
+export function clickLink(displayTextOrFunc: string | ((s: string) => boolean)): void {
+  linkByText(displayTextOrFunc).click();
+} 
 
-export function linkByText(displayTextOrFunc: string | string => boolean): Element {
-  let pred : string => boolean = typeof displayTextOrFunc == 'string' ? elText => wildCardMatch(elText, cast(displayTextOrFunc)) : displayTextOrFunc,
+export function linkByText(displayTextOrFunc: string | ((s: string) => boolean)): Element {
+  let pred : (s:string) => boolean = typeof displayTextOrFunc == 'string' ? elText => wildCardMatch(elText, cast(displayTextOrFunc)) : displayTextOrFunc,
       result = links().find(l => pred(l.getText()));
 
   if (result == null){
@@ -1626,7 +1624,7 @@ export function url(url: string) {
 }
 
 export function getUrl(): string {
-  return browser.getUrl();
+  return <any>browser.getUrl();
 }
 
 export function click(elementSelector: string) {
@@ -1637,7 +1635,7 @@ export function click(elementSelector: string) {
 ******************************************** LOADING *******************************************
 ************************************************************************************************/
 
-function signature(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => any) {
+function signature(beforeFuncOrUrl: (() => void) | string | null = null, func: (p?:any[]) => any) {
   return {
     before: _.isFunction(beforeFuncOrUrl) ? functionNameFromFunction(beforeFuncOrUrl) : show(beforeFuncOrUrl),
     target: functionNameFromFunction(func)
@@ -1646,15 +1644,15 @@ function signature(beforeFuncOrUrl: (() => void) | string | null = null, func: ?
 
 const webDriverIOParamsSignatureFileName = 'webioParams.yaml';
 
-function saveSignature(sig) {
+function saveSignature(sig: {}) {
   toTemp(sig, webDriverIOParamsSignatureFileName, false, false);
 }
 
-function signatureChanged(sig) {
+function signatureChanged(sig: {}) {
   return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName, false), sig) : true;
 }
 
-export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: ?(...any) => T, ...params: any[]): T {
+export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: (p?:any[]) => any, ...params: any[]): T {
   let result;
   try {
     runClient();
@@ -1690,7 +1688,7 @@ export function zzzTestFunc() {
   return browser.getTitle();
 }
 
-export function browserEx(func: (...any) => any, ...params: any[]): mixed {
+export function browserEx(func: (...p: any) => any, ...params: any[]): any {
    try {
      let caller = firstTestModuleInStack();
      return browserExBase(null, caller, func, ...params);
@@ -1713,7 +1711,7 @@ function firstTestModuleInStack(): string {
   );
 }
 
-function launchSession<T>(before: (() => void) | null | string, func: (...any) => T, ...params: any[]): T {
+function launchSession<T>(before: (() => void) | null | string, func: (...params: any) => T, ...params: any[]): T {
    try {
      let caller = firstTestModuleInStack(),
      {
@@ -1743,7 +1741,7 @@ function rerunLoaded<T>(...params: any[]): T {
 }
 
 
-function extractNamesAndSource(before: (() => void) | string | null, caller: string, func: (...any) => any) {
+function extractNamesAndSource(before: (() => void) | string | null, caller: string, func: (...params: any) => any) {
   let beforeIsString = _.isString(before);
   return {
     funcName: functionNameFromFunction(func),
@@ -1755,7 +1753,7 @@ function extractNamesAndSource(before: (() => void) | string | null, caller: str
   }
 }
 
-function browserExBase(before: (() => void) | null | string, caller: string, func: (...any) => any, ...params: any[]): mixed {
+function browserExBase(before: (() => void) | null | string, caller: string, func: (...p: any) => any, ...params: any[]): any {
   let {
       funcName,
       beforeFuncInfo,
@@ -1775,7 +1773,7 @@ export function findMatchingSourceFile(callerPath: string): string {
   This function can only be called from a standard test file that includes one of the following in the file name: ${TEST_SUFFIXES.join(', ')}`));
 
   let sourceFileName = callerFileName.replace(suffix, '.');
-  function srcFile(fileName) {
+  function srcFile(fileName: string) {
     return combine(projectDir(), 'src', 'lib', fileName);
   }
 
