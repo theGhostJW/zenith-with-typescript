@@ -1,5 +1,3 @@
-// @flow
-
 import {
   chk,
   chkEq,
@@ -10,7 +8,7 @@ import {
   chkWithMessage,
 } from '../lib/AssertionUtils';
 import {toTempString} from '../lib/FileUtils';
-import { cast, debug, waitRetry, yamlToObj } from '../lib/SysUtils';
+import { debug, waitRetry, yamlToObj } from '../lib/SysUtils';
 import { unitTestingTargets, ZZForTest  } from '../lib/WebUtils';
 
 
@@ -75,7 +73,7 @@ sumTypes:
   // this is really just an endpoint
   it('formats as expected', () => {
     let info = yamlToObj(infoYaml),
-        rslt = formatFormInfo(info);
+        rslt = formatFormInfo(<any>info);
 
     toTempString(rslt);
     chkHasText(rslt, 'FormInput');

@@ -1,12 +1,7 @@
-// @flow
+import { log } from './Logging';
+import {show} from './StringUtils';
 
-import type {Element, SelectorOrElement, ReadResult} from '../lib/WebUtils';
-
-
-import { log } from '../lib/Logging';
-import {show} from '../lib/StringUtils';
-
-import {cast, debug, waitRetry} from '../lib/SysUtils';
+import {debug, waitRetry} from './SysUtils';
 import {
           browserEx, click, clickLink, elementType,
           elementIs, getForm, idAttribute, linkByText,
@@ -14,12 +9,13 @@ import {
           read, rerun, set, setChecked, getUrl,
           setForm, setInput, setRadioGroup, setSelect,
           url, withFinder, withPredicate,
-          withSetter, zzzTestFunc, S, SS
-        } from '../lib/WebUtils';
+          withSetter, zzzTestFunc, S, SS,
+          Element, SelectorOrElement, ReadResult, SetterValue
+        } from './WebUtils';
 
 import {mapCells, cell} from './WebUtils';
 
-import * as _ from 'lodash';
+const _ = require('lodash');
 
 
 export {    
@@ -34,7 +30,7 @@ export {
             readCell,
             readTable,
             setTable
-          } from '../lib/WebUtils';
+          } from './WebUtils';
 
 
 export const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
@@ -126,7 +122,7 @@ export function parentTableHtml(selector: SelectorOrElement): string {
   return p != null ? p.getHTML() : "PARENT EMPTY";
 }
 
-export function cellVal(tableSelector: SelectorOrElement, lookUpVals: {[string]: ReadResult}, valueCol: string): ReadResult {
+export function cellVal(tableSelector: SelectorOrElement, lookUpVals: {[k:string]: ReadResult}, valueCol: string): ReadResult {
   let cl = cell(tableSelector, lookUpVals, valueCol);
   return cl == undefined ? null : read(cl);
 }
@@ -169,13 +165,13 @@ export const FORM_INPUT_RADIO_NAME = _.chain(FORM_INPUT_MOSTLY_IDS)
 
 export const FORM_ID = '#ctl00_MainContent_fmwOrder'
 
-function setWithCaps(el, val){
-  val = elementIs('input')(el)  && _.isString(val) ? cast(val).toUpperCase() : val;
+function setWithCaps(el: SelectorOrElement, val: SetterValue){
+  val = elementIs('input')(el)  && _.isString(val) ? (<string>val).toUpperCase() : val;
   set(el, val);
 }
 
-function setWithLwr(el, val){
-  val = elementIs('input')(el)  && _.isString(val) ? cast(val).toLowerCase() : val;
+function setWithLwr(el: SelectorOrElement, val: SetterValue){
+  val = elementIs('input')(el)  && _.isString(val) ? (<string>val).toLowerCase() : val;
   set(el, val);
 }
 
@@ -185,17 +181,17 @@ export function setSmartbearcaps(){
 
 export function setSmartbearcapsLwrAddress(){
   let vals = _.clone(FORM_INPUT_FOR_LABELS);
-  vals.ctl00_MainContent_fmwOrder_TextBox2 = cast(withSetter('22 Vernon Street', setWithLwr));
+  vals.ctl00_MainContent_fmwOrder_TextBox2 = withSetter('22 Vernon Street', setWithLwr);
   setForm(FORM_ID, vals, setWithCaps);
 }
 
-function findById(key: string, editable: Element[], nonEditable: ?Element[]) : ?Element {
-  return editable.find(e => idAttribute(e) == key);
+function findById(key: string, editable: Element[]) : Element | undefined {
+  return editable.find((e: Element) => idAttribute(e) == key);
 }
 
 export function setWithFindByIdOnlyAndLwrStreetName(){
   let vals = _.clone(FORM_INPUT_ALL_IDS);
-  vals.ctl00_MainContent_fmwOrder_TextBox2 = cast(withSetter('22 Vernon Street', setWithLwr));
+  vals.ctl00_MainContent_fmwOrder_TextBox2 = withSetter('22 Vernon Street', setWithLwr);
   setForm(FORM_ID, vals, setWithCaps, findById);
 }
 
@@ -204,7 +200,7 @@ export function setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder(){
               .clone()
               .omit('ctl00_MainContent_fmwOrder_txtName')
               .value();
-  cast(vals).ctl00$MainContent$fmwOrder$txtName = withPredicate(
+  (<any>vals).ctl00$MainContent$fmwOrder$txtName = withPredicate(
                                                     withSetter('JANICE PETERSON', setWithLwr),
                                                     (k, e) => e.getAttribute('name') == k
                                                   );
@@ -212,8 +208,8 @@ export function setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder(){
 }
 
 export function basicSet() {
-  _.each(FORM_INPUT_MOSTLY_IDS, (v, k) => set('#' + k, v));
- return _.mapValues(FORM_INPUT_MOSTLY_IDS, (v, k) => read('#' + k));
+  _.each(FORM_INPUT_MOSTLY_IDS, (v: any, k: any) => set('#' + k, v));
+ return _.mapValues(FORM_INPUT_MOSTLY_IDS, (v: any, k: any) => read('#' + k));
 }
 
 export function setReadInput() {
@@ -315,7 +311,7 @@ export type Ctl00MaincontentFmworderCardlist =
 	| 'American Express';
 
 // Complete Form Input Type
-export type CompleteFormInput =
+export interface CompleteFormInput
 	{
 		product: Product,
 		quantity: string,
@@ -330,9 +326,6 @@ export type CompleteFormInput =
 		cardNr: string,
 		expireDateMmYy: string
 	}
-
-// Form Input
-export type FormInput = $Supertype<CompleteFormInput>;
 
 // Default Data
 export const formDefaults = () => {
@@ -352,7 +345,7 @@ export const formDefaults = () => {
 	}
 }
 
-export function setThisForm(parentElementorSelector: SelectorOrElement, params: FormInput) {
+export function setThisForm(parentElementorSelector: SelectorOrElement, params: CompleteFormInput) {
   params = _.defaults(params, formDefaults());
   let formParams =
 	{

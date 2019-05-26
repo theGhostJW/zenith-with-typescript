@@ -1,5 +1,3 @@
-// @flow
-
 import {
   chk,
   chkEq,
@@ -10,7 +8,7 @@ import {
   chkWithMessage,
 } from '../lib/AssertionUtils';
 import { show, startsWith } from '../lib/StringUtils';
-import { cast, debug, debugStk, fail, waitRetry } from '../lib/SysUtils';
+import { debug, debugStk, fail, waitRetry } from '../lib/SysUtils';
 import { read, rerun, set, setForm } from '../lib/WebUtils';
 import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLinkReturnUrl, clickOrderLink,
         /* setForm,*/ getForm,  invalidUncheckCheckBox, linkByTextText,  links, mapCellsLog, mapCellsLogNoInvisibles,
@@ -28,7 +26,7 @@ import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLinkReturnUr
         TEST_LOG_IN
         } from '../lib/WebUtilsTestImp';
 
-import * as _ from 'lodash';
+const _ = require('lodash');
 
 
 
@@ -37,13 +35,13 @@ describe('Table Utils', () => {
   describe('mapCellsSimple', () => {
 
     it('Include Invisible', () => {
-      let rslt = rerun(smartBearLogInVoid, mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
-      chkEq(9, rslt.length);
+      let rslt = rerun(smartBearLogInVoid, <any>mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
+      chkEq(9, (<any>rslt).length);
     });
 
     it('Exclude Invisible', () => {
-      let rslt = rerun(smartBearLogInVoid, mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
-      chkEq(9, rslt.length);
+      let rslt = rerun(smartBearLogInVoid, <any>mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
+      chkEq(9, (<any>rslt).length);
     });
 
   });
@@ -52,12 +50,12 @@ describe('Table Utils', () => {
 
     it('mapCells Include Invisible', () => {
       let rslt = rerun(smartBearLogInVoid, mapCellsLog, '#ctl00_MainContent_orderGrid');
-      chkEq(8, rslt.length);
+      chkEq(8, (<any>rslt).length);
     });
 
     it('eachCellSimple Exclude Invisible', () => {
       let rslt = rerun(smartBearLogInVoid, mapCellsLogNoInvisibles, '#ctl00_MainContent_orderGrid');
-      chkEq(8, rslt.length);
+      chkEq(8, (<any>rslt).length);
     });
 
   });
@@ -69,7 +67,7 @@ describe('Table Utils', () => {
                      Product: 'ScreenSaver',
                       Zip: 748
                     },
-      rslt = rerun(smartBearLogInVoid, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
+      rslt = rerun(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
       chkEq('Paul Brown', rslt);
     });
 
@@ -78,7 +76,7 @@ describe('Table Utils', () => {
                      Product: 'MyMoney',
                      Card: 'MasterCard'
                     },
-      rslt = rerun(smartBearLogInVoid, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
+      rslt = rerun(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
       chkEq('Susan McLaren', rslt);
     });
 
@@ -89,7 +87,7 @@ describe('Table Utils', () => {
                    };
 
       chkExceptionText(
-                        () => rerun(smartBearLogInVoid, cellVal, '#ctl00_MainContent_orderGrid', params, 'Name'),
+                        () => rerun(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name'),
                         'do not appear in the table header: NonExistentCol.'
       );
     });
@@ -248,7 +246,7 @@ describe('setInput', () => {
 describe('select', () => {
 
   it('simple select', () => {
-    let allProducts = cast(rerun(smartbearOrders, setReadProduct));
+    let allProducts = rerun(smartbearOrders, setReadProduct);
     chkEq(AVAILABLE_PRODUCTS.reverse(), allProducts);
   });
 
@@ -265,12 +263,12 @@ describe('radioGroup', () => {
 
   const AVAILABLE_CARDS = ['Visa', 'MasterCard', 'American Express'];
   it('radioItemVals', () => {
-      let groupReads = cast(rerun(smartbearOrders, radioItemVals, CARD_LIST_ID));
+      let groupReads = rerun(smartbearOrders, radioItemVals, CARD_LIST_ID);
       chkEq(AVAILABLE_CARDS, groupReads);
   });
 
   it('setRadioGroup / readRadioGroup', () => {
-      let groupReads = cast(rerun(smartbearOrders, readSetRadioGroup));
+      let groupReads = rerun(smartbearOrders, readSetRadioGroup);
       chkEq(AVAILABLE_CARDS, groupReads);
   });
 
@@ -295,7 +293,7 @@ describe('set', () => {
 describe('links', () => {
 
   it('getAll', () => {
-    chk(cast(rerun(smartBearLogInVoid, links)).length > 4);
+    chk(rerun(smartBearLogInVoid, links).length > 4);
   });
 
 });
@@ -326,7 +324,7 @@ describe('clickLink', () => {
 describe('setChecked', () => {
 
   it('check uncheck radio', () => {
-      let checkedUnchecked = cast(rerun(smartBearLogInVoid, checkReturnChecked));
+      let checkedUnchecked = rerun(smartBearLogInVoid, checkReturnChecked);
       chkEq([true, false], checkedUnchecked);
   });
 

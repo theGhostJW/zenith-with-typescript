@@ -1,40 +1,32 @@
 import {
   combine,
-  copyFile,
   fileOrFolderName,
-  fileToString,
   fromTemp,
-  parentDir,
   pathExists,
   projectDir,
-  projectSubDir,
-  runTimeFile,
-  stringToFile,
   tempFileExists,
   testCaseFile,
   toTemp,
   toTempString,
-  PATH_SEPARATOR,
 } from './FileUtils';
 
 import {log} from './Logging';
 
-import { hasText, lowerCase, lowerFirst, newLine, replaceAll, sameText,
-         show, subStrAfter, subStrBetween, trim, trimChars,
-         trimLines, upperFirst,
+import { hasText, lowerCase, newLine, sameText,
+         show, trim, trimLines, upperFirst,
          wildCardMatch } from './StringUtils';
 import {
-        areEqual, callstackStrings, cast, def, delay, ensure,
-         ensureHasVal, ensureReturn, fail, debug, debugStk,
+        areEqual, callstackStrings, def, ensure,
+         ensureHasVal, ensureReturn, fail, 
         filePathFromCallStackLine, forceArray, functionNameFromFunction,
         hasValue, isNullEmptyOrUndefined, isSerialisable,
-        stringConvertableToNumber, waitRetry
+        stringConvertableToNumber
       } from './SysUtils';
 
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
           runClient, stopSession, waitConnected,
-          checkStartGeckoDriver, killGeckoDriver } from './WebLauncher';
+          killGeckoDriver } from './WebLauncher';
 
 import clipBoardy from 'clipboardy';
 
@@ -424,7 +416,7 @@ function mapImplementedWithTransform<I, T>(source: I[], mapper: (input: I, index
     if (result == ABORT_FLAG) {
       return false;
     } else {
-      accum.push(cast(result));
+      accum.push(result);
     }
   }
 
@@ -623,14 +615,14 @@ function getNextFormItems(items: FormItems): FormItems {
       lblTextkey = def(altIdStr, '?????' + show(_.keys(result).length)),
       name = nameAttribute(edit),
       namedRadio = isRadio(edit) && name != null,
-      dataPropName = toPropString(namedRadio ? cast(name) : lblTextkey),
+      dataPropName = toPropString(namedRadio ? <string>name : lblTextkey),
       typeName = upperFirst(dataPropName),
       paramStr = 'params.' + dataPropName;
 
   editsRemaining = _.tail(editsRemaining);
 
    if (namedRadio){
-     let name: string = cast(nameAttribute(edit));
+     let name: string = <string>nameAttribute(edit);
      result[name] = paramStr;
      data[dataPropName] = radioValue(name, allEdits);
      dataType[dataPropName] = typeName;
@@ -647,7 +639,7 @@ function getNextFormItems(items: FormItems): FormItems {
      let val = <any>read(edit),
          isSelect = isSelectElement(edit);
 
-     val = typeof val == 'string' && stringConvertableToNumber(val) ? Number.parseFloat(cast(val)) : val;
+     val = typeof val == 'string' && stringConvertableToNumber(val) ? Number.parseFloat(val) : val;
      data[dataPropName] = val
      dataType[dataPropName] = edit.isCheckControl ? 'boolean' :
                                 isSelect ? typeName :
@@ -786,9 +778,9 @@ export function setForm(parentElementorSelector: SelectorOrElement, valMap: {[k:
   function deconstructFindElement(accum: ElementInfo, val: SetterValue | ValueWithFinderSetter, key: string): ElementInfo {
 
     let isCustomObj = _.isObject(val),
-        trueVal: SetterValue = cast(isCustomObj ? ensureHasVal((<any>val).value, 'setform custom object must have value property defined') : val),
+        trueVal: SetterValue = isCustomObj ? ensureHasVal((<any>val).value, 'setform custom object must have value property defined') : val,
         customSetter: SetterFunc | null | undefined = isCustomObj ? (<any>val).setter : undefined,
-        finder: FinderFunc = cast(isCustomObj && (<any>val).finder != null ? (<any>val).finder : findElement),
+        finder: FinderFunc = isCustomObj && (<any>val).finder != null ? (<any>val).finder : findElement,
         target: Element | null | undefined = finder(key, edits);
 
     if (target == null) {
@@ -807,7 +799,7 @@ export function setForm(parentElementorSelector: SelectorOrElement, valMap: {[k:
                     elementMap: {},
                     customSetters: {},
                     trueVals: {},
-                    failedMappings: cast([])
+                    failedMappings: []
                   },
       elementInfo = _.reduce(valMap, deconstructFindElement, infoSeed),
       safeSetter = handledSet(setter, elementInfo.customSetters),
@@ -854,7 +846,7 @@ function sliceSearchModifier(str: string): [LabelSearchDirectionModifier, string
   }
 
   let modifier = str[0].toUpperCase();
-  return allModifiers.includes(modifier) ? [cast(modifier), str.slice(2) ]: ['*', str];
+  return allModifiers.includes(modifier) ? [<any>modifier, str.slice(2) ]: ['*', str];
 }
 
 function partitionAddFor(nonEdits: Element[]): ClassifiedLabels {
@@ -887,7 +879,7 @@ function addPlaceHolders(edits: Element[]) : ElementWithPlaceHolder[]  {
       (<any>elm).placeholder = ph;
       accum.push(<ElementWithPlaceHolder>elm);
     }
-    return cast(accum);
+    return accum;
   }
 
   let unsorted: ElementWithPlaceHolder[] = edits.reduce(addIfPlaceHolder, []);
@@ -1073,7 +1065,7 @@ function addType(elements: Element[]): ElementWithType[] {
     let type = e.getAttribute('type');
     if (type != null){
       (<any>e).type = type;
-      accum.push(cast(e));
+      accum.push(<any>e);
     }
     return accum;
   }
@@ -1111,7 +1103,7 @@ export function withSetter(value: SetterValue | ValueWithFinderSetter, setter: S
                       setter: setter
                     } :
                     {
-                      value: cast(value),
+                      value: <any>value,
                       setter: setter
                     };
 
@@ -1125,7 +1117,7 @@ export function withFinder(value: SetterValue | ValueWithFinderSetter, finder: F
                       setter: (<any>value).setter
                     } :
                     {
-                      value: cast(value),
+                      value: <any>value,
                       finder: finder
                     };
 }
@@ -1385,7 +1377,7 @@ export function isRadioGroup(containerElementOrSelector: SelectorOrElement): boo
 
 export function radioItemVals(containerElementOrSelector: SelectorOrElement, groupName: string | null = null) : string[] {
   // type checker wants to handle nulls as well which are not realistic
-  return cast(radioElements(containerElementOrSelector, groupName).map(e => e.getAttribute('value')));
+  return <string[]>radioElements(containerElementOrSelector, groupName).map(e => e.getAttribute('value'));
 }
 
 
@@ -1496,7 +1488,7 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
 
   if (checkable) {
     if (wantSet) {
-      setChecked(el, cast(value));
+      setChecked(el, <any>value);
     }
   }
   else {
@@ -1504,7 +1496,7 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
     switch (tagName) {
       case 'select':
         if (wantSet) {
-          setSelect(el, cast(value));
+          setSelect(el, <any>value);
         }
         break;
 
@@ -1518,7 +1510,7 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
         let settableChild = findSettable(el);
         result = settableChild != null;
         if (result && wantSet){
-          setPrivate(true, cast(settableChild), value);
+          setPrivate(true, <any>settableChild, value);
         }
         break;
 
@@ -1531,7 +1523,7 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
   if (!result && isRadioGroup(el)){
     result = true;
     if (wantSet){
-      setRadioGroup(el, cast(value));
+      setRadioGroup(el, <any>value);
     }
   }
 
@@ -1599,20 +1591,10 @@ export function clickLink(displayTextOrFunc: string | ((s: string) => boolean)):
 } 
 
 export function linkByText(displayTextOrFunc: string | ((s: string) => boolean)): Element {
-  let pred : (s:string) => boolean = typeof displayTextOrFunc == 'string' ? elText => wildCardMatch(elText, cast(displayTextOrFunc)) : displayTextOrFunc,
+  let pred : (s:string) => boolean = typeof displayTextOrFunc == 'string' ? elText => wildCardMatch(elText, displayTextOrFunc) : displayTextOrFunc,
       result = links().find(l => pred(l.getText()));
 
-  if (result == null){
-    fail(
-          'linkByText Failed',
-          'could not find a link with display text matching: ' + show(displayTextOrFunc)
-        );
-    // just to keep flow hapy will never return
-    return cast({});
-  }
-  else {
-    return result;
-  }
+  return ensureHasVal(result, 'linkByText Failed.\nCould not find a link with display text matching: ' + show(displayTextOrFunc));
 }
 
 export function links() {
@@ -1652,7 +1634,7 @@ function signatureChanged(sig: {}) {
   return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName, false), sig) : true;
 }
 
-export function rerun<T>(beforeFuncOrUrl: (() => void) | string | null = null, func: (p?:any[]) => any, ...params: any[]): T {
+export function rerun(beforeFuncOrUrl?: (() => void) | string | null | undefined, func?: (...p:any) => any, ...params: any[]): any {
   let result;
   try {
     runClient();
@@ -1711,7 +1693,7 @@ function firstTestModuleInStack(): string {
   );
 }
 
-function launchSession<T>(before: (() => void) | null | string, func: (...params: any) => T, ...params: any[]): T {
+function launchSession<T>(before: (() => void) | null | string | undefined, func: (...params: any) => T, ...params: any[]): T {
    try {
      let caller = firstTestModuleInStack(),
      {
@@ -1724,7 +1706,7 @@ function launchSession<T>(before: (() => void) | null | string, func: (...params
      launchWdioServerDetached(sourcePath, beforeFuncInfo, funcName, true);
 
      ensure(waitConnected(30000), 'Timed out waiting on interactor');
-     return cast(interact(...params));
+     return interact(...params);
    }
   catch (e) {
     return fail('launchSession - fail', e)
@@ -1741,7 +1723,7 @@ function rerunLoaded<T>(...params: any[]): T {
 }
 
 
-function extractNamesAndSource(before: (() => void) | string | null, caller: string, func: (...params: any) => any) {
+function extractNamesAndSource(before: (() => void) | string | null | undefined, caller: string, func: (...params: any) => any) {
   let beforeIsString = _.isString(before);
   return {
     funcName: functionNameFromFunction(func),

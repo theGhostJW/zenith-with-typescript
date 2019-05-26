@@ -21,7 +21,7 @@ const deasync = require('deasync');
 export function isSerialisable(obj: any): boolean {
 
   const nestedSerialisable = (ob: any) => (_.isPlainObject(ob) || _.isArray(ob))  &&
-                                    _.every(cast(ob), isSerialisable);
+                                    _.every(ob, isSerialisable);
 
   return  _.overSome([
             _.isUndefined,
@@ -53,7 +53,7 @@ export function callstackStrings(): string[] {
   try {
     Error.prepareStackTrace = (_, stack) => stack;
     // Create a new `Error`, which automatically gets `stack`
-    stack = cast(new Error().stack);
+    stack = <any>(new Error()).stack;
     stack.shift();
   }  finally {
     Error.prepareStackTrace = origPrepareStackTrace;
@@ -76,7 +76,7 @@ export function xmlToObj(xml: string): {} {
     result = rslt;
   });
   waitRetry(() => result != null, 60000, () => {}, 0);
- return cast(result);
+ return <{}>result;
 }
 
 export function randomInt(lwrBound: number, upperBound: number) {
@@ -555,25 +555,25 @@ export function yamlToObj<T>(yamlStr: string, trimLeadingSpaceBaseOnFirstLine: b
 	return (<T>untypedVal);
 }
 
-export function cast<T>(targ: any): T {
-  return <T>targ;
-}
+type LazyT<T> = () => T;
 
 let debugSink : (s:string) => void = s => sendWebUIDebugMessage(s) ? undefined : console.log(s);
-let callOrVal : <T>(p: T | void) => T = msg => typeof msg === 'function' ? (msg)() : msg;
+function callOrVal<T>(val: T | LazyT<T>): T {
+  return typeof val === 'function' ? (<any>val)() : val;
+}
 
-export function debugStk<T>(msg: (p: T | void) => T, label: string = 'DEBUG'): T {
+export function debugStk<T>(msg: T | LazyT<T>, label: string = 'DEBUG'): T {
   let msgStr = callOrVal(msg);
   debugSink(appendDelim(_.toUpper(label), ': ', show(msgStr)) + newLine()  + '=========================' + newLine()  +
                                                                       callstackStrings().join(', ' + newLine()) + newLine()  +
                                                                       '=========================') ;
-  return cast(msgStr);
+  return msgStr;
 }
 
-export function debug<T>(msg: ((p:T | void) => T) | T, label: string = 'DEBUG'): T {
+export function debug<T>(msg: T | LazyT<T>, label: string = 'DEBUG'): T {
   let msgStr = callOrVal(msg);
   debugSink(appendDelim(label, ': ', show(msgStr)));
-  return cast(msgStr);
+  return <T>msgStr;
 }
 
 export function def <T> (val : T | undefined | null, defaultVal: T): T {
@@ -585,7 +585,7 @@ export function areEqual <T, U> (val1 : T, val2 : U) : boolean {
   return _.isEqualWith(val1, val2, eqCustomiser);
 }
 
-export function fail<T>(description: string, e?: any): T {
+export function fail(description: string, e?: any): any {
   let err = translateErrorObj(e, description);
   logException(description, err);
   throw err;
