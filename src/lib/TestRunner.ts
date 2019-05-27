@@ -111,7 +111,7 @@ export function lastItem(testItem: BaseItem, fullList: BaseItem[]): boolean {
   return areEqual(_.last(fullList), testItem);
 }
 
-export function matchesProps<I extends BaseItem>(target: Partial<I>): (testItem: I, fullList: BaseItem[]) => boolean {
+export function matchesProps<I extends BaseItem>(target: {}): (testItem: I, fullList: BaseItem[]) => boolean {
   return function propsMatch(testItem: BaseItem, fullList: BaseItem[]): boolean {
     return _.chain(target)
             .keys()
@@ -392,7 +392,7 @@ export function runTestItem<R extends BaseRunConfig, T extends BaseTestConfig, I
   }
 }
 
-export type FilterResult<C> = {
+export interface FilterResult<C> {
   items: C[],
   log: {[s:string]: string}
 }

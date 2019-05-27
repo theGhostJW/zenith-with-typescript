@@ -12,8 +12,8 @@ describe('end-point filters', () => {
       {id: 4, prp1: 'hello', prp2: 'hello4'}
   ];
 
-  function chkFilter(fltr, expected) {
-    var actual = filterTestItems(TEST_ITEMS, fltr);
+  function chkFilter(fltr: any, expected: any) {
+    var actual = filterTestItems(<any>TEST_ITEMS, fltr);
     chkEq(expected, actual)
   }
 
@@ -45,23 +45,23 @@ describe('filterTestItems', () => {
       {name: 'test100', cfg: {env: 'TST', enabled: false, size: 1}}
   ];
 
-  const extractor = tst => tst.cfg;
+  const extractor = (tst: any) => tst.cfg;
 
   const predicates = [
 
-    function isInNames(name, testConfig, runConfig) {
+    function isInNames(name: any, testConfig: any, runConfig: any) {
       return runConfig.testCases == null ||  runConfig.testCases.includes(name);
     },
 
-    function sameEnv(name, testConfig, runConfig) {
+    function sameEnv(name: any, testConfig: any, runConfig: any) {
       return runConfig.env === testConfig.env;
     },
 
-    function sizeTest(name, testConfig, runConfig) {
+    function sizeTest(name: any, testConfig: any, runConfig: any) {
       return runConfig.size >= testConfig.size;
     },
 
-    function isEnabled(name, testConfig, runConfig) {
+    function isEnabled(name: any, testConfig: any, runConfig: any) {
       return testConfig.enabled;
     }
   ];
@@ -80,7 +80,7 @@ describe('filterTestItems', () => {
       }
     },
     actual = filterTests(testCases, extractor, predicates, {env: 'TST', size: 7});
-    chk(expected, actual);
+    chkEq(expected, actual);
   });
 
   it('in names', () => {
@@ -96,8 +96,8 @@ describe('filterTestItems', () => {
          test20: 'Accepted'
         }
       },
-      actual = filterTestItems(testCases, extractor, predicates, {env: 'TST', testCases: ['test1', 'test2', 'test20'], size: 10});
-    chk(expected, actual);
+      actual = filterTests(testCases, extractor, predicates, {env: 'TST', testCases: ['test1', 'test2', 'test20'], size: 10});
+      chkEq(expected, actual);
   });
 
   it('empty', () => {
@@ -110,7 +110,7 @@ describe('filterTestItems', () => {
          test20: 'sameEnv'
         }
       },
-      actual = filterTestItems(testCases, extractor, predicates, {env: 'PVT', testCases: ['test1', 'test20'], size: 10});
-    chk(expected, actual);
+      actual = filterTests(testCases, extractor, predicates, {env: 'PVT', testCases: ['test1', 'test20'], size: 10});
+      chkEq(expected, actual);
   });
 });
