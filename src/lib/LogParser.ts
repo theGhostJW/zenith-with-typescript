@@ -1,19 +1,29 @@
-//@flow
+import {debug, debugStk, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj} from './SysUtils';
 
-import {debug, debugStk, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj, cast } from '../lib/SysUtils';
-import type { PopControl, LogSubType, LogLevel, LogEntry } from '../lib/Logging';
-import { RECORD_DIVIDER, FOLDER_NESTING, timeStampedRawPath } from '../lib/Logging';
-import { newLine, show, subStrBefore, replaceAll, hasText, appendDelim} from '../lib/StringUtils';
-import * as _ from 'lodash';
+import { RECORD_DIVIDER, timeStampedRawPath,
+         PopControl, LogSubType, LogLevel, LogEntry } from './Logging';
+
+import { newLine, show, subStrBefore, replaceAll, hasText, appendDelim} from './StringUtils';
+
 import * as fs from 'fs';
-import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString, toMock } from '../lib/FileUtils';
-import type { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats, ErrorsWarningsDefects,
-              StateStage, IssuesList, RunState, Iteration } from '../lib/LogParserTypes';
-import { summaryBlock, iteration, outOfTestError, script, filterLogText } from '../lib/LogFormatter';
-import * as DateTime from '../lib/DateTimeUtils';
+import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString, toMock } from './FileUtils';
+import { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats, ErrorsWarningsDefects,
+              StateStage, IssuesList, RunState, Iteration, OutOfTestIssues } from '../lib/LogParserTypes';
+import { summaryBlock, iteration, outOfTestError, script, filterLogText } from './LogFormatter';
+import * as DateTime from './DateTimeUtils';
 import moment from 'moment';
+const _ = require('lodash');
 
-export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc: ((?number, string, R) => string)) {
+interface IterationInfo extends Iteration {
+  summary: string,
+  passedValidators: string[],
+ }
+
+// ToDo: remove Valtime
+
+type IterationLogElement = IterationInfo | OutOfTestIssues;
+
+export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc: ((n: number | null, s: string, r: R) => string)): void {
   let  {
       rawFile,
       elementsFile,
@@ -40,41 +50,38 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
 
   writeAll(summaryBlock(summary), true);
 
-  let lastScript: ?string = '',
+  let lastScript: string | null = '',
       logText = '';
 
   function processElement(elementStr: string) {
-    let element = yamlToObj(elementStr),
+    let element = <IterationLogElement>yamlToObj(elementStr),
         isIssue = false,
         wantWriteMock = false;
 
-    switch (element.elementType) {
-      case 'OutOfTestErrors':
-        logText = outOfTestError(element);
-        isIssue = true;
-        break;
-
-      case 'IterationInfo':
-          logText = iteration(element, summary, lastScript);
-          lastScript = script(element), 'script';
-          let issuesList = element.issues;
-          isIssue = issuesList != null && listHasIssues(((issuesList: any): IssuesList));
-          wantWriteMock = true;
-          break;
-
-      default:
-        logText = `PARSER ERROR UNHANDLED ELEMENT TYPE \nElement Type: ${show(element.elementType)}\n\nFullElement:\n${show(element)}`
+    if ((<IterationInfo>element).summary)  {
+      logText = iteration(element, summary, lastScript);
+      lastScript = script(element), 'script';
+      let issuesList = element.issues;
+      isIssue = issuesList != null && listHasIssues(issuesList);
+      wantWriteMock = true;
+    }
+    else if (element.issues) {
+      logText = outOfTestError(element);
+      isIssue = true;
+    }
+    else {
+      logText = `PARSER ERROR UNHANDLED ELEMENT TYPE \nElement Type: ${show(element)}\n\nFullElement:\n${show(element)}`
     }
 
     writeAll(logText, isIssue);
 
     if (wantWriteMock){
-      let runConfig: ?R = cast(def(runSummary, {}).runConfig);
+      let runConfig: R | undefined = (<any>def(runSummary, {})).runConfig;
       if (runConfig == null){
         writeAll(objToYaml(failInfoObj('elementsToFullMock parsing error ~ RunConfig is null')), isIssue);
       }
       else {
-        writeMock(element, runConfig, mockFileNameFunc)
+        writeMock(<any>element, runConfig, mockFileNameFunc)
       }
     }
   }
@@ -83,17 +90,12 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
   writeAll(filterLogText(summary), true);
 }
 
-
-function environment(runConfig: {[string]: mixed}): string {
-  return show(def(runConfig['environment'], ''));
-}
-
 // TODO: what is writemock doing here
-function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: ?number, testName: string, R) => string) {
+function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: number | null, testName: string, r: R) => string) {
 
  let item = def(seekInObj(iteration, 'item'), {}),
      script = show(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
-     id = item.id,
+     id = (<any>item).id,
      destFile = mockFileNameFunc(id, script + '.js', runConfig),  // script has extension removed TODO: investigate fix properly - what if we leave it on
      mockInfo = {
                  runConfig: runConfig,
@@ -106,9 +108,9 @@ function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (ite
 
 export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
 
- function fileRecordWriter(destPath: string, separator: string = '\n' + RECORD_DIVIDER + '\n' ): (content: {} | string, overrideSeparator: ?string) => void {
+ function fileRecordWriter(destPath: string, separator: string = '\n' + RECORD_DIVIDER + '\n' ): (content: {} | string, overrideSeparator?: string) => void {
     let writer = fileWriter(destPath);
-    return function writeToFile(content: {} | string, overrideSeparator: ?string) {
+    return function writeToFile(content: {} | string, overrideSeparator?: string) {
         writer(content, 0, def(overrideSeparator, separator), false, false);
     }
  }
@@ -124,7 +126,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
    };
  }
 
- function rawToElements(rawPath: string, fullSummary: FullSummaryInfo): (RunState, LogEntry) => RunState {
+ function rawToElements(rawPath: string, fullSummary: FullSummaryInfo): (rs:RunState, le:LogEntry) => RunState {
 
    let resultPath = destPath(rawPath, 'raw', 'elements'),
        writeToFile = fileRecordWriter(resultPath),
@@ -136,23 +138,22 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
 
 
 
-   function calcUpdateTestStats(state): TestStats {
+   function calcUpdateTestStats(state: RunState): TestStats {
       let runStats = state.runStats;
 
       function runStatsDelta(testStasKey: string) {
-        let result = runStats[testStasKey] - lastRunStats[testStasKey];
+        let result = (<any>runStats)[testStasKey] - (<any>lastRunStats)[testStasKey];
         return result;
       }
 
-      let result = _.mapValues(emptyTestStats(), (v, k) => runStatsDelta(k));
+      let result = _.mapValues(emptyTestStats(), (v:any, k:any) => runStatsDelta(k));
       lastRunStats = _.cloneDeep(runStats);
       return result;
    }
 
-   function logOutOfTestErrors(state: RunState) {
+   function logOutOfTestIssues(state: RunState) {
       if (listHasIssues(state.outOfTestIssues)){
-         let issues = {
-                        elementType: 'OutOfTestErrors',
+         let issues: OutOfTestIssues = {
                         issues: state.outOfTestIssues.filter(i => hasIssues(i))
                      };
          writeToFile(issues);
@@ -164,21 +165,21 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
 
      switch (entry.subType) {
        case 'IterationEnd':
-         logOutOfTestErrors(state);
+        logOutOfTestIssues(state);
 
 
          let issues: ErrorsWarningsDefects[] = forceArray(state.inTestIssues, state.validatorIssues);
          issues = issues.filter(i => hasIssues(i));
 
 
-         let iterationInfo = {
+         
+         let iterationInfo: IterationInfo = {
            summary: state.iterationSummary,
            startTime: state.iterationStart,
-           endTime: def(entry.timestamp, ''),
+           endTime: def(entry.timestamp, <string>''),
            valTime: def(seekInObj(state, 'validationInfo', 'valTime'), ''),
-           elementType: 'IterationInfo',
-           testConfig: state.testConfig,
-           item: state.testItem,
+           testConfig: <any>state.testConfig, // assume defined by now coerce to non null value
+           item: <any>state.testItem, // assume defined by now coerce to non null value
            mocked: state.mocked,
            dState: def(seekInObj(state, 'validationInfo', 'dState'), ''),
            apState: state.apstate,
@@ -194,7 +195,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
             testInfo = {
                testConfig: cfg,
                startTime: state.testStart,
-               endTime:  def(entry.timestamp, ''),
+               endTime:  def(entry.timestamp, <string>''),
                stats: calcUpdateTestStats(state)
              };
           fullSummary.testSummaries[cfg.script] = testInfo;
@@ -204,11 +205,11 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
          fullSummary.runSummary = {
               runConfig: state.runConfig,
               startTime: state.runStart,
-              endTime: def(entry.timestamp, ''),
+              endTime: def(entry.timestamp, <string>''),
               filterLog: state.filterLog,
               stats: state.runStats
           };
-          logOutOfTestErrors(state);
+          logOutOfTestIssues(state);
           break;
 
        default:
@@ -221,7 +222,7 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
  }
 
 function listHasIssues(issuesList: IssuesList, includeKnownDefects: boolean = true): boolean {
-   let issueExists : ErrorsWarningsDefects => boolean  = (i: ErrorsWarningsDefects) => hasIssues(i, includeKnownDefects);
+   let issueExists : (e:ErrorsWarningsDefects) => boolean  = (i: ErrorsWarningsDefects) => hasIssues(i, includeKnownDefects);
    return issuesList.some(issueExists);
 }
 
@@ -244,7 +245,6 @@ const nullRunStats: () => RunStats = () => {
 
     outOfTestErrors: 0,
     outOfTestWarnings: 0,
-    outOfTestType2Errors: 0,
     outOfTestType2Errors: 0,
     outOfTestKnownDefects: 0
   };
@@ -292,7 +292,7 @@ export function initalState(rawFilePath: string): RunState {
                 apstate: {},
                 mocked: false,
                 validationInfo: {},
-                testItem: {},
+                testItem: null,
 
                 validatorIssues: [],
                 inTestIssues: [],
@@ -313,13 +313,11 @@ export function initalState(rawFilePath: string): RunState {
                 activeIssues: null
               };
 
-  switchErrorInfoStage(result, 'OutOfTest', 'out of test');
+  switchErrorInfoStage(result, StateStage.OutOfTest, 'out of test');
   return result;
 }
 
 function switchErrorInfoStage(state: RunState, stage: StateStage, name: string): void {
-   // cardinality problem here
-  // !!!
   let newStageRec = emptyValidatorInfo(stage, name),
       propMap = {
         Validation: state.validatorIssues,
@@ -327,7 +325,23 @@ function switchErrorInfoStage(state: RunState, stage: StateStage, name: string):
         OutOfTest: state.outOfTestIssues
       };
   state.activeIssues = newStageRec;
-  propMap[stage].push(newStageRec);
+  switch (stage) {
+    case StateStage.InTest:
+      propMap.InTest.push(newStageRec);
+      break;
+  
+    case StateStage.Validation:
+      propMap.Validation.push(newStageRec);
+      break;
+  
+    case StateStage.OutOfTest:
+      propMap.OutOfTest.push(newStageRec);
+      break;
+  
+    default:
+      fail("unknown StateStage " + stage);
+  }
+  
 }
 
 function clearErrorInfo(state: RunState): void {
@@ -350,7 +364,7 @@ export function destPath(rawPath: string, sourceFilePart: string, destFilePart: 
 function fileWriter(destPath: string){
    let fd = fs.openSync(destPath, 'w');
 
-   return function writer(data, indent: number, suffix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
+   return function writer(data: any, indent: number, suffix = newLine(), inArray: boolean = false, arrayLineSeparator: boolean = false) {
      let str = show(data);
 
      // depricate this ??
@@ -362,10 +376,9 @@ function fileWriter(destPath: string){
          iStr = (arrayLineSeparator ? newLine() : '') + iStr + '- ';
          nStr = nStr + '  ';
        }
-       str = _.map(str.split(newLine()), (s, i : number) => (i === 0 ? iStr : nStr) + s).join(newLine());
+       str = _.map(str.split(newLine()), (s: string, i : number) => (i === 0 ? iStr : nStr) + s).join(newLine());
      }
 
-     //$FlowFixMe
      fs.writeSync(fd, str + suffix);
    }
 }
@@ -380,9 +393,7 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
   else {
 
     let {warnings, errors, type2Errors, knownDefects} = errorSink,
-        errArrray = [],
-        stage = errorSink.infoType,
-        inTest = stage !== 'outOfTest';
+        errArrray = [];
 
     if (isType2) {
       errArrray = type2Errors;
@@ -533,7 +544,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
   let stats = state.runStats;
   state.timestamp = def(entry.timestamp, state.timestamp);
 
-  state.indent = entry.popControl === 'PopFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
+  state.indent = entry.popControl === PopControl.PopFolder ? state.indent + entry.popControl : state.indent;
 
   let inIteration = state.iterationConfig != null,
       inTest = inIteration || state.testConfig != null,
@@ -553,16 +564,16 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       resetDefectAndStats();
       state.runConfig = configObj(entry);
       state.runStart = state.timestamp;
-      state.runName = state.runConfig.name;
+      state.runName = (<any>state.runConfig).name;
       state.indent = 1;
       break;
 
     case 'TestStart':
       // other state changes handled in reseter
       resetDefectAndStats();
-      const defEmpty = (s?: string) => def(s, '');
-      state.testConfig = infoObj();
-      state.testStart = def(entry.timestamp, '');
+      const defEmpty = (s?: string) => def(s, <string>'');
+      state.testConfig = <any>infoObj();
+      state.testStart = def(entry.timestamp, <string>'');
       state.testKnownDefectLogged = false;
       state.indent = 3;
       testCommonReset(state);
@@ -572,34 +583,34 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       // other state changes handled in reseter
       resetDefectAndStats();
       let info = infoObj();
-      state.iterationStart = def(entry.timestamp, '');
+      state.iterationStart = def(entry.timestamp, <string>'');
       state.iterationKnownDefectLogged = false;
       state.iterationConfig = _.pick(info, ['id', 'when', 'then']);
-      state.testItem = info;
+      state.testItem = <any>info;
       break;
 
     case 'InteractorStart':
-      switchErrorInfoStage(state, 'InTest', EXECUTING_INTERACTOR_STR);
+      switchErrorInfoStage(state, StateStage.InTest, EXECUTING_INTERACTOR_STR);
       state.indent = 3;
       break;
 
     case 'InteractorEnd':
-      state.apstate = cast(def(seekInObj(infoObj(), 'apState'), {}));
-      state.mocked = cast(def(seekInObj(infoObj(), 'mocked'), false));
+      state.apstate = <any>def(seekInObj(infoObj(), 'apState'), {});
+      state.mocked = <any>(seekInObj(infoObj(), 'mocked'), false);
       state.indent = 2; // ??
       break;
 
     case 'PrepValidationInfoStart':
-      switchErrorInfoStage(state, 'InTest', 'Preparing Validator State');
+      switchErrorInfoStage(state, StateStage.InTest, 'Preparing Validator State');
       break;
 
     case 'ValidationStart':
-      switchErrorInfoStage(state, 'OutOfTest', 'Before Validator');
+      switchErrorInfoStage(state, StateStage.OutOfTest, 'Before Validator');
       state.validationInfo = configObj(entry);
       break;
 
     case 'ValidatorStart':
-      switchErrorInfoStage(state, 'Validation', def(entry.message, 'unnamed validator'));
+      switchErrorInfoStage(state, StateStage.Validation, def(entry.message, <string>'unnamed validator'));
       break;
 
     case 'ValidatorEnd':
@@ -607,7 +618,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       if (activeIssues != null && !hasIssues(activeIssues, false)){
         state.passedValidators.push(activeIssues.name);
       }
-      switchErrorInfoStage(state, 'OutOfTest', 'After Validator');
+      switchErrorInfoStage(state, StateStage.OutOfTest, 'After Validator');
       break;
 
     case 'ValidationEnd':
@@ -615,23 +626,23 @@ function updateState(state: RunState, entry: LogEntry): RunState {
 
     case 'StartSummary':
       // other state changes handled in reseter
-      switchErrorInfoStage(state, 'InTest', 'Generating Summary');
+      switchErrorInfoStage(state, StateStage.InTest, 'Generating Summary');
 
     case 'Summary':
-      state.iterationSummary = def(entry.message, '');
+      state.iterationSummary = def(entry.message, <string>'');
       break;
 
     case 'IterationEnd':
       if (!state.iterationErrorLogged){
          stats.passedIterations++;
       }
-      switchErrorInfoStage(state, 'OutOfTest', 'After Iteration');
+      switchErrorInfoStage(state, StateStage.OutOfTest, 'After Iteration');
       stats.iterations++;
       state.indent = 2;
       state.iterationConfig = null;
       iterationCommonReset(state);
       clearErrorInfo(state);
-      switchErrorInfoStage(state, 'OutOfTest', 'out of test');
+      switchErrorInfoStage(state, StateStage.OutOfTest, 'out of test');
       break;
 
     case 'TestEnd':
@@ -674,13 +685,13 @@ function updateState(state: RunState, entry: LogEntry): RunState {
       break;
   }
 
-  state.indent = entry.popControl === 'PushFolder' ? state.indent + FOLDER_NESTING[entry.popControl] : state.indent;
+  state.indent = entry.popControl === PopControl.PushFolder ? state.indent + entry.popControl : state.indent;
   return state;
 }
 
 function filterLog(str: string) {
 
-  function cleanUpKey(acc, val, key) {
+  function cleanUpKey(acc: any, val: any, key: string) {
     acc[subStrBefore(key, '.js')] = val;
     return acc;
   }
@@ -692,7 +703,7 @@ function filterLog(str: string) {
    return reorderProps(result, ...logKeys);
 }
 
-export function defaultLogParser<R>(mockFileNameGenerator: (itemId: ?number, testName: string, runConfig: R) => string) {
+export function defaultLogParser<R>(mockFileNameGenerator: (itemId: number | null, testName: string, runConfig: R) => string) {
   return function parseLogDefault(fullPath: string): FullSummaryInfo {
     let fullSummary: FullSummaryInfo = {
       rawFile: '',
@@ -709,17 +720,17 @@ export function defaultLogParser<R>(mockFileNameGenerator: (itemId: ?number, tes
   }
 }
 
-export function parseLog<S>(fullPath: string, step: (S, LogEntry) => S, initState: S){
+export function parseLog<S>(fullPath: string, step: (s:S, le:LogEntry) => S, initState: S){
    logSplitter(fullPath, parser(step, initState) );
 }
 
-function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => void {
+function parser<S>(step: (s:S, le:LogEntry) => S, initialState: S): (str: string) => void {
   let currentState = initialState;
   return (str: string) => {
 
     let yml = false;
     try {
-      let entry = yamlToObj(str);
+      let entry = <LogEntry>yamlToObj(str);
 
       yml = true;
       currentState = step(currentState, entry);
@@ -735,8 +746,8 @@ function parser<S>(step: (S, LogEntry) => S, initialState: S): (str: string) => 
   }
 }
 
-export function logSplitter(fullPath: string, itemParser: string => void ): void {
-  let buffer = [];
+export function logSplitter(fullPath: string, itemParser: (s:string) => void ): void {
+  let buffer = <string[]>[];
 
   function processBuffer() {
     let entry = buffer.join(newLine());
@@ -746,7 +757,7 @@ export function logSplitter(fullPath: string, itemParser: string => void ): void
     buffer = [];
   }
 
-  function processLine(line) {
+  function processLine(line: string) {
     if (line.startsWith(RECORD_DIVIDER)){
       processBuffer();
     }

@@ -27,13 +27,11 @@ function forceDirectoryDuplicate(path : string) : string {
 }
 
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
-export const FOLDER_NESTING = {
-  NoAction: 0,
-  PushFolder: 1,
-  PopFolder: -1
+export enum PopControl {
+  NoAction = 0,
+  PushFolder = 1,
+  PopFolder = -1
 };
-
-export type PopControl =  $Keys<typeof FOLDER_NESTING>;
 
 export type FullLogAttributes = {
                               additionalInfo: ?string,
@@ -189,15 +187,15 @@ export const PLAIN_CONSOLE_LOGGING_FUNCTIONS: LoggingFunctions = {
    logError: consoleLog('error')
 }
 
-export type LogEntry = {
+export interface LogEntry {
   timestamp?: string,
   level: LogLevel,
   subType: LogSubType,
   popControl: PopControl,
-  message: ?string,
-  link: ?string,
-  callstack: ?string,
-  additionalInfo: ?string
+  message?: string,
+  link?: string,
+  callstack?: string,
+  additionalInfo?: string
 }
 
 /*===================  Winston Logging  ========================*/

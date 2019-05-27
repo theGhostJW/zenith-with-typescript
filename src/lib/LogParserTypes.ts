@@ -1,32 +1,28 @@
-// @flow
+import { LogEntry } from './Logging';
 
-import type { LogEntry } from '../lib/Logging';
-
-export type LogIterationConfig = {
+export interface LogIterationConfig {
   id: number,
   when: string,
   then: string
 }
 
-export type Iteration = {|
+export interface Iteration {
    dState: string,
    startTime: string,
    endTime:  string,
    valTime: string,
-   elementType: 2,
    testConfig: {},
    item: {id: number},
    mocked: boolean,
    apState: {},
    issues: IssuesList
- |}
+ }
 
- export type OutOfTestIssues = {
-   elementType: 3,
+ export interface OutOfTestIssues {
    issues: IssuesList
  };
 
-export type ErrorsWarningsDefects = {
+export interface ErrorsWarningsDefects {
   name: string,
   infoType: StateStage,
   warnings: LogEntry[],
@@ -35,34 +31,30 @@ export type ErrorsWarningsDefects = {
   knownDefects: LogEntry[]
 }
 
-export type RunElementType = 'IterationInfo' | 'OutOfTestErrors';
-
-const STATE_STAGE = {
-  Validation: 'validation',
-  InTest: 'in test',
-  OutOfTest: 'out of test'
+export enum StateStage {
+  Validation = 'validation',
+  InTest = 'in test',
+  OutOfTest = 'out of test'
 };
-
-export type StateStage = $Keys<typeof STATE_STAGE>;
 
 export type IssuesList = ErrorsWarningsDefects[];
 
-export type RunSummary = {|
-  runConfig: {[string]: string},
+export interface RunSummary {
+  runConfig: {[k:string]: string},
   startTime: string,
   endTime:  string,
-  filterLog: {[string]: string},
+  filterLog: {[k:string]: string},
   stats: RunStats
-|}
+ }
 
-export type FullSummaryInfo = {
+export interface FullSummaryInfo {
   rawFile: string,
   elementsFile: string,
-  testSummaries: {[string]: TestSummary},
-  runSummary: ?RunSummary
+  testSummaries: {[K:string]: TestSummary},
+  runSummary: RunSummary | undefined | null
 }
 
-export type RunStats =  {|
+export interface RunStats {
   testCases: number,
   passedTests: number,
   failedTests: number,
@@ -81,31 +73,31 @@ export type RunStats =  {|
   outOfTestWarnings: number,
   outOfTestType2Errors: number,
   outOfTestKnownDefects: number
-|};
+};
 
-export type WithScript = {
+export interface WithScript {
    script: string
 };
 
-export type TestSummary = {|
+export interface TestSummary {
   testConfig: WithScript,
   startTime: string,
   endTime:  string,
   stats: TestStats
-|}
+}
 
-export type TestStats = {|
+export interface TestStats {
   iterations: number,
   passedIterations: number,
   iterationsWithErrors: number,
   iterationsWithType2Errors: number,
   iterationsWithWarnings: number,
   iterationsWithKnownDefects: number
-|};
+};
 
-export type RunState = {|
+export interface RunState {
   runStats: RunStats,
-  filterLog: {[string]: string},
+  filterLog: {[k:string]: string},
   runName: string,
   runStart: string,
   rawFile: string,
@@ -116,15 +108,15 @@ export type RunState = {|
   iterationStart: string,
   indent: number,
   testStart: string,
-  testConfig: ?WithScript,
-  iterationConfig: ?LogIterationConfig,
+  testConfig: WithScript | null ,
+  iterationConfig: LogIterationConfig | null,
 
-  errorExpectation: ?LogEntry,
+  errorExpectation: LogEntry | null,
   expectedErrorEncoutered: boolean,
 
   apstate: {},
   mocked: boolean,
-  testItem: {},
+  testItem: {id: number} | null,
   validationInfo: {},
   passedValidators: string[],
 
@@ -143,5 +135,5 @@ export type RunState = {|
   inTestIssues: ErrorsWarningsDefects[],
   outOfTestIssues: ErrorsWarningsDefects[],
 
-  activeIssues: ?ErrorsWarningsDefects
-|};
+  activeIssues: ErrorsWarningsDefects | null
+};
