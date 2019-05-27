@@ -87,7 +87,7 @@ export const logValidationEnd = () => specialMessage('ValidationEnd', PopControl
 export const logStartValidator = (name: string) => specialMessage('ValidatorStart', PopControl.PushFolder)(name);
 export const logEndValidator = (name: string) => specialMessage('ValidatorEnd', PopControl.PopFolder)(name);
 
-export const logException = (message: string, exceptionObj: any) => {
+export const logException = (message: string, exceptionObj?: any) => {
   let errobj = translateErrorObj(exceptionObj, message);
   logError(message,
       show(exceptionObj),

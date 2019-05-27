@@ -1,17 +1,15 @@
-import {debug, debugStk, areEqual, yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj} from './SysUtils';
+import {yamlToObj, reorderProps, def, fail, ensure, objToYaml, forceArray, seekInObj, failInfoObj} from './SysUtils';
 
 import { RECORD_DIVIDER, timeStampedRawPath,
-         PopControl, LogSubType, LogLevel, LogEntry } from './Logging';
+         PopControl, LogLevel, LogEntry } from './Logging';
 
-import { newLine, show, subStrBefore, replaceAll, hasText, appendDelim} from './StringUtils';
+import { newLine, show, subStrBefore, replaceAll, hasText} from './StringUtils';
 
 import * as fs from 'fs';
-import { combine, logFile, fileOrFolderName, eachLine, toTemp, fileToString, toMock } from './FileUtils';
-import { RunSummary, FullSummaryInfo, RunStats, TestSummary, WithScript, TestStats, ErrorsWarningsDefects,
+import { combine, logFile, fileOrFolderName, eachLine, toMock } from './FileUtils';
+import { FullSummaryInfo, RunStats, TestStats, ErrorsWarningsDefects,
               StateStage, IssuesList, RunState, Iteration, OutOfTestIssues } from '../lib/LogParserTypes';
 import { summaryBlock, iteration, outOfTestError, script, filterLogText } from './LogFormatter';
-import * as DateTime from './DateTimeUtils';
-import moment from 'moment';
 const _ = require('lodash');
 
 interface IterationInfo extends Iteration {
@@ -23,7 +21,7 @@ interface IterationInfo extends Iteration {
 
 type IterationLogElement = IterationInfo | OutOfTestIssues;
 
-export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc: ((n: number | null, s: string, r: R) => string)): void {
+export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc: ((n: number, s: string, r: R) => string)): void {
   let  {
       rawFile,
       elementsFile,
@@ -91,7 +89,7 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
 }
 
 // TODO: what is writemock doing here
-function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: number | null, testName: string, r: R) => string) {
+function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: number, testName: string, r: R) => string) {
 
  let item = def(seekInObj(iteration, 'item'), {}),
      script = show(def(seekInObj(iteration, 'testConfig', 'script'), 'ERR_NO_SCRIPT')),
@@ -703,7 +701,7 @@ function filterLog(str: string) {
    return reorderProps(result, ...logKeys);
 }
 
-export function defaultLogParser<R>(mockFileNameGenerator: (itemId: number | null, testName: string, runConfig: R) => string) {
+export function defaultLogParser<R>(mockFileNameGenerator: (itemId: number, testName: string, runConfig: R) => string) {
   return function parseLogDefault(fullPath: string): FullSummaryInfo {
     let fullSummary: FullSummaryInfo = {
       rawFile: '',
