@@ -1,20 +1,27 @@
-// @flow
+const _ = require('lodash');
+const winston = require('winston');
+const mkdirp = require('mkdirp');
 
-import * as _ from 'lodash';
-import * as winston from 'winston';
 import * as util from 'util'
-import {appendDelim, newLine, capFirst, subStrAfter, show, hasText } from '../lib/StringUtils';
-import {fail, objToYaml, debug, def, ensureHasVal, hasValue, translateErrorObj} from '../lib/SysUtils';
-import { nowAsLogFormat, nowFileFormatted, timeToShortDateTimeHyphenatedMs} from '../lib/DateTimeUtils';
-import { changeExtension } from '../lib/FileUtils';
+import {appendDelim, newLine, capFirst, subStrAfter, show, hasText } from './StringUtils';
+import {objToYaml, def, ensureHasVal, hasValue, translateErrorObj} from './SysUtils';
+import { nowAsLogFormat, timeToShortDateTimeHyphenatedMs} from './DateTimeUtils';
+import { changeExtension } from './FileUtils';
 // force loading of module
 import * as fs from 'fs';
 import * as path from 'path';
-import * as mkdirp from 'mkdirp';
-import type { Protocol } from './SeleniumIpcProtocol';
+
 import { emitMessageIfSocketAssigned } from './SeleniumIpcServer';
 
 let ipcLogs = 0;
+var projectDirSingleton: string | null = null;
+
+export enum PopControl {
+  NoAction = 0,
+  PushFolder = 1,
+  PopFolder = -1
+};
+
 
 // may have issues loading so duplicated from FileUtils
 function combineDuplicate(root : string, ...childPaths : Array < string >) {
@@ -26,22 +33,15 @@ function forceDirectoryDuplicate(path : string) : string {
   return path;
 }
 
-// error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
-export enum PopControl {
-  NoAction = 0,
-  PushFolder = 1,
-  PopFolder = -1
-};
-
-export type FullLogAttributes = {
-                              additionalInfo: ?string,
+export interface FullLogAttributes {
+                              additionalInfo?: string,
                               subType: LogSubType,
                               popControl: PopControl,
-                              link: ?string,
+                              link?: string,
                               callstack: any
                             };
 
-export type LogAttributes = $Supertype<FullLogAttributes>
+export type LogAttributes = Partial<FullLogAttributes>
 
 function defAttributes(): LogAttributes {
   return {
@@ -54,38 +54,38 @@ export const logWarning : LogFunction = (message, additionalInfo, attr) => globa
 export const logError: LogFunction = (message, additionalInfo, attr) => globaLoggingFunctions.logError(message, additionalInfo, attr);
 export const logLink = (message: string, link: string, additionalInfo?: string, attrs?: LogAttributes) => {
   attrs = attrs == null ? {} : attrs;
-  attrs.subType = def(attrs.subType, 'Message');
+  attrs.subType = def(<any>attrs.subType, 'Message');
   attrs.link = link;
   globaLoggingFunctions.log(message + ': ' + link, additionalInfo, attrs);
 }
 
-export const notImplementedWarning = (str: ?string) => logWarning(str == null ? 'NOT IMPLEMENTED' : 'NOT IMPLEMENTED: ' + str);
+export const notImplementedWarning = (str?: string) => logWarning(str == null ? 'NOT IMPLEMENTED' : 'NOT IMPLEMENTED: ' + str);
 
-const specialMessage = (subType: LogSubType, popControl: PopControl = 'NoAction'): LogFunction => specialLog(subType, log, popControl);
-const specialError = (subType: LogSubType, popControl: PopControl = 'NoAction'): LogFunction => specialLog(subType, logError, popControl);
+const specialMessage = (subType: LogSubType, popControl: PopControl = PopControl.NoAction): LogFunction => specialLog(subType, log, popControl);
+const specialError = (subType: LogSubType, popControl: PopControl = PopControl.NoAction): LogFunction => specialLog(subType, logError, popControl);
 
-export const pushLogFolder = (folderLabel: string) => specialMessage('Message', 'PushFolder')(folderLabel);
-export const popLogFolder = () => specialMessage('Message', 'PopFolder')('Pop Folder');
+export const pushLogFolder = (folderLabel: string) => specialMessage('Message', PopControl.PushFolder)(folderLabel);
+export const popLogFolder = () => specialMessage('Message', PopControl.PopFolder)('Pop Folder');
 
 export const expectDefect = (defectInfo: string, active: boolean = true) => specialMessage('StartDefect')(appendDelim('Defect Expected', ': ', defectInfo), {active: active});
 export const endDefect = () => specialMessage('EndDefect')('End Defect');
-export const logStartInteraction = () => specialMessage('InteractorStart', 'PushFolder')('Start Interaction');
+export const logStartInteraction = () => specialMessage('InteractorStart', PopControl.PushFolder)('Start Interaction');
 export const logEndInteraction = (
                                   apState: any,
-                                  mocked: boolean) => specialMessage('InteractorEnd', 'PopFolder')('End Interaction', {mocked: mocked, apState: apState});
+                                  mocked: boolean) => specialMessage('InteractorEnd', PopControl.PopFolder)('End Interaction', {mocked: mocked, apState: apState});
 
 export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')('Start Validation Prep');
 export const logPrepValidationInfoEnd = (dState: any) => specialMessage('PrepValidationInfoEnd')('End Validation Prep', {dState: dState});
 
-export const logValidationStart = (valTime: moment$Moment, dState: any) => specialMessage('ValidationStart', 'PushFolder')('Start Validation', {
+export const logValidationStart = (valTime: moment$Moment, dState: any) => specialMessage('ValidationStart', PopControl.PushFolder)('Start Validation', {
                                                                                                                                     valTime: timeToShortDateTimeHyphenatedMs(valTime),
                                                                                                                                     dState: dState
                                                                                                                                   });
 
-export const logValidationEnd = () => specialMessage('ValidationEnd', 'PopFolder')('End Validation');
+export const logValidationEnd = () => specialMessage('ValidationEnd', PopControl.PopFolder)('End Validation');
 
-export const logStartValidator = (name: string) => specialMessage('ValidatorStart', 'PushFolder')(name);
-export const logEndValidator = (name: string) => specialMessage('ValidatorEnd', 'PopFolder')(name);
+export const logStartValidator = (name: string) => specialMessage('ValidatorStart', PopControl.PushFolder)(name);
+export const logEndValidator = (name: string) => specialMessage('ValidatorEnd', PopControl.PopFolder)(name);
 
 export const logException = (message: string, exceptionObj: any) => {
   let errobj = translateErrorObj(exceptionObj, message);
@@ -94,18 +94,18 @@ export const logException = (message: string, exceptionObj: any) => {
       {
        additionalInfo: show(exceptionObj),
        subType: 'Exception',
-       popControl: 'NoAction',
+       popControl: PopControl.NoAction,
        callstack: _.isObject(errobj) ? errobj.stack : undefined
      }
     );
 }
 
-export const logFilterLog = (filterLog: {[string]: string}) => specialMessage('FilterLog')('Filter Log', objToYaml(filterLog));
-export const logStartRun = (runName: string, runConfig: mixed) => specialMessage('RunStart', 'PushFolder')(
+export const logFilterLog = (filterLog: {[k:string]: string}) => specialMessage('FilterLog')('Filter Log', objToYaml(filterLog));
+export const logStartRun = (runName: string, runConfig: any) => specialMessage('RunStart', PopControl.PushFolder)(
                                                                                             `Test Run: ${runName}`,
                                                                                              objToYaml(runConfig));
 
-export const logEndRun = (runName: string) => specialMessage('RunEnd', 'PopFolder')(`End Run: ${runName}`);
+export const logEndRun = (runName: string) => specialMessage('RunEnd', PopControl.PopFolder)(`End Run: ${runName}`);
 
 export const logStartTest = (testName: string, when: string, then: string, testConfig: {}) =>
                                                                                                     {
@@ -115,18 +115,18 @@ export const logStartTest = (testName: string, when: string, then: string, testC
                                                                                                                                 testConfig
                                                                                                                               );
 
-                                                                                                      return specialMessage('TestStart', 'PushFolder')(
+                                                                                                      return specialMessage('TestStart', PopControl.PushFolder)(
                                                                                                       `Test: ${plainName} - When ${when} then ${then}`,
                                                                                                        objToYaml(addInfo));
                                                                                                      }
 
-export const logEndTest = (testName: string) => specialMessage('TestEnd', 'PopFolder')(`End Test ${testName}`, objToYaml({testName: testName}));
+export const logEndTest = (testName: string) => specialMessage('TestEnd', PopControl.PopFolder)(`End Test ${testName}`, objToYaml({testName: testName}));
 
-export const logStartIteration = (id: number, testName: string, when: string, then: string, item: {}) => specialMessage('IterationStart', 'PushFolder')(
+export const logStartIteration = (id: number, testName: string, when: string, then: string, item: {}) => specialMessage('IterationStart', PopControl.PushFolder)(
                                                                                                       `Iteration: ${id}: ${testName} - When ${when} then ${then}`,
                                                                                                        objToYaml(item));
 
-export const logEndIteration = (id: number) => specialMessage('IterationEnd', 'PopFolder')(`End Iteration ${id}`, objToYaml({id: id}))
+export const logEndIteration = (id: number) => specialMessage('IterationEnd', PopControl.PopFolder)(`End Iteration ${id}`, objToYaml({id: id}))
 
 export type LogFunction = (message?: string, additionalInfo?: string | {}, attrs?: LogAttributes) => void
 
@@ -160,7 +160,7 @@ export type LogSubType = "Message" |
                           "CheckPass" |
                           "CheckFail";
 
-function specialLog(subType: LogSubType, baseFunction: LogFunction, popControl: PopControl = 'NoAction'): LogFunction {
+function specialLog(subType: LogSubType, baseFunction: LogFunction, popControl: PopControl = PopControl.NoAction): LogFunction {
   return function logSpecial(message?: string, additionalInfo?: string | {}, attr?: LogAttributes) {
     attr = attr == null ? {} : attr;
     attr.subType = subType;
@@ -172,7 +172,7 @@ function specialLog(subType: LogSubType, baseFunction: LogFunction, popControl: 
 export const logCheckFailure: LogFunction = specialError('CheckFail');
 export const logCheckPassed: LogFunction = specialMessage('CheckPass');
 
-const isCheckPointSubType = (subType: ?LogSubType) =>  subType != null && ['CheckFail', 'CheckPass'].includes(subType);
+const isCheckPointSubType = (subType?: LogSubType) =>  subType != null && ['CheckFail', 'CheckPass'].includes(subType);
 
 function consoleLog(label: string) : LogFunction {
   return function logWithlabel (message: string = '', additionalInfo?: string | {}, attr?: LogAttributes) : void {
@@ -202,20 +202,21 @@ export interface LogEntry {
 
 
 
- const SynchFileLogger = winston.transports.SynchFileLogger = function (options: {[string|number]: string|number}) {
+ const SynchFileLogger = winston.transports.SynchFileLogger = function (options: Map<string | number, string| number>) {
    //
    // Name this logger
+   const anyOps = <any>options;
 
-   this.name = options.name;
+   this.name = <any>anyOps.name;
 
    //
    // Set the level from your options
    //
-   this.level = options.level || 'info';
-   this.timestamp = options.timestamp || nowAsLogFormat;
+   this.level = anyOps.level || 'info';
+   this.timestamp = anyOps.timestamp || nowAsLogFormat;
 
    //$FlowFixMe
-   this.fd = fs.openSync(options.filename, 'w+');
+   this.fd = fs.openSync(anyOps.filename, 'w+');
 
    //
    // Configure your storage backing as you see fit
@@ -229,7 +230,7 @@ export interface LogEntry {
   //
   util.inherits(SynchFileLogger, winston.Transport);
 
-  SynchFileLogger.prototype.log = function (level, msg, meta, callback) {
+  SynchFileLogger.prototype.log = function (level: any, msg: any, meta: any, callback: any) {
     //
     // Store this message and metadata, maybe use some custom logic
     // then callback indicating success.
@@ -245,22 +246,23 @@ export interface LogEntry {
      // => [Error: EISDIR: illegal operation on a directory, open <directory>]
     });
 
-    // not sure wha
+    // not sure what this is for
     callback(null, true);
   };
 
 
-  const IPCLogger = winston.transports.IPCLogger = function (options: {[string|number]: string|number}) {
+  const IPCLogger = winston.transports.IPCLogger = function (options: Map<string | number, string| number>) {
     //
     // Name this logger
+   const anyOps = <any>options;
 
-    this.name = options.name;
+    this.name = anyOps.name;
 
     //
     // Set the level from your options
     //
-    this.level = options.level || 'info';
-    this.timestamp = options.timestamp || nowAsLogFormat;
+    this.level = anyOps.level || 'info';
+    this.timestamp = anyOps.timestamp || nowAsLogFormat;
 
     //
     // Configure your storage backing as you see fit
@@ -273,7 +275,7 @@ export interface LogEntry {
  //
  util.inherits(IPCLogger, winston.Transport);
 
- IPCLogger.prototype.log = function (level, msg, meta, callback) {
+ IPCLogger.prototype.log = function (level: any, msg: any, meta: any, callback: any) {
    //
    // Store this message and metadata, maybe use some custom logic
    // then callback indicating success.
@@ -300,7 +302,7 @@ export const timeStampedLogDir = () => rawTimeStampLogDir;
 
 function nowLogFormatted() {
   let d = new Date(),
-      pad = i => i < 10 ? '0' + i.toString() : i.toString();
+      pad = (i: number) => i < 10 ? '0' + i.toString() : i.toString();
   return [ d.getFullYear(),
             d.getMonth() + 1,
             d.getDate(),
@@ -319,7 +321,7 @@ function newWinstton() {
 
   forceDirectoryDuplicate(subDir);
 
-  let isWebDriverProcess = hasText(process.mainModule.filename, '@wdio');
+  let isWebDriverProcess = hasText((<any>process).mainModule.filename, '@wdio');
   return new (winston.Logger)({
                   transports: isWebDriverProcess ? [ ipcLogger() ] : [
                                                     consoleLogger(),
@@ -388,9 +390,9 @@ function logFileBaseDuplicate(fileName: string = ''): string {
   return path.join(projectDirDuplicate(), 'logs', fileName);
 }
 
-function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string, string[]] {
+function projectDirTry(seedName: string, sentinalProjectFile: string) : [string, string[]] {
 
-  let tried = [];
+  let tried: string[] = [];
   function isProjectDir(dir : string): boolean {
     let fullPath =  path.join(dir, sentinalProjectFile);
     tried.push(fullPath);
@@ -398,10 +400,9 @@ function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string
   }
 
   let projFolder = seekFolderDuplicate(seedName, isProjectDir);
-  return [projFolder, tried];
+  return [<any>projFolder, tried];
 }
 
-var projectDirSingleton: ?string = null;
 function projectDirDuplicate() : string {
 
   if (projectDirSingleton == null){
@@ -423,8 +424,7 @@ function projectDirDuplicate() : string {
   return projectDirSingleton;
 }
 
-function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePath : string) => boolean) :
-  ? string {
+function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePath : string) => boolean) : string | null {
     return hasValue(startFileOrFolder)
       ? pathPredicate(startFileOrFolder)
         ? startFileOrFolder
@@ -436,7 +436,7 @@ function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePa
 /*
  It's general properties are: timestamp, level, message, meta. Depending on the transport type, there may be additional properties.
  */
-function formatFileLog(options) {
+function formatFileLog(options: any) {
   let meta = options.meta;
   let logItem = {
     timestamp: options.timestamp(),
@@ -451,30 +451,26 @@ function formatFileLog(options) {
   return objToYaml(logItem) + RECORD_DIVIDER;
 }
 
-function formatConsoleLog(options) {
+function formatConsoleLog(options: any) {
   // Return string will be passed to logger.
   let meta = options.meta,
       header = isCheckPointSubType(meta.subType) ? options.message : appendDelim(capFirst(options.level), ': ', options.message);
-  return winston.config.colorize(options.level, appendDelim(header , newLine(), def(options.meta, {}).additionalInfo));
+  return winston.config.colorize(options.level, appendDelim(header , newLine(), (<any>def(options.meta, {})).additionalInfo));
 }
 
 export const RECORD_DIVIDER = '-------------------------------';
 
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
-export const LOG_LEVELS = {
-  error: 0,
-  warn: 1,
-  info: 2
+export enum LogLevel {
+  Error = 0,
+  Warn = 1,
+  Info = 2
 };
 
-export type LogLevel = $Keys<typeof LOG_LEVELS>;
-
-type WinstonLogFunc = (LogLevel, string, {}) => void;
-
 export const DEFAULT_LOGGING_FUNCTIONS: LoggingFunctions = {
-   log: logFunction('info', false),
-   logWarning: logFunction('warn', true),
-   logError: logFunction('error', true)
+   log: logFunction(LogLevel.Info, false),
+   logWarning: logFunction(LogLevel.Warn, true),
+   logError: logFunction(LogLevel.Error, true)
 }
 
 let winstonLogFuncs = {
@@ -499,7 +495,7 @@ function logFunction(level: LogLevel, callStack: boolean) : LogFunction {
 }
 
 
-export function lowLevelLogging(level: LogLevel, message?: string, meta: LogAttributes) {
+export function lowLevelLogging(level: LogLevel, message: string | null, meta: LogAttributes) {
   logger.log(level, message, meta);
 }
 
