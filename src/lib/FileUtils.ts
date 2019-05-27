@@ -1,8 +1,5 @@
-// @flow
-
 import {
   def,
-  debug,
   hasValue,
   areEqual,
   ensureHasVal,
@@ -11,37 +8,37 @@ import {
   objToYaml,
   yamlToObj,
   forceArray
-} from '../lib/SysUtils';
-import {newLine, show, replaceAll} from '../lib/StringUtils';
-import type { CharacterEncoding } from '../lib/StringUtils';
-import {logWarning, log, logError, timeStampedLogDir} from '../lib/Logging';
+} from './SysUtils';
+import {newLine, CharacterEncoding, replaceAll} from './StringUtils';
+import {logWarning, log, logError, timeStampedLogDir} from './Logging';
 //import {parse, join, relative } from 'path';
 import * as p from 'path';
 import * as fs from 'fs';
-import * as mkdirp from 'mkdirp';
-import * as del from 'del';
-import * as fsEx from 'file-system';
-import * as _ from 'lodash';
-import nodeZip from 'node-zip';
-import { toMoment } from '../lib/DateTimeUtils'
+const mkdirp = require('mkdirp');
+const del = require('del');
+const fsEx = require('file-system');
+const _ = require('lodash');
+const nodeZip = require('node-zip');
+import { toMoment } from './DateTimeUtils'
 import lineByLine from 'n-readlines';
-
 
 export const PATH_SEPARATOR = p.sep;
 
 const TEMP_STR_FILES : {
-  [string] : boolean
+  [k: string] : boolean
 } = {};
 
-export function eachLine(fullPath: string, func: (string) => void, singleByteNLChar: string = '\n', readChunk: number = 1024){
+export function eachLine(fullPath: string, func: (s: string) => void, singleByteNLChar: string = '\n', readChunk: number = 1024){
   let ops = {
               readChunk: readChunk,
               newLineCharacter: singleByteNLChar
             },
-      liner = new lineByLine(fullPath, ops),
+      //@ts-ignore
+      liner = (new lineByLine(fullPath, ops)),
       line = '';
 
   while (line = liner.next()) {
+    //@ts-ignore
     func(line.toString('utf8'));
   }
 }
@@ -80,7 +77,7 @@ export function relativeToAbsolute (relativePath: string, basePath: string): str
   sPath = sPath.replace(/[^\/]*$/, relativePath.replace(/(\/|^)(?:\.?\/+)+/g, "$1"));
 
   for (var nEnd, nStart = 0; nEnd = sPath.indexOf("/../", nStart), nEnd > -1; nStart = nEnd + nUpLn) {
-    //$FlowFixMe
+    //@ts-ignore
     nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))[0].length; // I assume list cannot be empty due to for condition
     sDir = (sDir + sPath.substring(nStart, nEnd)).replace(new RegExp("(?:\\\/+[^\\\/]*){0," + ((nUpLn - 1) / 3) + "}$"), "/");
   }
@@ -89,13 +86,14 @@ export function relativeToAbsolute (relativePath: string, basePath: string): str
 
 export const relativePath = p.relative;
 
-export function zipAll(sourceDir: string, destPath: string, fileFilter: (fileName: string, filePath: string) => boolean = (p, s) => true ): string {
+export function zipAll(sourceDir: string, destPath: string, fileFilter: (fileName: string, filePath: string) => boolean = (n: string, p: string) => true ): string {
 
  log(`zipping ${sourceDir} to ${destPath}`);
 
- let zip = nodeZip();
+ //@ts-ignore
+ let zip: any = nodeZip();
 
- function archiveFile(name, path) {
+ function archiveFile(name: string, path: string) {
    let relPath = p.relative(sourceDir, path);
    zip.file(relPath, fs.readFileSync(path));
  }
@@ -107,27 +105,26 @@ export function zipAll(sourceDir: string, destPath: string, fileFilter: (fileNam
  return destPath;
 }
 
-
 export function unzipAll(zipFilePath: string, destDirectory: string){
   var zip = nodeZip(fs.readFileSync(zipFilePath, 'binary'), {base64: false, checkCRC32: true});
 
-  const unZip = (fileInfo) => {
+  function unZip(fileInfo: any) {
     let fileName = fileInfo.name,
         destPath = combine(destDirectory, fileName);
     forceDirectory(parentDir(destPath));
     fs.writeFileSync(destPath, fileInfo._data, 'binary');
     log(`${fileName} unzipped to ${destPath}`);
   }
-  _.each(zip.files, (val, idx, arr) => unZip(val));
+  _.each(zip.files, (val: any, idx: number, arr: any) => unZip(val));
 
   return destDirectory;
 }
 
-const tmpStrPath = (fileName :?string = 'tempString', defaultExt : string) => {
-  return defaultExtension(tempFile(def(fileName, 'tempString')), defaultExt);
+const tmpStrPath = (fileName: string = 'tempString', defaultExt : string) => {
+  return defaultExtension(tempFile(def(fileName, <string>'tempString')), defaultExt);
 }
 
-export function toTempString(str : string, fileName : ?string, wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true) : string {
+export function toTempString(str : string, fileName?: string, wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true) : string {
   return toTempStringPriv(str, fileName, wantWarning, wantDuplicateOverwriteWarning, '.txt');
 }
 
@@ -139,7 +136,7 @@ export function fileOrFolderName(fullPath: string): string {
 
 export const fileOrFolderNameNoExt = (fullPath: string) => changeExtension(fileOrFolderName(fullPath), '');
 
-function toTempStringPriv(str : string, fileName : ?string, wantWarning : boolean, wantDuplicateOverwriteWarning : boolean, fileExt : string) : string {
+function toTempStringPriv(str : string, fileName? : string, wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true, fileExt : string = '.txt') : string {
   let path = tmpStrPath(fileName, fileExt);
 
   if (wantDuplicateOverwriteWarning && TEMP_STR_FILES[path]) {
@@ -159,11 +156,11 @@ export function tempFileExists(fileName: string): boolean {
    return pathExists(tempFile(fileName));
 }
 
-export function fromTempString(fileName : ?string, wantWarning : boolean = true) : string {
+export function fromTempString(fileName?: string, wantWarning : boolean = true) : string {
   return fromTempStringPriv(fileName, wantWarning, '.txt');
 }
 
-function fromTempStringPriv(fileName : ? string, wantWarning : boolean, fileExt : string) : string {
+function fromTempStringPriv(fileName?: string, wantWarning : boolean = true, fileExt : string = '.txt') : string {
   let path = tmpStrPath(fileName, fileExt);
   if (wantWarning) {
     logWarning(`Reading temp file from ${path}`);
@@ -205,7 +202,7 @@ function listPaths(baseDir: string, wantFiles: boolean) : string[] {
   return result;
 }
 
-export function eachFolder(baseDir : string, directoryFunc : (folderName : string, folderPath : string) => void, filterFunc : ?(folderName : string, folderPath : string) => boolean) : void {
+export function eachFolder(baseDir : string, directoryFunc : (folderName : string, folderPath : string) => void, filterFunc? : (folderName : string, folderPath : string) => boolean) : void {
   const trueDirFunc = (folderName : string, folderPath : string) => directoryFunc(folderName, folderPath);
   const trueFilterFunc = filterFunc == null
     ? filterFunc: (folderName : string, folderPath : string) => filterFunc == null
@@ -230,23 +227,22 @@ export function parentDir(baseDir: string): string {
 // '**/*'                 // Match all files
 // '!**/*.js'             // Exclude all js files
 // '**/*.{jpg,png,gif}'   // Match jpg, png, or gif files
-export function eachFile(dirPath : string, fileFunc : (fileName : string, filePath : string) => void, filterFuncOrGlob :
-  ? FileFilterFunc | FileFilterGlobs, filterGlob :
-  ? FileFilterGlobs) : void {
+export function eachFile(dirPath : string, fileFunc : (fileName : string, filePath : string) => void, filterFuncOrGlob? :
+  FileFilterFunc | FileFilterGlobs, filterGlob? : FileFilterGlobs) : void {
   eachPath(true, dirPath, fileFunc, filterFuncOrGlob, filterGlob);
 }
 
-function eachPath(wantFiles : boolean, dirPath : string, fileFunc : (string, string) => void, filterFuncOrGlob :
-  ? FileFilterFunc | FileFilterGlobs, filterGlob :
-  ? FileFilterGlobs) : void {
+function eachPath(wantFiles : boolean, dirPath : string, fileFunc : (s:string, s2:string) => void, filterFuncOrGlob? :
+  FileFilterFunc | FileFilterGlobs, filterGlob? :
+  FileFilterGlobs) : void {
 
   let filterIsFunc = _.isObject(filterFuncOrGlob) && !_.isArray(filterFuncOrGlob);
 
   ensure(filterGlob == null || filterFuncOrGlob == null || filterIsFunc, 'filterFuncOrGlob must be a function if filterGlob param is used');
 
-  let trueCallBack = (filePath, relative, fileName) => {
+  function trueCallBack(filePath: string, relative: boolean, fileName: string){
     let filterFunc = filterIsFunc
-      ? ((filterFuncOrGlob : any): FileFilterFunc)
+      ? (<FileFilterFunc>filterFuncOrGlob)
       : (filename : string, filePath : string) => true;
 
     let param1 = wantFiles ?  fileName : fileOrFolderName(filePath),
@@ -296,10 +292,10 @@ export function fromMock < T > (fileName : string) : T {
   return fromSpecialDir(fileName, mockFile);
 }
 
-function fromSpecialDir < T > (fileName : string, pathMaker : (string) => string, defaultExt : string = '.yaml') : T {
+function fromSpecialDir < T > (fileName : string, pathMaker : (s: string) => string, defaultExt : string = '.yaml') : T {
     let path = pathMaker(defaultExtension(fileName, defaultExt)),
     str = fileToString(path),
-    rslt: T = ((yamlToObj(str) : any) : T);
+    rslt: T = <T>yamlToObj(str);
   return rslt;
 }
 
@@ -311,7 +307,7 @@ export function toMock < T > (val : T, fileName : string) : string {
   return toSpecialDir(val, fileName, mockFile);
 }
 
-function toSpecialDir < T > (val : T, fileName : string, pathMaker : (string) => string, defaultExt : string = '.yaml') : string {
+function toSpecialDir < T > (val : T, fileName : string, pathMaker : (s: string) => string, defaultExt : string = '.yaml') : string {
   let path = pathMaker(defaultExtension(fileName, defaultExt));
   return objToFile(val, path);
 }
@@ -344,7 +340,7 @@ export function deleteDirectory(dir : string, dryRun : boolean = false) : Array 
   if (!dryRun){
     log(`Deleting directory: ${dir}`);
   }
-  return del.sync([combine(dir, '**')], {dryRun: dryRun});
+  return <any>del.sync([combine(dir, '**')], {dryRun: dryRun});
 }
 
 export function clearDirectory(dir : string, dryRun : boolean = false) : Array < string > {
@@ -390,37 +386,36 @@ export function linesToFile(lines : string[], path : string, encoding : Characte
   fs.writeFileSync(path, lines.join(newLine()), encoding);
 }
 
-export function tempFile(fileName :? string) : string {
+export function tempFile(fileName?: string) : string {
   return subFile('temp', fileName);
 }
 
-export function testCaseFile(fileName :? string) : string {
+export function testCaseFile(fileName?: string) : string {
   return subFile('testCases', fileName);
 }
 
-export function mockFile(fileName :? string) : string {
+export function mockFile(fileName?: string) : string {
   return subFile('mocks', fileName);
 }
 
-export function testDataFile(fileName :? string) : string {
+export function testDataFile(fileName?: string) : string {
   return subFile('testData', fileName);
 }
 
-export function runTimeFile(fileName :
-  ? string) : string {
+export function runTimeFile(fileName? : string) : string {
   return subFile('runTimeFiles', fileName);
 }
 
-export function logFile(fileName :? string) : string {
+export function logFile(fileName?: string) : string {
   let parDir = timeStampedLogDir();
-  return parDir == '' || parDir == null ? logFileBase(fileName) : combine(parDir, def(fileName, '')) ;
+  return parDir == '' || parDir == null ? logFileBase(fileName) : combine(parDir, def(fileName, <string>'')) ;
 }
 
-export function logFileBase(fileName :? string) : string {
+export function logFileBase(fileName? : string) : string {
   return subFile('logs', fileName);
 }
 
-function subFile(subDir :string, fileName: ?string) : string {
+function subFile(subDir: string, fileName?: string) : string {
   return fileName == null || fileName == ''
     ? projectSubDir(subDir)
     : combine(projectSubDir(subDir), fileName);
@@ -430,8 +425,7 @@ export function combine(root : string, ...childPaths : Array < string >) {
   return p.join(root, ...childPaths);
 }
 
-export function seekFolder(startFileOrFolder : string, pathPredicate : (path : string) => boolean) :
-  ? string {
+export function seekFolder(startFileOrFolder : string, pathPredicate : (path : string) => boolean) : string | undefined | null {
     return hasValue(startFileOrFolder)
       ? pathPredicate(startFileOrFolder)
         ? startFileOrFolder
@@ -442,9 +436,9 @@ export function seekFolder(startFileOrFolder : string, pathPredicate : (path : s
 
 export function pathExists(path : string) : boolean {return fs.existsSync(path);}
 
-function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string, string[]] {
+function projectDirTry(seedName: string, sentinalProjectFile: string) : [string, string[]] {
 
-  let tried = [];
+  let tried = <string[]>[];
   function isProjectDir(dir : string): boolean {
     let fullPath = combine(dir, sentinalProjectFile);
     tried.push(fullPath);
@@ -452,10 +446,10 @@ function projectDirTry(seedName: string, sentinalProjectFile: string) : [?string
   }
 
   let projFolder = seekFolder(seedName, isProjectDir);
-  return [projFolder, tried];
+  return [projFolder == null ? "" : projFolder, tried];
 }
 
-let projectDirSingleton: ?string = null;
+let projectDirSingleton: string | null = null;
 
 export const TEMPLATE_BASE_FILE: string  = 'ZwtfProjectBase.txt';
 
