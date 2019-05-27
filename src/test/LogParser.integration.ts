@@ -1,17 +1,14 @@
-//@flow
-
-import {test, describe} from 'mocha'
-import { debug, seekInObj } from '../lib/SysUtils';
-import { logSplitter, defaultLogParser, elementsToFullMock,  } from '../lib/LogParser';
-import { testDataFile, logFile, toTemp, fromTestData, fileOrFolderNameNoExt } from '../lib/FileUtils';
-import { DEMO_LOG, DEMO_ENTRY } from '../test/LogParser.data.test';
+import {describe} from 'mocha'
+import { seekInObj } from '../lib/SysUtils';
+import { defaultLogParser, elementsToFullMock,  } from '../lib/LogParser';
+import { testDataFile, toTemp, fromTestData } from '../lib/FileUtils';
 import { mockFileNameUseEnvironment } from '../../testCases/ProjectConfig';
-import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
-import { replaceAll, show } from '../lib/StringUtils';
+import {chkEq} from '../lib/AssertionUtils';
+import { replaceAll} from '../lib/StringUtils';
 
 describe('file Parsing', () => {
 
-  let summary,
+  let summary: any,
       rawName = 'DemoLog.raw.yaml',
       rawPath = testDataFile(rawName);
 
@@ -99,7 +96,7 @@ describe('file Parsing', () => {
 
   describe('elementProcessor', () => {
 
-    let summary;
+    let summary: any;
     before(() => {
       summary = fromTestData('ParserSummary.yaml');
     });

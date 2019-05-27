@@ -1,5 +1,3 @@
-//@flow
-
 export const DEMO_ENTRY = `timestamp: '2017-10-01 13:46:27'
 level: info
 subType: FilterLog
