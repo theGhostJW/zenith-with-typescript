@@ -1,7 +1,4 @@
-// @flow
-
 import {it, describe} from 'mocha'
-import { debug } from '../lib/SysUtils';
 import { log, logWarning, logError, logLink, pushLogFolder, popLogFolder, notImplementedWarning,
           expectDefect, endDefect} from '../lib/Logging';
 
