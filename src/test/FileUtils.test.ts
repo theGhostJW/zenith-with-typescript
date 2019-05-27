@@ -1,9 +1,6 @@
-// @flow
-
-import {test, describe} from 'mocha'
-import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
+import {describe} from 'mocha'
+import {chkEq} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
-import { debug } from '../lib/SysUtils';
 import { combine, fileExtension, changeExtension, defaultExtension, fileOrFolderName, fileOrFolderNameNoExt,  parentDir,
          tempFile, relativeToAbsolute} from '../lib/FileUtils';
 

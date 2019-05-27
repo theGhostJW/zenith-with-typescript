@@ -1,12 +1,5 @@
-// @flow
-
-
-
-import type { LogAttributes } from '../lib/Logging';
-
-
-import {chk, chkEq, chkEqJson, chkFalse, chkHasText, chkWithMessage} from '../lib/AssertionUtils';
-import { now } from '../lib/DateTimeUtils';
+import { LogAttributes } from '../lib/Logging';
+import {chk, chkEq, chkFalse, chkHasText, chkWithMessage} from '../lib/AssertionUtils';
 import { delay } from '../lib/SysUtils';
 import {
   clearDirectory,
@@ -84,7 +77,6 @@ describe('copyFile', () => {
 
   let dir = '',
       childDir = '',
-      zipOut = '',
       fileOne = '',
       fileTwoPath = '';
 
@@ -127,7 +119,7 @@ describe('zipAll / unzipAll', () => {
   const FILE_ONE_CONTENT = 'fsdfsf',
         FILE_TWO_CONTENT = 'dsffd';
 
-  const destPath = (srcpath) => combine(destDir, relativePath(dir, srcpath)),
+  const destPath = (srcpath: string) => combine(destDir, relativePath(dir, srcpath)),
         decompressedFile1Path = () => destPath(fileOne),
         decompressedFile2Path = () => destPath(fileTwo);
 
@@ -150,7 +142,7 @@ describe('zipAll / unzipAll', () => {
   });
 
   it('basic round trip with filter', () => {
-    function hasYaml(name, path) {
+    function hasYaml(name: string, path: string) {
       return hasText(name, 'yaml');
     }
     let zipped = zipAll(dir, zipOut, hasYaml);
@@ -234,7 +226,7 @@ describe('eachPathNonRecursive', () => {
       txt1 = combine(parent, 'tst1.txt'),
       yaml2 = combine(parent, 'tst2.yaml'),
       txt2 = combine(child, 'tst2.txt'),
-      nameList = [];
+      nameList: string[] = [];
 
   before(function() {
     forceDirectory(grandChild);
@@ -248,7 +240,7 @@ describe('eachPathNonRecursive', () => {
      nameList = [];
    });
 
-   function listFile(pathName) : void {
+   function listFile(pathName: string) : void {
      nameList.push(pathName);
    }
 
@@ -273,7 +265,7 @@ describe('eachFile / eachFolder', () => {
       txt1 = combine(child, 'tst1.txt'),
       yaml2 = combine(parent, 'tst2.yaml'),
       txt2 = combine(child, 'tst2.txt'),
-      pathList = [];
+      pathList: string[] = [];
 
   before(function() {
     forceDirectory(grandChild);
@@ -287,7 +279,7 @@ describe('eachFile / eachFolder', () => {
      pathList = [];
    });
 
-  function listFile(fileName, filePath) : void {
+  function listFile(fileName: string, filePath: string) : void {
     pathList.push(filePath);
   }
 
@@ -330,7 +322,7 @@ describe('eachFile / eachFolder', () => {
 
   describe('eachFolder', () => {
 
-    const listFolder = (folderName, fullPath) => {
+    const listFolder = (folderName: string, fullPath: string) => {
         pathList.push(fullPath);
     };
 
@@ -437,7 +429,7 @@ describe('fileToObj', () => {
 
 describe('special dirs / round trip', () => {
 
-  function roundTripTest<T>(save: (any, string) => string, load: (string) => T, pathFragment: string, extension: ?string) {
+  function roundTripTest<T>(save: (a:any, s:string) => string, load: (s:string) => T, pathFragment: string, extension?: string) {
     let obj = {
       name: 'Betty Boo',
       age: 20
@@ -532,7 +524,7 @@ describe('from / to tempString', () => {
 
   let msg = '';
   function logWarning(message?: string, additionalInfo?: string | {}, attr?: LogAttributes): void {
-    msg = message;
+    msg = message == null ? "" : message;
   }
 
   let mockLogging = {
@@ -704,7 +696,7 @@ describe('Integration - seekFolder', () => {
       return pathExists(fullPath);
     }
 
-    let projFolder: ?string = seekFolder(BASE_FILE, isProjectDir);
+    let projFolder = seekFolder(BASE_FILE, isProjectDir);
     chkEq(PROJECT_PATH, projFolder);
   });
 
@@ -715,7 +707,7 @@ describe('Integration - seekFolder', () => {
       return pathExists(fullPath);
     }
 
-    let projFolder: ?string  = seekFolder(BASE_FILE, isProjectDir);
+    let projFolder = seekFolder(BASE_FILE, isProjectDir);
     chkEq(null, projFolder);
   });
 

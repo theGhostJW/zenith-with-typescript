@@ -124,8 +124,8 @@ const tmpStrPath = (fileName: string = 'tempString', defaultExt : string) => {
   return defaultExtension(tempFile(def(fileName, <string>'tempString')), defaultExt);
 }
 
-export function toTempString(str : string, fileName?: string, wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true) : string {
-  return toTempStringPriv(str, fileName, wantWarning, wantDuplicateOverwriteWarning, '.txt');
+export function toTempString(str : string, fileName?: string | null, wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true) : string {
+  return toTempStringPriv(str, fileName == null ? undefined : fileName, wantWarning, wantDuplicateOverwriteWarning, '.txt');
 }
 
 // base name of a full path
@@ -156,8 +156,8 @@ export function tempFileExists(fileName: string): boolean {
    return pathExists(tempFile(fileName));
 }
 
-export function fromTempString(fileName?: string, wantWarning : boolean = true) : string {
-  return fromTempStringPriv(fileName, wantWarning, '.txt');
+export function fromTempString(fileName?: string | null, wantWarning : boolean = true) : string {
+  return fromTempStringPriv(fileName == null ? undefined : fileName, wantWarning, '.txt');
 }
 
 function fromTempStringPriv(fileName?: string, wantWarning : boolean = true, fileExt : string = '.txt') : string {
