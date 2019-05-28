@@ -79,7 +79,6 @@ export interface FullRunConfig {
 }
 
 export interface TestConfig {
-  id: number,
   when: string,
   then: string,
   owner: string,
@@ -90,7 +89,6 @@ export interface TestConfig {
 };
 
 export interface FullTestConfig {
-  id: number,
   when: string,
   then: string,
   owner: string,

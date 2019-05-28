@@ -1,17 +1,8 @@
-// @flow
-
-import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
-import * as _ from 'lodash';
-import { debug, fail, waitRetry, delay } from '../src/lib/SysUtils';
-import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
-import { toTempString } from '../src/lib/FileUtils';
-import { show } from '../src/lib/StringUtils';
-import child_process from 'child_process'
-import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
-import { register } from '../testCases/ProjectConfig';
+import { log, expectDefect, endDefect } from '../src/lib/Logging';
+import { RunConfig, TestCase, TestConfig, Validators, Country, Depth, register } from './ProjectConfig';
 import { check, checkFalse} from '../src/lib/CheckUtils';
-import * as wd from 'webdriverio';
-import moment from 'moment';
+const wd = require('webdriverio');
+const moment = require('moment');
 
 // TODO: check and fail if there are identical configs
 // TODO: change from when / then to title
@@ -23,26 +14,26 @@ let config: TestConfig = {
   countries: ['New Zealand', 'Australia']
 }
 
-export type Item = {|
+export type Item = {
   id: number,
   url?: string,
   when: string,
   then: string,
   data?: string,
   validators: Validators<DState>
-|}
+}
 
-export type ApState = {|
+export type ApState = {
   id: number,
   url: string,
   observation: string
-|}
+}
 
-type DState = {|
+type DState = {
   id: number,
   url: string,
   title: string
-|}
+}
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
   log("starting");
@@ -52,7 +43,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
 
   if (url != null){
     browser.url(url);
-    actualUrl = browser.getUrl();
+    actualUrl = <any>browser.getUrl();
   }
 
   return {

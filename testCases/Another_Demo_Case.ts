@@ -3,7 +3,6 @@ import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth }
 import { checkTextContains } from '../src/lib/CheckUtils';
 
 const config: TestConfig = {
-  id: 2,
   when: 'i test anther case',
   then: 'it still works',
   owner: 'JW',

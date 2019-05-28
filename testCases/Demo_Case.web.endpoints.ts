@@ -1,13 +1,8 @@
-// @flow
-
-import {it, describe} from 'mocha';
-
-import { debug, fail } from '../src/lib/SysUtils';
 import * as _ from 'lodash';
 
 import { allItems } from '../src/lib/TestRunner';
-import { testCase } from '../testCases/Demo_Case.web';
-import { testCaseEndPoint } from '../testCases/ProjectConfig';
+import { testCase } from './Demo_Case.web';
+import { testCaseEndPoint } from './ProjectConfig';
 
 describe('endPoint', () => {
 
