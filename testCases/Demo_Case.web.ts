@@ -1,6 +1,7 @@
 import { log, expectDefect, endDefect } from '../src/lib/Logging';
 import { RunConfig, TestCase, TestConfig, Validators, Country, Depth, register } from './ProjectConfig';
 import { check, checkFalse} from '../src/lib/CheckUtils';
+import { Moment } from 'moment';
 const wd = require('webdriverio');
 const moment = require('moment');
 
@@ -11,7 +12,7 @@ let config: TestConfig = {
   then: 'I just write something',
   owner: 'JW',
   enabled: true,
-  countries: ['New Zealand', 'Australia']
+  countries: [Country.Australia, Country["New Zealand"]]
 }
 
 export type Item = {
@@ -65,27 +66,27 @@ function mockFilename(item: Item, runConfig: RunConfig) {
   return '';
 }
 
-function check_id_less_than_2(dState: DState, valTime: moment$Moment) {
+function check_id_less_than_2(dState: DState, valTime: Moment) {
   expectDefect('should fail');
   check(dState.id < 2, 'expect less than 2', `${dState.id} should be less than 2`);
   endDefect();
 }
 
-function check_less_than_3(dState: DState, valTime: moment$Moment) {
+function check_less_than_3(dState: DState, valTime: Moment) {
   check(dState.id < 3, 'expect less than 2')
 }
 
-function check_bad_validator(dState: DState, valTime: moment$Moment) {
+function check_bad_validator(dState: DState, valTime: Moment) {
   throw('ARGGGHHHHHH!!!')
 }
 
-function check_with_disabled_expectation(dState: DState, valTime: moment$Moment) {
+function check_with_disabled_expectation(dState: DState, valTime: Moment) {
   expectDefect('should not fail', false);
   check(true, 'true is true');
   endDefect();
 }
 
-function check_with_incorrect_disabled_expectation(dState: DState, valTime: moment$Moment) {
+function check_with_incorrect_disabled_expectation(dState: DState, valTime: Moment) {
   expectDefect('should fail', false);
   checkFalse(true, 'false is true');
   endDefect();

@@ -10,7 +10,6 @@ import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
           logEndInteraction, logPrepValidationInfoStart,
           logPrepValidationInfoEnd, latestRawPath } from './Logging';
-import moment from 'moment';
 import { now, strToMoment } from './DateTimeUtils';
 const _ = require('lodash');
 import { defaultLogParser, destPath } from './LogParser'
@@ -231,7 +230,7 @@ export function register<R extends BaseRunConfig, T extends BaseTestConfig, I ex
   allCases.push(namedCase);
 }
 
-export type GenericValidator<DS> = (dState: DS, valTime: moment$Moment) => void
+export type GenericValidator<DS> = (dState: DS, valTime: Moment) => void
 
 export type BaseCase<R extends BaseRunConfig, T extends BaseTestConfig, I extends BaseItem, S, V> = {
   testConfig: T,
@@ -290,7 +289,7 @@ export function loadAll<R extends BaseRunConfig, T extends BaseTestConfig>(): Na
   return <NamedCase<R, T, any, any, any>[]>allCases;
 }
 
-function runValidators<V>(validators: GenericValidator<V> | GenericValidator<V>[], dState: V, valTime: moment$Moment) {
+function runValidators<V>(validators: GenericValidator<V> | GenericValidator<V>[], dState: V, valTime: Moment) {
   validators = forceArray(validators);
   function validate(validator: GenericValidator<V>){
     let currentValidator = functionNameFromFunction(validator);

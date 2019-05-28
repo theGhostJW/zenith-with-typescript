@@ -13,7 +13,7 @@
  *~ Otherwise, delete this declaration.
  */
 
- declare module 'xml-formatter' {\
+ declare module 'xml-formatter' {
 
   export type XmlFormatOptions = {
     stripComments?: boolean,

@@ -43,7 +43,7 @@ export function eachLine(fullPath: string, func: (s: string) => void, singleByte
   }
 }
 
-export function fileLastModified(fullFilePath: string ): moment$Moment  {
+export function fileLastModified(fullFilePath: string ): Moment  {
   ensure(pathExists(fullFilePath), 'Source file does not exist ${fullFilePath}');
   let stats = fs.statSync(fullFilePath);
   return toMoment(stats.mtime);

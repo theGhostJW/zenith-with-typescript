@@ -7,7 +7,7 @@ const config: TestConfig = {
   then: 'it still works',
   owner: 'JW',
   enabled: true,
-  countries: 'Australia'
+  countries: Country.Australia
 }
 
 interface ApState {
@@ -44,7 +44,7 @@ interface Item {
   validators: Validators<DState>
 }
 
-function check_when_text_contains_another(dState: DState, valTime: moment$Moment) {
+function check_when_text_contains_another(dState: DState, valTime: Moment) {
   checkTextContains(dState.when, 'another')
 }
 

@@ -2,7 +2,7 @@ import {describe} from 'mocha';
 import {chk, chkEq, chkExceptionText, chkFalse, chkWithMessage} from '../lib/AssertionUtils';
 import {hasText} from '../lib/StringUtils';
 import { fromTestDataString } from '../lib/FileUtils';
-import {cast, waitRetry, 
+import {waitRetry, 
       executeFileSynch,
       executeFileAsynch,
       executeRunTimeFileAsynch,
@@ -15,7 +15,7 @@ describe('xmlToObj', () => {
   it('parse demo file', () => {
 
     let xml = fromTestDataString('books.xml'),
-        obj = cast(xmlToObj(xml)),
+        obj = <any>xmlToObj(xml),
         recCount = (<any>obj).catalog.book.length;
 
      chkEq(12, recCount);

@@ -28,7 +28,7 @@ import { disconnectClient, interact,
           runClient, stopSession, waitConnected,
           killGeckoDriver } from './WebLauncher';
 
-import clipBoardy from 'clipboardy';
+const clipBoardy = require('clipboardy');
 
 const _ = require('lodash')
 
