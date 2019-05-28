@@ -1,8 +1,3 @@
-// @flow
-
-import * as ipc from 'node-ipc';
-import { debug } from './SysUtils';
-
 export type Protocol =   'InvocationResponse' |
                           'ServerDone' |
                           'InvocationParams' |
