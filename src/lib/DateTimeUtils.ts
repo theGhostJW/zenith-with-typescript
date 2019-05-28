@@ -1,7 +1,4 @@
-// @flow
-
-import moment from 'moment';
-import { debug } from '../lib/SysUtils';
+const moment = require('moment');
 
 export const LOG_TO_SEC_FORMAT = "YYYY-MM-DD HH:mm:ss";
 export const LOG_FILE_MS_SEC_FORMAT = "YYYY-MM-DD HH-mm-ss-SSS";
@@ -21,7 +18,7 @@ export function duration(from: moment$Moment | string, to: moment$Moment | strin
 }
 
 // returns duration as Hrs:Mins:Secs.Ms
-export function durationFormatted(from: moment$Moment | string, to: moment$Moment | string, wantMS: bool = false, formatIn?: string  ): string {
+export function durationFormatted(from: moment$Moment | string, to: moment$Moment | string, wantMS: boolean = false, formatIn?: string  ): string {
   let dur = duration(from, to, formatIn),
       zPad = (n: number, l: number = 2) => Math.abs(n).toString().padStart(l, '0');
 
