@@ -23,7 +23,7 @@ export function script(iteration: Iteration): string | undefined {
 }
 
 
-export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript?: string): string {
+export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript?: string | null): string {
   let script = show(seekInObj(iteration.testConfig, 'script')),
       header = '';
 

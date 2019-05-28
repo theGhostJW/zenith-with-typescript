@@ -10,8 +10,8 @@ import {
   forceArray
 } from './SysUtils';
 import {newLine, CharacterEncoding, replaceAll} from './StringUtils';
-import {logWarning, log, logError, timeStampedLogDir} from './Logging';
-//import {parse, join, relative } from 'path';
+import {logWarning, log, timeStampedLogDir} from './Logging';
+import { Moment } from 'moment';
 import * as p from 'path';
 import * as fs from 'fs';
 const mkdirp = require('mkdirp');
@@ -20,6 +20,7 @@ const fsEx = require('file-system');
 const _ = require('lodash');
 const nodeZip = require('node-zip');
 import { toMoment } from './DateTimeUtils'
+//@ts-ignore
 import lineByLine from 'n-readlines';
 
 export const PATH_SEPARATOR = p.sep;

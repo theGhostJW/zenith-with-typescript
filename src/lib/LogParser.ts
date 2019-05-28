@@ -46,7 +46,7 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
 
   writeAll(summaryBlock(summary), true);
 
-  let lastScript: string | null = '',
+  let lastScript: string | null | undefined = '',
       logText = '';
 
   function processElement(elementStr: string) {
@@ -55,8 +55,8 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
         wantWriteMock = false;
 
     if ((<IterationInfo>element).summary)  {
-      logText = iteration(element, summary, lastScript);
-      lastScript = script(element), 'script';
+      logText = iteration(<any>element, summary, lastScript);
+      lastScript = script(<any>element), 'script';
       let issuesList = element.issues;
       isIssue = issuesList != null && listHasIssues(issuesList);
       wantWriteMock = true;

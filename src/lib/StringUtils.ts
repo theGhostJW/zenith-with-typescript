@@ -3,7 +3,7 @@ import { hasValue, ensure, autoType, objToYaml, areEqual,
 
 const _ : _.LoDashStatic = require('lodash');
 
-import parseCsvSync from 'csv-parse/lib/sync';
+import parseCsvSync from 'csv-parse';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
 import { format, XmlFormatOptions } from 'xml-formatter';
 

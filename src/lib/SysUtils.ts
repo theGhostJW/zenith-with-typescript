@@ -1,4 +1,5 @@
 const _ : _.LoDashStatic = require('lodash');
+_.mixin(require("lodash-deep"));
 
 import { now } from './DateTimeUtils';
 import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE, parentDir } from './FileUtils';
@@ -9,8 +10,8 @@ import { sendWebUIDebugMessage } from './SeleniumIpcServer';
 
 import child_process from 'child_process';
 import * as yaml from 'js-yaml';
+const deepMap = require('deep-map')
 
-import * as deep from 'lodash-deep';
 import * as os from 'os';
 const moment = require('moment');
 const  xjs = require('xml2js');
@@ -266,7 +267,7 @@ _.deepMapValues(object, function(value, path){
     return path + ' is ' + value)
 });
  */
-export const deepMapValues = (<any>deep).deepMapValues;
+export const deepMapValues = deepMap;
 
 export function deepReduceValues<T>(obj: {}, func: (accum: T, val: any, propertyPath: string, baseObj: {}) => T, accum: T): T{
   // func(accum, value, propertyPath, baseObj)
