@@ -1,20 +1,15 @@
-// @flow
 
-import type { Protocol } from './SeleniumIpcProtocol';
+import { INTERACT_SOCKET_NAME, Protocol } from './SeleniumIpcProtocol';
 
-import { stringToFile, tempFile, toTempString } from './FileUtils';
-import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
+import { hasText } from './StringUtils';
+import { ensureHasVal, hasValue } from './SysUtils';
 
-import { show, hasText } from './StringUtils';
-import {cast, debug, ensure, ensureHasVal, fail, waitRetry, hasValue} from './SysUtils';
-import { generateAndDumpTestFile } from './WebInteractorGenerator';
-
-import * as ipc from 'node-ipc';
+const ipc = require('node-ipc');
 
 /// STATE
 
 let doneSingleton = false,
-    invocationParamsSingleton: ?mixed[];
+    invocationParamsSingleton: any[] | undefined;
 
 export function isReloadableFile(path: string): boolean {
   return !hasText(path, 'node_modules')
@@ -33,16 +28,16 @@ export function setDone(done: boolean) {
   doneSingleton = done;
 }
 
-export function invocationParams() : ?mixed[] {
+export function invocationParams() : any[] | undefined {
   return invocationParamsSingleton;
 }
 
-export function setInvocationParams(invocationParams: ?mixed[]) {
+export function setInvocationParams(invocationParams: any[] | undefined) {
   invocationParamsSingleton = invocationParams;
 }
 
-let clientSocket = null;
-export function emitMessage(msgType: Protocol, msg?: mixed ) {
+let clientSocket: any = null;
+export function emitMessage(msgType: Protocol, msg?: any ) {
   ensureHasVal(clientSocket, 'clientSocket is unassigned');
   emit(clientSocket, msgType, msg);
 }
@@ -55,13 +50,13 @@ export function sendWebUIDebugMessage(msg: string): boolean {
   return result;
 }
 
-export function emitMessageIfSocketAssigned(msgType: Protocol, msg?: mixed ) {
+export function emitMessageIfSocketAssigned(msgType: Protocol, msg?: any ) {
   if (hasValue(clientSocket)){
      emit(clientSocket, msgType, msg);
   }
 }
 
-function emit(socket: any, msgType: Protocol, msg?: mixed ) {
+function emit(socket: any, msgType: Protocol, msg?: any ) {
   ipc.server.emit(socket, msgType, msg);
 }
 
