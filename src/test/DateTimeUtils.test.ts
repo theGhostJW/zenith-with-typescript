@@ -1,5 +1,3 @@
-//@flow
-
 import {test, describe} from 'mocha'
 import {debug, areEqual} from '../lib/SysUtils';
 import {  testFormatter, nowAsLogFormat, nowFileFormatted,
@@ -8,15 +6,15 @@ import {  testFormatter, nowAsLogFormat, nowFileFormatted,
 import { chk, chkEq, chkEqJson, chkFalse, chkHasText,
         chkWithMessage
       } from '../lib/AssertionUtils';
-import moment from 'moment';
+const moment = require('moment');
 
 
-function jsToday() {
+function jsToday(): Date {
   let jsDate = new Date();
   return truncDate(jsDate);
 }
 
-function truncDate(jsDate) {
+function truncDate(jsDate: any) {
   return new Date(jsDate.getFullYear(), jsDate.getMonth(), jsDate.getDate());
 }
 
@@ -58,7 +56,7 @@ describe('strToMoment', () => {
 });
 
 
-const chkMomentEq = (mE, mA) => chkEq(mE.asMilliseconds(), mA.asMilliseconds());
+const chkMomentEq = (mE: any, mA: any) => chkEq(mE.asMilliseconds(), mA.asMilliseconds());
 
 describe('duration', () => {
 
@@ -174,7 +172,7 @@ describe('todayPlus', () => {
   });
 
   it('equal yestrday when -1', () => {
-    chkEq(1 * 1000 * 60 * 60 * 24, jsToday() - todayPlus(-1).toDate());
+    chkEq(1 * 1000 * 60 * 60 * 24, <any>jsToday() - <any>todayPlus(-1).toDate());
   });
 
 });
@@ -182,8 +180,8 @@ describe('todayPlus', () => {
 describe('datePlus', () => {
 
   it('equal expected miliseconds from today', () => {
-    let month = today().month() + 1,
-        dateDiff = todayPlus(5).toDate() - jsToday(),
+    let month = <any>today().month() + 1,
+        dateDiff = <any>todayPlus(5).toDate() - <any>jsToday(),
         fiveDays = 5 * 1000 * 60 * 60 * 24,
         oneHour =  1000 * 60 * 60,
         withinTolerance: boolean = (fiveDays === dateDiff) ||
@@ -202,7 +200,7 @@ describe('time', () => {
         jsDate = new Date(),
         expected =  time(jsDate.getFullYear(), jsDate.getMonth() + 1, jsDate.getDate(), jsDate.getHours(),
                         jsDate.getMinutes(), jsDate.getSeconds(), jsDate.getMilliseconds());
-    chk(momentTime.toDate() - expected.toDate()  < 1000);
+    chk(<any>momentTime.toDate() - <any>expected.toDate()  < 1000);
   });
 
 });
@@ -232,7 +230,7 @@ describe('now', () => {
     let actual = now(),
         jsDate = Date.now();
 
-    chk(jsDate - actual.toDate() < 1000);
+    chk(jsDate - <any>actual.toDate() < 1000);
   });
 
 });
