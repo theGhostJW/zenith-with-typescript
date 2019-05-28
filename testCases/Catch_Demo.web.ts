@@ -1,18 +1,7 @@
-// @flow
-
 import * as _ from 'lodash';
-import { debug, fail, waitRetry, delay } from '../src/lib/SysUtils';
-import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
-import { toTempString } from '../src/lib/FileUtils';
-import { show } from '../src/lib/StringUtils';
-import child_process from 'child_process'
-import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
-import { register } from '../testCases/ProjectConfig';
-import { check, checkFalse, checkEqual} from '../src/lib/CheckUtils';
+import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth  } from './ProjectConfig';
+import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl } from '../src/lib/WebUtils';
-import * as wd from 'webdriverio';
-import moment from 'moment';
-
 
 let config: TestConfig = {
   when: 'pages are viewed',
@@ -22,25 +11,25 @@ let config: TestConfig = {
   countries: ['New Zealand', 'Australia']
 }
 
-export type Item = {|
+export type Item = {
   id: number,
   when: string,
   then: string,
   dataTarget: string,
   expectedLinks: string[],
   validators: Validators<DState>
-|}
+}
 
-export type ApState = {|
+export type ApState = {
   url: string,
   pageTitle: string,
   linkList: string[],
-|}
+}
 
-type DState = {|
+type DState = {
   expectedLinks: string[],
   linkList: string[]
-|}
+}
 
 function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   return {
@@ -65,7 +54,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
 
   return {
     url: thisUrl,
-    pageTitle: title,
+    pageTitle: <any>title,
     linkList: catList
   }
 }

@@ -6,8 +6,8 @@ import { debug } from '../src/lib/SysUtils';
 import * as _ from 'lodash';
 
 import { allItems } from '../src/lib/TestRunner';
-import { testCase } from '../testCases/Catch_Demo.web';
-import { testCaseEndPoint } from '../testCases/ProjectConfig';
+import { testCase } from './Catch_Demo.web';
+import { testCaseEndPoint } from './ProjectConfig';
 
 describe('endPoint', () => {
 
