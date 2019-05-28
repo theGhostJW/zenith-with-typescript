@@ -1,12 +1,6 @@
-// @flow
-
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import { debug, waitRetry, cast, listProcesses, killTask } from '../lib/SysUtils';
-import { toTemp, toTempString, runTimeFile } from '../lib/FileUtils';
-import { show } from '../lib/StringUtils';
+import {chk} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
-import { geckoStatus, geckoRunning, startGeckoDriver, checkStartGeckoDriver, killGeckoDriver } from '../lib/WebLauncher';
-import child_process from 'child_process';
+import { geckoStatus, geckoRunning, startGeckoDriver,  killGeckoDriver } from '../lib/WebLauncher';
 
 describe('seleniumStatus', () => {
 

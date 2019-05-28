@@ -1,9 +1,5 @@
-// @flow
-
-import {it, describe} from 'mocha';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage, chkHasText} from '../lib/AssertionUtils';
-import { debug } from '../lib/SysUtils';
-import { toTemp, toTempString, fromTempString } from '../lib/FileUtils';
+import { chkHasText } from '../lib/AssertionUtils';
+import { fromTempString } from '../lib/FileUtils';
 import * as _ from 'lodash';
 import { generateAndDumpTestFile } from '../lib/WebInteractorGenerator';
 
