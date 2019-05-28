@@ -1,9 +1,8 @@
 // @flow
 
 import {it, describe} from 'mocha'
-import {fail, objToYaml, debug, def, ensureHasVal, hasValue} from '../lib/SysUtils';
-import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
-import * as _ from 'lodash';
+import {chk, chkFalse} from '../lib/AssertionUtils';
+const _ = require('lodash');
 import { check, checkText, checkEqual, checkTextContains, checkTextContainsFragments } from '../lib/CheckUtils';
 
 describe('check', () => {
