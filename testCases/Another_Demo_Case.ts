@@ -1,15 +1,6 @@
-// @flow
-
-import {chk, chkEq, chkEqJson, chkFalse} from '../src/lib/AssertionUtils';
 import * as _ from 'lodash';
-import { debug } from '../src/lib/SysUtils';
-import { hasText } from '../src/lib/StringUtils';
-import { log, logError } from '../src/lib/Logging';
-import { toTempString } from '../src/lib/FileUtils';
-import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
-import { register } from '../testCases/ProjectConfig';
-import { check, checkTextContains } from '../src/lib/CheckUtils';
-import moment from 'moment';
+import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth } from './ProjectConfig';
+import { checkTextContains } from '../src/lib/CheckUtils';
 
 const config: TestConfig = {
   id: 2,
@@ -20,14 +11,14 @@ const config: TestConfig = {
   countries: 'Australia'
 }
 
-type ApState = {|
+interface ApState {
   theWhen: string,
   obs: string
-|}
+}
 
-type DState = {|
+interface DState {
   when: string
-|}
+}
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
 
@@ -47,12 +38,12 @@ function mockFilename(item: Item, runConfig: RunConfig) {
   return '';
 }
 
-type Item = {|
+interface Item {
   id: number,
   when: string,
   then: string,
   validators: Validators<DState>
-|}
+}
 
 function check_when_text_contains_another(dState: DState, valTime: moment$Moment) {
   checkTextContains(dState.when, 'another')

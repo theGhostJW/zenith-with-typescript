@@ -1,32 +1,29 @@
-// @flow
-
-import type { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
-              GenericValidator, RunParams, NamedCase, TestFilter,
-              EndPointInfo, MockFileNameFunction
+import { BaseCase, BaseItem, BaseTestConfig, BaseRunConfig,
+              GenericValidator, RunParams, NamedCase
             } from '../src/lib/TestRunner';
 import { runTestItem, defaultTestRunner, testRun, loadAll, itemFilter} from '../src/lib/TestRunner';
-import { forceArray, cast, debug, areEqual, def } from '../src/lib/SysUtils';
+import { forceArray, areEqual, def } from '../src/lib/SysUtils';
 import * as caseRunner from '../src/lib/TestRunner';
-import { filters } from '../testCases/TestFilters';
+import { filters } from './TestFilters';
 import { show } from '../src/lib/StringUtils';
 import { fileOrFolderNameNoExt } from '../src/lib/FileUtils';
-import * as _ from 'lodash';
+const _ = require('lodash');
 
-export function mockFileNameUseEnvironment(itemId: ?number, testName: string, runConfig: RunConfig){
+export function mockFileNameUseEnvironment(itemId: number | null, testName: string, runConfig: RunConfig){
   return fileOrFolderNameNoExt(testName) + '_' + show(itemId) + '_' + show(runConfig.environment) + '.yaml';
 }
 
-export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *, *, *>) {
-  let allTestCases: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[] = loadAll();
+export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<any, any, any, any, any>) {
+  let allTestCases: NamedCase<RunConfig, TestConfig, BaseItem, any, any>[] = loadAll();
 
-  let testCase: NamedCase<RunConfig, TestConfig, BaseItem, *, *> = cast(endPointConfig.testCase),
+  let testCase: NamedCase<RunConfig, TestConfig, BaseItem, any, any> = <any>endPointConfig.testCase,
       testCaseConfig = testCase.testConfig,
       namedCase = allTestCases.find(tc => areEqual(tc.testConfig, testCaseConfig));
 
-  testCase.name = cast(def(namedCase, {})).name;
-  testCase.path = cast(def(namedCase, {})).path;
+  testCase.name = (<any>def(namedCase, {})).name;
+  testCase.path = (<any>def(namedCase, {})).path;
 
-  let testCases: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[] = [testCase],
+  let testCases: NamedCase<RunConfig, TestConfig, BaseItem, any, any>[] = [testCase],
       runConfig = _.omit(endPointConfig,  'testCase', 'selector');
 
   runConfig.name = `Test Case EndPoint ~ ${testCase.name}`;
@@ -37,34 +34,33 @@ export function testCaseEndPoint(endPointConfig: TestCaseEndPointParams<*, *, *,
 }
 
 export function run(runConfig: RunConfig) {
-  let testCases: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[] = loadAll(),
+  let testCases: NamedCase<RunConfig, TestConfig, BaseItem, any, any>[] = loadAll(),
       runParams: RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  = setRunParamsDefaults(runConfig, testCases);
   testRun(runParams);
 }
 
-export const depthMap = {
-  Connectivity: 0,
-  Regression: 100,
-  DeepRegression: 200,
-  Special: -999
+export enum Depth {
+  Connectivity = 0,
+  Regression = 100,
+  DeepRegression = 200,
+  Special = -999
 };
 
 export type Environment = "TST" | "UAT" | "PVT";
-export type Depth = $Keys<typeof depthMap>;
 export type Country = "Australia" | "New Zealand";
 
 // could be partly moved to testRunner plus filters
-export type TestCaseEndPointParams<R, T, I, S, V> = {|
+export type TestCaseEndPointParams<R extends BaseRunConfig, T extends BaseTestConfig, I extends BaseItem, S, V> = {
   testCase: BaseCase<R, T, I, S, V>,
-  selector?: Number | $Supertype<I> | (testItem: I, fullList: I[]) => boolean,
+  selector?: Number | Partial<I> | ((testItem: I, fullList: I[]) => boolean),
   mocked?: boolean,
   country?: Country,
   environment?: Environment,
   testCases?: (number|string)[] | number | string,
   depth?: Depth
-|}
+}
 
-export type RunConfig = {
+export interface RunConfig {
   name: string,
   mocked: boolean,
   country?: Country,
@@ -73,16 +69,17 @@ export type RunConfig = {
   depth?: Depth
 }
 
-export type FullRunConfig = {|
+export interface FullRunConfig {
   name: string,
   mocked: boolean,
   country: Country,
   environment: Environment,
   testCases: (number|string)[],
   depth: Depth
-|}
+}
 
-export type TestConfig = {
+export interface TestConfig {
+  id: number,
   when: string,
   then: string,
   owner: string,
@@ -92,7 +89,7 @@ export type TestConfig = {
   depth?: Depth
 };
 
-export type FullTestConfig = {|
+export interface FullTestConfig {
   id: number,
   when: string,
   then: string,
@@ -101,15 +98,15 @@ export type FullTestConfig = {|
   countries: Country[],
   environments: Environment[],
   depth: Depth
-|}
+}
 
-export type TestCase<I: BaseItem, S, V> = BaseCase<RunConfig, TestConfig, I, S, V>
+export type TestCase<I extends BaseItem, S, V> = BaseCase<RunConfig, TestConfig, I, S, V>
 
 export type Validator<V> = GenericValidator<V>
 
 export type Validators<V> = Validator<V> | Validator<V>[]
 
-export const register = <I: BaseItem, S, V>(testCase: TestCase<I, S, V>): void => caseRunner.register(testCase);
+export const register = <I extends BaseItem, S, V>(testCase: TestCase<I, S, V>): void => caseRunner.register(testCase);
 
 function setTestConfigDefaults(partialTestConfig: TestConfig): FullTestConfig {
   let defaultProps = {
@@ -134,9 +131,9 @@ function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   return _.defaults(partialRunConfig, defaultprops);
 }
 
-function setRunParamsDefaults(runConfig: RunConfig, testList: NamedCase<RunConfig, TestConfig, BaseItem, *, *>[]): RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  {
+function setRunParamsDefaults(runConfig: RunConfig, testList: NamedCase<RunConfig, TestConfig, BaseItem, any, any>[]): RunParams<RunConfig, FullRunConfig, TestConfig, FullTestConfig>  {
   return {
-    runConfig: runConfig,
+    rc: runConfig,
     testList: testList,
     runConfigDefaulter: setRunConfigDefaults,
     testConfigDefaulter: setTestConfigDefaults,
