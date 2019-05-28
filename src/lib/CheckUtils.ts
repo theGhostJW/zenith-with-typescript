@@ -1,16 +1,14 @@
-// @flow
-
-import { def, debug, hasValue, areEqual, objToYaml} from '../lib/SysUtils';
+import { areEqual} from './SysUtils';
 import { appendDelim, createGuidTruncated, newLine, show, hasText,
-         replaceAll, standardiseLineEndings, wildCardMatch} from '../lib/StringUtils';
-import { logCheckFailure, logCheckPassed } from '../lib/Logging';
-import { tempFile, stringToLogFile } from '../lib/FileUtils';
-import * as _ from 'lodash';
+         replaceAll, standardiseLineEndings, wildCardMatch} from './StringUtils';
+import { logCheckFailure, logCheckPassed } from './Logging';
+import { stringToLogFile } from './FileUtils';
+const _ = require('lodash');
 
-export const check = (condition: boolean, message: ?string, additionalInfo?: string) => genericCheck('Check', condition, message, additionalInfo);
-export const checkFalse = (condition: boolean, message: ?string, additionalInfo?: string) => genericCheck('Check False', !condition, message, additionalInfo);
+export const check = (condition: boolean, message?: string, additionalInfo?: string) => genericCheck('Check', condition, message, additionalInfo);
+export const checkFalse = (condition: boolean, message?: string, additionalInfo?: string) => genericCheck('Check False', !condition, message, additionalInfo);
 
-export const checkEqual = (expected: any, actual: any, message: string, additionalInfo: ?string) => {
+export const checkEqual = (expected: any, actual: any, message: string, additionalInfo?: string) => {
   let result = areEqual(expected, actual),
       updatedMessage = result  ? successMessage(expected, additionalInfo) : failMessage(expected, actual, additionalInfo, ' '),
       updatedInfo =  result ? message : failMessage(expected, actual, updatedMessage,  newLine());
@@ -19,7 +17,7 @@ export const checkEqual = (expected: any, actual: any, message: string, addition
 }
 
 export function checkTextContainsFragments(targetString: string, searchPattern: string, caseSensitive: boolean = true): boolean {
-  function standardisNewLines(str){
+  function standardisNewLines(str: string){
     str = standardiseLineEndings(str);
     str = replaceAll(str, newLine() + ' ', ' ');
     str = replaceAll(str, ' ' + newLine(), ' ');
@@ -29,7 +27,7 @@ export function checkTextContainsFragments(targetString: string, searchPattern: 
   let expectedContent = standardisNewLines(searchPattern),
       actualContent = standardisNewLines(targetString);
 
-  function processFoundResult(fragment, remainder, found){
+  function processFoundResult(fragment: any, remainder: any, found: any){
     var detailMessage = 'Looking for Fragment' + newLine() + fragment + newLine(2) + 'Looking In' + newLine() + remainder
     genericCheck('Text Fragment Check', found, 'Target Fragment :' + fragment, detailMessage);
   }
@@ -37,25 +35,22 @@ export function checkTextContainsFragments(targetString: string, searchPattern: 
   return wildCardMatch(actualContent, expectedContent, caseSensitive, true, processFoundResult);
 }
 
-export function checkTextContains(hayStack: string, needle: string, message: ?string, caseSensitive: boolean = true){
+export function checkTextContains(hayStack: string, needle: string, message?: string, caseSensitive: boolean = true){
 
   let found = hasText(hayStack, needle, caseSensitive),
-      okFail = found ? 'OK' : 'Failed',
-      strNot = found ? '' : ' not',
       baseMessage = message == null ? '' : message + newLine(),
       infoMessage = baseMessage + 'Looking for: ' + needle + newLine() + ' in ' + newLine() + hayStack;
 
   return genericCheck('Check Text Contains', found, baseMessage, infoMessage);
 }
 
-
-function failMessage(expected: any, actual: any, additionalMsgStr: ?string, delim: string){
+function failMessage(expected: any, actual: any, additionalMsgStr: string | null | undefined, delim: string){
  	let msgBase = `Expected: ${delim} ${show(expected)} ${delim} did not equal Actual: ${delim} ${show(actual)}`,
 	    failMessage = additionalMsgStr ? additionalMsgStr + '.' + delim +  msgBase : msgBase;
   return failMessage;
 }
 
-function successMessage(expected, infoMessage){
+function successMessage(expected: string, infoMessage?: string | null){
   let result =  (_.isObject(expected)) ? 'Object Verified: ' + newLine() + show(expected)
                   : expected + ' verified';
   return appendDelim(infoMessage, ' - ' , result);
@@ -84,7 +79,7 @@ export function checkText(expected: string, actual: string, message: string, add
 }
 
 
-function genericCheck(prefix: string, condition: boolean, message: ?string, additionalInfo?: string) {
+function genericCheck(prefix: string, condition: boolean, message?: string, additionalInfo?: string) {
   message = appendDelim(prefix, ': ', message);
   let logger = condition ? logCheckPassed : logCheckFailure;
   logger(message, additionalInfo);
