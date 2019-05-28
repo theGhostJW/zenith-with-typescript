@@ -15,7 +15,7 @@ const _ : _.LoDashStatic = require('lodash');
 
 describe('formatXml', () => {
 
-  it('large xml', () => {
+  it.only('large xml', () => {
     let formatted = formatXml(UNFORMATTED_XML);
     chkHasText(formatted, '     St Kilda');
   });

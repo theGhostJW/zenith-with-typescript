@@ -14,14 +14,7 @@
  */
 
  declare module 'xml-formatter' {
-
-  export type XmlFormatOptions = {
-    stripComments?: boolean,
-    indentation?: string,
-    debug?: boolean
-  }
-
-  export function format(xml: string, options: XmlFormatOptions): string;
+  export function format(xml: string, options: any): string;
  }
 
 

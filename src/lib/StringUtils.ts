@@ -5,9 +5,15 @@ const _ : _.LoDashStatic = require('lodash');
 
 import parseCsvSync from 'csv-parse';
 import { timeToSQLDateTimeSec } from '../lib/DateTimeUtils';
-//TODO: find out why I need this for testing
-//@ts-ignore
-import { format, XmlFormatOptions } from 'xml-formatter';
+
+const format = require('xml-formatter');
+
+
+export type XmlFormatOptions = {
+  stripComments?: boolean,
+  indentation?: string,
+  debug?: boolean
+}
 
 const XML_DEF_OPTS: XmlFormatOptions  =  {
     stripComments: true,
