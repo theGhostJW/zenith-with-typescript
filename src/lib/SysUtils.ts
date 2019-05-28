@@ -10,7 +10,6 @@ import { sendWebUIDebugMessage } from './SeleniumIpcServer';
 
 import child_process from 'child_process';
 import * as yaml from 'js-yaml';
-const deepMap = require('deep-map')
 
 import * as os from 'os';
 const moment = require('moment');
@@ -267,7 +266,8 @@ _.deepMapValues(object, function(value, path){
     return path + ' is ' + value)
 });
  */
-export const deepMapValues = deepMap;
+//@ts-ignore
+export const deepMapValues = _.deepMapValues;
 
 export function deepReduceValues<T>(obj: {}, func: (accum: T, val: any, propertyPath: string, baseObj: {}) => T, accum: T): T{
   // func(accum, value, propertyPath, baseObj)

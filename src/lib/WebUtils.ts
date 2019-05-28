@@ -10,6 +10,7 @@ import {
   toTempString,
 } from './FileUtils';
 
+import 'webdriverio';
 import {log} from './Logging';
 
 import { hasText, lowerCase, newLine, sameText,

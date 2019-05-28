@@ -312,6 +312,12 @@ function nowLogFormatted() {
           ].map(pad).join('-');
 }
 
+function hasTextDuplicate(hayStack: string | undefined | null, needle: string, caseSensitive: boolean = false): boolean {
+  return hayStack == null ? false :
+                            caseSensitive ? hayStack.includes(needle) :
+                                            hayStack.toLowerCase().includes(needle.toLowerCase()) ;
+}
+
 function newWinstton() {
 
   let rightNow = nowLogFormatted(), // have to use local method as not all modules loaded
@@ -320,7 +326,7 @@ function newWinstton() {
 
   forceDirectoryDuplicate(subDir);
 
-  let isWebDriverProcess = hasText((<any>process).mainModule.filename, '@wdio');
+  let isWebDriverProcess = hasTextDuplicate((<any>process).mainModule.filename, '@wdio');
   return new (winston.Logger)({
                   transports: isWebDriverProcess ? [ ipcLogger() ] : [
                                                     consoleLogger(),
@@ -417,14 +423,18 @@ function projectDirDuplicate() : string {
     let try2 = projectDirTry(seedName, 'package.json'),
         dir2 = try2[0];
 
-    projectDirSingleton = ensureHasVal(dir2, `Cannot find project file path when searching up from: ${seedName} - tried: ${try1[1].concat(try2[1]).join(', ')}`);
+    if (dir2 == null || dir2 == ""){
+      throw new Error(`Cannot find project file path when searching up from: ${seedName} - tried: ${try1[1].concat(try2[1]).join(', ')}`);
+    }
+
+    projectDirSingleton = dir2;
   }
 
   return projectDirSingleton;
 }
 
 function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePath : string) => boolean) : string | null {
-    return hasValue(startFileOrFolder)
+    return !(startFileOrFolder == null || startFileOrFolder === "")
       ? pathPredicate(startFileOrFolder)
         ? startFileOrFolder
         : _.isEqual(path.dirname(startFileOrFolder), startFileOrFolder)
@@ -433,7 +443,8 @@ function seekFolderDuplicate(startFileOrFolder : string, pathPredicate : (filePa
   }
 
 /*
- It's general properties are: timestamp, level, message, meta. Depending on the transport type, there may be additional properties.
+ It's general properties are: timestamp, level, message, meta.
+  Depending on the transport type, there may be additional properties.
  */
 function formatFileLog(options: any) {
   let meta = options.meta;
