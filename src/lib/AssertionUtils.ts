@@ -1,8 +1,8 @@
 // @flow
 
-import * as _ from 'lodash';
-import {show, hasText, wildCardMatch} from '../lib/StringUtils';
-import {areEqual, ensure, fail, debug} from '../lib/SysUtils';
+const _ = require('lodash');
+import {show, hasText, wildCardMatch} from './StringUtils';
+import {areEqual, ensure, fail, debug} from './SysUtils';
 
 export function chkWithMessage(val: boolean, message: string = ''): void {
   ensure(val, message);
@@ -12,23 +12,22 @@ export function chk(val: boolean): void {
   chkWithMessage(val);
 }
 
-export function chkHasText(actualHaystack: ?string, expectedNeedle: string) : void {
+export function chkHasText(actualHaystack: string | null | undefined , expectedNeedle: string) : void {
   chkWithMessage(hasText(actualHaystack, expectedNeedle),
     `looking for: <${expectedNeedle}> \n  IN \n <${show(actualHaystack)}>`);
 }
-
 
 export function chkFalse(val : boolean) : void {
   chk(!val);
 }
 
-export function chkEq(expected : mixed, actual : mixed) : void {
+export function chkEq(expected : any, actual : any) : void {
   if ( !areEqual(expected, actual)) {
     fail(`expected: <${show(expected)}> did not equal actual <${show(actual)}>`);
   }
 }
 
-export function chkEqJson(expected : mixed, actual: mixed) : void {
+export function chkEqJson(expected : any, actual: any) : void {
   let expectedJ = JSON.stringify(expected),
       actualJ = JSON.stringify(actual);
 
@@ -38,10 +37,10 @@ export function chkEqJson(expected : mixed, actual: mixed) : void {
 }
 
 export function chkExceptionText(action : () => any, exceptionText: string, caseSensitive: boolean = false) {
-  let failMessage = null;
+  let failMessage: string | null = null;
   chkException(
       action,
-      (e) => {
+      (e: any) => {
         failMessage = show(e);
         return wildCardMatch(failMessage, exceptionText, caseSensitive);
       },
@@ -50,7 +49,7 @@ export function chkExceptionText(action : () => any, exceptionText: string, case
   );
 }
 
-export function chkException(action : () => any, erroCheck: any => boolean, message : (() => string) | string | void){
+export function chkException(action : () => any, erroCheck: (e: any) => boolean, message : (() => string) | string | void): void{
 
   function messageFunc(): string {
     return message == null ? '' :

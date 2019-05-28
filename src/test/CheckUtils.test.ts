@@ -1,6 +1,3 @@
-// @flow
-
-import {it, describe} from 'mocha'
 import {chk, chkFalse} from '../lib/AssertionUtils';
 const _ = require('lodash');
 import { check, checkText, checkEqual, checkTextContains, checkTextContainsFragments } from '../lib/CheckUtils';
