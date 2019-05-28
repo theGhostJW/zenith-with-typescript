@@ -1,9 +1,7 @@
-// @flow
-
 import { relativePath, stringToFile, parentDir  } from './FileUtils';
 import { newLine, replaceAll, trimLines} from './StringUtils';
-import { debug, isFrameworkProject } from './SysUtils';
-import * as _ from 'lodash';
+import { isFrameworkProject } from './SysUtils';
+const _ = require('lodash');
 
 export type BeforeRunInfo = {
   isUrl: boolean,
