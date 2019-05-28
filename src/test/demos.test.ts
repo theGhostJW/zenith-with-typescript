@@ -1,10 +1,6 @@
-import {test, describe} from 'mocha'
-import {chk, chkEq, chkEqJson, chkFalse} from '../lib/AssertionUtils';
-import * as _ from 'lodash';
-import { debug } from '../lib/SysUtils';
-import { log } from '../lib/Logging';
-import { toTempString } from '../lib/FileUtils';
-import child_process from 'child_process'
+import {describe} from 'mocha'
+import {chkEq} from '../lib/AssertionUtils';
+const _ = require('lodash');
 
 
 
@@ -71,7 +67,7 @@ describe.skip('cloneDeep', () => {
   it(' array complex', () => {
     let expected = [1, 'hi', {hi: 1, arr: [1, 2, 3, 4]}],
         actual = _.cloneDeep(expected);
-    expected[2].hi = 444;
+    (<any>expected)[2].hi = 444;
     chkEq([1, 'hi', {hi: 1, arr: [1, 2, 3, 4]}], actual);
   });
 

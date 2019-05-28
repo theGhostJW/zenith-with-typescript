@@ -1,12 +1,4 @@
-// @flow
-
 import { run } from '../../testCases/ProjectConfig';
-import { debug } from '../lib/SysUtils';
-import {test, describe} from 'mocha';
-
-
-
-
 
 describe('endPoints ', () => {
 
@@ -31,7 +23,7 @@ describe('run', () => {
   };
 
   it('Catch Test Run', () => {
-    run(runConfig);
+    run(<any>runConfig);
   });
 
 });

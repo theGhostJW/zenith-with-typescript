@@ -2,10 +2,8 @@
 // @flow
 
 import {it, describe} from 'mocha'
-import { is_enabled, environment_match, country_match, test_depth, in_list } from '../../testCases/TestFilters';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import  type { Environment, Country, Depth } from '../../testCases/ProjectConfig';
-import { debug } from '../lib/SysUtils';
+import { is_enabled, environment_match, test_depth, in_list } from '../../testCases/TestFilters';
+import {chk, chkFalse} from '../lib/AssertionUtils';
 
 describe('test filters', () => {
 
@@ -28,7 +26,7 @@ describe('test filters', () => {
     mocked: false,
     country: 'Australia',
     environment: 'TST',
-    testCases: [],
+    testCases: <any[]>[],
     depth: 'Regression'
   }}
 

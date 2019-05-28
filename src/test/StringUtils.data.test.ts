@@ -1,5 +1,3 @@
-// @flow
-
 export const SIMPLE_TABLE : string = `
 
 simple table

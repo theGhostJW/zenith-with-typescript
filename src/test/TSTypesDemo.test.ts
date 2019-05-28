@@ -1,4 +1,3 @@
-//@flow
 
 /*
   * Primative
@@ -29,7 +28,7 @@
 // FRAMEWORK DEMO
 // + yarn run testCoverage and look in coverage for html
 // + endpoints ~ WebUtilsTestImp.endpoints.js
-function fullName(given, last) {
+function fullName(given: string, last: string) {
   if (given === 'John'){
     return given + ' The Rampaging Bunny ' + last;
   }
@@ -111,7 +110,7 @@ function callBig() {
 
 const showBig : (b: boolean) => string = b => b ? 'BIG' : 'small';
 
-function isBig2(num: number): ?boolean {
+function isBig2(num: number): boolean | null {
   if (num > 100)
     return true
   else
@@ -130,15 +129,17 @@ function isBig2(num: number): ?boolean {
 // represnt possible absensce as null e.g. boolean | null
 function propsNotThere() {
 
-  type Person = {
+  interface Person {
     given: string,
     last: string
   }
 
-  type BitOfAPerson = $Supertype<Person>;
+  type BitOfAPerson = Partial<Person>;
 
+  
   let p : BitOfAPerson = {
                       given: 'Janice',
+                      //@ts-ignore
                       dob: '1 Jan 1978'
                    };
 
@@ -149,6 +150,7 @@ function propsNotThere() {
 
     let p2 : BitOfAPerson = {
                      given: 'Janice',
+                     //@ts-ignore
                      last: null
                    };
 }
