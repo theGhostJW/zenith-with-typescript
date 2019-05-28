@@ -1,30 +1,22 @@
-// @flow
-
-import type { Protocol } from './SeleniumIpcProtocol';
 import { runClient, invocationResponse, clearInvocationResponse, activeSocket,
           sendInvocationParams, sendClientDone, isConnected } from './SeleniumIpcClient';
 
-import { stringToFile, tempFile, toTempString, toTemp, fromTemp, projectDir,
-         logFile, combine, fileToString } from './FileUtils';
-import { INTERACT_SOCKET_NAME } from './SeleniumIpcProtocol';
-import { log, logError, lowLevelLogging, logWarning } from './Logging';
+import { tempFile,  toTemp, fromTemp, projectDir,
+         logFile } from './FileUtils';
+import { log, logError, logWarning } from './Logging';
 import { show, trimChars } from './StringUtils';
 
-import {cast, debug, ensure, ensureHasVal, fail, waitRetry, translateErrorObj,
+import {ensure, ensureHasVal, fail, waitRetry, translateErrorObj,
         def,  seekInObj, executeRunTimeFileAsynch, killTask, taskExists } from './SysUtils';
 import { defaultConfig  } from './WebDriverIOConfig';
 
-import { generateAndDumpTestFile } from './WebInteractorGenerator';
-import type { BeforeRunInfo } from './WebInteractorGenerator';
+import { generateAndDumpTestFile, BeforeRunInfo } from './WebInteractorGenerator';
 
-import * as _ from 'lodash';
-import request from 'sync-request';
-
-import * as ipc from 'node-ipc';
-//$FlowFixMe
-import Launcher from '@wdio/cli';
-import * as fs from 'file-system';
-import child_process from 'child_process';
+const _ = require('lodash');
+const request = require('sync-request');
+const Launcher = require('@wdio/cli');
+const  fs = require('file-system');
+const child_process = require('child_process');
 
 export {
   isConnected,
@@ -40,36 +32,36 @@ export function waitConnected(timeout: number, wantConnected: boolean = true) {
 }
 
 // todo: other drivers
-export function checkStartDriver(runTimeBatch: string, isReady: () => bool, timeoutMs: number = 30000): bool {
+export function checkStartDriver(runTimeBatch: string, isReady: () => boolean, timeoutMs: number = 30000): boolean {
   return isReady() || startDriver(runTimeBatch, isReady, timeoutMs);
 }
 
-export function startDriver(runTimeBatch: string, isReady: () => bool, timeoutMs: number = 30000): bool {
+export function startDriver(runTimeBatch: string, isReady: () => boolean, timeoutMs: number = 30000): boolean {
   // was startSelenium.bat
   executeRunTimeFileAsynch(runTimeBatch);
   return waitRetry(isReady, timeoutMs);
 }
 
-export function killDriver(imageName: string): bool {
+export function killDriver(imageName: string): boolean {
   return killTask(p => p.imageName === imageName);
 }
 
-export function imageProcessRunning(imageName: string): bool {
+export function imageProcessRunning(imageName: string): boolean {
   return taskExists(p => p.imageName === imageName);
 }
 
 const geckoDriverImage = "geckodriver.exe",
       geckoDriverBat = 'launchGeckoDriver.bat';
 
-export function startGeckoDriver(): bool {
+export function startGeckoDriver(): boolean {
   return startDriver(geckoDriverBat, geckoRunning);
 }
 
-export function killGeckoDriver(): bool {
+export function killGeckoDriver(): boolean {
   return killDriver(geckoDriverImage);
 }
 
-export function checkStartGeckoDriver() : bool {
+export function checkStartGeckoDriver() : boolean {
   return checkStartDriver(geckoDriverBat, geckoRunning);
 }
 
@@ -80,14 +72,14 @@ export function stopSession() {
   }
 }
 
-export function interact<T>(...params: mixed[]): T {
+export function interact<T>(...params: any[]): T {
   try {
     ensureHasVal(activeSocket(), 'socket not assigned')
     clearInvocationResponse();
     sendInvocationParams(...params);
     log('Waiting interaction response');
     let complete = waitRetry(() => invocationResponse() != null, 180000),
-        result: T = invocationResponse() == null ? fail('Interactor Timeout Error') : cast(invocationResponse());
+        result: T = invocationResponse() == null ? fail('Interactor Timeout Error') : (<any>invocationResponse());
     return result
   } catch (e) {
     return fail(e);
@@ -146,13 +138,13 @@ export function startWdioServer(config: {}) {
     let wdio = new Launcher('.\\wdio.conf.js', config);
     // console.log('Launching file: ' + cast(config).specs.join(', '));
     // console.log('CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
-    log('Launching file: ' + cast(config).specs.join(', '));
-    wdio.run().then(function (code) {
+    log('Launching file: ' + (<any>config).specs.join(', '));
+    wdio.run().then(function (code: any) {
       if (code != 0){
         logError(`WebDriver test launcher returned non zero response code: ${show(code)}`);
         failed = true;
       }
-    }, function (error) {
+    }, function (error: any) {
       logError('Launcher failed to start the test', error.stacktrace);
       failed = true;
     });
@@ -175,7 +167,7 @@ function generateWebDriverTestFileAndConfig(soucePath: string, beforeInfo: Befor
   }
 
   let webDriverConfig = defaultConfig();
-  webDriverConfig.specs = [destPath];
+  (<any>webDriverConfig).specs = [destPath];
 
   return webDriverConfig;
 }
