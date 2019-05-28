@@ -1,5 +1,3 @@
-// @flow
-
 import {it, describe} from 'mocha'
 import {
   reorderProps,

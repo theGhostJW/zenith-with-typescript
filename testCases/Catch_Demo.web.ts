@@ -1,14 +1,14 @@
 import * as _ from 'lodash';
-import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth  } from './ProjectConfig';
+import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
 import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl } from '../src/lib/WebUtils';
 
-let config: TestConfig = {
+const config: TestConfig = {
   when: 'pages are viewed',
   then: 'sub-menus are as expected',
   owner: 'JW',
   enabled: true,
-  countries: ['New Zealand', 'Australia']
+  countries: AllCountries
 }
 
 export type Item = {

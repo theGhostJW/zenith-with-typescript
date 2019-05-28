@@ -46,8 +46,13 @@ export enum Depth {
   Special = -999
 };
 
-export type Environment = "TST" | "UAT" | "PVT";
-export type Country = "Australia" | "New Zealand";
+export enum Environment { "TST", "UAT", "PVT"};
+export enum Country {
+                      "Australia",
+                      "New Zealand"
+                    };
+
+export const AllCountries = [Country.Australia, Country["New Zealand"]];
 
 // could be partly moved to testRunner plus filters
 export type TestCaseEndPointParams<R extends BaseRunConfig, T extends BaseTestConfig, I extends BaseItem, S, V> = {

@@ -1,5 +1,3 @@
-// @flow
-
 import {describe} from 'mocha'
 import {chk, chkEq, chkException, chkExceptionText, chkFalse, chkHasText} from '../lib/AssertionUtils';
 import {datePlus, now, strToMoment, timeToSQLDateTimeSec, today} from '../lib/DateTimeUtils';

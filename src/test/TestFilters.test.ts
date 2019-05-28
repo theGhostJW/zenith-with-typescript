@@ -1,22 +1,19 @@
-
-// @flow
-
 import {it, describe} from 'mocha'
 import { is_enabled, environment_match, test_depth, in_list } from '../../testCases/TestFilters';
+import { Country, Environment, Depth } from '../../testCases/ProjectConfig';
 import {chk, chkFalse} from '../lib/AssertionUtils';
 
 describe('test filters', () => {
 
   const baseCase = () => {
     return {
-              id: 100,
               when: 'Blah',
               then: 'Blah Blahh',
               owner: 'JW',
               enabled: true,
-              countries: ['Australia'],
-              environments: ['TST', 'UAT'],
-              depth: 'Regression'
+              countries: [Country.Australia],
+              environments: [Environment.TST, Environment.UAT],
+              depth: Depth.Regression
             };
   }
 
@@ -24,10 +21,10 @@ describe('test filters', () => {
     return {
     name: 'Test Run',
     mocked: false,
-    country: 'Australia',
-    environment: 'TST',
+    country: Country.Australia,
+    environment: Environment.TST,
     testCases: <any[]>[],
-    depth: 'Regression'
+    depth: Depth.Regression
   }}
 
   it('is_enabled - pass', () => {
@@ -46,7 +43,7 @@ describe('test filters', () => {
 
   it('environment_match - fail', () => {
     let bc = baseCase();
-    bc.environments = ['PVT'];
+    bc.environments = [Environment.PVT];
     chkFalse(environment_match('ignored', bc, baseConfig()));
   });
 
@@ -57,7 +54,7 @@ describe('test filters', () => {
 
   it('test_depth - fail', () => {
     let bc = baseCase();
-    bc.depth = 'DeepRegression';
+    bc.depth = Depth.DeepRegression;
     chkFalse(test_depth('ignored', bc, baseConfig()));
   });
 

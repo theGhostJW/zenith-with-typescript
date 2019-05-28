@@ -986,7 +986,6 @@ export function hasValue(arg: any): boolean {
   return !isNullEmptyOrUndefined(arg);
 }
 
-// flow issues with lodash
 export function all < a > (predicate : (a: any) => boolean, arr : Array < a >): boolean {
   return arr.reduce((accum, item) => accum && predicate(item), <boolean>true);
 }

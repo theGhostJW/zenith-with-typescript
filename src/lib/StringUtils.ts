@@ -1,5 +1,5 @@
 import { hasValue, ensure, autoType, objToYaml, areEqual,
-          cast, xmlToObj, deepMapValues } from '../lib/SysUtils';
+          xmlToObj, deepMapValues } from '../lib/SysUtils';
 
 const _ : _.LoDashStatic = require('lodash');
 
@@ -475,7 +475,6 @@ function makeSplitTrimFunction(spaceCountToTab: number){
 
   return function splitTrim(str: string){
      return _.flowRight([trimElements, splitLine, tabReplace])(str);
-    // flow issues: return _.flowRight(trimElements, splitLine, tabReplace)(str);
   }
 }
 
@@ -649,7 +648,7 @@ export function show<T>(val : T): string {
 
   switch (typeof val) {
     case 'object':
-      return (<any>val)._isAMomentObject ? timeToSQLDateTimeSec(cast(val)) : objToYaml(val);
+      return (<any>val)._isAMomentObject ? timeToSQLDateTimeSec(<any>(val)) : objToYaml(val);
 
     case 'boolean':
       return val ? 'true' : 'false';

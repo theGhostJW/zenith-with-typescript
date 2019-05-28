@@ -1,51 +1,43 @@
-// @flow
-
-import * as _ from 'lodash';
-import { debug, fail, waitRetry, def, delay } from '../src/lib/SysUtils';
-import { log, expectDefect, endDefect, logException, logError } from '../src/lib/Logging';
-import { toTempString, fileToString } from '../src/lib/FileUtils';
-import { show, sameText  } from '../src/lib/StringUtils';
-import child_process from 'child_process'
-import type { RunConfig, TestCase, TestConfig, Validators, Country, Depth } from '../testCases/ProjectConfig';
-import { register } from '../testCases/ProjectConfig';
+import { def } from '../src/lib/SysUtils';
+import { fileToString } from '../src/lib/FileUtils';
+import { sameText  } from '../src/lib/StringUtils';
+import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries } from './ProjectConfig';
 import { check, checkFalse, checkEqual} from '../src/lib/CheckUtils';
 import * as wd from 'webdriverio';
-import moment from 'moment';
-
 
 let config: TestConfig = {
   when: 'a log in is performed',
   then: 'access is granted or denied as expected',
   owner: 'JW',
   enabled: true,
-  countries: ['New Zealand', 'Australia']
+  countries: AllCountries
 }
 
-export type Item = {|
+export type Item = {
   id: number,
   when: string,
   then: string,
   userName: string,
-  invalidPassword: ?string,
+  invalidPassword?: string | null,
   expectedErrors: string[],
   validators: Validators<DState>
-|}
+}
 
-export type ApState = {|
+export type ApState = {
   url: string,
   pageTitle: string,
   userName: string,
   logInModelVisible: boolean,
   errors: string[]
-|}
+}
 
-type DState = {|
+type DState = {
   userNameValid: boolean,
   passwordValid: boolean,
   loggedIn: boolean,
   expectedErrors: string[],
   errors: string[],
-|}
+}
 
 const validUserName = "theghostjw@gmail.com.au";
 
@@ -99,8 +91,8 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   logIn(userName, password);
 
   return {
-    url: browser.getUrl(),
-    pageTitle: browser.getTitle(),
+    url: <any>browser.getUrl(),
+    pageTitle: <any>browser.getTitle(),
     userName: userName,
     logInModelVisible: isLoggedIn(),
     errors: []

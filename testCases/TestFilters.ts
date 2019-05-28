@@ -22,8 +22,7 @@ export function is_enabled(name: string, testConfig: FullTestConfig, runConfig: 
 export function in_list(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig): boolean {
   let testCases = runConfig.testCases;
   return testCases.length == 0 ||
-        testCases.find(s => typeof s == 'string' && wildCardMatch(name, s)) != null ||
-        testCases.find(n => typeof n == 'number' && n === testConfig.id) != null;
+        testCases.find(s => typeof s == 'string' && wildCardMatch(name, s)) != null
 }
 
 export function test_depth(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig) {

@@ -1,5 +1,3 @@
-// @flow
-
 const _ = require('lodash');
 import {show, hasText, wildCardMatch} from './StringUtils';
 import {areEqual, ensure, fail, debug} from './SysUtils';
