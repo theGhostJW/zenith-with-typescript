@@ -1,10 +1,8 @@
-// @flow
-
 import { wildCardMatch } from '../src/lib/StringUtils';
-import { forceArray, xOr, debug } from '../src/lib/SysUtils';
-import { depthMap } from '../testCases/ProjectConfig';
-import type { FullRunConfig, FullTestConfig } from '../testCases/ProjectConfig';
-import type { TestFilter } from '../src/lib/TestRunner';
+import { xOr} from '../src/lib/SysUtils';
+import { Depth } from './ProjectConfig';
+import { FullRunConfig, FullTestConfig } from '../testCases/ProjectConfig';
+import { TestFilter } from '../src/lib/TestRunner';
 import * as _ from 'lodash';
 
 export type TestCaseFilter = TestFilter<FullRunConfig, FullTestConfig>;
@@ -32,7 +30,7 @@ export function test_depth(name: string, testConfig: FullTestConfig, runConfig: 
   let testDepth = testConfig.depth,
       runDepth = runConfig.depth;
 
-  return !xOr(testDepth == 'Special', runDepth == 'Special') && depthMap[runDepth] >= depthMap[testDepth];
+  return !xOr(testDepth == Depth.Special, runDepth == Depth.Special) && runDepth >= testDepth;
 }
 
 export function environment_match(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig): boolean {
