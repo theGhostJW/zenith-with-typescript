@@ -44,7 +44,7 @@ interface Item {
   validators: Validators<DState>
 }
 
-function check_when_text_contains_another(dState: DState, valTime: Moment) {
+function check_when_text_contains_another(dState: DState) {
   checkTextContains(dState.when, 'another')
 }
 

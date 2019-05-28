@@ -1,11 +1,11 @@
-import { eachFile, testCaseFile, fileOrFolderName, logFile, pathExists, mockFile, fromMock } from './FileUtils';
+import { eachFile, testCaseFile, pathExists, mockFile, fromMock } from './FileUtils';
 import {
-          forceArray, functionNameFromFunction, objToYaml, reorderProps, debug, areEqual, fail,
-          translateErrorObj, def
+          forceArray, functionNameFromFunction, areEqual, fail,
+          translateErrorObj, 
         } from './SysUtils';
 import { show, newLine, hasText} from './StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
-          logEndIteration, logError, pushLogFolder, popLogFolder, log,
+          logEndIteration, log,
           logFilterLog, logException, logValidationStart,
           logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
           logEndInteraction, logPrepValidationInfoStart,
@@ -230,7 +230,7 @@ export function register<R extends BaseRunConfig, T extends BaseTestConfig, I ex
   allCases.push(namedCase);
 }
 
-export type GenericValidator<DS> = (dState: DS, valTime: Moment) => void
+export type GenericValidator<DS> = (dState: DS) => void
 
 export type BaseCase<R extends BaseRunConfig, T extends BaseTestConfig, I extends BaseItem, S, V> = {
   testConfig: T,
@@ -289,13 +289,13 @@ export function loadAll<R extends BaseRunConfig, T extends BaseTestConfig>(): Na
   return <NamedCase<R, T, any, any, any>[]>allCases;
 }
 
-function runValidators<V>(validators: GenericValidator<V> | GenericValidator<V>[], dState: V, valTime: Moment) {
+function runValidators<V>(validators: GenericValidator<V> | GenericValidator<V>[], dState: V) {
   validators = forceArray(validators);
   function validate(validator: GenericValidator<V>){
     let currentValidator = functionNameFromFunction(validator);
     logStartValidator(currentValidator);
     try {
-      validator(dState, valTime);
+      validator(dState);
     } catch (e) {
       throw('Exception thrown in validator: ' + currentValidator + newLine() + show(e));
     }
@@ -351,17 +351,14 @@ export function runTestItem<R extends BaseRunConfig, T extends BaseTestConfig, I
         dState: V,
         continu = true,
         useMock = canUseMock(baseCase, rc, item, mockFileNameFunc),
-        valTime: any,
         isWebUi = hasText(testName, WEB_FILE_FRAGMENT);
 
     function interactOrMock() {
       if (useMock) {
         let mockObj = fromMock(mockFileNameFunc(item.id, baseCase.name, rc));
-        valTime = strToMoment((<any>mockObj).valTime);
         apState = (<any>mockObj).apState;
       }
       else {
-        valTime = now();
         apState = isWebUi ? (<any>webLauncher).interact(item, rc) : baseCase.interactor(item, rc);
       }
     }
@@ -378,9 +375,9 @@ export function runTestItem<R extends BaseRunConfig, T extends BaseTestConfig, I
                               () => logPrepValidationInfoEnd(dState),
                               continu);
 
-    continu = exStage(() => runValidators(item.validators, dState, valTime),
+    continu = exStage(() => runValidators(item.validators, dState),
                               'Running Validators',
-                              () => logValidationStart(valTime, dState),
+                              () => logValidationStart(dState),
                               logValidationEnd,
                               continu);
 }

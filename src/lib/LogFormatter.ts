@@ -67,7 +67,7 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
                     lineX2 +
                     titledText(objToYaml(dState), "dState", 'Parse Error: dState not Found') +
                     subDivider +
-                    titledText(issuesText(iteration.issues, iteration.valTime, dState), 'issues', 'No Issues') +
+                    titledText(issuesText(iteration.issues, dState), 'issues', 'No Issues') +
                     subDivider +
                     titledText(objToYaml(_.omit(seekInObj(iteration, 'item'), 'id', 'validators', 'when', 'then', 'notes')), 'item', 'Parse Error Item not Found') +
                     subDivider +
@@ -81,9 +81,9 @@ function padLines(str: string | null | undefined, padding: string): string {
 
 const VALIDATION_STAGE: StateStage = StateStage.Validation;
 
-function issuesText(issues: IssuesList, valTime: string, dState: any): string {
+function issuesText(issues: IssuesList, dState: any): string {
 
-  function removeEmptyArraysAddValTime(issue: ErrorsWarningsDefects) {
+  function removeEmptyArrays(issue: ErrorsWarningsDefects) {
     let result = _.chain(issue)
                    .toPairs()
                    .filter((p: any) => !areEqual(p[1], []))
@@ -91,15 +91,14 @@ function issuesText(issues: IssuesList, valTime: string, dState: any): string {
                    .value();
 
     if (result.infoType == VALIDATION_STAGE){
-      result.valTime = valTime;
       result.dState = dState;
-      result = reorderProps(result, 'name', 'infoType', 'valTime', 'dState');
+      result = reorderProps(result, 'name', 'infoType', 'dState');
     }
 
     return result;
   }
 
-  let realIssues = issues.filter(i => hasIssues(i)).map(removeEmptyArraysAddValTime),
+  let realIssues = issues.filter(i => hasIssues(i)).map(removeEmptyArrays),
       result = show(realIssues),
       lines = result.split(newLine());
 

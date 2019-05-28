@@ -77,8 +77,7 @@ export const logEndInteraction = (
 export const logPrepValidationInfoStart = () => specialMessage('PrepValidationInfoStart')('Start Validation Prep');
 export const logPrepValidationInfoEnd = (dState: any) => specialMessage('PrepValidationInfoEnd')('End Validation Prep', {dState: dState});
 
-export const logValidationStart = (valTime: Moment, dState: any) => specialMessage('ValidationStart', PopControl.PushFolder)('Start Validation', {
-                                                                                                                                    valTime: timeToShortDateTimeHyphenatedMs(valTime),
+export const logValidationStart = (dState: any) => specialMessage('ValidationStart', PopControl.PushFolder)('Start Validation', {
                                                                                                                                     dState: dState
                                                                                                                                   });
 

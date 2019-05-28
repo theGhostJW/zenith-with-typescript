@@ -82,7 +82,6 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-14 16-03-22-098
   dState:
     when: I run a test
 -------------------------------
@@ -189,7 +188,6 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-14 16-03-22-121
   dState:
     when: I run another test
 -------------------------------
@@ -296,7 +294,6 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-14 16-03-22-152
   dState:
     id: 1
 -------------------------------
@@ -379,7 +376,6 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-14 16-03-22-178
   dState:
     id: 2
 -------------------------------
@@ -510,7 +506,6 @@ subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
 additionalInfo: |
-  valTime: 2017-10-14 16-03-22-202
   dState:
     id: 3
 -------------------------------

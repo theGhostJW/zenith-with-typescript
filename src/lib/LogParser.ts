@@ -17,8 +17,6 @@ interface IterationInfo extends Iteration {
   passedValidators: string[],
  }
 
-// ToDo: remove Valtime
-
 type IterationLogElement = IterationInfo | OutOfTestIssues;
 
 export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc: ((n: number, s: string, r: R) => string)): void {
@@ -97,7 +95,6 @@ function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (ite
      destFile = mockFileNameFunc(id, script + '.js', runConfig),  // script has extension removed TODO: investigate fix properly - what if we leave it on
      mockInfo = {
                  runConfig: runConfig,
-                 valTime: seekInObj(iteration, 'valTime'),
                  apState: seekInObj(iteration, 'apState'),
                  item: item
                };
@@ -175,7 +172,6 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
            summary: state.iterationSummary,
            startTime: state.iterationStart,
            endTime: def(entry.timestamp, <string>''),
-           valTime: def(seekInObj(state, 'validationInfo', 'valTime'), ''),
            testConfig: <any>state.testConfig, // assume defined by now coerce to non null value
            item: <any>state.testItem, // assume defined by now coerce to non null value
            mocked: state.mocked,

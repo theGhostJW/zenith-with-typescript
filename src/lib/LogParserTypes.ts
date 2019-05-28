@@ -10,7 +10,6 @@ export interface Iteration {
    dState: string,
    startTime: string,
    endTime:  string,
-   valTime: string,
    testConfig: {},
    item: {id: number},
    mocked: boolean,

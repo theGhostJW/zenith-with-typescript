@@ -51,15 +51,15 @@ function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   }
 }
 
-function check_logged_in(d: DState, valTime: Moment) {
+function check_logged_in(d: DState) {
   check(d.loggedIn);
 }
 
-function check_not_logged_in(d: DState, valTime: Moment) {
+function check_not_logged_in(d: DState) {
   checkFalse(d.loggedIn);
 }
 
-function check_errors(d: DState, valTime: Moment) {
+function check_errors(d: DState) {
   checkEqual(d.expectedErrors, d.errors, "errors should equal");
 }
 
