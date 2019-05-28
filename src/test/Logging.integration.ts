@@ -1,4 +1,3 @@
-import {it, describe} from 'mocha'
 import { log, logWarning, logError, logLink, pushLogFolder, popLogFolder, notImplementedWarning,
           expectDefect, endDefect} from '../lib/Logging';
 

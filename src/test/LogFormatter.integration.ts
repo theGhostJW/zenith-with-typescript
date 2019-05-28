@@ -1,16 +1,12 @@
-// @flow
-
-import {test, describe} from 'mocha'
 import { testPrivate, iteration, outOfTestError} from '../lib/LogFormatter';
-import {  chkEq, chkExceptionText } from '../lib/AssertionUtils';
-import { fromTestData, toTempString, fromTestDataString } from '../lib/FileUtils';
+import {  chkEq } from '../lib/AssertionUtils';
+import { fromTestData, fromTestDataString } from '../lib/FileUtils';
 import { trimChars, newLine, standardiseLineEndings, trimLines } from '../lib/StringUtils';
-import { debug } from '../lib/SysUtils';
 
 
-function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, transformer: T => string) {
+function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, transformer: ((t:T) => string)): void {
 
-    let source = fromTestData(sourceFile),
+    let source = <any>fromTestData(sourceFile),
         expected = trimChars(standardiseLineEndings(fromTestDataString(expectedFile)), [newLine(), ' ']),
         actual = trimChars(transformer(source), [newLine(), ' ']);
 
@@ -37,8 +33,8 @@ describe('formatter components', () => {
   });
 
   it('iteration', () => {
-    let fullSum = fromTestData('ParserSummary'),
-        transformer = iterationInfo => iteration(iterationInfo, fullSum, 'Last_Script');
+    let fullSum = <any>fromTestData('ParserSummary'),
+        transformer = (iterationInfo: any) => iteration(iterationInfo, fullSum, 'Last_Script');
 
     sectionIntegrationTest('Iteration.yaml', 'Iteration.expected.yaml', transformer);
   });

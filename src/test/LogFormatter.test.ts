@@ -1,8 +1,4 @@
-// @flow
-
-import {test, describe} from 'mocha'
 import { testPrivate} from '../lib/LogFormatter';
-import { toTempString } from '../lib/FileUtils';
 import { newLine } from '../lib/StringUtils';
 import {
           chkEq,
@@ -57,7 +53,7 @@ describe('padProps', () => {
                  };
 
 
-     expected = chkEq(expected, padProps(source, false));
+     chkEq(expected, padProps(source, false));
   });
 
   it('right justify differing length numbers long key and val', () => {
@@ -78,7 +74,7 @@ describe('padProps', () => {
                  };
 
 
-     expected = chkEq(expected, padProps(source, false));
+     chkEq(expected, padProps(source, false));
   });
 
   it('right justify differing length numbers long key and val with prefix', () => {
@@ -99,7 +95,7 @@ describe('padProps', () => {
                  };
 
 
-     expected = chkEq(expected, padProps(source, false, '  '));
+     chkEq(expected, padProps(source, false, '  '));
   });
 
   it('left justify differing length numbers long key and val', () => {
@@ -120,7 +116,7 @@ describe('padProps', () => {
                  };
 
 
-     expected = chkEq(expected, padProps(source));
+     chkEq(expected, padProps(source));
   });
 
   it('right justify differing length numbers long key and val with prefix', () => {
@@ -141,7 +137,7 @@ describe('padProps', () => {
                  };
 
 
-     expected = chkEq(expected, padProps(source, true, '  '));
+     chkEq(expected, padProps(source, true, '  '));
   });
 
   it('right justify differing length numbers long key and val with prefix + array', () => {
@@ -163,7 +159,7 @@ describe('padProps', () => {
                  };
 
 
-     expected = chkEq(expected, padProps(source, true, '  '));
+     chkEq(expected, padProps(source, true, '  '));
   });
 
 });
