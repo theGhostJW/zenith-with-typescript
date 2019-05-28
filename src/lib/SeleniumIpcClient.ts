@@ -1,29 +1,24 @@
-// @flow
-
 import * as ipc from 'node-ipc';
-import type { Protocol } from './SeleniumIpcProtocol';
 
-import { stringToFile, tempFile, toTempString } from './FileUtils';
-import { INTERACT_SOCKET_NAME} from './SeleniumIpcProtocol';
-import { log, logError, lowLevelLogging  } from './Logging';
-import { debug, waitRetry, cast } from './SysUtils';
+import { INTERACT_SOCKET_NAME, Protocol} from './SeleniumIpcProtocol';
+import { lowLevelLogging  } from './Logging';
+import { debug, waitRetry } from './SysUtils';
 import { createGuid } from './StringUtils';
 
 let
-    invocationResponseSingleton = null,
-    responseReceived = false,
-    serverReadySingleton = false;
+    invocationResponseSingleton: any = null,
+    responseReceived = false;
 
 export function disconnectClient() {
-  ipc.disconnect(INTERACT_SOCKET_NAME);
+  (<any>ipc).disconnect(INTERACT_SOCKET_NAME);
 }
 
-export function clientEmit(msgType: Protocol, msg?: mixed[] ) {
-  ipc.of[INTERACT_SOCKET_NAME].emit(msgType, msg);
+export function clientEmit(msgType: Protocol, msg?: any[] ) {
+  (<any>ipc).of[INTERACT_SOCKET_NAME].emit(msgType, msg);
 }
 
-export function invocationResponse<T>(): ?T {
-  return responseReceived ? cast(invocationResponseSingleton) : undefined;
+export function invocationResponse<T>(): T | undefined {
+  return responseReceived ? (<T>invocationResponseSingleton ): undefined;
 }
 
 function loadInvocationResponse<T>(response: T): void {
@@ -40,12 +35,12 @@ export function sendClientDone() {
   clientEmit('ClientSessionDone');
 }
 
-export function sendInvocationParams(...params: mixed[]) {
+export function sendInvocationParams(...params: any[]) {
   clientEmit('InvocationParams', params);
 }
 
 export function activeSocket() {
-  return ipc.of[INTERACT_SOCKET_NAME];
+  return (<any>ipc).of[INTERACT_SOCKET_NAME];
 }
 
 let ponged: boolean = false;
@@ -54,7 +49,7 @@ export function isConnected() {
   ponged = false;
 
   function isPonged() {
-    if (ipc.of[INTERACT_SOCKET_NAME] == null){
+    if ((<any>ipc).of[INTERACT_SOCKET_NAME] == null){
       return false;
     }
     clientEmit('Ping');
@@ -66,18 +61,18 @@ export function isConnected() {
 
 /// The Launcher runs from the client
 export function runClient() {
-  ipc.config.id = createGuid();
-  ipc.config.retry = 500;
-  ipc.config.sync = false;
-  ipc.config.silent = true;
+  (<any>ipc).config.id = createGuid();
+  (<any>ipc).config.retry = 500;
+  (<any>ipc).config.sync = false;
+  (<any>ipc).config.silent = true;
 
 //  debug (`client launched ${process.pid}`)
 
   function when(msg: Protocol, action: (data: any) => void) {
-    ipc.of[INTERACT_SOCKET_NAME].on(msg, action);
+    (<any>ipc).of[INTERACT_SOCKET_NAME].on(msg, action);
   }
 
-  ipc.connectTo(
+  (<any>ipc).connectTo(
       INTERACT_SOCKET_NAME,
       function(){
 
