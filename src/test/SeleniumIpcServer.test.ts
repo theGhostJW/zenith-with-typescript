@@ -1,10 +1,5 @@
-// @flow
-
-import {it, describe} from 'mocha';
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
+import {chk, chkFalse } from '../lib/AssertionUtils';
 import { isReloadableFile } from '../lib/SeleniumIpcServer';
-import { debug } from '../lib/SysUtils';
-import * as _ from 'lodash';
 
 describe('isReploadableFile', () => {
 
@@ -23,6 +18,5 @@ describe('isReploadableFile', () => {
   it('WebUtils - should load', () => {
     chk(isReloadableFile('C:\\ZWTF\\src\\lib\\WebUtils.js'));
   });
-
 
 });
