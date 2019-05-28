@@ -1,15 +1,11 @@
-// @flow
-
-import { def, debug, objToYaml, ensure, yamlToObj,
-         seekInObj, forceArray, areEqual, reorderProps } from '../lib/SysUtils';
-import type { MixedSpecifier } from '../lib/SysUtils';
-import { newLine, trimChars, show, transformGroupedTable, replaceAll, sameText, hasText } from '../lib/StringUtils';
-import { durationFormatted } from '../lib/DateTimeUtils';
-import { fileOrFolderName } from '../lib/FileUtils';
-import type { LogEntry } from '../lib/Logging';
-import { EXECUTING_INTERACTOR_STR, hasIssues } from '../lib/LogParser';
-import type { StateStage, ErrorsWarningsDefects, RunSummary, FullSummaryInfo, Iteration, IssuesList } from '../lib/LogParserTypes';
-import * as _ from 'lodash';
+import { def, objToYaml, ensure, 
+         seekInObj, forceArray, areEqual, reorderProps, AnySpecifier } from './SysUtils';
+import { newLine, trimChars, show, replaceAll, sameText, hasText } from './StringUtils';
+import { durationFormatted } from './DateTimeUtils';
+import { fileOrFolderName } from './FileUtils';
+import { EXECUTING_INTERACTOR_STR, hasIssues } from './LogParser';
+import { StateStage, ErrorsWarningsDefects, RunSummary, FullSummaryInfo, Iteration, IssuesList } from '../lib/LogParserTypes';
+const _ = require('lodash');
 
 export const testPrivate = {
   headerLine: headerLine,
@@ -22,20 +18,20 @@ export function filterLogText(summary: FullSummaryInfo): string {
   return majorHeaderBlock('Filter Log', false) + newLine(2) + objToYaml(fl);
 }
 
-export function script(iteration: Iteration): ?string {
-  return show(seekInObj(iteration.testConfig, 'script'))
+export function script(iteration: Iteration): string | undefined {
+  return show(seekInObj(iteration.testConfig, 'script'));
 }
 
 
-export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript: ?string): string {
+export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, lastScript?: string): string {
   let script = show(seekInObj(iteration.testConfig, 'script')),
       header = '';
 
-  let summaryInfo = seekInObj(fullSummary, 'testSummaries', script),
-      seekSumStr = str => show(seekInObj(((summaryInfo: any): {}), str)),
-      mocked = iteration.mocked;
+  const summaryInfo = seekInObj(fullSummary, 'testSummaries', script),
+        seekSumStr = (str: string) => show(seekInObj((<any>summaryInfo), str)),
+        mocked = iteration.mocked;
 
-  if (!sameText(script, def(lastScript, ''))){
+  if (!sameText(script, def(lastScript, <string>''))){
     header = majorHeaderBlock(summaryInfo == null ? `NO SUMMARY INFO AVAILABLE FOR ${script}`:
                 `${deUnderscore(script)} - ${durationFormatted(seekSumStr('startTime'), seekSumStr('endTime'))}`, false) +
              newLine(2) + 'stats:' + newLine() + padProps(def(seekInObj(summaryInfo, 'stats'), {}), false, '  ');
@@ -59,7 +55,7 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
       subDivider =  lineX2 + SUB_DIVIDER + lineX2,
       dState = seekInObj(iteration, 'dState');
 
-  function titledText(obj: mixed, title: string, nullText: string): string {
+  function titledText(obj: any, title: string, nullText: string): string {
     return title + (mocked ? ' MOCKED' : '') + ':' + newLine() +
             (obj == null ? '  ' + nullText : padLines(show(obj), '  '));
   }
@@ -79,18 +75,18 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
 }
 
 
-function padLines(str: ?string, padding: string): string {
+function padLines(str: string | null | undefined, padding: string): string {
   return str != '' && str != null ? str.split(newLine()).map(l => padding + l).join(newLine()) : ''
 }
 
-const VALIDATION_STAGE: StateStage = 'Validation';
+const VALIDATION_STAGE: StateStage = StateStage.Validation;
 
 function issuesText(issues: IssuesList, valTime: string, dState: any): string {
 
   function removeEmptyArraysAddValTime(issue: ErrorsWarningsDefects) {
     let result = _.chain(issue)
                    .toPairs()
-                   .filter(p => !areEqual(p[1], []))
+                   .filter((p: any) => !areEqual(p[1], []))
                    .fromPairs()
                    .value();
 
@@ -142,24 +138,24 @@ function valText(iteration: Iteration, mocked: boolean): string {
   }
 
   let issuesInfo = _.map(iteration.issues, summarise),
-      isIntIssue = issueSum => issueSum.name === EXECUTING_INTERACTOR_STR,
+      isIntIssue = (issueSum: any) => issueSum.name === EXECUTING_INTERACTOR_STR,
       interactorIssues = issuesInfo.find(isIntIssue),
-      result: {[string]: string} = {};
+      result: {[k:string]: string} = {};
 
   if (interactorIssues != null && interactorIssues.issues !== 'passed'){
     result.interactor = joinIssues(interactorIssues.issues);
   }
 
   //Non interactor issues
-  function addIssue(issue) {
+  function addIssue(issue: any) {
     result[sameText(issue.infoType, 'validation') ? deUnderscore(issue.name) : issue.name] = joinIssues(issue.issues);
   }
 
-  issuesInfo.filter(i => !isIntIssue(i)).forEach(addIssue);
+  issuesInfo.filter((i: any) => !isIntIssue(i)).forEach(addIssue);
 
   let passedValidators = seekInObj(iteration, 'passedValidators');
   if (passedValidators != null){
-    passedValidators.forEach(s => result[deUnderscore(s)] = 'passed');
+    (<any>passedValidators).forEach((s: string) => result[deUnderscore(s)] = 'passed');
   }
 
   return `validation${mocked ? ' MOCKED' : ''}:` + newLine() + padProps(result, true, '  - ');
@@ -179,8 +175,8 @@ type IssuesMap = {
 function issueTypes(issues: IssuesList | ErrorsWarningsDefects) {
 
   function updateMap(accum: IssuesMap, errInfo: ErrorsWarningsDefects): IssuesMap {
-    function updatePresence(val, key) {
-      let issueType = errInfo[key];
+    function updatePresence(val: any, key: string): boolean {
+      let issueType = (<any>errInfo)[key];
       return val || issueType != null && issueType.length > 0;
     }
     return _.mapValues(accum, updatePresence);
@@ -189,8 +185,8 @@ function issueTypes(issues: IssuesList | ErrorsWarningsDefects) {
   return _.chain(forceArray(issues))
                 .reduce(updateMap, {errors: false, type2Errors: false, warnings: false, knownDefects: false})
                 .toPairs()
-                .filter(p => p[1])
-                .map(p => p[0])
+                .filter((p: any) => p[1])
+                .map((p: any) => p[0])
                 .value();
 }
 
@@ -206,18 +202,18 @@ export function outOfTestError(outOfTest: { issues?: ErrorsWarningsDefects[] }):
   }
   else {
 
-    function nullEmptyAndNoArraysOmitUnwantedProps(val) {
-      return _.isArray(val) && val.length > 0 ? _.map(val, info => padProps(_.omit(info, 'level', 'subType', 'popControl'), true, '  ??? ')) : undefined;
+    function nullEmptyAndNoArraysOmitUnwantedProps(val: any) {
+      return _.isArray(val) && val.length > 0 ? _.map(val, (info: {}) => padProps(_.omit(info, 'level', 'subType', 'popControl'), true, '  ??? ')) : undefined;
     }
 
     let resultObj = issues.map(erd => _.mapValues(erd, nullEmptyAndNoArraysOmitUnwantedProps));
 
-    function combineProps(obj) {
-      function makeRec(key) {
+    function combineProps(obj: any) {
+      function makeRec(key: string) {
         return key + ':' + newLine() + replaceAll(obj[key].join(newLine()).replace('???', '-'), '???', ' ');
       }
 
-      let keys = _.keys(obj).filter(k => obj[k] != null),
+      let keys = _.keys(obj).filter((k: string) => obj[k] != null),
           recs = _.map(keys, makeRec);
 
       return recs.join(newLine(2));
@@ -228,19 +224,19 @@ export function outOfTestError(outOfTest: { issues?: ErrorsWarningsDefects[] }):
   }
 }
 
-function toStringPairs(obj): [string, string][] {
+function toStringPairs(obj: any): [string, string][] {
 
-  let toStr = (val) => typeof val == 'object' ? replaceAll(show(val), newLine(), '') : show(val);
+  const toStr = (val: any) => typeof val == 'object' ? replaceAll(show(val), newLine(), '') : show(val);
 
   return _.chain(obj)
           .toPairs()
-          .map((kv) => [toStr(kv[0]), toStr(kv[1])])
+          .map((kv: [any, any]) => [toStr(kv[0]), toStr(kv[1])])
           .value()
 }
 
 function padProps(obj: {}, leftJustify: boolean = true, prefix: string = '', handleMultiLine: boolean = false): string {
   function maxlenOfIdx(idx: 0 | 1) {
-    return (accum, kv) => Math.max(kv[idx].length, accum)
+    return (accum: any, kv: [any, any]) => Math.max(kv[idx].length, accum)
   }
 
   let pairs = toStringPairs(obj),
@@ -260,7 +256,7 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = '', han
           return accum;
         }
 
-        accum[k] = maxLen + 1 - k.length;
+        (<any>accum)[k] = maxLen + 1 - k.length;
         return accum;
       }
     }
@@ -279,7 +275,7 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = '', han
         }
 
 
-        accum[k] = maxLen + 1 - k.length - v.length;
+        (<any>accum)[k] = maxLen + 1 - k.length - v.length;
         return accum;
       }
     }
@@ -288,7 +284,7 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = '', han
     padding = _.reduce(pairs, totalKVLenPlus1Map(maxLen), {});
   }
 
-  function padValStringify(kv) {
+  function padValStringify(kv: [string, any]) {
     let [k, v] = kv;
 
     if (multLineRule(v)){
@@ -296,7 +292,7 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = '', han
       return prefix + k + ':' + v;
     }
     else {
-      let pad = ' '.repeat(padding[k]);
+      let pad = ' '.repeat((<any>padding)[k]);
       return prefix + k + ':' + pad + v;
     }
   }
@@ -304,7 +300,7 @@ function padProps(obj: {}, leftJustify: boolean = true, prefix: string = '', han
   return _.map(pairs, padValStringify).join(newLine());
 }
 
-function headerBlock(headerFunc: (string, boolean) => string) {
+function headerBlock(headerFunc: (s:string, b:boolean) => string) {
   return function headerBlock(txt: string, wntPcnt: boolean) {
     return headerFunc('', false) + newLine() +
               headerFunc(txt, wntPcnt) + newLine() +
@@ -313,7 +309,7 @@ function headerBlock(headerFunc: (string, boolean) => string) {
 }
 
 export function summaryBlock(summary: FullSummaryInfo): string {
-  let runSummary = ((seekInObj(summary, 'runSummary'): any): RunSummary) ;
+  let runSummary = (<RunSummary>seekInObj(summary, 'runSummary'));
   if (runSummary == null){
     return '';
   }
@@ -324,22 +320,20 @@ export function summaryBlock(summary: FullSummaryInfo): string {
         runConfig,
         stats
       } = runSummary,
-      name = def(runConfig['name'], 'Unnamed Test Run'),
+      name = def(runConfig['name'], <string>'Unnamed Test Run'),
       headerLine = `Summary - ${name}`,
       heading = majorHeaderBlock(headerLine, false);
 
-  let seekInSumm = (specifier: MixedSpecifier, ...otherSpecifiers : MixedSpecifier[]): string => show(seekInObj(runSummary, specifier, ...otherSpecifiers)),
-  basic = {
-    start: startTime,
-    end: endTime,
-    duration: durationFormatted(startTime, endTime),
-    raw: '.\\' + fileOrFolderName(summary.rawFile)
-  };
-
-  basic = padProps(basic);
+  let seekInSumm = (specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): string => show(seekInObj(runSummary, specifier, ...otherSpecifiers)),
+      basic = {
+        start: startTime,
+        end: endTime,
+        duration: durationFormatted(startTime, endTime),
+        raw: '.\\' + fileOrFolderName(summary.rawFile)
+      };
 
   return heading + newLine(2) +
-          basic + newLine(2) +
+          padProps(basic) + newLine(2) +
           'runConfig:' + newLine() +
           padProps(_.omit(runConfig, 'name'), true, '  ') + newLine(2) +
           'stats:' + newLine() +

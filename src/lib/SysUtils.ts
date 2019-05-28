@@ -628,7 +628,7 @@ function eqCustomiser <T, U> (val1 : T, val2 : U) : undefined | boolean {
     : undefined;
 }
 
-export type anySpecifier = string | Predicate | IndexSpecifier | {};
+export type AnySpecifier = string | Predicate | IndexSpecifier | {};
 
 export type Predicate = (val : any, key : string | number) => boolean;
 
@@ -645,7 +645,7 @@ type SeekInObjResultItem = {
   specifiers: Array <FuncSpecifier>
 };
 
-function standardiseSpecifier(anySpec: anySpecifier) : FuncSpecifier {
+function standardiseSpecifier(anySpec: AnySpecifier) : FuncSpecifier {
 
   // assume predicate
   if(typeof anySpec === 'function') {
@@ -806,32 +806,32 @@ function getResultValues(result: Array <SeekInObjResultItem>): any[] {
   return result.map((s: SeekInObjResultItem) => s.value);
 }
 
-export function seekInObj<T>(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers: anySpecifier[]): T | undefined {
+export function seekInObj<T>(target: {} | null | undefined, specifier: AnySpecifier, ...otherSpecifiers: AnySpecifier[]): T | undefined {
   let info = seekInObjWithInfo(target, specifier, ...otherSpecifiers);
   return info == null ? undefined : info.value;
 }
 
-export function setInObjn(target : {}, specifiers : anySpecifier[], value?: any): {}{
+export function setInObjn(target : {}, specifiers : AnySpecifier[], value?: any): {}{
   return setInObjnPrivate(false, target, specifiers, value);
 }
 
-export function setInObj1(target : {}, specifier : anySpecifier, value: any): {}{
+export function setInObj1(target : {}, specifier : AnySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier], value);
 }
 
-export function setInObj2(target : {}, specifier : anySpecifier, specifier1 : anySpecifier, value: any): {}{
+export function setInObj2(target : {}, specifier : AnySpecifier, specifier1 : AnySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier, specifier1], value);
 }
 
-export function setInObj3(target : {}, specifier : anySpecifier, specifier1 : anySpecifier, specifier2: anySpecifier, value: any): {}{
+export function setInObj3(target : {}, specifier : AnySpecifier, specifier1 : AnySpecifier, specifier2: AnySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier, specifier1, specifier2], value);
 }
 
-export function setInObj4(target : {}, specifier : anySpecifier, specifier1 : anySpecifier, specifier2: anySpecifier, specifier3: anySpecifier, value: any): {}{
+export function setInObj4(target : {}, specifier : AnySpecifier, specifier1 : AnySpecifier, specifier2: AnySpecifier, specifier3: AnySpecifier, value: any): {}{
   return setInObjnPrivate(false, target, [specifier, specifier1, specifier2, specifier3], value);
 }
 
-function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : anySpecifier[], value: any) : {} {
+function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : AnySpecifier[], value: any) : {} {
 
   let [spec, ...otherSpecs] = specifiers,
       propInfo = noCheck ?  seekInObjNoCheckWithInfo(target, spec, ...otherSpecs) :  seekInObjWithInfo(target, spec, ...otherSpecs);
@@ -854,7 +854,7 @@ function setInObjnPrivate(noCheck: boolean, target : {}, specifiers : anySpecifi
   return target;
 }
 
-export function seekInObjNoCheck(target: null | undefined | {}, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): any {
+export function seekInObjNoCheck(target: null | undefined | {}, specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): any {
   let result = seekInObjNoCheckWithInfo(target, specifier, ...otherSpecifiers);
   return result == null ? undefined : result.value;
 }
@@ -885,7 +885,7 @@ const SEARCH_DIRECTIVE = {
 
 type SearchDirective = keyof SearchDirectiveMap;
 
-export function seekInObjWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem | undefined {
+export function seekInObjWithInfo(target: {} | null | undefined, specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): SeekInObjResultItem | undefined {
   let allInfo = seekManyInObjWithInfo(target, specifier, ...otherSpecifiers);
   if (allInfo.length === 0){
     return undefined;
@@ -895,22 +895,22 @@ export function seekInObjWithInfo(target: {} | null | undefined, specifier: anyS
   }
 }
 
-export function seekInObjNoCheckWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem | null | undefined {
+export function seekInObjNoCheckWithInfo(target: {} | null | undefined, specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): SeekInObjResultItem | null | undefined {
   let allInfo = seekInObjBase(target, 'singleton', specifier, ...otherSpecifiers);
   return allInfo.length === 0 ? null : allInfo[0];
 }
 
-export function seekAllInObjWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem[] {
+export function seekAllInObjWithInfo(target: {} | null | undefined, specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): SeekInObjResultItem[] {
   return seekInObjBase(target, 'includeNested', specifier, ...otherSpecifiers);
 }
 
 export const seekAllInObj = _.flowRight([getResultValues, seekAllInObjWithInfo]); // flow issues _.flowRight(getResultValues, seekAllInObjWithInfo);
 
-export function seekManyInObjWithInfo(target: {} | null | undefined, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem[] {
+export function seekManyInObjWithInfo(target: {} | null | undefined, specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): SeekInObjResultItem[] {
   return seekInObjBase(target, 'eachBranch', specifier, ...otherSpecifiers);
 }
 
-function seekInObjBase(target: {} | null | undefined, searchType: SearchDirective, specifier: anySpecifier, ...otherSpecifiers : anySpecifier[]): SeekInObjResultItem[] {
+function seekInObjBase(target: {} | null | undefined, searchType: SearchDirective, specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): SeekInObjResultItem[] {
     if(typeof target != 'object') {
       return [];
     };
