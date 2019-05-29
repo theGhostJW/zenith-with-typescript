@@ -7,7 +7,8 @@ import {
   ensure,
   objToYaml,
   yamlToObj,
-  forceArray
+  forceArray,
+  debug
 } from './SysUtils';
 import {newLine, CharacterEncoding, replaceAll} from './StringUtils';
 import {logWarning, log, timeStampedLogDir} from './Logging';
@@ -450,28 +451,35 @@ function projectDirTry(seedName: string, sentinalProjectFile: string) : [string,
   return [projFolder == null ? "" : projFolder, tried];
 }
 
-let projectDirSingleton: string | null = null;
+let projectDirSingleton: string | null | undefined = null;
 
 export const TEMPLATE_BASE_FILE: string  = 'ZwtfProjectBase.txt';
 
-export function projectDir() : string {
+function projectDirPriv() : string {
 
-  if (projectDirSingleton == null){
-    let seedName = module.filename,
-        try1 = projectDirTry(seedName, TEMPLATE_BASE_FILE),
-        dir1 = try1[0];
+  let seedName = module.filename,
+      try1 = projectDirTry(seedName, TEMPLATE_BASE_FILE),
+      dir1 = try1[0];
 
-    if (dir1 != null){
-      return dir1;
-    }
-
-    // assume framework testing fall back to package.json
-    let try2 = projectDirTry(seedName, 'package.json'),
-        dir2 = try2[0];
-
-    projectDirSingleton = ensureHasVal(dir2, `Cannot find project file path when searching up from: ${seedName} - tried: ${forceArray(try1[1], try2[1]).join(', ')}`);
+  if (hasValue(dir1)){
+    return dir1;
   }
 
+  // assume framework testing fall back to package.json
+  let try2 = projectDirTry(seedName, 'package.json'),
+      dir2 = try2[0];
+
+  return ensureHasVal(
+    dir2, 
+    `Cannot find project file path when searching up from: ${seedName} - tried: ${forceArray(try1[1], try2[1]).join(', ')}`
+  );
+
+}
+
+export function projectDir() : string {
+  if (projectDirSingleton == null){
+    projectDirSingleton = projectDirPriv();
+  }
   return projectDirSingleton;
 }
 

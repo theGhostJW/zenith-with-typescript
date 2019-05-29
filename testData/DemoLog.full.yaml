@@ -35,19 +35,6 @@ stats:
   outOfTestKnownDefects:       1
 
 ################################################################################
-#%############################ Out of Test Issues ##############################
-################################################################################
-
-warnings:
-  - timestamp: 2017-11-25 11:28:22
-    message:   warning added for testing
-
-errors:
-  - timestamp:      2017-11-25 11:28:22
-    message:        bodged out of test example failure
-    additionalInfo: blahh
-
-################################################################################
 ######################### Another Demo Case - 00:10:01 #########################
 ################################################################################
 
@@ -65,11 +52,10 @@ stats:
 
 when:   I run a test
 then:   i get the result
-status: errors, warnings
+status: passed
 
 validation:
-  - interactor:        warnings
-  - check has another: errors
+  - check has another: passed
 
 dState:
   when: I run a test
@@ -78,67 +64,7 @@ dState:
 #-------------------------------------------------------------------------------
 
 issues:
-  - name: Executing Interactor
-    infoType: InTest
-    warnings:
-      - timestamp: '2017-11-25 11:28:22'
-        level: warn
-        subType: Message
-        message: Warning added for testing in iteration
-  
-  - name: check_has_another
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
-    dState:
-      when: I run a test
-    errors:
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: CheckFail
-        popControl: NoAction
-        message: Check Text Contains ~ 2 errors 1 iteration
-  
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: CheckFail
-        popControl: NoAction
-        message: Check Text Contains
-        additionalInfo: |-
-          Looking for: another
-           in
-          I run a test
-        callstack: |2-
-              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
-              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-              at logSpecial (C:/ZWTF/src/lib/Logging.js:153:5)
-              at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
-              at checkTextContains (C:/ZWTF/src/lib/CheckUtils.js:48:10)
-              at check_has_another (C:/ZWTF/testCases/Another_Demo_Case.js:62:3)
-              at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
-              at Array.forEach (native)
-              at runValidators (C:/ZWTF/src/lib/TestRunner.js:105:14)
-              at C:/ZWTF/src/lib/TestRunner.js:148:29
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:148:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
+  []
 
 #-------------------------------------------------------------------------------
 
@@ -191,10 +117,6 @@ apState:
 #%############################ Out of Test Issues ##############################
 ################################################################################
 
-warnings:
-  - timestamp: 2017-11-25 11:28:22
-    message:   out of test warning 2
-
 type2Errors:
   - timestamp:      2017-11-25 11:28:22
     additionalInfo: message: out of test type 2 error
@@ -219,12 +141,12 @@ stats:
 
 when:   I run a test
 then:   i get the result
-status: errors, type2Errors
+status: type2Errors
 
 validation:
   - check less than 2:                         type2Errors
-  - check with incorrect disabled expectation: errors
   - check with disabled expectation:           passed
+  - check with incorrect disabled expectation: passed
 
 dState:
   id: 1
@@ -234,8 +156,7 @@ dState:
 
 issues:
   - name: check_less_than_2
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
+    infoType: validation
     dState:
       id: 1
     type2Errors:
@@ -248,50 +169,6 @@ issues:
           message: 'Defect Expected: 1'
           additionalInfo: |
             active: true
-  
-  - name: check_with_incorrect_disabled_expectation
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
-    dState:
-      id: 1
-    errors:
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: CheckFail
-        popControl: NoAction
-        message: 'Check False: false is true'
-        callstack: |2-
-              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
-              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-              at logSpecial (C:/ZWTF/src/lib/Logging.js:153:5)
-              at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
-              at checkFalse (C:/ZWTF/src/lib/CheckUtils.js:11:93)
-              at check_with_incorrect_disabled_expectation (C:/ZWTF/testCases/Demo_Case.js:87:3)
-              at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
-              at Array.forEach (native)
-              at runValidators (C:/ZWTF/src/lib/TestRunner.js:105:14)
-              at C:/ZWTF/src/lib/TestRunner.js:148:29
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:148:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
 
 #-------------------------------------------------------------------------------
 
@@ -313,10 +190,10 @@ apState:
 
 when:   I run another test
 then:   i get another result
-status: knownDefects
+status: type2Errors
 
 validation:
-  - check less than 2: passed
+  - check less than 2: type2Errors
   - check less than 3: passed
 
 dState:
@@ -327,318 +204,19 @@ dState:
 
 issues:
   - name: check_less_than_2
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
+    infoType: validation
     dState:
       id: 2
-    knownDefects:
+    type2Errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: CheckFail
+        level: info
+        subType: EndDefect
         popControl: NoAction
-        message: 'Check: expect less than 2'
-        additionalInfo: 2 should be less than 2
-        callstack: |2-
-              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
-              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-              at logSpecial (C:/ZWTF/src/lib/Logging.js:153:5)
-              at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
-              at check (C:/ZWTF/src/lib/CheckUtils.js:10:88)
-              at check_less_than_2 (C:/ZWTF/testCases/Demo_Case.js:67:3)
-              at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
-              at Array.forEach (native)
-              at runValidators (C:/ZWTF/src/lib/TestRunner.js:105:14)
-              at C:/ZWTF/src/lib/TestRunner.js:148:29
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:148:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
-
-#-------------------------------------------------------------------------------
-
-item:
-  {}
-  
-
-#-------------------------------------------------------------------------------
-
-apState:
-  {}
-  
-
-
-
-#-------------------------------------------------------------------------------
-#%----------------------- Demo_Case - Item 3 - 00:00:00 ------------------------
-#-------------------------------------------------------------------------------
-
-when:   I run another test
-then:   i get another result
-status: errors
-
-validation:
-  - check bad validator: errors
-
-dState:
-  id: 3
-  
-
-#-------------------------------------------------------------------------------
-
-issues:
-  - name: check_bad_validator
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
-    dState:
-      id: 3
-    errors:
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: Exception
-        popControl: NoAction
-        message: Exception Thrown Running Validators
-        additionalInfo: |-
-          Exception thrown in validator: check_bad_validator
-          ARGGGHHHHHH!!!
-        callstack: |2-
-              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
-              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-              at logException (C:/ZWTF/src/lib/Logging.js:78:67)
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:120:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:148:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
-
-#-------------------------------------------------------------------------------
-
-item:
-  {}
-  
-
-#-------------------------------------------------------------------------------
-
-apState:
-  {}
-  
-
-
-
-#-------------------------------------------------------------------------------
-#%----------------------- Demo_Case - Item 4 - 00:00:00 ------------------------
-#-------------------------------------------------------------------------------
-
-when:   I run another test
-then:   i get another result
-status: errors
-
-validation:
-  - interactor: errors
-
-dState:
-  ''
-  
-
-#-------------------------------------------------------------------------------
-
-issues:
-  - name: Executing Interactor
-    infoType: InTest
-    errors:
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: Exception
-        popControl: NoAction
-        message: Exception Thrown Executing Interactor
-        additionalInfo: |-
-          I do not like 4
-  
-          Error
-              at fail (C:/ZWTF/src/lib/SysUtils.js:448:13)
-              at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
-              at C:/ZWTF/src/lib/TestRunner.js:136:49
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:136:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
-        callstack: |2-
-              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
-              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-              at logException (C:/ZWTF/src/lib/Logging.js:78:67)
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:120:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:136:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
-
-#-------------------------------------------------------------------------------
-
-item:
-  {}
-  
-
-#-------------------------------------------------------------------------------
-
-apState:
-  {}
-  
-
-################################################################################
-############################ Demo Case3 - 00:00:00 #############################
-################################################################################
-
-stats:
-  iterations:                 1
-  passedIterations:           1
-  iterationsWithErrors:       0
-  iterationsWithWarnings:     0
-  iterationsWithKnownDefects: 1
-
-#-------------------------------------------------------------------------------
-#%----------------------- Demo_Case3 - Item 1 - 00:00:00 -----------------------
-#-------------------------------------------------------------------------------
-
-when:   I run a test
-then:   i get the result
-status: knownDefects
-
-validation:
-  - interactor: knownDefects
-
-dState:
-  ''
-  
-
-#-------------------------------------------------------------------------------
-
-issues:
-  - name: Executing Interactor
-    infoType: InTest
-    knownDefects:
-      - timestamp: '2017-11-25 11:28:22'
-        level: error
-        subType: Exception
-        popControl: NoAction
-        message: Exception Thrown Executing Interactor
-        additionalInfo: |-
-          I do not like 4
-  
-          Error
-              at fail (C:/ZWTF/src/lib/SysUtils.js:448:13)
-              at Object.interactor (C:/ZWTF/testCases/Demo_Case.js:26:5)
-              at C:/ZWTF/src/lib/TestRunner.js:136:49
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:117:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:136:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
-        callstack: |2-
-              at Object.logWithlabel [as logError] (C:/ZWTF/src/lib/Logging.js:379:24)
-              at logError (C:/ZWTF/src/lib/Logging.js:42:95)
-              at logException (C:/ZWTF/src/lib/Logging.js:78:67)
-              at exStage (C:/ZWTF/src/lib/TestRunner.js:120:5)
-              at runTestItem (C:/ZWTF/src/lib/TestRunner.js:136:15)
-              at C:/ZWTF/src/lib/TestRunner.js:171:30
-              at Array.forEach (native)
-              at runTest (C:/ZWTF/src/lib/TestRunner.js:171:12)
-              at runTestInstance (C:/ZWTF/src/lib/TestRunner.js:237:7)
-              at Array.forEach (native)
-              at testRun (C:/ZWTF/src/lib/TestRunner.js:241:14)
-              at run (C:/ZWTF/testCases/ProjectConfig.js:111:3)
-              at Context.<anonymous> (C:/ZWTF/src/test/ProjectConfig.integration.js:23:5)
-              at callFn (C:\ZWTF\node_modules\mocha\lib\runnable.js:348:21)
-              at Test.Runnable.run (C:\ZWTF\node_modules\mocha\lib\runnable.js:340:7)
-              at Runner.runTest (C:\ZWTF\node_modules\mocha\lib\runner.js:443:10)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:549:12
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:361:14)
-              at C:\ZWTF\node_modules\mocha\lib\runner.js:371:7
-              at next (C:\ZWTF\node_modules\mocha\lib\runner.js:295:14)
-              at Immediate.<anonymous> (C:\ZWTF\node_modules\mocha\lib\runner.js:339:5)
-              at runCallback (timers.js:800:20)
-              at tryOnImmediate (timers.js:762:5)
-              at processImmediate [as _immediateCallback] (timers.js:733:5)
+        message: End Defect
+        additionalInfo: |
+          message: 'Defect Expected: 4'
+          additionalInfo: |
+            active: true
 
 #-------------------------------------------------------------------------------
 
@@ -656,9 +234,36 @@ apState:
 #%############################ Out of Test Issues ##############################
 ################################################################################
 
-knownDefects:
-  - timestamp: 2017-11-25 11:28:22
-    message:   out of test known error !!!
+
+
+################################################################################
+#%############################ Out of Test Issues ##############################
+################################################################################
+
+
+
+################################################################################
+#%############################ Out of Test Issues ##############################
+################################################################################
+
+type2Errors:
+  - timestamp:      2017-11-25 11:28:22
+    message:        End Defect ~ Known
+    additionalInfo: message: Known Defect 5
+additionalInfo: |
+  active: true
+
+
+################################################################################
+#%############################ Out of Test Issues ##############################
+################################################################################
+
+type2Errors:
+  - timestamp:      2017-11-25 11:28:22
+    additionalInfo: message: out of test known error
+additionalInfo: |
+  active: true
+
 
 ################################################################################
 ################################## Filter Log ##################################

@@ -49,7 +49,7 @@ import {
 } from '../lib/FileUtils';
 
 import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
-import { createGuidTruncated, hasText } from '../lib/StringUtils';
+import { createGuidTruncated, hasText, CharacterEncoding } from '../lib/StringUtils';
 import { areEqual, debug } from '../lib/SysUtils';
 
 // Assumes local dir is ZenithFlow
@@ -622,14 +622,14 @@ describe('stringToFile / fileToString round trips', () => {
   });
 
   it('ascii simple round trip', () => {
-    stringToFile('Hello there', tempFile('ascii.txt'), 'ascii');
-    let actual: string  = fileToString(tempFile('ascii.txt'), 'ascii');
+    stringToFile('Hello there', tempFile('ascii.txt'), CharacterEncoding.ascii);
+    let actual: string  = fileToString(tempFile('ascii.txt'), CharacterEncoding.ascii);
     chkEq('Hello there', actual);
   });
 
   it('ascii from utf8 - expect file to be corrupt', () => {
     stringToFile(UTF8_STR, tempFile('utf8.txt'));
-    let actual: string  = fileToString(tempFile('utf8.txt'), 'ascii');
+    let actual: string  = fileToString(tempFile('utf8.txt'), CharacterEncoding.ascii);
     chkFalse(areEqual(UTF8_STR, actual));
   });
 });

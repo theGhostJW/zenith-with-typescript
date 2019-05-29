@@ -612,10 +612,10 @@ export function ensure(condition : boolean, failMsg : string = '') {
 }
 
 export function ensureHasVal<T>(successVal: T | null | undefined, failMsg : string = '') : T {
-  if(successVal == null) {
-    throw new Error('value must not be null or undefined - ' + failMsg);
+  if(!hasValue(successVal)) {
+    throw new Error('value must not be null or an empty string or undefined - ' + failMsg);
   }
-  return successVal;
+  return <any>successVal;
 }
 
 export function ensureHasValAnd<T>(successVal:T | null | undefined, predicate: (p:T) => boolean, failMsg : string = '') : T {
