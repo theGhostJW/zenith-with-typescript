@@ -32,7 +32,7 @@ describe('formatter components', () => {
     sectionIntegrationTest('OutOfTestError.yaml', 'OutOfTestError.expected.yaml', outOfTestError);
   });
 
-  it.only('iteration', () => {
+  it('iteration', () => {
     let fullSum = <any>fromTestData('ParserSummary'),
         transformer = (iterationInfo: any) => iteration(iterationInfo, fullSum, 'Last_Script');
 

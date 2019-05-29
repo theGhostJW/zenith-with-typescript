@@ -82,7 +82,6 @@ describe('isSerialisable', () => {
     chkFalse(isSerialisable({p: 1, p2: () => {}}))
   });
 
-
   it('nested obj with func', () => {
     chkFalse(isSerialisable({p: 1, p2: 'hi', n: { nn: { nnn: 1, nnm: () => {}}}}))
   });

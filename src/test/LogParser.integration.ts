@@ -9,8 +9,7 @@ import { replaceAll} from '../lib/StringUtils';
 describe('file Parsing', () => {
 
   let summary: any,
-      rawName = 'DemoLog.raw.yaml',
-      rawPath = testDataFile(rawName);
+      rawPath = testDataFile('DemoLog.raw.yaml');
 
   before(() => {
     summary = defaultLogParser(mockFileNameUseEnvironment)(rawPath);

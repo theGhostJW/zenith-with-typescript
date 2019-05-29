@@ -125,13 +125,10 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
 
    let resultPath = destPath(rawPath, 'raw', 'elements'),
        writeToFile = fileRecordWriter(resultPath),
-       lastRunStats: RunStats = nullRunStats(),
-       testStatKeys = _.keys(emptyTestStats());
+       lastRunStats: RunStats = nullRunStats();
 
    fullSummary.rawFile = rawPath;
    fullSummary.elementsFile = resultPath;
-
-
 
    function calcUpdateTestStats(state: RunState): TestStats {
       let runStats = state.runStats;
@@ -162,12 +159,9 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
        case 'IterationEnd':
         logOutOfTestIssues(state);
 
-
          let issues: ErrorsWarningsDefects[] = forceArray(state.inTestIssues, state.validatorIssues);
          issues = issues.filter(i => hasIssues(i));
 
-
-         
          let iterationInfo: IterationInfo = {
            summary: state.iterationSummary,
            startTime: state.iterationStart,

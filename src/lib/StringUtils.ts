@@ -630,7 +630,6 @@ export function replaceAll(hayStack: string, needle: string, replacement: string
    return hayStack.replace(reg, replacement);
 }
 
-
 export function wildCardMatch(hayStack: string, needlePattern: string, caseSensitive: boolean = true, checkForAll: boolean = false,
                             processFragmentResult: (fragment: string, remainder: string, found: boolean) => void = (f,r,ff) => {} ): boolean {
 
