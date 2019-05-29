@@ -1,5 +1,5 @@
 import { hasValue, ensure, autoType, objToYaml, areEqual,
-          xmlToObj, deepMapValues } from '../lib/SysUtils';
+          xmlToObj, deepMapValues, debug } from '../lib/SysUtils';
 
 const _ : _.LoDashStatic = require('lodash');
 
@@ -37,24 +37,50 @@ The character encodings currently supported by Node.js include:
     'hex' - Encode each byte as two hexadecimal characters.
  */
 
-export type CharacterEncoding = 'utf8' | 'ucs2' | 'ascii' | 'utf16le' | 'latin1' | 'binary' | 'base64' | 'hex';
+export enum CharacterEncoding {
+                                'utf8', 
+                                'ucs2',
+                                'ascii',
+                                'utf16le',
+                                'latin1',
+                                'binary',
+                                'base64',
+                                'hex'
+                              };
 
+const ALL_CHAR_ENCODINGS = [
+  CharacterEncoding.utf8, 
+  CharacterEncoding.ucs2,
+  CharacterEncoding.ascii,
+  CharacterEncoding.utf16le,
+  CharacterEncoding.latin1,
+  CharacterEncoding.binary,
+  CharacterEncoding.base64,
+  CharacterEncoding.hex
+]
 /*
   try encodings on buffer and return the ones that do not blow up
  */
-export function tryEncodings(buffer: any, options: CharacterEncoding[] = ['utf8', 'ascii', 'ucs2', 'base64', 'binary',  'hex'] ): Map<CharacterEncoding, string> {
+export function tryEncodings(buffer: any, options: CharacterEncoding[] = ALL_CHAR_ENCODINGS ): {CharacterEncoding: string}{
 
-  function decode(enc: CharacterEncoding): string {
-    let result = 'DECODE ERROR';
+  function decode(enc: CharacterEncoding): string | undefined {
+    let result = undefined;
     try {
-      result = buffer.toString(enc);
+      result = buffer.toString(CharacterEncoding[enc]);
     } catch (e) {
       // assume not valid
     }
     return result;
   }
 
-  return _.transform(options, (acc, en) => acc.set(en, decode(en)), new Map<CharacterEncoding, string>())
+  function addEncoding(encodings: {CharacterEncoding: string}, encoding: CharacterEncoding): {CharacterEncoding: string} {
+    const str = decode(encoding) ;
+    if (str != null){
+      (<any>encodings)[encoding] = str;
+    }
+    return encodings;
+  }
+  return (<any>_.reduce(options, (<any>addEncoding), {}));
 }
 
 export function lwrFirst(str?: string) {

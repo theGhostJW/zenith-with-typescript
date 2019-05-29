@@ -8,14 +8,15 @@ import {appendDelim, arrayToString, bisect, capFirst, convertXmlToSimpleTemplate
   stringToGroupedTableLooseTyped, stringToGroupedTableLooseTypedDefinedTabSize, stringToGroupedTableMap, stringToTable,
   stringToTableLooseTyped, stringToTableMap, subStrAfter, subStrBefore, subStrBetween, templateSectionParts, show,
   trim, trimChars, trimLines, upperCase, upperFirst, wildCardMatch, tryEncodings, formatXml,
-  DEFAULT_CSV_PARSE_OPTIONS} from '../lib/StringUtils';
-import {areEqual, flattenObj, forceArray } from '../lib/SysUtils';
+  DEFAULT_CSV_PARSE_OPTIONS,
+  CharacterEncoding} from '../lib/StringUtils';
+import {areEqual, flattenObj, forceArray, debug } from '../lib/SysUtils';
 import { GROUPED_TABLES, SAMPLE_TEMPLATE, SAMPLE_XML, SECTIONED_TABLE, SIMPLE_TABLE, SIMPLE_TABLE_BIG_TABS, TABLES, UNFORMATTED_XML } from './StringUtils.data.test';
 const _ : _.LoDashStatic = require('lodash');
 
 describe('formatXml', () => {
 
-  it.only('large xml', () => {
+  it('large xml', () => {
     let formatted = formatXml(UNFORMATTED_XML);
     chkHasText(formatted, '     St Kilda');
   });
@@ -24,12 +25,11 @@ describe('formatXml', () => {
 
 describe('tryEncodings', () => {
 
-  it('basic', () => {
+  it.only('basic', () => {
     let str = 'HEllo there I am a string',
         buff = Buffer.from(str, 'ascii'),
         venc = tryEncodings(buff);
-
-    chkEq((<any>venc)['ascii'], str);
+    chkEq(str, (<any>venc)[CharacterEncoding.ascii]);
   });
 
 });

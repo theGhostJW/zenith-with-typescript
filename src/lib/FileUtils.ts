@@ -323,7 +323,7 @@ export function toLogDir < T > (val : T, fileName : string) : string {
   return toSpecialDir(val, fileName, logFile);
 }
 
-export function stringToLogFile(str : string, fileNameNoPath : string, encoding : CharacterEncoding = 'utf8') : string {
+export function stringToLogFile(str : string, fileNameNoPath : string, encoding : CharacterEncoding =  CharacterEncoding.utf8) : string {
   return stringToFile(str, logFile(fileNameNoPath), encoding);
 }
 
@@ -370,21 +370,21 @@ export function changeExtension(path : string, newExt : string) : string {
 
 export function fileExtension(path : string) : string {return p.parse(path).ext;}
 
-export function fileToString(path : string, encoding : CharacterEncoding = 'utf8') : string {
-  return fs.readFileSync(path, encoding);
+export function fileToString(path : string, encoding : CharacterEncoding =  CharacterEncoding.utf8) : string {
+  return fs.readFileSync(path, CharacterEncoding[encoding]);
 }
 
-export function stringToFile(str : string, path : string, encoding : CharacterEncoding = 'utf8'): string {
-  fs.writeFileSync(path, str, encoding);
+export function stringToFile(str : string, path : string, encoding : CharacterEncoding =  CharacterEncoding.utf8): string {
+  fs.writeFileSync(path, str, CharacterEncoding[encoding]);
   return path;
 }
 
-export function fileToLines(path : string, encoding : CharacterEncoding = 'utf8') : string[] {
-  return fs.readFileSync(path, encoding).split(newLine());
+export function fileToLines(path : string, encoding : CharacterEncoding =  CharacterEncoding.utf8) : string[] {
+  return fs.readFileSync(path, CharacterEncoding[encoding]).split(newLine());
 }
 
-export function linesToFile(lines : string[], path : string, encoding : CharacterEncoding = 'utf8') {
-  fs.writeFileSync(path, lines.join(newLine()), encoding);
+export function linesToFile(lines : string[], path : string, encoding : CharacterEncoding =  CharacterEncoding.utf8) {
+  fs.writeFileSync(path, lines.join(newLine()), CharacterEncoding[encoding]);
 }
 
 export function tempFile(fileName?: string) : string {
