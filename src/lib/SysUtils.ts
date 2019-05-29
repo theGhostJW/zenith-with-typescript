@@ -352,19 +352,19 @@ export function autoType(arr: {[k:string]: string}[]) : {[k:string]: any}[] {
     return dotToNulls(obj, exclusions)
   }
 
-  var result = arr.map(nullDotProps);
+  let result = arr.map(nullDotProps);
 
   function validateParsers(parsers: any, obj: any){
 
     function compatitableParser(remainingParsers: any, key: string){
       function canParse(parser: any){
-        var result = !exclusions.includes(key) && parser.canParse(obj[key]);
+        let result = !exclusions.includes(key) && parser.canParse(obj[key]);
         return result;
       }
       return _.filter(remainingParsers, canParse);
     }
 
-    var result = _.mapValues(parsers, compatitableParser);
+    let result = _.mapValues(parsers, compatitableParser);
     return result;
   }
 
