@@ -1,14 +1,10 @@
-import {chk, chkEq, chkEqJson, chkFalse, chkExceptionText, chkWithMessage} from '../lib/AssertionUtils';
-import { debug, waitRetry } from '../lib/SysUtils';
-import { toTemp, toTempString } from '../lib/FileUtils';
-import { show } from '../lib/StringUtils';
+import {  projectSubDir, combine} from '../lib/FileUtils';
 import * as _ from 'lodash';
-import { browserEx, findMatchingSourceFile } from '../lib/WebUtils';
+import { findMatchingSourceFile } from '../lib/WebUtils';
 
 describe('findMatchingSourceFile', () => {
-
   it('simple', function blahhh(){
-    console.log(findMatchingSourceFile('C:\\ZWTF\\src\\test\\WebUtils.test.js'));
+    var target = combine(projectSubDir('src'), 'test', 'WebUtils.test.ts')
+    console.log(findMatchingSourceFile(target));
   });
-
 });
