@@ -809,16 +809,13 @@ describe('show', () => {
     chkEq('- 1\n- 2\n- 3\n', show([1, 2, 3]));
   });
 
-  it('function', () => {
+  it.only('function', () => {
 
-    let expected = `function blahh() {
-      return 'Hi';
-    }`
+    let expected = `function blahh() { return 'Hi'; }`
 
-    function blahh() {
-      return 'Hi';
-    }
-    chkEq(expected, show(blahh));
+    function blahh() {return 'Hi';}
+    const actual = show(blahh);
+    chkEq(expected, actual);
   });
 
   it('null', () => {
