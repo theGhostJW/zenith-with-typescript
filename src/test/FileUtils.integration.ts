@@ -53,6 +53,7 @@ import { createGuidTruncated, hasText, CharacterEncoding } from '../lib/StringUt
 import { areEqual, debug } from '../lib/SysUtils';
 
 // Assumes local dir is ZenithFlow
+//TODO: fix this use projectDir or something
 const PROJECT_PATH : string = 'C:\\ZenithFlow',
       SOURCE_DIR: string = PROJECT_PATH + '\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
@@ -716,7 +717,7 @@ describe('Integration - seekFolder', () => {
 describe('Integration - pathExists', () => {
 
   it('known file', () => {
-    const BASE_DIR: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
+    const BASE_DIR: string  = SOURCE_DIR + '\\lib\\FileUtils.ts';
     chk(pathExists(BASE_DIR));
   });
 
