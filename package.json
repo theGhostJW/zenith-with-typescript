@@ -90,7 +90,7 @@
     "launchDetachedWdioServerInstance": "yarn run build && node ./scripts/launchWebDriverIO.js",
     "test": "mocha --require ts-node/register ./src/test/**.test.ts",
     "testWatch": "node ./scripts/yarnWatch.js test",
-    "testAll": " mocha ./src/test/**/*.test.js ./src/test/**/*.integration.js",
+    "testAll": "mocha --require ts-node/register -r tsconfig-paths/register ./src/test/**.test.ts ./src/test/**/*.integration.ts",
     "endpoints": "mocha --compilers js:@babel/register ./src/test/**/*.endpoints.js ./testCases/**/*.endpoints.js",
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
     "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:@babel/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
