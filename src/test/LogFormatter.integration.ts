@@ -1,6 +1,6 @@
 import { testPrivate, iteration, outOfTestError} from '../lib/LogFormatter';
 import {  chkEq } from '../lib/AssertionUtils';
-import { fromTestData, fromTestDataString } from '../lib/FileUtils';
+import { fromTestData, fromTestDataString, toTempString } from '../lib/FileUtils';
 import { trimChars, newLine, standardiseLineEndings, trimLines } from '../lib/StringUtils';
 
 
@@ -16,8 +16,8 @@ function sectionIntegrationTest<T>(sourceFile: string, expectedFile: string, tra
     actual = trimLines(actual);
 
 
-    //toTempString(expected, 'expected.yaml');
-    //toTempString(actual, 'actual.yaml');
+    toTempString(expected, 'expected.yaml');
+    toTempString(actual, 'actual.yaml');
 
     chkEq(expected, actual);
 }
@@ -32,7 +32,7 @@ describe('formatter components', () => {
     sectionIntegrationTest('OutOfTestError.yaml', 'OutOfTestError.expected.yaml', outOfTestError);
   });
 
-  it('iteration', () => {
+  it.only('iteration', () => {
     let fullSum = <any>fromTestData('ParserSummary'),
         transformer = (iterationInfo: any) => iteration(iterationInfo, fullSum, 'Last_Script');
 
