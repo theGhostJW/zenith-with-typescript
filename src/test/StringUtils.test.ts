@@ -809,7 +809,7 @@ describe('show', () => {
     chkEq('- 1\n- 2\n- 3\n', show([1, 2, 3]));
   });
 
-  it.only('function', () => {
+  it('function', () => {
 
     let expected = `function blahh() { return 'Hi'; }`
 

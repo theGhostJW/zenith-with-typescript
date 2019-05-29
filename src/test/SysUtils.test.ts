@@ -115,7 +115,7 @@ describe('getCallerString', () => {
   it('simple', function blahhh(){
     let actual = calledFunc();
     chkHasText(actual, 'blahhh');
-    chkHasText(actual, 'SysUtils.test.js');
+    chkHasText(actual, 'SysUtils.test.ts');
   });
 
 });
