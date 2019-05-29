@@ -58,12 +58,6 @@ describe('test filters', () => {
     chkFalse(test_depth('ignored', bc, baseConfig()));
   });
 
-  it('in_list - pass', () => {
-    let rc = baseConfig();
-    rc.testCases = [100]
-    chk(in_list('ignored', baseCase(), rc ));
-  });
-
   it('in_list - pass name', () => {
     let rc = baseConfig();
     rc.testCases = [120, '*He*']

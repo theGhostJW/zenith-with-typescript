@@ -91,7 +91,7 @@ describe('filterTestItems', () => {
         ],
         log: {
          test1: 'Accepted',
-         test100: 'isEnabled',
+         test100: 'isInNames',
          test2: 'sameEnv',
          test20: 'Accepted'
         }
@@ -105,12 +105,12 @@ describe('filterTestItems', () => {
         items: [],
         log: {
          test1: 'sameEnv',
-         test100: 'isEnabled',
+         test100: 'sameEnv',
          test2: 'isInNames',
          test20: 'sameEnv'
         }
       },
-      actual = filterTests(testCases, extractor, predicates, {env: 'PVT', testCases: ['test1', 'test20'], size: 10});
+      actual = filterTests(testCases, extractor, predicates, {env: 'PVT', testCases: ['test1', 'test20', 'test100'], size: 10});
       chkEq(expected, actual);
   });
 });
