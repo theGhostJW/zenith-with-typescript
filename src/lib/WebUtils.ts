@@ -1689,9 +1689,9 @@ function firstTestModuleInStack(): string {
   let fullStack = callstackStrings(),
       line = fullStack.find(s => TEST_SUFFIXES.some(suffix => hasText(s, suffix)));
 
-  return filePathFromCallStackLine(
-      ensureHasVal(line, `Could not find test module in callstack the calling function can only be executed from a test module: ${fullStack.join(newLine())}`)
-  );
+  ensureHasVal(line, `Could not find test module in callstack the calling function can only be executed from a test module: ${fullStack.join(newLine())}`);
+
+  return filePathFromCallStackLine(<string>line);
 }
 
 function launchSession<T>(before: (() => void) | null | string | undefined, func: (...params: any) => T, ...params: any[]): T {
@@ -1749,7 +1749,7 @@ function browserExBase(before: (() => void) | null | string, caller: string, fun
 }
 
 export function findMatchingSourceFile(callerPath: string): string {
-  let callerFileName = fileOrFolderName(callerPath);
+  const callerFileName = fileOrFolderName(callerPath);
   let suffix = TEST_SUFFIXES.find(s => hasText(callerFileName, s, true));
 
   suffix = ensureHasVal(suffix, trimLines(`webUtilsTestLoad - calling file: ${callerPath} is not a standard test file.

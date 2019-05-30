@@ -21,7 +21,7 @@ describe('rerun', () => {
     rerun();
   });
 
-  it('run', () => {
+  it.only('run', () => {
     chkEq('Google', rerun('https://www.google.com.au/', zzzTestFunc))
   });
 

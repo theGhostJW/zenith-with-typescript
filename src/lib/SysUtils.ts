@@ -33,7 +33,7 @@ export function isSerialisable(obj: any): boolean {
           ])(obj)
 }
 
-export const filePathFromCallStackLine = (l : string) =>  (hasText(l, ' (', true) ? subStrBetween(l, ' (', '.js:', true) : subStrBefore(l, '.js')) + '.js';
+export const filePathFromCallStackLine = (l : string) =>  (hasText(l, ' (', true) ? subStrBetween(l, ' (', '.ts:', true) : subStrBefore(l, '.ts')) + '.ts';
 
 // https://stackoverflow.com/questions/13227489/how-can-one-get-the-file-path-of-the-caller-function-in-node-js
 // assumes javascript extension .js

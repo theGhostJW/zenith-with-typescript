@@ -32,8 +32,8 @@ export function invocationParams() : any[] | undefined {
   return invocationParamsSingleton;
 }
 
-export function setInvocationParams(invocationParams: any[] | undefined) {
-  invocationParamsSingleton = invocationParams;
+export function setInvocationParams(invocationParams: any[] | undefined | null) {
+  invocationParamsSingleton = invocationParams == null ? undefined : invocationParams;
 }
 
 let clientSocket: any = null;
