@@ -2,7 +2,7 @@ import { runClient, invocationResponse, clearInvocationResponse, activeSocket,
           sendInvocationParams, sendClientDone, isConnected } from './SeleniumIpcClient';
 
 import { tempFile,  toTemp, fromTemp, projectDir,
-         logFile } from './FileUtils';
+         logFile, fileToString } from './FileUtils';
 import { log, logError, logWarning } from './Logging';
 import { show, trimChars } from './StringUtils';
 
@@ -14,7 +14,8 @@ import { generateAndDumpTestFile, BeforeRunInfo } from './WebInteractorGenerator
 
 const _ = require('lodash');
 const request = require('sync-request');
-const Launcher = require('@wdio/cli');
+//@ts-ignore
+import Launcher from '@wdio/cli';
 const  fs = require('file-system');
 const child_process = require('child_process');
 
@@ -78,9 +79,8 @@ export function interact<T>(...params: any[]): T {
     clearInvocationResponse();
     sendInvocationParams(...params);
     log('Waiting interaction response');
-    let complete = waitRetry(() => invocationResponse() != null, 180000),
-        result: T = invocationResponse() == null ? fail('Interactor Timeout Error') : (<any>invocationResponse());
-    return result
+    waitRetry(() => invocationResponse() != null, 180000);
+    return invocationResponse() == null ? fail('Interactor Timeout Error') : (<any>invocationResponse());
   } catch (e) {
     return fail(e);
   }
@@ -107,7 +107,7 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
         proDir = projectDir();
   
   checkStartGeckoDriver();
-  const child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
+  const child = child_process.spawn('ts-node', ['.\\scripts\\LaunchWebDriverIO.ts'], {
                                                       cwd: proDir,
                                                       detached: true,
                                                       stdio: [ 'ignore', out, err]
@@ -133,24 +133,27 @@ export function startWdioServer(config: {}) {
     let failed = false;
     // console.log("DEBUG STARTING DRIVER!!");
     // checkStartGeckoDriver();
-    // console.log("DEBUG DRIVER Started");
-    //$FlowFixMe
+    console.log("DEBUG Launcher");
     let wdio = new Launcher('.\\wdio.conf.js', config);
-    // console.log('Launching file: ' + cast(config).specs.join(', '));
-    // console.log('CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
+    console.log('Launching file: ' + (<any>config).specs.join(', '));
+    console.log('DEBUG CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
     log('Launching file: ' + (<any>config).specs.join(', '));
+    console.log('DEBUG OVERRIDE CONFIG: ' + show(config));
     wdio.run().then(function (code: any) {
       if (code != 0){
+        console.log('DEBUG wdio - non zero code: ' + code);
         logError(`WebDriver test launcher returned non zero response code: ${show(code)}`);
         failed = true;
       }
     }, function (error: any) {
-      logError('Launcher failed to start the test', error.stacktrace);
+      console.log('DEBUG Launcher failed to start the test', error.stacktrace);
+      logError('Launcher failed to start the test ' + error.stacktrace);
       failed = true;
     });
 
     waitRetry(() => isConnected() || failed, 10000000);
   } catch (e) {
+    console.log('DEBUG Launcher failed to start the test '+ e);
     fail(e);
   }
 }
@@ -158,7 +161,7 @@ export function startWdioServer(config: {}) {
 function generateWebDriverTestFileAndConfig(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean): {} {
   // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
   let internalTesting = false,
-      destPath = internalTesting ? './src/lib/WebInteractor.js' : tempFile('WebInteractor.js');
+      destPath = internalTesting ? './src/lib/WebInteractor.ts' : tempFile('WebInteractor.ts');
 
   if (internalTesting){
     logWarning('INTERNAL TESTING FLAG IS SET');

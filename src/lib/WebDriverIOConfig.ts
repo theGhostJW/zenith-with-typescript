@@ -20,7 +20,7 @@ export function defaultConfig(): {} {
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
     specs: [
-        './src/lib/WebInteractor.js'
+        './src/lib/WebInteractor.ts'
     ],
     // Patterns to exclude.
     exclude: [
@@ -144,7 +144,10 @@ export function defaultConfig(): {} {
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
-        timeout: 1000000000 // rediculously high so can use for interactove debuggng
+        timeout: 1000000000, // ridiculously high so can use for interactove debuggng
+        require: [
+            'tsconfig-paths/register'
+        ]
     },
     //
     // =====
@@ -176,8 +179,9 @@ export function defaultConfig(): {} {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {Array.<String>} specs List of spec file paths that are to be run
      */
-    // before: function (capabilities, specs) {
-    // },
+     before: function() {
+         require('ts-node').register({ files: true });
+     },
     /**
      * Runs before a WebdriverIO command gets executed.
      * @param {String} commandName hook command name

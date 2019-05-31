@@ -18,31 +18,29 @@ function fileContent(beforeInfo: BeforeRunInfo | null, functionName: string, sou
       importFilePath = replaceAll(sourcePath, '\\', '\\\\'),
       relativeImportFile = replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
 
-  return targetRequires(beforeInfo, functionName, sourcePath, relativeImportFile, dynamicModuleLoad) + newLine() +
+  return targetRequires(beforeInfo, functionName, sourcePath, relativeImportFile, dynamicModuleLoad) + 
           (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +
           NPM_USES + newLine() +
           sourceCode(beforeInfo, functionName, importFilePath, dynamicModuleLoad);
 }
 
 function targetRequires(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, relativeImportFile: string, dynamicModuleLoad: boolean) : string {
-  let result = `// @flow \n\n`,
-      beforeFuncName = beforeInfo == null ? null :
+  let beforeFuncName = beforeInfo == null ? null :
                                       beforeInfo.isUrl ? null : beforeInfo.name,
       funcs = _.compact([beforeFuncName, (dynamicModuleLoad ? null : functionName)]),
       hasFuncs = funcs.length > 0 ,
       importFuncs = hasFuncs ? funcs.join(', ') : '';
 
-    return hasFuncs ? result + `import { ${importFuncs} } from '${relativeImportFile}';` : result;
+    return hasFuncs ? `import { ${importFuncs} } from '${relativeImportFile}';` + newLine(): '';
 }
 
 const FRAMEWORK_USES = trimLines(`
   import { startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage, isReloadableFile } from '../src/lib/SeleniumIpcServer';
-  import { waitRetry, debug, fail, hasValue, translateErrorObj, cast, ensure } from '../src/lib/SysUtils';
+  import { waitRetry, debug, fail, hasValue, translateErrorObj, ensure } from '../src/lib/SysUtils';
   import { show, hasText  } from '../src/lib/StringUtils';
   import { toTempString  } from '../src/lib/FileUtils';
-  import { INTERACT_SOCKET_NAME } from '../src/lib/SeleniumIpcProtocol';
+  import { INTERACT_SOCKET_NAME, Protocol } from '../src/lib/SeleniumIpcProtocol';
   import { log, logError, logException } from '../src/lib/Logging';
-  import type { Protocol } from '../src/lib/SeleniumIpcProtocol';
 `);
 
 const ZWTF_USES = trimLines(`
@@ -50,16 +48,15 @@ const ZWTF_USES = trimLines(`
           startServer, stopServer, invocationParams, done, setInvocationParams, emitMessage,
           waitRetry, debug, fail, hasValue, translateErrorObj, cast,
           show, isReloadableFile
-          INTERACT_SOCKET_NAME,
+          INTERACT_SOCKET_NAME, Protocol,
           log, logError, logException
    } from 'ZWFT';
-  import type { Protocol } from 'ZWFT';
 `);
 
 const NPM_USES = trimLines(`
-  import * as wd from 'webdriverio';
-  import * as ipc from 'node-ipc';
-  import * as _ from 'lodash';
+  import 'webdriverio';
+  const ipc = require('node-ipc');
+  const _ = require('lodash');
 `);
 
 const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modulePath: string, dynamicModuleLoad: boolean) =>  {
@@ -68,14 +65,14 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
                                             `// Delete cache entry to make sure the file is re-read from disk.
 
 
-                                            function renewCache(path) {
+                                            function renewCache(path: string) {
                                               delete require.cache[path];
                                               return require(path)
                                             }
 
                                             _.values(require.cache)
-                                                      .filter(i => isReloadableFile(i.filename))
-                                                      .map(m => m.filename)
+                                                      .filter((i: any) => isReloadableFile(i.filename))
+                                                      .map((m: any) => m.filename)
                                                       .forEach(renewCache);
 
 
@@ -85,9 +82,9 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
                                              ensure(func != null, 'Web interactor error: Could not invoke ${functionName}.\\n' +
                                                                    'This is usually because the function has not been exported from the target module.\\n' +
                                                                    'Check the "${functionName}" function is exported from the module: "${modulePath}".');
-                                             let response = func(...cast(params));`
+                                             let response = func(...<any>(params));`
                                           )
-                                        : `let response = ${functionName}(...cast(params));`,
+                                        : `let response = ${functionName}(...<any>(params));`,
       initCall = beforeInfo == null ? '' :
                   beforeInfo.isUrl ? `browser.url('${beforeInfo.name}');`
                                    : `${beforeInfo.name}();`
