@@ -1706,8 +1706,7 @@ function launchSession<T>(before: (() => void) | null | string | undefined, func
      killGeckoDriver();
      launchWdioServerDetached(sourcePath, beforeFuncInfo, funcName, true);
 
-     //TODO: change back to 30000
-     ensure(waitConnected(300000), 'Timed out waiting on interactor');
+     ensure(waitConnected(30000), 'Timed out waiting on interactor');
      return interact(...params);
    }
   catch (e) {

@@ -94,6 +94,7 @@ export const rerunClient = runClient;
 
 const weDriverTempConfigFileName = 'webdriverIO.config';
 export function launchDetachedWdioServerInstance() {
+  //BUG: will drop functions change to names file
   let config = fromTemp(weDriverTempConfigFileName, false);
   console.log("Starting instance");
   startWdioServer(config);
@@ -101,6 +102,8 @@ export function launchDetachedWdioServerInstance() {
 }
 
 export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean) {
+  //BUG: will drop functions change to names file
+  log("remove reading of config file");
   let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeInfo, functionName, dynamicModuleLoading);
   toTemp(webDriverConfig, weDriverTempConfigFileName, false);
    
@@ -109,7 +112,8 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
         proDir = projectDir();
   
   checkStartGeckoDriver();
-  const child = child_process.spawn('ts-node', ['.\\scripts\\LaunchWebDriverIO.ts'], {
+  // NOTE Currently different to script
+  const child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
                                                       cwd: proDir,
                                                       detached: true,
                                                       stdio: [ 'ignore', out, err]
@@ -120,7 +124,7 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
 }
 
 function launchWdioClientAndServer(config: {}) {
-
+  //BUG: move config to file
   try {
     runClient();
     startWdioServer(config)
@@ -136,7 +140,10 @@ export function startWdioServer(config: {}) {
     // console.log("DEBUG STARTING DRIVER!!");
     // checkStartGeckoDriver();
     console.log("DEBUG Launcher");
-    let wdio = new Launcher('.\\wdio.conf.js', config);
+    // config
+    console.log('CHANGE TO FILE NAME WHEN DONE WHEN DONE');
+    // let wdio = new Launcher('.\\wdio.conf.js', config);
+    let wdio = new Launcher('.\\wdio.conf.js', {});
     console.log('Launching file: ' + (<any>config).specs.join(', '));
     console.log('DEBUG CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
     log('Launching file: ' + (<any>config).specs.join(', '));
