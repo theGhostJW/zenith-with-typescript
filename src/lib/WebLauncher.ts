@@ -95,7 +95,9 @@ export const rerunClient = runClient;
 const weDriverTempConfigFileName = 'webdriverIO.config';
 export function launchDetachedWdioServerInstance() {
   let config = fromTemp(weDriverTempConfigFileName, false);
+  console.log("Starting instance");
   startWdioServer(config);
+  console.log("Instance Started");
 }
 
 export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean) {
