@@ -6,7 +6,7 @@ import {
           browserEx, click, clickLink, elementType,
           elementIs, getForm, idAttribute, linkByText,
           links,  mapCellsSimple, parent, predicateToFinder, radioItemVals,
-          read, rerun, set, setChecked, getUrl,
+          read, wdDebug, set, setChecked, getUrl,
           setForm, setInput, setRadioGroup, setSelect,
           url, withFinder, withPredicate,
           withSetter, zzzTestFunc, S, SS,

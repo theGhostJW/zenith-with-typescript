@@ -1635,14 +1635,14 @@ function signatureChanged(sig: {}) {
   return tempFileExists(webDriverIOParamsSignatureFileName) ? !areEqual(fromTemp(webDriverIOParamsSignatureFileName, false), sig) : true;
 }
 
-export function rerun(beforeFuncOrUrl?: (() => void) | string | null | undefined, func?: (...p:any) => any, ...params: any[]): any {
+export function wdDebug(beforeFuncOrUrl?: (() => void) | string | null | undefined, func?: (...p:any) => any, ...params: any[]): any {
   let result;
   try {
     runClient();
     // Closing - if already closed will do nothing
     if (func == null){
       stopSession();
-      throw 'rerun Session Stop';
+      throw 'wdDebug Session Stop';
     }
 
     let connected = isConnected(),

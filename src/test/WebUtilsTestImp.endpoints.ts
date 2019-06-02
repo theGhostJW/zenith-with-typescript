@@ -9,7 +9,7 @@ import {
 } from '../lib/AssertionUtils';
 import { show, startsWith } from '../lib/StringUtils';
 import { debug, debugStk, fail, waitRetry } from '../lib/SysUtils';
-import { read, rerun, set, setForm } from '../lib/WebUtils';
+import { read, wdDebug, set, setForm } from '../lib/WebUtils';
 import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLinkReturnUrl, clickOrderLink,
         /* setForm,*/ getForm,  invalidUncheckCheckBox, linkByTextText,  links, mapCellsLog, mapCellsLogNoInvisibles,
         mapCellsSimple, mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parentHtml, radioItemVals,
@@ -35,12 +35,12 @@ describe('Table Utils', () => {
   describe('mapCellsSimple', () => {
 
     it('Include Invisible', () => {
-      let rslt = rerun(smartBearLogInVoid, <any>mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
+      let rslt = wdDebug(smartBearLogInVoid, <any>mapCellsSimpleLog, '#ctl00_MainContent_orderGrid');
       chkEq(9, (<any>rslt).length);
     });
 
     it('Exclude Invisible', () => {
-      let rslt = rerun(smartBearLogInVoid, <any>mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
+      let rslt = wdDebug(smartBearLogInVoid, <any>mapCellsSimpleLogNoInvisibles, '#ctl00_MainContent_orderGrid');
       chkEq(9, (<any>rslt).length);
     });
 
@@ -49,12 +49,12 @@ describe('Table Utils', () => {
   describe('mapCells', () => {
 
     it('mapCells Include Invisible', () => {
-      let rslt = rerun(smartBearLogInVoid, mapCellsLog, '#ctl00_MainContent_orderGrid');
+      let rslt = wdDebug(smartBearLogInVoid, mapCellsLog, '#ctl00_MainContent_orderGrid');
       chkEq(8, (<any>rslt).length);
     });
 
     it('eachCellSimple Exclude Invisible', () => {
-      let rslt = rerun(smartBearLogInVoid, mapCellsLogNoInvisibles, '#ctl00_MainContent_orderGrid');
+      let rslt = wdDebug(smartBearLogInVoid, mapCellsLogNoInvisibles, '#ctl00_MainContent_orderGrid');
       chkEq(8, (<any>rslt).length);
     });
 
@@ -67,7 +67,7 @@ describe('Table Utils', () => {
                      Product: 'ScreenSaver',
                       Zip: 748
                     },
-      rslt = rerun(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
+      rslt = wdDebug(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
       chkEq('Paul Brown', rslt);
     });
 
@@ -76,7 +76,7 @@ describe('Table Utils', () => {
                      Product: 'MyMoney',
                      Card: 'MasterCard'
                     },
-      rslt = rerun(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
+      rslt = wdDebug(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name');
       chkEq('Susan McLaren', rslt);
     });
 
@@ -87,7 +87,7 @@ describe('Table Utils', () => {
                    };
 
       chkExceptionText(
-                        () => rerun(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name'),
+                        () => wdDebug(smartBearLogInVoid, <any>cellVal, '#ctl00_MainContent_orderGrid', params, 'Name'),
                         'do not appear in the table header: NonExistentCol.'
       );
     });
@@ -101,7 +101,7 @@ describe('Table Utils', () => {
                      Product: 'FamilyAlbum',
                      Zip: 63325
                     },
-          rslt = rerun(smartBearLogInVoid, readCell, '#ctl00_MainContent_orderGrid', params, 'Name');
+          rslt = wdDebug(smartBearLogInVoid, readCell, '#ctl00_MainContent_orderGrid', params, 'Name');
       chkEq('Clare Jefferson', rslt);
     });
 
@@ -110,13 +110,13 @@ describe('Table Utils', () => {
   describe('readTable', () => {
 
     it('all cols', () => {
-      let rslt = rerun(smartBearLogInVoid, readTable, '#ctl00_MainContent_orderGrid');
+      let rslt = wdDebug(smartBearLogInVoid, readTable, '#ctl00_MainContent_orderGrid');
       chkEq(8, rslt.length);
       chkEq(13, _.keys(rslt[0]).length);
     });
 
     it('some cols', () => {
-      let rslt = rerun(smartBearLogInVoid, readTable, '#ctl00_MainContent_orderGrid', ['Name', 'Product', 'Zip']);
+      let rslt = wdDebug(smartBearLogInVoid, readTable, '#ctl00_MainContent_orderGrid', ['Name', 'Product', 'Zip']);
       chkEq(8, rslt.length);
       chkEq(3, _.keys(rslt[0]).length);
     });
@@ -127,14 +127,14 @@ describe('Table Utils', () => {
   describe('setTable', () => {
 
     it('simple', () => {
-      rerun(smartBearLogInVoid, setTable, '#ctl00_MainContent_orderGrid',
+      wdDebug(smartBearLogInVoid, setTable, '#ctl00_MainContent_orderGrid',
                                                 ['~Name'     , 'idx0' ],
                                                 ['Steve Johns', true],
                                               );
     });
 
     it('multiple', () => {
-      rerun(smartBearLogInVoid, setTable, '#ctl00_MainContent_orderGrid',
+      wdDebug(smartBearLogInVoid, setTable, '#ctl00_MainContent_orderGrid',
                                                 ['~Name'     , 'idx0' ],
                                                 ['Steve Johns', true],
                                                 ['Mark Smith',  true],
@@ -150,48 +150,48 @@ describe('Table Utils', () => {
 describe('setForm', () => {
 
   it('setForm ~ ids', () => {
-    rerun(smartbearOrders, setForm, FORM_ID, FORM_INPUT_ALL_IDS);
+    wdDebug(smartbearOrders, setForm, FORM_ID, FORM_INPUT_ALL_IDS);
   });
 
   // Radio set by group name
   it('setForm ~ radio group by name', () => {
     let input = FORM_INPUT_RADIO_NAME;
-    rerun(smartbearOrders, setForm, FORM_ID, input);
+    wdDebug(smartbearOrders, setForm, FORM_ID, input);
   });
 
 
   // FRAMEWORK DEMO
   it('setForm ~ FORLABELS', () => {
     let input = FORM_INPUT_FOR_LABELS;
-    rerun(smartbearOrders, setForm, FORM_ID, input);
+    wdDebug(smartbearOrders, setForm, FORM_ID, input);
   });
 
   it('setForm ~ Proximal labels - needs special code edits to be valid', () => {
     let input = FORM_INPUT_PROXIMAL_LABELS;
-    rerun(smartbearOrders, setForm, FORM_ID, input);
+    wdDebug(smartbearOrders, setForm, FORM_ID, input);
   });
 
   it('setForm - Global Setter', () => {
-    rerun(smartbearOrders, setSmartbearcaps);
+    wdDebug(smartbearOrders, setSmartbearcaps);
   });
 
   it('setForm - Global Setter and single setter', () => {
-    rerun(smartbearOrders, setSmartbearcapsLwrAddress);
+    wdDebug(smartbearOrders, setSmartbearcapsLwrAddress);
   });
 
   it('setForm - Global Setter and single setter and id finder', () => {
-    rerun(smartbearOrders, setWithFindByIdOnlyAndLwrStreetName);
+    wdDebug(smartbearOrders, setWithFindByIdOnlyAndLwrStreetName);
   });
 
   it('setForm - Global Setter and single setter and id finder and specialised finder', () => {
-    rerun(smartbearOrders, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder);
+    wdDebug(smartbearOrders, setWithFindByIdOnlyAndLwrStreetNameAndSpcialisedFinder);
   });
 
 });
 
 describe('getForm', () => {
   it('getForm - orders', () => {
-    rerun(smartbearOrders, getForm, FORM_ID);
+    wdDebug(smartbearOrders, getForm, FORM_ID);
   });
 })
 
@@ -205,7 +205,7 @@ describe('another setform test', () => {
 		  customerName: 'Janice Peterson',
     };
 
-    rerun(smartbearOrders, setThisForm, FORM_ID, params);
+    wdDebug(smartbearOrders, setThisForm, FORM_ID, params);
   });
 
 });
@@ -213,12 +213,12 @@ describe('another setform test', () => {
 // - is this an impl thing
 describe('parent', () => {
   it('simple', () => {
-    let result = rerun(smartbearOrders, parentHtml, '#ctl00_MainContent_fmwOrder_cardList_0');
+    let result = wdDebug(smartbearOrders, parentHtml, '#ctl00_MainContent_fmwOrder_cardList_0');
     chk(startsWith(result, '<td><input id="ctl00_MainContent_fmwOrder_cardList_0"'));
   });
 
   it('with predicate', () => {
-    let result = rerun(smartbearOrders, parentTableHtml, '#ctl00_MainContent_fmwOrder_cardList_0');
+    let result = wdDebug(smartbearOrders, parentTableHtml, '#ctl00_MainContent_fmwOrder_cardList_0');
     chk(startsWith(result, '<table id="ctl00_MainContent_fmwOrder_cardList"'));
   });
 
@@ -226,7 +226,7 @@ describe('parent', () => {
 
 describe('full form set ~ hard coded', () => {
   it('set and read', () => {
-    let actual = rerun(smartbearOrders, basicSet),
+    let actual = wdDebug(smartbearOrders, basicSet),
         expected = _.chain({ctl00_MainContent_fmwOrder_txtQuantity: '95'})
                      .defaults(FORM_INPUT_MOSTLY_IDS)
                      .mapValues(show)
@@ -238,7 +238,7 @@ describe('full form set ~ hard coded', () => {
 
 describe('setInput', () => {
   it('set and read', () => {
-    let actual = rerun(smartbearOrders, setReadInput);
+    let actual = wdDebug(smartbearOrders, setReadInput);
     chkEq('Janice Peterson', actual);
   });
 });
@@ -246,13 +246,13 @@ describe('setInput', () => {
 describe('select', () => {
 
   it('simple select', () => {
-    let allProducts = rerun(smartbearOrders, setReadProduct);
+    let allProducts = wdDebug(smartbearOrders, setReadProduct);
     chkEq(AVAILABLE_PRODUCTS.reverse(), allProducts);
   });
 
   it('invalid select', () => {
     chkExceptionText(
-       () => rerun(smartbearOrders, setSelect, '#ctl00_MainContent_fmwOrder_ddlProduct', 'Lexus'), 
+       () => wdDebug(smartbearOrders, setSelect, '#ctl00_MainContent_fmwOrder_ddlProduct', 'Lexus'), 
       'could not be located either by visible text or by value'
     )
   });
@@ -263,18 +263,18 @@ describe('radioGroup', () => {
 
   const AVAILABLE_CARDS = ['Visa', 'MasterCard', 'American Express'];
   it('radioItemVals', () => {
-      let groupReads = rerun(smartbearOrders, radioItemVals, CARD_LIST_ID);
+      let groupReads = wdDebug(smartbearOrders, radioItemVals, CARD_LIST_ID);
       chkEq(AVAILABLE_CARDS, groupReads);
   });
 
   it('setRadioGroup / readRadioGroup', () => {
-      let groupReads = rerun(smartbearOrders, readSetRadioGroup);
+      let groupReads = wdDebug(smartbearOrders, readSetRadioGroup);
       chkEq(AVAILABLE_CARDS, groupReads);
   });
 
   it('setRadioGroup - mising value exception ', () => {
     chkExceptionText(
-       () => rerun(smartbearOrders, setRadioGroup, CARD_LIST_ID, 'BitCoin'),
+       () => wdDebug(smartbearOrders, setRadioGroup, CARD_LIST_ID, 'BitCoin'),
       'Could not find matching radio*button for value or label: BitCoin'
     )
   });
@@ -284,7 +284,7 @@ describe('radioGroup', () => {
 describe('set', () => {
 
   it('simple set', () => {
-    let url = rerun(TEST_LOG_IN, smartBearLogIn);
+    let url = wdDebug(TEST_LOG_IN, smartBearLogIn);
     chkEq('http://secure.smartbearsoftware.com/samples/testcomplete12/weborders/', url);
   });
 
@@ -293,7 +293,7 @@ describe('set', () => {
 describe('links', () => {
 
   it('getAll', () => {
-    chk(rerun(smartBearLogInVoid, links).length > 4);
+    chk(wdDebug(smartBearLogInVoid, links).length > 4);
   });
 
 });
@@ -302,7 +302,7 @@ describe('links', () => {
 describe('linkByText', () => {
 
   it('simple exists', () => {
-    chkEq('View all orders', rerun(smartBearLogInVoid, linkByTextText));
+    chkEq('View all orders', wdDebug(smartBearLogInVoid, linkByTextText));
   });
 
 });
@@ -310,12 +310,12 @@ describe('linkByText', () => {
 describe('clickLink', () => {
 
   it('simple link', () => {
-    let url = rerun(smartBearLogInVoid, clickLinkReturnUrl, '*products*');
+    let url = wdDebug(smartBearLogInVoid, clickLinkReturnUrl, '*products*');
     chkEq('http://secure.smartbearsoftware.com/samples/testcomplete12/weborders/Products.aspx', url);
   });
 
   it('HOF', () => {
-    let url = rerun(smartBearLogInVoid, clickOrderLink);
+    let url = wdDebug(smartBearLogInVoid, clickOrderLink);
     chkEq('http://secure.smartbearsoftware.com/samples/testcomplete12/weborders/Process.aspx', url);
   });
 
@@ -324,18 +324,18 @@ describe('clickLink', () => {
 describe('setChecked', () => {
 
   it('check uncheck radio', () => {
-      let checkedUnchecked = rerun(smartBearLogInVoid, checkReturnChecked);
+      let checkedUnchecked = wdDebug(smartBearLogInVoid, checkReturnChecked);
       chkEq([true, false], checkedUnchecked);
   });
 
   it('setChecked - radio buttons', () => {
-    const americanExpressIsChecked = rerun(smartbearOrders, checkUncheck);
+    const americanExpressIsChecked = wdDebug(smartbearOrders, checkUncheck);
     chk(americanExpressIsChecked);
   });
 
   it('setUnchecked Invalid Radio Button', () => {
     chkExceptionText(
-       () => rerun(smartbearOrders, invalidUncheckCheckBox),
+       () => wdDebug(smartbearOrders, invalidUncheckCheckBox),
       'Cannot uncheck radio buttons with setChecked'
     )
   });

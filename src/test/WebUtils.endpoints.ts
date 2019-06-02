@@ -3,7 +3,7 @@ import { debug, waitRetry} from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { browserEx, zzzTestFunc, rerun, set} from '../lib/WebUtils';
+import { browserEx, zzzTestFunc, wdDebug, set} from '../lib/WebUtils';
 
 const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
 
@@ -15,14 +15,14 @@ describe('browserEx', () => {
 
 });
 
-describe('rerun', () => {
+describe('wdDebug', () => {
 
   it('close', () => {
-    rerun();
+    wdDebug();
   });
 
-  it.only('rerun', () => {
-    chkEq('Google', rerun('https://www.google.com.au/', zzzTestFunc))
+  it.only('wdDebug', () => {
+    chkEq('Google', wdDebug('https://www.google.com.au/', zzzTestFunc))
   });
 
 });
