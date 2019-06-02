@@ -112,7 +112,6 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
         proDir = projectDir();
   
   checkStartGeckoDriver();
-  // NOTE Currently different to script
   const child = child_process.spawn('node', ['.\\scripts\\LaunchWebDriverIO.js'], {
                                                       cwd: proDir,
                                                       detached: true,

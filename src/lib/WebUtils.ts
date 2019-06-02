@@ -1655,11 +1655,12 @@ export function wdDebug(beforeFuncOrUrl?: (() => void) | string | null | undefin
     }
 
     saveSignature(sig);
-
+    log("before - launchSession");
     result = !connected || sigChangedConnected ?
                                  launchSession(beforeFuncOrUrl, func, ...params) :
                                  rerunLoaded(...params);
 
+    log("wdDebug - finished");
   } finally {
     disconnectClient();
   }

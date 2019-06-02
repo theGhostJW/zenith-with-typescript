@@ -22,7 +22,9 @@ describe('wdDebug', () => {
   });
 
   it.only('wdDebug', () => {
-    chkEq('Google', wdDebug('https://www.google.com.au/', zzzTestFunc))
+    const pageTitle = wdDebug('https://www.google.com.au/', zzzTestFunc);
+    chkEq('Google', pageTitle);
+    console.log("DONE !!!!");
   });
 
 });
