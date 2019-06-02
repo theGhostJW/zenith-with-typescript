@@ -98,9 +98,9 @@ return   `
   let beforeRun = false;
 
   function uiInteraction(): void {
-      // exception handling / logging pending
       let params = invocationParams();
 
+      //dynamically generated code for initial function call or url address
       if (params != null) {
         try {
           if (!beforeRun){
@@ -125,7 +125,7 @@ return   `
 
     it('interact', () => {
       startServer();
-      toTempString('${process.pid}', 'Started');
+      //used in ddebugging toTempString('${process.pid}', 'Started');
       waitRetry(() => done(), 90000000, () => uiInteraction());
       stopServer();
     });
