@@ -291,9 +291,9 @@ export function readTable(tableSelector: SelectorOrElement, columns: string[] | 
   return result;
 }
 
-export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[k:string]: ReadResult}, valueCol: string): ReadResult | void {
+export function readCell(tableSelector: SelectorOrElement, lookUpVals: {[k:string]: ReadResult}, valueCol: string): ReadResult | null {
   let cl = cell(tableSelector, lookUpVals, valueCol);
-  return cl == undefined ? undefined : read(cl);
+  return cl == null ? null : read(cl);
 }
 
 function ensureAllColsInColMap(colMap: {[k:number]: string}, lookUpNames: string[]){
@@ -303,7 +303,7 @@ function ensureAllColsInColMap(colMap: {[k:number]: string}, lookUpNames: string
   ensure(missing.length === 0, `The following column names referenced in the arguments to this function do not appear in the table header: ${missing.join(', ')}. Possible values are: ${colNames.join(', ')}`);
 }
 
-export function cell(tableSelector: SelectorOrElement, lookUpVals: {[K:string]: ReadResult}, valueCol: string): Element | void {
+export function cell(tableSelector: SelectorOrElement, lookUpVals: {[K:string]: ReadResult}, valueCol: string): Element | null {
   let tbl = S(tableSelector),
       header = tbl.$('tr'),
       colMap = generateColMap(header),
@@ -1655,12 +1655,10 @@ export function wdDebug(beforeFuncOrUrl?: (() => void) | string | null | undefin
     }
 
     saveSignature(sig);
-    log("before - launchSession");
     result = !connected || sigChangedConnected ?
                                  launchSession(beforeFuncOrUrl, func, ...params) :
                                  rerunLoaded(...params);
 
-    log("wdDebug - finished");
   } finally {
     disconnectClient();
   }
@@ -1694,6 +1692,8 @@ function firstTestModuleInStack(): string {
 
   return filePathFromCallStackLine(<string>line);
 }
+
+export const lsTestFunc = launchSession;
 
 function launchSession<T>(before: (() => void) | null | string | undefined, func: (...params: any) => T, ...params: any[]): T {
    try {

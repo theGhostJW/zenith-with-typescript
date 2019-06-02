@@ -3,7 +3,7 @@ import { debug, waitRetry} from '../lib/SysUtils';
 import { toTemp, toTempString } from '../lib/FileUtils';
 import { show } from '../lib/StringUtils';
 import * as _ from 'lodash';
-import { browserEx, zzzTestFunc, wdDebug, set} from '../lib/WebUtils';
+import { browserEx, zzzTestFunc, wdDebug, lsTestFunc} from '../lib/WebUtils';
 
 const TEST_LOG_IN = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
 

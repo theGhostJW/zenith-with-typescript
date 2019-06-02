@@ -129,16 +129,21 @@ export function executeFileSynch(path: string): Buffer {
 }
 
 //todo: typed options corresponding to child_process - after change to typescript
-export function executeFileAsynch(path: string): number {
+export function executeFileAsynch(path: string, detached: boolean = false): number {
   ensureFilePath(path);
-  let wd = parentDir(path);
+  //TODO: this may not be having the desired effect - check by removing param when working
+  const wd = parentDir(path),
+        params = detached ? {cwd: wd,  detached: true, stdio: "ignore" } : {cwd: wd};
   log(`executing ${path} async`);
-  const cp = child_process.exec(path, {cwd: wd});
+  const cp = child_process.exec(path, params);
+  if (detached){
+    cp.unref();
+  }
   return cp.pid
 }
 
-export function executeRunTimeFileAsynch(fileNameNoPath: string): number {
-  return executeFileAsynch(runTimeFile(fileNameNoPath));
+export function executeRunTimeFileAsynch(fileNameNoPath: string, detached: boolean = false): number {
+  return executeFileAsynch(runTimeFile(fileNameNoPath), detached);
 }
 
 export function executeRunTimeFileSynch(fileNameNoPath: string) : Buffer {

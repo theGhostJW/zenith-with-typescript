@@ -39,7 +39,7 @@ export function checkStartDriver(runTimeBatch: string, isReady: () => boolean, t
 
 export function startDriver(runTimeBatch: string, isReady: () => boolean, timeoutMs: number = 30000): boolean {
   // was startSelenium.bat
-  executeRunTimeFileAsynch(runTimeBatch);
+  executeRunTimeFileAsynch(runTimeBatch, true);
   return waitRetry(isReady, timeoutMs);
 }
 
