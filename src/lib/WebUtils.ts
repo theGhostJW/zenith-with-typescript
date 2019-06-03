@@ -44,7 +44,7 @@ export interface Element {
   getValue: () => string,
   getTagName: () => string,
   getLocation: () => {x: number, y: number},
-  getElementSize: () => {width: number, height: number},
+  getSize: () => {width: number, height: number},
   getHTML: () => string,
   getAttribute: (s:string) => string | undefined,
   isSelected: () => boolean,
@@ -902,7 +902,7 @@ interface ElementPlusLoc extends Element {
 
 function addLocation(el: Element): ElementPlusLoc {
   let loc = el.getLocation(),
-      size = el.getElementSize(),
+      size = el.getSize(),
       elpl = <ElementPlusLoc>el;
 
   elpl.x = loc.x,
