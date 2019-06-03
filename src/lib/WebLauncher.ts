@@ -2,7 +2,7 @@ import { runClient, invocationResponse, clearInvocationResponse, activeSocket,
           sendInvocationParams, sendClientDone, isConnected } from './SeleniumIpcClient';
 
 import { tempFile,  toTemp, fromTemp, projectDir,
-         logFile, fileToString } from './FileUtils';
+         logFile, fileToString, wdioConfigFile, pathExists } from './FileUtils';
 import { log, logError, logWarning } from './Logging';
 import { show, trimChars } from './StringUtils';
 
@@ -94,17 +94,15 @@ export const rerunClient = runClient;
 
 const weDriverTempConfigFileName = 'webdriverIO.config';
 export function launchDetachedWdioServerInstance() {
-  //BUG: will drop functions change to names file
-  let config = fromTemp(weDriverTempConfigFileName, false);
   console.log("Starting instance");
-  startWdioServer(config);
+  startWdioServer();
   console.log("Instance Started");
 }
 
 export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean) {
   //BUG: will drop functions change to names file
   log("remove reading of config file");
-  let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeInfo, functionName, dynamicModuleLoading);
+  let webDriverConfig = dumpTestRunnerFile(soucePath, beforeInfo, functionName, dynamicModuleLoading);
   toTemp(webDriverConfig, weDriverTempConfigFileName, false);
    
   const out = fs.openSync(logFile('launchWdioServerDetached-out.log'), 'w'),
@@ -122,31 +120,31 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
   child.unref();
 }
 
-function launchWdioClientAndServer(config: {}) {
+function launchWdioClientAndServer(wdioCfgFileName?: string) {
   //BUG: move config to file
   try {
     runClient();
-    startWdioServer(config)
+    startWdioServer(wdioCfgFileName);
   } catch (e) {
     fail(e);
   }
 }
 
-export function startWdioServer(config: {}) {
+function existingWdioConfigFile(fileName: string): string {
+  const result = wdioConfigFile(fileName);
+  ensure(pathExists(result), `existingWdioConfigFile - path ${result} does not exist.`)
+  return result;
+
+}
+
+export function startWdioServer(wdioCfgFileName: string = 'wdio.conf.js') {
   console.log("DEBUG startWdioServer!!");
   try {
     let failed = false;
-    // console.log("DEBUG STARTING DRIVER!!");
-    // checkStartGeckoDriver();
-    console.log("DEBUG Launcher");
     // config
     console.log('CHANGE TO FILE NAME WHEN DONE WHEN DONE');
-    // let wdio = new Launcher('.\\wdio.conf.js', config);
-    let wdio = new Launcher('.\\wdio.conf.js', {});
-    console.log('Launching file: ' + (<any>config).specs.join(', '));
-    console.log('DEBUG CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
-    log('Launching file: ' + (<any>config).specs.join(', '));
-    console.log('DEBUG OVERRIDE CONFIG: ' + show(config));
+    log('Launching wdio: ' + wdioCfgFileName);
+    let wdio = new Launcher(wdioCfgFileName, {});
     wdio.run().then(function (code: any) {
       if (code != 0){
         console.log('DEBUG wdio - non zero code: ' + code);
@@ -166,7 +164,7 @@ export function startWdioServer(config: {}) {
   }
 }
 
-function generateWebDriverTestFileAndConfig(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean): {} {
+function dumpTestRunnerFile(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean) {
   // debugging copy temp content to ./src/lib/WebInteractor.js and set this flag to true
   let internalTesting = false,
       destPath = internalTesting ? './src/lib/WebInteractor.ts' : tempFile('WebInteractor.ts');
@@ -176,19 +174,14 @@ function generateWebDriverTestFileAndConfig(soucePath: string, beforeInfo: Befor
   } else {
     generateAndDumpTestFile(beforeInfo, functionName, soucePath, destPath, dynamicModuleLoading);
   }
-
-  let webDriverConfig = defaultConfig();
-  (<any>webDriverConfig).specs = [destPath];
-
-  return webDriverConfig;
 }
 
 export function launchWebInteractor(soucePath: string, beforeInfo: BeforeRunInfo | null, functionName: string, dynamicModuleLoading: boolean){
   try {
       clearInvocationResponse();
-      let webDriverConfig = generateWebDriverTestFileAndConfig(soucePath, beforeInfo, functionName, dynamicModuleLoading);
+      dumpTestRunnerFile(soucePath, beforeInfo, functionName, dynamicModuleLoading);
       geckoRestartIfNotReady();
-      launchWdioClientAndServer(webDriverConfig);
+      launchWdioClientAndServer();
   } catch (e) {
     fail(e);
   }

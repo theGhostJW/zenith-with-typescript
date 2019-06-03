@@ -406,6 +406,10 @@ export function testDataFile(fileName?: string) : string {
   return subFile('testData', fileName);
 }
 
+export function wdioConfigFile(fileName: string) : string {
+  return subFile('wdioConfig', fileName);
+}
+
 export function runTimeFile(fileName? : string) : string {
   return subFile('runTimeFiles', fileName);
 }
