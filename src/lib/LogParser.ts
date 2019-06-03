@@ -386,13 +386,13 @@ function pushTestErrorWarning(state: RunState, entry: LogEntry, isType2: boolean
     if (isType2) {
       errArrray = type2Errors;
     }
-    else if (level === LogLevel.Error && state.errorExpectation != null){
+    else if (level === "error" && state.errorExpectation != null){
       errArrray = knownDefects;
     }
-    else if (level === LogLevel.Error){
+    else if (level === "error"){
       errArrray = errors;
     }
-    else if (level === LogLevel.Warn){
+    else if (level === "warn"){
       errArrray = warnings;
     }
     else {
@@ -457,7 +457,7 @@ function resetDefectExpectationUpdateStats(state: RunState, entry: LogEntry, inT
 function updateStateForErrorsAndWarnings(state: RunState, entry: LogEntry, inTest: boolean, inIteration: boolean) {
   let stats = state.runStats;
   switch (entry.level) {
-    case LogLevel.Error:
+    case "error":
       if (state.errorExpectation == null){
         if (inIteration && !state.iterationErrorLogged){
            stats.iterationsWithErrors++;
@@ -480,7 +480,7 @@ function updateStateForErrorsAndWarnings(state: RunState, entry: LogEntry, inTes
       pushTestErrorWarning(state, entry);
       break;
 
-    case LogLevel.Warn:
+    case "warn":
       if (inIteration && !state.iterationWarningLogged){
          stats.iterationsWithWarnings++;
          state.iterationWarningLogged = true;

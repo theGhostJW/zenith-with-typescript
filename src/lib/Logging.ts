@@ -471,13 +471,14 @@ function formatConsoleLog(options: any) {
 export const RECORD_DIVIDER = '-------------------------------';
 
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
+// DO NOT CHANGE TO ENUM -WINSTON USES STRING REPRESENTATION FOR LOGLEVEL
 export type LogLevel  = "error" | "warn" | "info"
 
 
 export const DEFAULT_LOGGING_FUNCTIONS: LoggingFunctions = {
-   log: logFunction(LogLevel.Info, false),
-   logWarning: logFunction(LogLevel.Warn, true),
-   logError: logFunction(LogLevel.Error, true)
+   log: logFunction("info", false),
+   logWarning: logFunction("warn", true),
+   logError: logFunction("error", true)
 }
 
 let winstonLogFuncs = {
