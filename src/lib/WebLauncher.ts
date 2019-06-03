@@ -38,7 +38,6 @@ export function checkStartDriver(runTimeBatch: string, isReady: () => boolean, t
 }
 
 export function startDriver(runTimeBatch: string, isReady: () => boolean, timeoutMs: number = 30000): boolean {
-  // was startSelenium.bat
   executeRunTimeFileAsynch(runTimeBatch, true);
   return waitRetry(isReady, timeoutMs);
 }
@@ -121,7 +120,6 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
 }
 
 function launchWdioClientAndServer(wdioCfgFileName?: string) {
-  //BUG: move config to file
   try {
     runClient();
     startWdioServer(wdioCfgFileName);
@@ -141,24 +139,21 @@ export function startWdioServer(wdioCfgFileName: string = 'wdio.conf.js') {
   try {
     let failed = false;
     // config
-    console.log('CHANGE TO FILE NAME WHEN DONE WHEN DONE');
     log('Launching wdio: ' + wdioCfgFileName);
     let wdio = new Launcher(existingWdioConfigFile(wdioCfgFileName), {});
     wdio.run().then(function (code: any) {
       if (code != 0){
-        console.log('DEBUG wdio - non zero code: ' + code);
         logError(`WebDriver test launcher returned non zero response code: ${show(code)}`);
         failed = true;
       }
     }, function (error: any) {
-      console.log('DEBUG Launcher failed to start the test', error.stacktrace);
       logError('Launcher failed to start the test ' + error.stacktrace);
       failed = true;
     });
 
     waitRetry(() => isConnected() || failed, 10000000);
   } catch (e) {
-    console.log('DEBUG Launcher failed to start the test '+ e);
+    logError('DEBUG Launcher failed to start the test '+ e);
     fail(e);
   }
 }
