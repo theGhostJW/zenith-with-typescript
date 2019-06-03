@@ -2,11 +2,12 @@ const _ : _.LoDashStatic = require('lodash');
 _.mixin(require("lodash-deep"));
 
 import { now } from './DateTimeUtils';
-import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE, parentDir } from './FileUtils';
+import { pathExists, projectSubDir, runTimeFile, TEMPLATE_BASE_FILE, parentDir, logFile, projectDir } from './FileUtils';
 import { log, logException } from './Logging';
 import {appendDelim, endsWith, hasText, lwrFirst, newLine, replaceAll,
-      show, startsWith, subStrBetween, wildCardMatch, subStrBefore} from './StringUtils';
+      show, startsWith, subStrBetween, wildCardMatch, subStrBefore, createGuid} from './StringUtils';
 import { sendWebUIDebugMessage } from './SeleniumIpcServer';
+import * as fs from 'fs';
 
 import child_process from 'child_process';
 import * as yaml from 'js-yaml';
@@ -128,14 +129,16 @@ export function executeFileSynch(path: string): Buffer {
  return child_process.execSync(path);
 }
 
-//todo: typed options corresponding to child_process - after change to typescript
 export function executeFileAsynch(path: string, detached: boolean = false): number {
   ensureFilePath(path);
-  //TODO: this may not be having the desired effect - check by removing param when working
   const wd = parentDir(path),
-        params = detached ? {cwd: wd,  detached: true, stdio: "ignore" } : {cwd: wd};
+        guid = createGuid(),
+        out = fs.openSync(logFile(guid + '-executeFileAsynch-out.log'), 'w'),
+        err = fs.openSync(logFile(guid + '-executeFileAsynch-err.log'), 'w'),
+        opts = detached ? {cwd: wd, detached: true, stdio: ['ignore', out,  err]} : {cwd: wd};
+
   log(`executing ${path} async`);
-  const cp = child_process.exec(path, params);
+  const cp = child_process.spawn(path, [], <any>opts);
   if (detached){
     cp.unref();
   }

@@ -39,10 +39,9 @@ describe('startSelenium', () => {
 });
 
 describe('checkStartSelenium', () => {
-  it.only('startGecko True', () => {
+  it('startGecko True', () => {
     killGeckoDriver();
     startGeckoDriver();
-    console.log("Done");
   })
 
   it('startGecko', () => {
