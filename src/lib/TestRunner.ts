@@ -66,7 +66,7 @@ export function defaultTestRunner(itemFilter?: ItemFilter<any>){
       } catch (e) {
         fail('item runner failed', e);
       } finally {
-        webLauncher.stopSession();
+        webLauncher.sendClientSessionDone();
       }
 
     } else {

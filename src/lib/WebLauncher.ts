@@ -66,7 +66,7 @@ export function checkStartGeckoDriver() : boolean {
   return checkStartDriver(geckoDriverBat, geckoRunning);
 }
 
-export function stopSession() {
+export function sendClientSessionDone() {
   if (waitConnected(3000)){
     waitRetry(() => !isConnected(), 30000, sendClientDone);
   }

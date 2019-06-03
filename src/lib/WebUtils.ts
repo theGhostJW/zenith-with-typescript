@@ -26,7 +26,7 @@ import {
 
 import { disconnectClient, interact,
           isConnected,  launchWdioServerDetached, launchWebInteractor,
-          runClient, stopSession, waitConnected,
+          runClient, sendClientSessionDone, waitConnected,
           killGeckoDriver } from './WebLauncher';
 
 const clipBoardy = require('clipboardy');
@@ -1641,7 +1641,7 @@ export function wdDebug(beforeFuncOrUrl?: (() => void) | string | null | undefin
     runClient();
     // Closing - if already closed will do nothing
     if (func == null){
-      stopSession();
+      sendClientSessionDone();
       throw 'wdDebug Session Stop';
     }
 
@@ -1651,7 +1651,7 @@ export function wdDebug(beforeFuncOrUrl?: (() => void) | string | null | undefin
 
     // close off session if signatureChanged
     if (sigChangedConnected) {
-      stopSession();
+      sendClientSessionDone();
     }
 
     saveSignature(sig);
@@ -1678,7 +1678,7 @@ export function browserEx(func: (...p: any) => any, ...params: any[]): any {
   catch (e) {
     fail('browserEx - fail', e)
    } finally {
-    stopSession();
+    sendClientSessionDone();
    }
 }
 
