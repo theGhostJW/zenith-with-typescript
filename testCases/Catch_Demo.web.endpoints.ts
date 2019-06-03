@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 
 import { testCase } from './Catch_Demo.web';
 import { testCaseEndPoint } from './ProjectConfig';
+import { log } from '../src/lib/Logging';
 
 describe('endPoint', () => {
 
@@ -15,6 +16,7 @@ describe('endPoint', () => {
        selector: 100
      }
     );
+    log("Done!!!!!!");
   });
 });
 

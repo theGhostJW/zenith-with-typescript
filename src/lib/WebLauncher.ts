@@ -138,13 +138,12 @@ function existingWdioConfigFile(fileName: string): string {
 }
 
 export function startWdioServer(wdioCfgFileName: string = 'wdio.conf.js') {
-  console.log("DEBUG startWdioServer!!");
   try {
     let failed = false;
     // config
     console.log('CHANGE TO FILE NAME WHEN DONE WHEN DONE');
     log('Launching wdio: ' + wdioCfgFileName);
-    let wdio = new Launcher(wdioCfgFileName, {});
+    let wdio = new Launcher(existingWdioConfigFile(wdioCfgFileName), {});
     wdio.run().then(function (code: any) {
       if (code != 0){
         console.log('DEBUG wdio - non zero code: ' + code);
