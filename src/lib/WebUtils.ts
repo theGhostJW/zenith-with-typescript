@@ -352,7 +352,7 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[K:string]: 
     }
 
     let targetVal = lookUpVals[colTitle];
-    if (targetVal !== undefined) {
+    if (targetVal != undefined) {
       let actual = read(cell);
       accum.rowUnmatched = !areEqual(targetVal, actual)  &&
                            !((typeof targetVal != 'string' || typeof actual != 'string') && show(actual) == show(targetVal)) ;
@@ -367,7 +367,7 @@ export function cell(tableSelector: SelectorOrElement, lookUpVals: {[K:string]: 
   }
 
   mapCellsPriv(tbl, psuedoReducer, false, colMap);
-  return accum.resultSet ? accum.result : undefined;
+  return accum.resultSet ? <any>accum.result : null;
 }
 
 function generateColMap(row: Element) : {[k:number]: string} {
@@ -1693,7 +1693,11 @@ function firstTestModuleInStack(): string {
   return filePathFromCallStackLine(<string>line);
 }
 
-export const lsTestFunc = launchSession;
+export function lsTestFunc(b: any, f: any){
+  runClient();
+  launchSession(b, f);
+}
+  
 
 function launchSession<T>(before: (() => void) | null | string | undefined, func: (...params: any) => T, ...params: any[]): T {
    try {
