@@ -471,11 +471,8 @@ function formatConsoleLog(options: any) {
 export const RECORD_DIVIDER = '-------------------------------';
 
 // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
-export enum LogLevel {
-  Error = 0,
-  Warn = 1,
-  Info = 2
-};
+export type LogLevel  = "error" | "warn" | "info"
+
 
 export const DEFAULT_LOGGING_FUNCTIONS: LoggingFunctions = {
    log: logFunction(LogLevel.Info, false),
