@@ -3,12 +3,12 @@ issues:
     infoType: out of test
     warnings:
       - timestamp: '2017-11-25 11:28:22'
-        level: 1
+        level: warn
         subType: Message
         message: warning added for testing
     errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: Message
         popControl: NoAction
         message: bodged out of test example failure
@@ -49,7 +49,7 @@ issues:
     infoType: in test
     warnings:
       - timestamp: '2017-11-25 11:28:22'
-        level: 1
+        level: warn
         subType: Message
         message: Warning added for testing in iteration
     errors: []
@@ -60,12 +60,12 @@ issues:
     warnings: []
     errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: Check Text Contains ~ 2 errors 1 iteration
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: Check Text Contains
@@ -143,13 +143,13 @@ issues:
     infoType: out of test
     warnings:
       - timestamp: '2017-11-25 11:28:22'
-        level: 1
+        level: warn
         subType: Message
         message: out of test warning 2
     errors: []
     type2Errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 2
+        level: message
         subType: EndDefect
         additionalInfo: |
           message: out of test type 2 error
@@ -195,7 +195,7 @@ issues:
     errors: []
     type2Errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 2
+        level: message
         subType: EndDefect
         popControl: NoAction
         message: End Defect
@@ -209,7 +209,7 @@ issues:
     warnings: []
     errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: 'Check False: false is true'
@@ -287,7 +287,7 @@ issues:
     type2Errors: []
     knownDefects:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: 'Check: expect less than 2'
@@ -358,7 +358,7 @@ issues:
     warnings: []
     errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: Exception
         popControl: NoAction
         message: Exception Thrown Running Validators
@@ -425,7 +425,7 @@ issues:
     warnings: []
     errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: Exception
         popControl: NoAction
         message: Exception Thrown Executing Interactor
@@ -518,7 +518,7 @@ issues:
     type2Errors: []
     knownDefects:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: Exception
         popControl: NoAction
         message: Exception Thrown Executing Interactor
@@ -585,7 +585,7 @@ issues:
     type2Errors: []
     knownDefects:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: Message
         message: out of test known error !!!
 

@@ -82,7 +82,7 @@ issues:
     infoType: in test
     warnings:
       - timestamp: '2017-11-25 11:28:22'
-        level: 1
+        level: warn
         subType: Message
         message: Warning added for testing in iteration
   
@@ -92,13 +92,13 @@ issues:
       when: I run a test
     errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: Check Text Contains ~ 2 errors 1 iteration
   
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: Check Text Contains
@@ -204,7 +204,7 @@ issues:
       id: 1
     type2Errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 2
+        level: message
         subType: EndDefect
         popControl: NoAction
         message: End Defect
@@ -219,7 +219,7 @@ issues:
       id: 1
     errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: 'Check False: false is true'
@@ -295,7 +295,7 @@ issues:
       id: 2
     knownDefects:
       - timestamp: '2017-11-25 11:28:22'
-        level: 0
+        level: error
         subType: CheckFail
         popControl: NoAction
         message: 'Check: expect less than 2'
