@@ -1,5 +1,5 @@
 import { runClient, invocationResponse, clearInvocationResponse, activeSocket,
-          sendInvocationParams, sendClientDone, isConnected, disconnectClient } from './SeleniumIpcClient';
+          sendInvocationParams, sendClientDone, isConnected } from './SeleniumIpcClient';
 
 import { tempFile,  toTemp, fromTemp, projectDir,
          logFile, fileToString } from './FileUtils';
@@ -69,7 +69,6 @@ export function checkStartGeckoDriver() : boolean {
 export function stopSession() {
   if (waitConnected(3000)){
     waitRetry(() => !isConnected(), 30000, sendClientDone);
-    disconnectClient();
   }
 }
 
