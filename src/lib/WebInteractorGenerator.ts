@@ -83,9 +83,9 @@ const sourceCode = (beforeInfo: BeforeRunInfo | null, functionName: string, modu
                                              ensure(func != null, 'Web interactor error: Could not invoke ${functionName}.\\n' +
                                                                    'This is usually because the function has not been exported from the target module.\\n' +
                                                                    'Check the "${functionName}" function is exported from the module: "${modulePath}".');
-                                             let response = func(...<any>(params));`
+                                             let response = func.apply(null, params);`
                                           )
-                                        : `let response = ${functionName}(...<any>(params));`,
+                                        : `let response = ${functionName}.apply(null, params);`,
       initCall = beforeInfo == null ? '' :
                   beforeInfo.isUrl ? `browser.url('${beforeInfo.name}');`
                                    : `${beforeInfo.name}();`

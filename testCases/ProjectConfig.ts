@@ -113,9 +113,9 @@ export const register = <I extends BaseItem, S, V>(testCase: TestCase<I, S, V>):
 
 function setTestConfigDefaults(partialTestConfig: TestConfig): FullTestConfig {
   let defaultProps = {
-    countries: 'Australia',
+    countries: Country.Australia,
     environments: 'TST',
-    depth: 'Regression'
+    depth: Depth.Regression
   };
   let result = _.defaults(partialTestConfig, defaultProps);
   result.environments = forceArray(result.environments);
@@ -125,11 +125,11 @@ function setTestConfigDefaults(partialTestConfig: TestConfig): FullTestConfig {
 
 function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   let defaultprops =  {
-    country: 'Australia',
+    country: Country.Australia,
     mocked: false,
     environment: 'TST',
     testCases: [],
-    depth: 'Regression'
+    depth: Depth.Regression
   }
   return _.defaults(partialRunConfig, defaultprops);
 }

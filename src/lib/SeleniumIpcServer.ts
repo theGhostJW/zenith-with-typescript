@@ -9,7 +9,7 @@ const ipc = require('node-ipc');
 /// STATE
 
 let doneSingleton = false,
-    invocationParamsSingleton: any[] | undefined;
+    invocationParamsSingleton: any | undefined;
 
 export function isReloadableFile(path: string): boolean {
   return !hasText(path, 'node_modules')
@@ -28,7 +28,7 @@ export function setDone(done: boolean) {
   doneSingleton = done;
 }
 
-export function invocationParams() : any[] | undefined {
+export function invocationParams() : any | undefined {
   return invocationParamsSingleton;
 }
 
