@@ -1,5 +1,5 @@
 import { runClient, invocationResponse, clearInvocationResponse, activeSocket,
-          sendInvocationParams, sendClientDone, isConnected } from './SeleniumIpcClient';
+          sendInvocationParams, sendClientDone, isConnected, disconnectClient } from './SeleniumIpcClient';
 
 import { tempFile,  toTemp, fromTemp, projectDir,
          logFile, fileToString } from './FileUtils';
@@ -68,8 +68,8 @@ export function checkStartGeckoDriver() : boolean {
 
 export function stopSession() {
   if (waitConnected(3000)){
-    sendClientDone();
     waitRetry(() => !isConnected(), 30000, sendClientDone);
+    disconnectClient();
   }
 }
 
@@ -126,7 +126,7 @@ function launchWdioClientAndServer(config: {}) {
   //BUG: move config to file
   try {
     runClient();
-    startWdioServer(config)
+    startWdioServer(config);
   } catch (e) {
     fail(e);
   }
@@ -143,9 +143,9 @@ export function startWdioServer(config: {}) {
     console.log('CHANGE TO FILE NAME WHEN DONE WHEN DONE');
     // let wdio = new Launcher('.\\wdio.conf.js', config);
     let wdio = new Launcher('.\\wdio.conf.js', {});
-    console.log('Launching file: ' + (<any>config).specs.join(', '));
+    //console.log('Launching file: ' + (<any>config).specs.join(', '));
     console.log('DEBUG CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
-    log('Launching file: ' + (<any>config).specs.join(', '));
+    //log('Launching file: ' + (<any>config).specs.join(', '));
     console.log('DEBUG OVERRIDE CONFIG: ' + show(config));
     wdio.run().then(function (code: any) {
       if (code != 0){
