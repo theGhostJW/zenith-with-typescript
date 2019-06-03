@@ -21,10 +21,9 @@ describe('wdDebug', () => {
     wdDebug();
   });
 
-  it('wdDebug', () => {
+  it.only('wdDebug', () => {
     const pageTitle = wdDebug('https://www.google.com.au/', zzzTestFunc);
     chkEq('Google', pageTitle);
-    console.log("DONE !!!!");
   });
 
 });

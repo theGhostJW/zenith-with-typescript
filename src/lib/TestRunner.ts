@@ -194,7 +194,7 @@ export function testRun<R extends BaseRunConfig, FR extends BaseRunConfig, T ext
 
   log(message);
   console.log("");
-  //todo calculate exit code
+  //TODO: calculate exit code
   process.exit(0);
 
 }

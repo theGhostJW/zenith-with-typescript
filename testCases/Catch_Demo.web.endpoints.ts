@@ -7,7 +7,7 @@ import { testCaseEndPoint } from './ProjectConfig';
 
 describe('endPoint', () => {
 
-  it.only('demo endpoint', () => {
+  it('demo endpoint', () => {
      testCaseEndPoint(
        {
        mocked: false,
