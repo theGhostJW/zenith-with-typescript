@@ -275,7 +275,7 @@ describe('radioGroup', () => {
   it('setRadioGroup - mising value exception ', () => {
     chkExceptionText(
        () => wdDebug(smartbearOrders, setRadioGroup, CARD_LIST_ID, 'BitCoin'),
-      'Could not find matching radio*button for value or label: BitCoin'
+      'matching radio button for value or label: BitCoin'
     )
   });
 
