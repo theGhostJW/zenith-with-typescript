@@ -1,4 +1,4 @@
-import { relativePath, stringToFile, parentDir  } from './FileUtils';
+import { relativePath, stringToFile, parentDir, fileOrFolderNameNoExt, changeExtension  } from './FileUtils';
 import { newLine, replaceAll, trimLines} from './StringUtils';
 import { isFrameworkProject } from './SysUtils';
 const _ = require('lodash');
@@ -13,10 +13,11 @@ export function generateAndDumpTestFile(beforeInfo: BeforeRunInfo | null, functi
 }
 
 function fileContent(beforeInfo: BeforeRunInfo | null, functionName: string, sourcePath: string, destPath: string, dynamicModuleLoad: boolean): string {
-  let fw = isFrameworkProject(),
-      destParentDir = parentDir(destPath),
-      importFilePath = replaceAll(sourcePath, '\\', '\\\\'),
-      relativeImportFile = replaceAll(relativePath(destParentDir, sourcePath), '\\', '/');
+  const fw = isFrameworkProject(),
+        destParentDir = parentDir(destPath),
+        importFilePath = replaceAll(sourcePath, '\\', '\\\\'),
+        fullRel = changeExtension(relativePath(destParentDir, sourcePath), ''),
+        relativeImportFile = replaceAll(fullRel, '\\', '/');
 
   return targetRequires(beforeInfo, functionName, sourcePath, relativeImportFile, dynamicModuleLoad) + 
           (fw ? FRAMEWORK_USES : ZWTF_USES ) + newLine() +

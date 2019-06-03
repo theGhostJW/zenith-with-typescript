@@ -136,7 +136,9 @@ export function fileOrFolderName(fullPath: string): string {
   return parts.base;
 }
 
-export const fileOrFolderNameNoExt = (fullPath: string) => changeExtension(fileOrFolderName(fullPath), '');
+export function fileOrFolderNameNoExt(fullPath: string): string {
+  return changeExtension(fileOrFolderName(fullPath), '');
+}
 
 function toTempStringPriv(str : string, fileName? : string, wantWarning : boolean = true, wantDuplicateOverwriteWarning : boolean = true, fileExt : string = '.txt') : string {
   let path = tmpStrPath(fileName, fileExt);

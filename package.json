@@ -92,6 +92,7 @@
     "testWatch": "node ./scripts/yarnWatch.js test",
     "testAll": "mocha --require ts-node/register ./src/test/**.test.ts ./src/test/**/*.integration.ts",
     "endpoints": "mocha --require ts-node/register ./src/test/**/*.endpoints.ts ./testCases/**/*.endpoints.ts",
+    "webUtilsEndpoints": "mocha --require ts-node/register ./src/test/**/WebUtilsTestImp.endpoints.ts",
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
     "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:@babel/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
     "fixBuild": "yarn add @babel/cli @babel/preset-flow @babel/preset-env gaze flow-bin nyc istanbul-reports --dev",

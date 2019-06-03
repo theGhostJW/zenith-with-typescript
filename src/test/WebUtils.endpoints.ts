@@ -21,7 +21,7 @@ describe('wdDebug', () => {
     wdDebug();
   });
 
-  it.only('wdDebug', () => {
+  it('wdDebug', () => {
     const pageTitle = wdDebug('https://www.google.com.au/', zzzTestFunc);
     chkEq('Google', pageTitle);
     console.log("DONE !!!!");
