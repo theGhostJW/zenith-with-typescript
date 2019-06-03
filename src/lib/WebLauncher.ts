@@ -135,17 +135,7 @@ export function startWdioServer(config: {}) {
   console.log("DEBUG startWdioServer!!");
   try {
     let failed = false;
-    // console.log("DEBUG STARTING DRIVER!!");
-    // checkStartGeckoDriver();
-    console.log("DEBUG Launcher");
-    // config
-    console.log('CHANGE TO FILE NAME WHEN DONE WHEN DONE');
-    // let wdio = new Launcher('.\\wdio.conf.js', config);
     let wdio = new Launcher('.\\wdio.conf.js', {});
-    //console.log('Launching file: ' + (<any>config).specs.join(', '));
-    console.log('DEBUG CONFIG FILE: ' + fileToString('.\\wdio.conf.js'));
-    //log('Launching file: ' + (<any>config).specs.join(', '));
-    console.log('DEBUG OVERRIDE CONFIG: ' + show(config));
     wdio.run().then(function (code: any) {
       if (code != 0){
         console.log('DEBUG wdio - non zero code: ' + code);
@@ -160,7 +150,6 @@ export function startWdioServer(config: {}) {
 
     waitRetry(() => isConnected() || failed, 10000000);
   } catch (e) {
-    console.log('DEBUG Launcher failed to start the test '+ e);
     fail(e);
   }
 }
