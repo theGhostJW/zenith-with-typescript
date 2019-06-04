@@ -7,7 +7,7 @@ const config: TestConfig = {
   then: 'it still works',
   owner: 'JW',
   enabled: true,
-  countries: Country.Australia
+  countries: "Australia"
 }
 
 interface ApState {

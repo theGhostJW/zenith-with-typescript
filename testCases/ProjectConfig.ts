@@ -7,6 +7,7 @@ import * as caseRunner from '../src/lib/TestRunner';
 import { filters } from './TestFilters';
 import { show } from '../src/lib/StringUtils';
 import { fileOrFolderNameNoExt } from '../src/lib/FileUtils';
+import { fail } from 'assert';
 const _ = require('lodash');
 
 export function mockFileNameUseEnvironment(itemId: number | null, testName: string, runConfig: RunConfig){
@@ -39,20 +40,20 @@ export function run(runConfig: RunConfig) {
   testRun(runParams);
 }
 
-export enum Depth {
-  Connectivity = 0,
-  Regression = 100,
-  DeepRegression = 200,
-  Special = -999
-};
+export type Depth = "Connectivity" | "Regression" | "DeepRegression" | "Special"
+// next time use enums
+export function depthNum(depth: Depth): number {
+  switch (depth) {
+    case "Connectivity": return 0;
+    case "Regression": return 1;
+    case "DeepRegression": return 2;
+    case "Special": return -50;
+  }
+}
 
-export enum Environment { "TST", "UAT", "PVT"};
-export enum Country {
-                      "Australia",
-                      "New Zealand"
-                    };
-
-export const AllCountries = [Country.Australia, Country["New Zealand"]];
+export type  Environment = "TST"| "UAT"|  "PVT";
+export type  Country = "Australia" | "New Zealand"
+export const AllCountries: Country[] = ["Australia", "New Zealand"];
 
 // could be partly moved to testRunner plus filters
 export type TestCaseEndPointParams<R extends BaseRunConfig, T extends BaseTestConfig, I extends BaseItem, S, V> = {
@@ -113,9 +114,9 @@ export const register = <I extends BaseItem, S, V>(testCase: TestCase<I, S, V>):
 
 function setTestConfigDefaults(partialTestConfig: TestConfig): FullTestConfig {
   let defaultProps = {
-    countries: Country.Australia,
+    countries: "Australia",
     environments: 'TST',
-    depth: Depth.Regression
+    depth: "Regression"
   };
   let result = _.defaults(partialTestConfig, defaultProps);
   result.environments = forceArray(result.environments);
@@ -125,11 +126,11 @@ function setTestConfigDefaults(partialTestConfig: TestConfig): FullTestConfig {
 
 function setRunConfigDefaults(partialRunConfig: RunConfig): FullRunConfig {
   let defaultprops =  {
-    country: Country.Australia,
+    country: "Australia",
     mocked: false,
     environment: 'TST',
     testCases: [],
-    depth: Depth.Regression
+    depth: "Regression"
   }
   return _.defaults(partialRunConfig, defaultprops);
 }

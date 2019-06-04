@@ -12,7 +12,7 @@ let config: TestConfig = {
   then: 'I just write something',
   owner: 'JW',
   enabled: true,
-  countries: [Country.Australia, Country["New Zealand"]]
+  countries: ["Australia", "New Zealand"]
 }
 
 export type Item = {

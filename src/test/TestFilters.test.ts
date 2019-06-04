@@ -11,9 +11,9 @@ describe('test filters', () => {
               then: 'Blah Blahh',
               owner: 'JW',
               enabled: true,
-              countries: [Country.Australia],
-              environments: [Environment.TST, Environment.UAT],
-              depth: Depth.Regression
+              countries: <any>["Australia"],
+              environments: <any>["TST", "UAT"],
+              depth: <any>"Regression"
             };
   }
 
@@ -21,10 +21,10 @@ describe('test filters', () => {
     return {
     name: 'Test Run',
     mocked: false,
-    country: Country.Australia,
-    environment: Environment.TST,
+    country: <any>"Australia",
+    environment: <any>"TST",
     testCases: <any[]>[],
-    depth: Depth.Regression
+    depth: <any>"Regression"
   }}
 
   it('is_enabled - pass', () => {
@@ -43,7 +43,7 @@ describe('test filters', () => {
 
   it('environment_match - fail', () => {
     let bc = baseCase();
-    bc.environments = [Environment.PVT];
+    bc.environments = ["PVT"];
     chkFalse(environment_match('ignored', bc, baseConfig()));
   });
 
@@ -54,7 +54,7 @@ describe('test filters', () => {
 
   it('test_depth - fail', () => {
     let bc = baseCase();
-    bc.depth = Depth.DeepRegression;
+    bc.depth = "DeepRegression";
     chkFalse(test_depth('ignored', bc, baseConfig()));
   });
 

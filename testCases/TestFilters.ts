@@ -1,7 +1,7 @@
 import { wildCardMatch } from '../src/lib/StringUtils';
 import { xOr} from '../src/lib/SysUtils';
 import { Depth } from './ProjectConfig';
-import { FullRunConfig, FullTestConfig } from '../testCases/ProjectConfig';
+import { FullRunConfig, FullTestConfig, depthNum } from '../testCases/ProjectConfig';
 import { TestFilter } from '../src/lib/TestRunner';
 import * as _ from 'lodash';
 
@@ -29,7 +29,7 @@ export function test_depth(name: string, testConfig: FullTestConfig, runConfig: 
   let testDepth = testConfig.depth,
       runDepth = runConfig.depth;
 
-  return !xOr(testDepth == Depth.Special, runDepth == Depth.Special) && runDepth >= testDepth;
+  return !xOr(testDepth == "Special", runDepth == "Special") && depthNum(runDepth) >= depthNum(testDepth);
 }
 
 export function environment_match(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig): boolean {
