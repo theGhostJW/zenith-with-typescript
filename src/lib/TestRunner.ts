@@ -9,7 +9,7 @@ import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logFilterLog, logException, logValidationStart,
           logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
           logEndInteraction, logPrepValidationInfoStart,
-          logPrepValidationInfoEnd, latestRawPath, LogLevel } from './Logging';
+          logPrepValidationInfoEnd, latestRawPath, LogLevel, logError, logWarning } from './Logging';
 import { now, strToMoment } from './DateTimeUtils';
 const _ = require('lodash');
 import { defaultLogParser, destPath } from './LogParser'
@@ -143,8 +143,7 @@ export function generateLogsSummaryToConsole<R>(mockFileNameGenerator: (itemId: 
   const message = "\n\n=== Summary ===\n" + show(runSummary) +
       "\n=== Logs ===\nraw: " + rawFile +
       "\nfull: " + destPath(rawFile, 'raw', 'full') +
-      "\nissues: " + destPath(rawFile, 'raw', 'issues') +
-      "\n";
+      "\nissues: " + destPath(rawFile, 'raw', 'issues');
 
   log(message);
   console.log("");
@@ -158,11 +157,61 @@ export interface RunOutcome {
 }
 
 export function calcExitCodeAndOutcome(summary: RunSummary | null): RunOutcome {
-  return {
-    logLevel: "info",
-    message: "TO DO IMPLEMENT",
-    exitCode: 0
+
+  if (summary == null){
+   return {
+      logLevel: "error",
+      message: "Error - no run summary generated",
+      exitCode: 0
+    }
   }
+  else {
+    const stats = summary.stats;
+    if (stats.iterationsWithErrors > 0 || stats.outOfTestErrors > 0){
+      return {
+        logLevel: "error",
+        message: "Errors encountered in run",
+        exitCode: 1
+      }
+    }
+    else if (stats.iterationsWithType2Errors > 0 || stats.outOfTestType2Errors > 0){
+      return {
+        logLevel: "error",
+        message: "Type 2 errors encountered in run",
+        exitCode: 2
+      }
+    }
+    else if (stats.iterationsWithKnownDefects > 0 || stats.outOfTestKnownDefects > 0){
+      return {
+        logLevel: "warn",
+        message: "Known defects encountered in run",
+        exitCode: 3
+      }
+    }
+    else if (stats.iterationsWithWarnings > 0 || stats.outOfTestWarnings > 0){
+      return {
+        logLevel: "warn",
+        message: "Warnings encountered in run",
+        exitCode: 4
+      }
+    }
+    else if (stats.iterations == 0){
+      return {
+        logLevel: "error",
+        message: "No test iterations run encountered in run",
+        exitCode: 5
+      }
+    }
+    else {
+      return {
+        logLevel: "info",
+        message: "Test run passed",
+        exitCode: 0
+      }
+    }
+  }
+
+  
 }
 
 export function testRun<R extends BaseRunConfig, FR extends BaseRunConfig, T extends BaseTestConfig, FT extends BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
@@ -215,6 +264,27 @@ export function testRun<R extends BaseRunConfig, FR extends BaseRunConfig, T ext
 
   const summary = generateLogsSummaryToConsole(mockFileNameGenerator, latestRawPath()),
         outcome = calcExitCodeAndOutcome(summary);
+
+  switch (outcome.logLevel) {
+    case "error": 
+      logError(outcome.message);
+      break;
+
+    case "warn": 
+      logWarning(outcome.message);
+      break;
+
+    case "info": 
+      log(outcome.message);
+      break;
+
+    default: 
+      logError(outcome.message);
+      break;
+  }
+
+  console.log('');
+
   process.exit(outcome.exitCode);
 }
 
