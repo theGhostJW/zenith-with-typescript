@@ -1,0 +1,139 @@
+################################################################################
+############### Summary - Test Case EndPoint ~ Catch_Demo.web.ts ###############
+################################################################################
+
+start:    2019-06-04 10:47:44
+end:      2019-06-04 10:48:08
+duration: 00:00:24
+raw:      .\Demo2Log.raw.yaml
+
+runConfig:
+  mocked:      false
+  country:     0
+  environment: TST
+  testCases:   []
+  depth:       100
+
+stats:
+  testCases:                  1
+  passedTests:                1
+  failedTests:                0
+  testsWithWarnings:          0
+  testsWithKnownDefects:      0
+  testsWithType2Errors:       0
+
+  iterations:                 1
+  passedIterations:           1
+  iterationsWithErrors:       0
+  iterationsWithWarnings:     0
+  iterationsWithType2Errors:  0
+  iterationsWithKnownDefects: 0
+
+  outOfTestErrors:            0
+  outOfTestWarnings:          0
+  outOfTestType2Errors:       0
+  outOfTestKnownDefects:      0
+
+################################################################################
+########################## Catch Demo.web - 00:00:24 ###########################
+################################################################################
+
+stats:
+  iterations:                 1
+  passedIterations:           1
+  iterationsWithErrors:       0
+  iterationsWithType2Errors:  0
+  iterationsWithWarnings:     0
+  iterationsWithKnownDefects: 0
+
+#-------------------------------------------------------------------------------
+#%-------------------- Catch_Demo.web - Item 100 - 00:00:10 --------------------
+#-------------------------------------------------------------------------------
+
+when:   the women's list is visited
+then:   the shop by category list is as expected
+status: passed
+
+validation:
+  - check expected links: passed
+
+dState:
+  expectedLinks:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+  linkList:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+  
+
+#-------------------------------------------------------------------------------
+
+issues:
+  []
+
+#-------------------------------------------------------------------------------
+
+item:
+  dataTarget: womens-fashion
+  expectedLinks:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+  
+
+#-------------------------------------------------------------------------------
+
+apState:
+  url: 'https://www.catch.com.au/shop/womens-fashion/'
+  pageTitle: Shop a huge range of women's fashion online now! | Catch.com.au
+  linkList:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+  
+
+################################################################################
+################################## Filter Log ##################################
+################################################################################
+
+'': Accepted
+
+

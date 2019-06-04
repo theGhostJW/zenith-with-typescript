@@ -144,8 +144,6 @@ export type LogSubType = "Message" |
                           "TestEnd" |
                           "PrepValidationInfoStart" |
                           "PrepValidationInfoEnd" |
-                          "StartSummary" |
-                          "Summary" |
                           "RunEnd" |
                           "StartDefect" |
                           "EndDefect" |

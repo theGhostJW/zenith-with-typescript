@@ -13,7 +13,6 @@ import { summaryBlock, iteration, outOfTestError, script, filterLogText } from '
 const _ = require('lodash');
 
 interface IterationInfo extends Iteration {
-  summary: string,
   passedValidators: string[],
  }
 
@@ -54,7 +53,7 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
         isIssue = false,
         wantWriteMock = false;
 
-    if ((<IterationInfo>element).summary)  {
+    if ((<IterationInfo>element).passedValidators)  {
       logText = iteration(<any>element, summary, lastScript);
       lastScript = script(<any>element), 'script';
       let issuesList = element.issues;
@@ -163,7 +162,6 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
          issues = issues.filter(i => hasIssues(i));
 
          let iterationInfo: IterationInfo = {
-           summary: state.iterationSummary,
            startTime: state.iterationStart,
            endTime: def(entry.timestamp, <string>''),
            testConfig: <any>state.testConfig, // assume defined by now coerce to non null value
@@ -264,7 +262,6 @@ export function initalState(rawFilePath: string): RunState {
                 rawFile: rawFilePath,
                 runConfig: {},
                 timestamp: '',
-                iterationSummary: '',
                 iterationStart: '',
                 runStart: '',
 
@@ -346,7 +343,7 @@ export function destPath(rawPath: string, sourceFilePart: string, destFilePart: 
 
   let resultPath = replaceAll(rawPath, sourceFilePart, '.' + destFilePart + '.');
 
-  return destDir== null ? resultPath : combine(logFile(), fileOrFolderName(resultPath));
+  return destDir == null ? resultPath : combine(logFile(), fileOrFolderName(resultPath));
 }
 
 function fileWriter(destPath: string){
@@ -510,7 +507,6 @@ function configObj(entry: LogEntry) {
 function iterationCommonReset(state: RunState) {
    state.apstate = {};
    state.validationInfo = {};
-   state.iterationSummary = '';
    state.expectedErrorEncoutered = false;
    state.iterationErrorLogged = false;
    state.iterationWarningLogged = false;
@@ -612,13 +608,13 @@ function updateState(state: RunState, entry: LogEntry): RunState {
     case 'ValidationEnd':
       break;
 
-    case 'StartSummary':
-      // other state changes handled in reseter
-      switchErrorInfoStage(state, StateStage.InTest, 'Generating Summary');
+    // case 'StartSummary':
+    //   // other state changes handled in reseter
+    //   switchErrorInfoStage(state, StateStage.InTest, 'Generating Summary');
 
-    case 'Summary':
-      state.iterationSummary = def(entry.message, <string>'');
-      break;
+    // case 'Summary':
+    //   state.iterationSummary = def(entry.message, <string>'');
+    //   break;
 
     case 'IterationEnd':
       if (!state.iterationErrorLogged){

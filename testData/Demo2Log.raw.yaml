@@ -1,0 +1,281 @@
+timestamp: '2019-06-04 10:47:44'
+level: info
+subType: FilterLog
+popControl: 0
+message: Filter Log
+additionalInfo: |
+  Catch_Demo.web.ts: Accepted
+-------------------------------
+timestamp: '2019-06-04 10:47:44'
+level: info
+subType: RunStart
+popControl: 1
+message: 'Test Run: Test Case EndPoint ~ Catch_Demo.web.ts'
+additionalInfo: |
+  mocked: false
+  name: Test Case EndPoint ~ Catch_Demo.web.ts
+  country: 0
+  environment: TST
+  testCases: []
+  depth: 100
+-------------------------------
+timestamp: '2019-06-04 10:47:44'
+level: info
+subType: TestStart
+popControl: 1
+message: 'Test: Catch_Demo.web - When pages are viewed then sub-menus are as expected'
+additionalInfo: |
+  script: Catch_Demo.web
+  when: pages are viewed
+  then: sub-menus are as expected
+  owner: JW
+  enabled: true
+  countries:
+    - 0
+    - 1
+  environments:
+    - TST
+  depth: 100
+-------------------------------
+timestamp: '2019-06-04 10:47:44'
+level: info
+subType: Message
+message: Loading Test Items
+-------------------------------
+timestamp: '2019-06-04 10:47:55'
+level: info
+subType: IterationStart
+popControl: 1
+message: >-
+  Iteration: 100: Catch_Demo.web.ts - When the women's list is visited then the
+  shop by category list is as expected
+additionalInfo: |
+  id: 100
+  when: the women's list is visited
+  then: the shop by category list is as expected
+  dataTarget: womens-fashion
+  expectedLinks:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+  validators: check_expected_links
+-------------------------------
+timestamp: '2019-06-04 10:47:55'
+level: info
+subType: InteractorStart
+popControl: 1
+message: Start Interaction
+-------------------------------
+timestamp: '2019-06-04 10:47:55'
+level: info
+subType: Message
+message: Waiting interaction response
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: InteractorEnd
+popControl: -1
+message: End Interaction
+additionalInfo: |
+  mocked: false
+  apState:
+    url: 'https://www.catch.com.au/shop/womens-fashion/'
+    pageTitle: Shop a huge range of women's fashion online now! | Catch.com.au
+    linkList:
+      - Women's Clothing
+      - Women's Shoes
+      - Jewellery
+      - Watches
+      - Sunglasses
+      - Handbags
+      - Luggage
+      - Hats
+      - Wallets
+      - Accessories
+      - Intimate Apparel
+      - Backpacks
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: PrepValidationInfoStart
+popControl: 0
+message: Start Validation Prep
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: PrepValidationInfoEnd
+popControl: 0
+message: End Validation Prep
+additionalInfo: |
+  dState:
+    expectedLinks:
+      - Women's Clothing
+      - Women's Shoes
+      - Jewellery
+      - Watches
+      - Sunglasses
+      - Handbags
+      - Luggage
+      - Hats
+      - Wallets
+      - Accessories
+      - Intimate Apparel
+      - Backpacks
+    linkList:
+      - Women's Clothing
+      - Women's Shoes
+      - Jewellery
+      - Watches
+      - Sunglasses
+      - Handbags
+      - Luggage
+      - Hats
+      - Wallets
+      - Accessories
+      - Intimate Apparel
+      - Backpacks
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: ValidationStart
+popControl: 1
+message: Start Validation
+additionalInfo: |
+  dState:
+    expectedLinks:
+      - Women's Clothing
+      - Women's Shoes
+      - Jewellery
+      - Watches
+      - Sunglasses
+      - Handbags
+      - Luggage
+      - Hats
+      - Wallets
+      - Accessories
+      - Intimate Apparel
+      - Backpacks
+    linkList:
+      - Women's Clothing
+      - Women's Shoes
+      - Jewellery
+      - Watches
+      - Sunglasses
+      - Handbags
+      - Luggage
+      - Hats
+      - Wallets
+      - Accessories
+      - Intimate Apparel
+      - Backpacks
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: ValidatorStart
+popControl: 1
+message: check_expected_links
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: CheckPass
+popControl: 0
+message: |
+  EqualityChck: Object Verified: 
+  - Women's Clothing
+  - Women's Shoes
+  - Jewellery
+  - Watches
+  - Sunglasses
+  - Handbags
+  - Luggage
+  - Hats
+  - Wallets
+  - Accessories
+  - Intimate Apparel
+  - Backpacks
+additionalInfo: links should be the same
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: ValidatorEnd
+popControl: -1
+message: check_expected_links
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: ValidationEnd
+popControl: -1
+message: End Validation
+-------------------------------
+timestamp: '2019-06-04 10:48:05'
+level: info
+subType: IterationEnd
+popControl: -1
+message: End Iteration 100
+additionalInfo: |
+  id: 100
+-------------------------------
+timestamp: '2019-06-04 10:48:08'
+level: info
+subType: TestEnd
+popControl: -1
+message: End Test Catch_Demo.web.ts
+additionalInfo: |
+  testName: Catch_Demo.web.ts
+-------------------------------
+timestamp: '2019-06-04 10:48:08'
+level: info
+subType: RunEnd
+popControl: -1
+message: 'End Run: Test Case EndPoint ~ Catch_Demo.web.ts'
+-------------------------------
+timestamp: '2019-06-04 10:48:08'
+level: info
+subType: Message
+message: |
+
+
+  === Summary ===
+  runConfig:
+    mocked: false
+    name: Test Case EndPoint ~ Catch_Demo.web.ts
+    country: 0
+    environment: TST
+    testCases: []
+    depth: 100
+  startTime: '2019-06-04 10:47:44'
+  endTime: '2019-06-04 10:48:08'
+  filterLog:
+    '': Accepted
+  stats:
+    testCases: 1
+    passedTests: 1
+    failedTests: 0
+    testsWithWarnings: 0
+    testsWithKnownDefects: 0
+    testsWithType2Errors: 0
+    iterations: 1
+    passedIterations: 1
+    iterationsWithErrors: 0
+    iterationsWithWarnings: 0
+    iterationsWithType2Errors: 0
+    iterationsWithKnownDefects: 0
+    outOfTestErrors: 0
+    outOfTestWarnings: 0
+    outOfTestType2Errors: 0
+    outOfTestKnownDefects: 0
+
+  === Logs ===
+  raw: C:\ZenithFlow\logs\latest.raw.yaml
+  full: C:\ZenithFlow\logs\latest.full.yaml
+  issues: C:\ZenithFlow\logs\latest.issues.yaml
+-------------------------------

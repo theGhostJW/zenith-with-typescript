@@ -103,7 +103,6 @@ export interface RunState {
   runConfig: {},
   timestamp: string,
 
-  iterationSummary: string,
   iterationStart: string,
   indent: number,
   testStart: string,

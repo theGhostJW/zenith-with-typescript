@@ -323,8 +323,7 @@ export function summaryBlock(summary: FullSummaryInfo): string {
       headerLine = `Summary - ${name}`,
       heading = majorHeaderBlock(headerLine, false);
 
-  let seekInSumm = (specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): string => show(seekInObj(runSummary, specifier, ...otherSpecifiers)),
-      basic = {
+  let basic = {
         start: startTime,
         end: endTime,
         duration: durationFormatted(startTime, endTime),

@@ -1,0 +1,82 @@
+startTime: '2019-06-04 10:47:55'
+endTime: '2019-06-04 10:48:05'
+testConfig:
+  script: Catch_Demo.web
+  when: pages are viewed
+  then: sub-menus are as expected
+  owner: JW
+  enabled: true
+  countries:
+    - 0
+    - 1
+  environments:
+    - TST
+  depth: 100
+item:
+  id: 100
+  when: the women's list is visited
+  then: the shop by category list is as expected
+  dataTarget: womens-fashion
+  expectedLinks:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+  validators: check_expected_links
+mocked: false
+dState:
+  expectedLinks:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+  linkList:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+apState:
+  url: 'https://www.catch.com.au/shop/womens-fashion/'
+  pageTitle: Shop a huge range of women's fashion online now! | Catch.com.au
+  linkList:
+    - Women's Clothing
+    - Women's Shoes
+    - Jewellery
+    - Watches
+    - Sunglasses
+    - Handbags
+    - Luggage
+    - Hats
+    - Wallets
+    - Accessories
+    - Intimate Apparel
+    - Backpacks
+passedValidators:
+  - check_expected_links
+issues: []
+
+-------------------------------

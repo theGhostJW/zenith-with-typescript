@@ -176,18 +176,6 @@ subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
 -------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
--------------------------------
 timestamp: '2017-11-25 11:28:27'
 level: 'message'
 subType: IterationEnd
@@ -270,18 +258,6 @@ level: 'message'
 subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: 'message'
@@ -527,18 +503,6 @@ message: End Validation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: 'message'
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: End Iteration 1
@@ -680,18 +644,6 @@ level: 'message'
 subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: 'message'
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
 level: 'message'

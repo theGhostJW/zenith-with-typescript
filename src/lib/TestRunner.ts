@@ -9,11 +9,12 @@ import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
           logFilterLog, logException, logValidationStart,
           logStartInteraction, logStartValidator, logEndValidator, logValidationEnd,
           logEndInteraction, logPrepValidationInfoStart,
-          logPrepValidationInfoEnd, latestRawPath } from './Logging';
+          logPrepValidationInfoEnd, latestRawPath, LogLevel } from './Logging';
 import { now, strToMoment } from './DateTimeUtils';
 const _ = require('lodash');
 import { defaultLogParser, destPath } from './LogParser'
 import * as webLauncher from './WebLauncher';
+import { RunSummary } from './LogParserTypes';
 
 // think about this later ~ complications around web
 // need to some how build go home logic into interactor
@@ -123,11 +124,46 @@ export function idFilter(id: number): (testItem: BaseItem, fullList: BaseItem[])
   return matchesProps({id: id});
 }
 
-export function allItems(testItem: BaseItem, fullList: BaseItem[]) {
+export function allItems(_testItem: BaseItem, _fullList: BaseItem[]) {
   return true;
 }
 
 export type ItemFilter<I extends BaseItem> = (i: I, il: I[]) => boolean
+
+export function generateLogsSummaryToConsole<R>(mockFileNameGenerator: (itemId: number, testName: string, rc: R) => string, rawLogPath: string): RunSummary | null {
+  console.log("");
+  console.log("... parsing results");
+  console.log("");
+
+  const {
+    rawFile,
+    runSummary
+  } = defaultLogParser(mockFileNameGenerator)(rawLogPath);
+
+  const message = "\n\n=== Summary ===\n" + show(runSummary) +
+      "\n=== Logs ===\nraw: " + rawFile +
+      "\nfull: " + destPath(rawFile, 'raw', 'full') +
+      "\nissues: " + destPath(rawFile, 'raw', 'issues') +
+      "\n";
+
+  log(message);
+  console.log("");
+  return runSummary == null ? null : runSummary;
+}
+
+export interface RunOutcome {
+  logLevel: LogLevel,
+  message: string,
+  exitCode: number
+}
+
+export function calcExitCodeAndOutcome(summary: RunSummary | null): RunOutcome {
+  return {
+    logLevel: "info",
+    message: "TO DO IMPLEMENT",
+    exitCode: 0
+  }
+}
 
 export function testRun<R extends BaseRunConfig, FR extends BaseRunConfig, T extends BaseTestConfig, FT extends BaseTestConfig> (params: RunParams<R, FR, T, FT>): void {
 
@@ -177,26 +213,9 @@ export function testRun<R extends BaseRunConfig, FR extends BaseRunConfig, T ext
     logEndRun(runName);
   }
 
-  console.log("");
-  console.log("... parsing results");
-  console.log("");
-
-  const {
-    rawFile,
-    runSummary
-  } = defaultLogParser(mockFileNameGenerator)(latestRawPath());
-
-  const message = "\n\n=== Summary ===\n" + show(runSummary) +
-      "\n=== Logs ===\nraw: " + rawFile +
-      "\nfull: " + destPath(rawFile, 'raw', 'full') +
-      "\nissues: " + destPath(rawFile, 'raw', 'issues') +
-      "\n";
-
-  log(message);
-  console.log("");
-  //TODO: calculate exit code
-  process.exit(0);
-
+  const summary = generateLogsSummaryToConsole(mockFileNameGenerator, latestRawPath()),
+        outcome = calcExitCodeAndOutcome(summary);
+  process.exit(outcome.exitCode);
 }
 
 let allCases: any[] = [];

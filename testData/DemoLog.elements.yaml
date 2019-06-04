@@ -17,7 +17,6 @@ issues:
     knownDefects: []
 
 -------------------------------
-summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:27'
 testConfig:
@@ -109,7 +108,6 @@ issues:
     knownDefects: []
 
 -------------------------------
-summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 testConfig:
@@ -158,7 +156,6 @@ issues:
     knownDefects: []
 
 -------------------------------
-summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 testConfig:
@@ -249,7 +246,6 @@ issues:
     knownDefects: []
 
 -------------------------------
-summary: Summary not implemented
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 testConfig:
@@ -326,7 +322,6 @@ issues:
               at processImmediate [as _immediateCallback] (timers.js:733:5)
 
 -------------------------------
-summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 testConfig:
@@ -394,7 +389,6 @@ issues:
     knownDefects: []
 
 -------------------------------
-summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 testConfig:
@@ -486,7 +480,6 @@ issues:
     knownDefects: []
 
 -------------------------------
-summary: ''
 startTime: '2017-11-25 11:28:22'
 endTime: '2017-11-25 11:28:22'
 testConfig:
