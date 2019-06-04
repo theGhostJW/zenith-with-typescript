@@ -676,7 +676,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
 function filterLog(str: string) {
 
   function cleanUpKey(acc: any, val: any, key: string) {
-    acc[subStrBefore(key, '.js')] = val;
+    acc[subStrBefore(key, '.ts')] = val;
     return acc;
   }
 
