@@ -1,5 +1,5 @@
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: FilterLog
 popControl: NoAction
 message: Filter Log
@@ -8,7 +8,7 @@ additionalInfo: |
   Demo_Case.js: Accepted
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: RunStart
 popControl: PushFolder
 message: 'Test Run: Test Test Run'
@@ -21,12 +21,12 @@ additionalInfo: |
   depth: Regression
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: warn
+level: 'warn'
 subType: Message
 message: 'warning added for testing'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: Message
 popControl: NoAction
 message: bodged out of test example failure
@@ -34,7 +34,7 @@ additionalInfo: |-
   blahh
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: TestStart
 popControl: PushFolder
 message: 'Test: 2: Another_Demo_Case - When i test anther case then it still works'
@@ -52,12 +52,12 @@ additionalInfo: |
   depth: Regression
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: Message
 message: Loading Test Items
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationStart
 popControl: PushFolder
 message: 'Iteration: 1: Another_Demo_Case.js - When I run a test then i get the result'
@@ -68,18 +68,18 @@ additionalInfo: |
   validators: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: warn
+level: 'warn'
 subType: Message
 message: 'Warning added for testing in iteration'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
@@ -89,19 +89,19 @@ additionalInfo: |
     observation: blahh
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoStart
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoEnd
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
@@ -111,19 +111,19 @@ additionalInfo: |
     when: I run a test
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: CheckFail
 popControl: NoAction
 message: Check Text Contains ~ 2 errors 1 iteration
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: CheckFail
 popControl: NoAction
 message: Check Text Contains
@@ -165,31 +165,19 @@ callstack: |2-
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
 -------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
--------------------------------
 timestamp: '2017-11-25 11:28:27'
-level: info
+level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: End Iteration 1
@@ -197,7 +185,7 @@ additionalInfo: |
   id: 1
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationStart
 popControl: PushFolder
 message: >-
@@ -210,31 +198,31 @@ additionalInfo: |
   validators: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoStart
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoEnd
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
@@ -244,13 +232,13 @@ additionalInfo: |
     when: I run another test
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: CheckPass
 popControl: NoAction
 message: Check Text Contains
@@ -260,31 +248,19 @@ additionalInfo: |-
   I run another test
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: End Iteration 2
@@ -292,7 +268,7 @@ additionalInfo: |
   id: 2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: TestEnd
 popControl: PopFolder
 message: 'End Test 2 : Another_Demo_Case.js'
@@ -301,23 +277,23 @@ additionalInfo: |
   testName: Another_Demo_Case.js
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: StartDefect
 message: 'out of test type 2 error'
 additionalInfo: |
   active: true
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: EndDefect
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: warn
+level: 'warn'
 subType: Message
 message: 'out of test warning 2'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: TestStart
 popControl: PushFolder
 message: >-
@@ -338,12 +314,12 @@ additionalInfo: |
   depth: Regression
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: Message
 message: Loading Test Items
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationStart
 popControl: PushFolder
 message: 'Iteration: 1: Demo_Case.js - When I run a test then i get the result'
@@ -357,31 +333,31 @@ additionalInfo: |
     - check_with_incorrect_disabled_expectation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoStart
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoEnd
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
@@ -391,13 +367,13 @@ additionalInfo: |
     id: 1
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_less_than_2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: StartDefect
 popControl: NoAction
 message: 'Defect Expected: 1'
@@ -405,32 +381,32 @@ additionalInfo: |
   active: true
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: CheckPass
 popControl: NoAction
 message: 'Check: expect less than 2'
 additionalInfo: 1 should be less than 2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: EndDefect
 popControl: NoAction
 message: End Defect
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_less_than_2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_with_disabled_expectation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: StartDefect
 popControl: NoAction
 message: 'Defect Expected: 2'
@@ -438,31 +414,31 @@ additionalInfo: |
   active: false
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: CheckPass
 popControl: NoAction
 message: 'Check: true is true'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: EndDefect
 popControl: NoAction
 message: End Defect
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_with_disabled_expectation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_with_incorrect_disabled_expectation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: StartDefect
 popControl: NoAction
 message: 'Defect Expected: 3'
@@ -470,7 +446,7 @@ additionalInfo: |
   active: false
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: CheckFail
 popControl: NoAction
 message: 'Check False: false is true'
@@ -508,37 +484,25 @@ callstack: |2-
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: EndDefect
 popControl: NoAction
 message: End Defect
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_with_incorrect_disabled_expectation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: End Iteration 1
@@ -546,7 +510,7 @@ additionalInfo: |
   id: 1
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationStart
 popControl: PushFolder
 message: 'Iteration: 2: Demo_Case.js - When I run another test then i get another result'
@@ -559,31 +523,31 @@ additionalInfo: |
     - check_less_than_3
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoStart
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoEnd
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
@@ -593,13 +557,13 @@ additionalInfo: |
     id: 2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_less_than_2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: StartDefect
 popControl: NoAction
 message: 'Defect Expected: 4'
@@ -607,7 +571,7 @@ additionalInfo: |
   active: true
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: CheckFail
 popControl: NoAction
 message: 'Check: expect less than 2'
@@ -646,55 +610,43 @@ callstack: |2-
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: EndDefect
 popControl: NoAction
 message: End Defect
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_less_than_2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_less_than_3
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: CheckPass
 popControl: NoAction
 message: 'Check: expect less than 2'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorEnd
 popControl: PopFolder
 message: check_less_than_3
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
-subType: StartSummary
-popControl: NoAction
-message: undefined
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
-subType: Summary
-popControl: NoAction
-message: Summary not implemented
--------------------------------
-timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: End Iteration 2
@@ -702,7 +654,7 @@ additionalInfo: |
   id: 2
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationStart
 popControl: PushFolder
 message: 'Iteration: 3: Demo_Case.js - When I run another test then i get another result'
@@ -713,31 +665,31 @@ additionalInfo: |
   validators: check_bad_validator
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoStart
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: PrepValidationInfoEnd
 popControl: NoAction
 message: undefined
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationStart
 popControl: PushFolder
 message: Start Validation
@@ -747,13 +699,13 @@ additionalInfo: |
     id: 3
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidatorStart
 popControl: PushFolder
 message: check_bad_validator
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: Exception
 popControl: NoAction
 message: Exception Thrown Running Validators
@@ -787,13 +739,13 @@ callstack: |2-
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: ValidationEnd
 popControl: PopFolder
 message: End Validation
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: End Iteration 3
@@ -801,7 +753,7 @@ additionalInfo: |
   id: 3
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationStart
 popControl: PushFolder
 message: 'Iteration: 4: Demo_Case.js - When I run another test then i get another result'
@@ -812,13 +764,13 @@ additionalInfo: |
   validators: check_bad_validator
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: Exception
 popControl: NoAction
 message: Exception Thrown Executing Interactor
@@ -877,13 +829,13 @@ callstack: |2-
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: End Iteration 4
@@ -891,7 +843,7 @@ additionalInfo: |
   id: 4
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: TestEnd
 popControl: PopFolder
 message: 'End Test 1 : Demo_Case.js'
@@ -900,7 +852,7 @@ additionalInfo: |
   testName: Demo_Case.js
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: TestStart
 popControl: PushFolder
 message: 'Dummy passing test'
@@ -918,7 +870,7 @@ additionalInfo: |
   depth: Regression
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationStart
 popControl: PushFolder
 message: 'Iteration: 1: Demo_Case3 added for testing.js - When I run a test then i get the result'
@@ -929,13 +881,13 @@ additionalInfo: |
   validators: check_has_another
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorStart
 popControl: PushFolder
 message: Start Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: StartDefect
 popControl: NoAction
 message: 'Known Defect 5'
@@ -943,7 +895,7 @@ additionalInfo: |
   active: true
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: Exception
 popControl: NoAction
 message: Exception Thrown Executing Interactor
@@ -1002,47 +954,47 @@ callstack: |2-
       at processImmediate [as _immediateCallback] (timers.js:733:5)
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: EndDefect
 popControl: NoAction
 message: End Defect ~ Known
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: InteractorEnd
 popControl: PopFolder
 message: End Interaction
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: IterationEnd
 popControl: PopFolder
 message: 'Dummy'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: TestEnd
 popControl: PopFolder
 message: 'Demo_Case3 - Dummy passing test'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: StartDefect
 message: 'out of test known error'
 additionalInfo: |
   active: true
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: error
+level: 'error'
 subType: Message
 message: 'out of test known error !!!'
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: EndDefect
 -------------------------------
 timestamp: '2017-11-25 11:28:22'
-level: info
+level: 'message'
 subType: RunEnd
 popControl: PopFolder
 message: 'End Run: Test Test Run'

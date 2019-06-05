@@ -71,14 +71,15 @@ validation:
   - interactor:        warnings
   - check has another: errors
 
-summary:
-  Summary not implemented
+dState:
+  when: I run a test
+  
 
 #-------------------------------------------------------------------------------
 
 issues:
   - name: Executing Interactor
-    infoType: InTest
+    infoType: in test
     warnings:
       - timestamp: '2017-11-25 11:28:22'
         level: warn
@@ -86,8 +87,7 @@ issues:
         message: Warning added for testing in iteration
   
   - name: check_has_another
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
+    infoType: validation
     dState:
       when: I run a test
     errors:
@@ -147,12 +147,6 @@ item:
 
 #-------------------------------------------------------------------------------
 
-dState:
-  when: I run a test
-  
-
-#-------------------------------------------------------------------------------
-
 apState:
   id: 3456789
   observation: blahh
@@ -197,20 +191,20 @@ validation:
   - check with incorrect disabled expectation: errors
   - check with disabled expectation:           passed
 
-summary:
-  Summary not implemented
+dState:
+  id: 1
+  
 
 #-------------------------------------------------------------------------------
 
 issues:
   - name: check_less_than_2
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
+    infoType: validation
     dState:
       id: 1
     type2Errors:
       - timestamp: '2017-11-25 11:28:22'
-        level: info
+        level: message
         subType: EndDefect
         popControl: NoAction
         message: End Defect
@@ -220,8 +214,7 @@ issues:
             active: true
   
   - name: check_with_incorrect_disabled_expectation
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
+    infoType: validation
     dState:
       id: 1
     errors:
@@ -271,12 +264,6 @@ item:
 
 #-------------------------------------------------------------------------------
 
-dState:
-  id: 1
-  
-
-#-------------------------------------------------------------------------------
-
 apState:
   {}
   
@@ -295,15 +282,15 @@ validation:
   - check less than 2: passed
   - check less than 3: passed
 
-summary:
-  Summary not implemented
+dState:
+  id: 2
+  
 
 #-------------------------------------------------------------------------------
 
 issues:
   - name: check_less_than_2
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
+    infoType: validation
     dState:
       id: 2
     knownDefects:
@@ -354,12 +341,6 @@ item:
 
 #-------------------------------------------------------------------------------
 
-dState:
-  id: 2
-  
-
-#-------------------------------------------------------------------------------
-
 apState:
   {}
   
@@ -377,15 +358,15 @@ status: errors
 validation:
   - check bad validator: errors
 
-summary:
-
+dState:
+  id: 3
+  
 
 #-------------------------------------------------------------------------------
 
 issues:
   - name: check_bad_validator
-    infoType: Validation
-    valTime: '2017-12-13 13:18:33.641'
+    infoType: validation
     dState:
       id: 3
     errors:
@@ -431,12 +412,6 @@ item:
 
 #-------------------------------------------------------------------------------
 
-dState:
-  id: 3
-  
-
-#-------------------------------------------------------------------------------
-
 apState:
   {}
   
@@ -454,14 +429,15 @@ status: errors
 validation:
   - interactor: errors
 
-summary:
-
+dState:
+  ''
+  
 
 #-------------------------------------------------------------------------------
 
 issues:
   - name: Executing Interactor
-    infoType: InTest
+    infoType: in test
     errors:
       - timestamp: '2017-11-25 11:28:22'
         level: error
@@ -530,12 +506,6 @@ item:
 
 #-------------------------------------------------------------------------------
 
-dState:
-  ''
-  
-
-#-------------------------------------------------------------------------------
-
 apState:
   {}
   
@@ -562,14 +532,15 @@ status: knownDefects
 validation:
   - interactor: knownDefects
 
-summary:
-
+dState:
+  ''
+  
 
 #-------------------------------------------------------------------------------
 
 issues:
   - name: Executing Interactor
-    infoType: InTest
+    infoType: in test
     knownDefects:
       - timestamp: '2017-11-25 11:28:22'
         level: error
@@ -634,12 +605,6 @@ issues:
 
 item:
   {}
-  
-
-#-------------------------------------------------------------------------------
-
-dState:
-  ''
   
 
 #-------------------------------------------------------------------------------
