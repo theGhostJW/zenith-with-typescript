@@ -139,12 +139,10 @@ export function startWdioServer(configFileName: string = 'wdio.conf.js') {
 
     wdio.run().then(function (code: any) {
       if (code != 0){
-        console.log('DEBUG wdio - non zero code: ' + code);
         logError(`WebDriver test launcher returned non zero response code: ${show(code)}`);
         failed = true;
       }
     }, function (error: any) {
-      console.log('DEBUG Launcher failed to start the test', error.stacktrace);
       logError('Launcher failed to start the test ' + error.stacktrace);
       failed = true;
     });
