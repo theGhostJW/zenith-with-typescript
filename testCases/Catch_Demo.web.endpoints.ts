@@ -7,7 +7,7 @@ import { testCaseEndPoint } from './ProjectConfig';
 
 describe('endPoint', () => {
 
-  it.only('demo endpoint', () => {
+  it('demo endpoint', () => {
      testCaseEndPoint(
        {
        mocked: false,
@@ -17,6 +17,3 @@ describe('endPoint', () => {
     );
   });
 });
-
-//TODO: error on empty list for endpoint selector
-
