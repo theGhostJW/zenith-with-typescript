@@ -53,9 +53,7 @@ import { setLoggingFunctions, DEFAULT_LOGGING_FUNCTIONS } from '../lib/Logging';
 import { createGuidTruncated, hasText, CharacterEncoding } from '../lib/StringUtils';
 import { areEqual, debug } from '../lib/SysUtils';
 
-// Assumes local dir is ZenithFlow
-//TODO: fix this use projectDir or something
-const PROJECT_PATH : string = 'C:\\ZenithFlow',
+const PROJECT_PATH : string = projectDir(),
       SOURCE_DIR: string = PROJECT_PATH + '\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
 

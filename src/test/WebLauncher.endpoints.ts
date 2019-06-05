@@ -44,13 +44,4 @@ describe('checkStartSelenium', () => {
     startGeckoDriver();
   })
 
-  it('startGecko', () => {
-    //startGeckoDriver();
-    killGeckoDriver();
-   // const child = child_process.exec('C:\ZenithFlow\runTimeFileslaunchGeckoDriver.bat');
-                                                  
-    //debug("beforeunref");
-    //child.unref();
-  })
-
 });
