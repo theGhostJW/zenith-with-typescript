@@ -133,8 +133,9 @@ function launchWdioClientAndServer(config: {}) {
 
 export function startWdioServer(config: {}) {
   try {
-    let failed = false;
-    let wdio = new Launcher('.\\wdio.conf.js', {});
+    let failed = false,
+        wdio = new Launcher('.\\wdio\\wdio.conf.js', {});
+
     wdio.run().then(function (code: any) {
       if (code != 0){
         console.log('DEBUG wdio - non zero code: ' + code);
