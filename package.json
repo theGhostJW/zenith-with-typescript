@@ -19,8 +19,6 @@
     "debug": "^2.6.8",
     "del": "^3.0.0",
     "file-system": "^2.2.2",
-    "flow-copy-source": "^1.2.1",
-    "flow-typed": "^2.4.0",
     "js-yaml": "^3.9.1",
     "lodash": "^4.17.11",
     "lodash-deep": "^2.0.0",
@@ -47,19 +45,6 @@
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.4",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/plugin-proposal-export-default-from": "^7.2.0",
-    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
-    "@babel/plugin-syntax-async-generators": "^7.2.0",
-    "@babel/plugin-transform-async-to-generator": "^7.4.4",
-    "@babel/polyfill": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
-    "@babel/preset-flow": "^7.0.0",
-    "@babel/preset-typescript": "^7.3.3",
-    "@babel/register": "^7.4.4",
     "@types/bluebird": "^3.5.26",
     "@types/csv-parse": "^1.2.2",
     "@types/deasync": "^0.1.0",
@@ -74,8 +59,6 @@
     "@types/string": "^0.0.29",
     "@types/xml2js": "^0.4.4",
     "cross-env": "^5.2.0",
-    "flow-bin": "^0.92.1",
-    "flow-types": "^1.0.0",
     "gaze": "^1.1.2",
     "istanbul": "^0.4.5",
     "istanbul-reports": "^1.3.0",
@@ -84,9 +67,6 @@
     "typescript": "^3.4.5"
   },
   "scripts": {
-    "run": "node ./dist/index.js",
-    "build": "(if exist dist rmdir dist /s/q) && mkdir dist && babel src test --extensions \".es6,.js,.es,.jsx,.mjs,.ts\" --out-dir dist --copy-files --source-maps --verbose",
-    "debug": "yarn run build && node inspect ./dist/test/sum.test.js",
     "launchDetachedWdioServerInstance": "tsc && ts-node ./scripts/launchWebDriverIO.ts",
     "test": "mocha --require ts-node/register ./src/test/**.test.ts",
     "testWatch": "node ./scripts/yarnWatch.js test",
@@ -94,11 +74,8 @@
     "testfgrep": "mocha --require ts-node/register ./src/test/**.test.ts ./src/test/**/*.integration.ts ./src/test/**/*.endpoints.ts ./testCases/**/*.endpoints.ts -f",
     "endpoints": "mocha --require ts-node/register ./src/test/**/*.endpoints.ts ./testCases/**/*.endpoints.ts",
     "webUtilsEndpoints": "mocha --require ts-node/register ./src/test/**/WebUtilsTestImp.endpoints.ts",
-
     "testAllWatch": "node ./scripts/yarnWatch.js testAll",
-    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:@babel/register ./src/test/**/*.test.js ./src/test/**/*.integration.js",
-    "fixBuild": "yarn add @babel/cli @babel/preset-flow @babel/preset-env gaze flow-bin nyc istanbul-reports --dev",
-    "updateExternalFlowDefs": "yarn install && yarn flow-typed install --overwrite"
+    "testCoverage": "nyc --reporter=html --reporter=text mocha --compilers js:@babel/register ./src/test/**/*.test.js ./src/test/**/*.integration.js"
   },
   "nyc": {
     "exclude": [
