@@ -19,7 +19,7 @@ exports.config = {
   // directory is where your package.json resides, so `wdio` will be called from there.
   //
   specs: [
-    'C:\\ZenithFlow\\temp\\WebInteractor.ts'
+    './temp/WebInteractor.ts'
   ],
   // Patterns to exclude.
   exclude: [
