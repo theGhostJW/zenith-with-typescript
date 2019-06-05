@@ -45,6 +45,7 @@ import {
   toTestData,
   toTestDataString,
   unzipAll,
+  wdioConfigFile,
   zipAll,
 } from '../lib/FileUtils';
 
@@ -57,6 +58,14 @@ import { areEqual, debug } from '../lib/SysUtils';
 const PROJECT_PATH : string = 'C:\\ZenithFlow',
       SOURCE_DIR: string = PROJECT_PATH + '\\src',
       BASE_FILE: string  = SOURCE_DIR + '\\lib\\FileUtils.js';
+
+
+describe('wdioConfigFile', () => {
+  it('wdioConfigFile simple', () => {
+    wdioConfigFile('wdio.conf.js');
+  });
+});
+
 
 describe('fileLastModified', () => {
 
