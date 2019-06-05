@@ -5,8 +5,6 @@ import { Moment } from 'moment';
 const wd = require('webdriverio');
 const moment = require('moment');
 
-// TODO: check and fail if there are identical configs
-// TODO: change from when / then to title
 let config: TestConfig = {
   when: 'I cannot think of anything ~ Demo Web Case',
   then: 'I just write something',

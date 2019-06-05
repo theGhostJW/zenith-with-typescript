@@ -123,7 +123,6 @@ describe('Table Utils', () => {
 
   });
 
-  // todo - add checks
   describe('setTable', () => {
 
     it('simple', () => {
@@ -146,7 +145,6 @@ describe('Table Utils', () => {
 
 });
 
-// todo - add checks
 describe('setForm', () => {
 
   it('setForm ~ ids', () => {

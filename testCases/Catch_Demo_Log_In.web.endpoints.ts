@@ -18,5 +18,3 @@ describe('endPoint', () => {
   });
 });
 
-//TODO: error on empty list for endpoint selector
-

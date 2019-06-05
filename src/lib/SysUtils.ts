@@ -670,7 +670,7 @@ function standardiseSpecifier(anySpec: AnySpecifier) : FuncSpecifier {
     }
   }
 
-  //todo - more testing on this 
+  //more testing needed on this 
   if (isPOJSO(anySpec)) {
     return function keyMatch(val : any, key : string | number) : any {
       if (isPOJSO(val)) {

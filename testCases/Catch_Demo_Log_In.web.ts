@@ -83,7 +83,6 @@ function isLoggedIn() : boolean {
   return true; //$('a[href="/my-account/details"').isExisting()
 }
 
-//todo screenshot video
 export function interactor(item: Item, runConfig: RunConfig): ApState {
   const userName = item.userName,
         password = def(item.invalidPassword, validPassword());

@@ -1,4 +1,3 @@
-// TODO: reinstate index all exports - after typescript conversion
 // export {
 //   chkWithMessage,
 //   chk,

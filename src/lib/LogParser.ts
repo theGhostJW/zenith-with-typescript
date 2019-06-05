@@ -85,7 +85,6 @@ export function elementsToFullMock<R>(summary: FullSummaryInfo, mockFileNameFunc
   writeAll(filterLogText(summary), true);
 }
 
-// TODO: what is writemock doing here
 function writeMock<R>(iteration: Iteration, runConfig: R, mockFileNameFunc: (itemId: number, testName: string, r: R) => string) {
 
  let item = def(seekInObj(iteration, 'item'), {}),

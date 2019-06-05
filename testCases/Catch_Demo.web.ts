@@ -59,9 +59,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
   }
 }
 
-// TODO: - exception thrown in validator eg when calling non existent 
-// function - check error message passed through correctly
-// TODO: change assertion utils and checkUtils to be the same API
 function check_expected_links(dState: DState) {
   checkEqual(dState.expectedLinks, dState.linkList, "links should be the same");
 }

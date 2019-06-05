@@ -1,5 +1,5 @@
 //import {ensure, hasValue} from '../lib/SysUtils';
-//TODO - implement when ready
+
 // export function makeSQlServerConnectionString(server: string, catalog: string = ''){
 //   return [
 //           "Provider=SQLOLEDB;Data Source='",

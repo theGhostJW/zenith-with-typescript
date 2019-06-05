@@ -32,7 +32,7 @@ export function waitConnected(timeout: number, wantConnected: boolean = true) {
   return waitRetry(() => isConnected() == wantConnected, timeout);
 }
 
-// todo: other drivers
+
 export function checkStartDriver(runTimeBatch: string, isReady: () => boolean, timeoutMs: number = 30000): boolean {
   return isReady() || startDriver(runTimeBatch, isReady, timeoutMs);
 }
@@ -116,7 +116,6 @@ export function launchWdioServerDetached(soucePath: string, beforeInfo: BeforeRu
 }
 
 function launchWdioClientAndServer(configFileName?: string) {
-  //BUG: move config to file
   try {
     runClient();
     startWdioServer(configFileName);
@@ -206,8 +205,6 @@ export function geckoRunning(): boolean {
     return geckoStatus() != null;
   }
 
- //TODO: bug here when session already running - ready will be false
- // will need work for parrellel runs
   if (imageProcessRunning(geckoDriverImage)){
     let result = waitRetry(hasStatus, 10000);
     ensure(result, "Timeout waiting for gecko driver to be ready - status at timeout: " + show(geckoStatus()));
