@@ -913,7 +913,7 @@ export function seekAllInObjWithInfo(target: {} | null | undefined, specifier: A
   return seekInObjBase(target, 'includeNested', specifier, ...otherSpecifiers);
 }
 
-export const seekAllInObj = _.flowRight([getResultValues, seekAllInObjWithInfo]); // flow issues _.flowRight(getResultValues, seekAllInObjWithInfo);
+export const seekAllInObj = _.flowRight([getResultValues, seekAllInObjWithInfo]); 
 
 export function seekManyInObjWithInfo(target: {} | null | undefined, specifier: AnySpecifier, ...otherSpecifiers : AnySpecifier[]): SeekInObjResultItem[] {
   return seekInObjBase(target, 'eachBranch', specifier, ...otherSpecifiers);

@@ -102,7 +102,7 @@ export function itemFilter<I extends BaseItem>(selector?: Number |  Partial<I> |
   }
 
   fail('Invalid item selector property: ' + newLine() + show(selector));
-  // will never get here this is just to keep flow happy
+  // will never get here this is just to keep TypeScript happy
   return allItems;
 }
 

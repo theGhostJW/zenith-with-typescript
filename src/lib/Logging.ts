@@ -212,7 +212,6 @@ export interface LogEntry {
    this.level = anyOps.level || 'info';
    this.timestamp = anyOps.timestamp || nowAsLogFormat;
 
-   //$FlowFixMe
    this.fd = fs.openSync(anyOps.filename, 'w+');
 
    //
