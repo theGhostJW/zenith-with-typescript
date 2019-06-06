@@ -499,7 +499,7 @@ function updateStateForErrorsAndWarnings(state: RunState, entry: LogEntry, inTes
   }
 }
 
-function configObj(entry: LogEntry) {
+function configObj(entry: LogEntry): {} {
   return entry.additionalInfo == null ? {} : yamlToObj(entry.additionalInfo);
 }
 
@@ -536,7 +536,7 @@ function updateState(state: RunState, entry: LogEntry): RunState {
   updateStateForErrorsAndWarnings(state, entry, inTest, inIteration)
 
   let additionalInfo = entry.additionalInfo == null ? '' : entry.additionalInfo;
-  const infoObj = () => yamlToObj(additionalInfo);
+  const infoObj = () => <{}>yamlToObj(additionalInfo);
   switch (entry.subType) {
     case 'FilterLog':
       state.filterLog = filterLog(additionalInfo);
