@@ -22,8 +22,8 @@ describe('wdDebug', () => {
   });
 
   it('wdDebugGoogle', () => {
-    const pageTitle = wdDebug('https://www.google.com.au/', zzzTestFunc);
-    chkEq('Google', pageTitle);
+   const pageTitle = wdDebug('https://www.google.com.au/', zzzTestFunc);
+   chkEq('Google', pageTitle);
   });
 
 });

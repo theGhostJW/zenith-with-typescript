@@ -34,7 +34,7 @@ export function iteration(iteration: Iteration, fullSummary: FullSummaryInfo, la
   if (!sameText(script, def(lastScript, <string>''))){
     header = majorHeaderBlock(summaryInfo == null ? `NO SUMMARY INFO AVAILABLE FOR ${script}`:
                 `${deUnderscore(script)} - ${durationFormatted(seekSumStr('startTime'), seekSumStr('endTime'))}`, false) +
-             newLine(2) + 'stats:' + newLine() + padProps(def(seekInObj(summaryInfo, 'stats'), {}), false, '  ');
+             newLine(2) + 'stats:' + newLine() + padProps(def(seekInObj(<any>summaryInfo, 'stats'), {}), false, '  ');
   }
 
   header = header + newLine(2) + minorHeaderBlock(`${script} -${mocked ? ' MOCKED -' : ''} Item ${iteration.item.id} - ${durationFormatted(iteration.startTime, iteration.endTime)}`, true);
