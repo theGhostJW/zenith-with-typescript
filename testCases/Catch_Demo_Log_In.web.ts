@@ -3,7 +3,7 @@ import { fileToString } from '../src/lib/FileUtils';
 import { sameText  } from '../src/lib/StringUtils';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries } from './ProjectConfig';
 import { check, checkFalse, checkEqual} from '../src/lib/CheckUtils';
-import * as wd from 'webdriverio';
+import  'webdriverio';
 
 let config: TestConfig = {
   when: 'a log in is performed',
