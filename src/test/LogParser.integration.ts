@@ -1,10 +1,11 @@
 import {describe} from 'mocha'
 import { seekInObj } from '../lib/SysUtils';
 import { defaultLogParser, elementsToFullMock,  } from '../lib/LogParser';
-import { testDataFile, toTemp, fromTestData } from '../lib/FileUtils';
+import { testDataFile, toTemp, fromTestData, tempFile } from '../lib/FileUtils';
 import { mockFileNameUseEnvironment } from '../../testCases/ProjectConfig';
-import {chkEq} from '../lib/AssertionUtils';
-import { replaceAll} from '../lib/StringUtils';
+import {chkEq, chk} from '../lib/AssertionUtils';
+import { endsWith} from '../lib/StringUtils';
+import { FullSummaryInfo } from 'src/lib/LogParserTypes';
 
 describe('file Parsing', () => {
 
@@ -12,7 +13,7 @@ describe('file Parsing', () => {
       rawPath = testDataFile('DemoLog.raw.yaml');
 
   before(() => {
-    summary = defaultLogParser(mockFileNameUseEnvironment)(rawPath);
+    summary = defaultLogParser(mockFileNameUseEnvironment, tempFile())(rawPath);
     toTemp(summary, 'summary');
   });
 
@@ -22,8 +23,8 @@ describe('file Parsing', () => {
      chkEq(rawPath, summary.rawFile)
     });
 
-    it('elements', () => {
-     chkEq(replaceAll(rawPath, '.raw', '.elements'), summary.elementsFile)
+    it('elements correct', () => {
+     chk(endsWith(summary.elementsFile, "\\temp\\DemoLog.elements.yaml"));
     });
 
   });
@@ -94,13 +95,10 @@ describe('file Parsing', () => {
   });
 
   describe('elementProcessor', () => {
-
-    let summary: any;
-    before(() => {
-      summary = fromTestData('ParserSummary.yaml');
-    });
-
     it('elementsToFullMock', () => {
+      let summary = <FullSummaryInfo>fromTestData('ParserSummary.yaml');
+      summary.rawFile = testDataFile('DemoLog.raw.yaml');
+      summary.elementsFile = testDataFile('DemoLog.elements.yaml');
       elementsToFullMock(summary, mockFileNameUseEnvironment);
     });
 

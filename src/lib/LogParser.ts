@@ -119,9 +119,9 @@ export const EXECUTING_INTERACTOR_STR = 'Executing Interactor';
    };
  }
 
- function rawToElements(rawPath: string, fullSummary: FullSummaryInfo): (rs:RunState, le:LogEntry) => RunState {
+ function rawToElements(rawPath: string, fullSummary: FullSummaryInfo, destDir?: string): (rs:RunState, le:LogEntry) => RunState {
 
-   let resultPath = destPath(rawPath, 'raw', 'elements'),
+   let resultPath = destPath(rawPath, 'raw', 'elements', destDir),
        writeToFile = fileRecordWriter(resultPath),
        lastRunStats: RunStats = nullRunStats();
 
@@ -342,7 +342,7 @@ export function destPath(rawPath: string, sourceFilePart: string, destFilePart: 
 
   let resultPath = replaceAll(rawPath, sourceFilePart, '.' + destFilePart + '.');
 
-  return destDir == null ? resultPath : combine(logFile(), fileOrFolderName(resultPath));
+  return combine(def(destDir, logFile()), fileOrFolderName(resultPath));
 }
 
 function fileWriter(destPath: string){
@@ -685,7 +685,7 @@ function filterLog(str: string) {
    return reorderProps(result, ...logKeys);
 }
 
-export function defaultLogParser<R>(mockFileNameGenerator: (itemId: number, testName: string, runConfig: R) => string) {
+export function defaultLogParser<R>(mockFileNameGenerator: (itemId: number, testName: string, runConfig: R) => string, destDir?: string) {
   return function parseLogDefault(fullPath: string): FullSummaryInfo {
     let fullSummary: FullSummaryInfo = {
       rawFile: '',
@@ -695,7 +695,7 @@ export function defaultLogParser<R>(mockFileNameGenerator: (itemId: number, test
     };
 
     // generate elements ~ mutates full summary
-    parseLog(fullPath, rawToElements(fullPath, fullSummary), initalState(fullPath));
+    parseLog(fullPath, rawToElements(fullPath, fullSummary, destDir), initalState(fullPath));
     // generate full & mock
     elementsToFullMock(fullSummary, mockFileNameGenerator);
     return fullSummary;
