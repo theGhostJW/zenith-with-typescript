@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
+import { baseData, DataItem  } from './PlanIT_Demo.web.data';
 import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl } from '../src/lib/WebUtils';
 
@@ -10,12 +11,7 @@ const config: TestConfig = {
   countries: AllCountries
 }
 
-export type Item = {
-  id: number,
-  when: string,
-  then: string,
-  dataTarget: string,
-  expectedLinks: string[],
+export interface Item extends DataItem {
   validators: Validators<DState>
 }
 
@@ -32,8 +28,8 @@ type DState = {
 
 function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   return {
-    expectedLinks: i.expectedLinks,
-    linkList: a.linkList
+    expectedLinks: [],
+    linkList: []
   }
 }
 
@@ -63,77 +59,7 @@ function check_expected_links(dState: DState) {
 }
 
 function  testItems(runConfig: RunConfig): Item[] {
-  return [
-    {
-      id: 100,
-      when: "the women's list is visited",
-      then: 'the shop by category list is as expected',
-      dataTarget: 'womens-fashion',
-      expectedLinks: ["Women's Clothing",
-            "Women's Shoes",
-            "Jewellery",
-            "Watches",
-            "Sunglasses",
-            "Handbags",
-            "Luggage",
-            "Hats",
-            "Wallets",
-            'Accessories',
-            "Intimate Apparel",
-            "Backpacks"],
-      validators: check_expected_links
-    },
-    {
-      id: 200,
-      when: "the mens's list is visited",
-      then: 'the shop by category list is as expected',
-      dataTarget: 'mens-fashion',
-      expectedLinks: [
-          "Men's Clothing",
-          "Men's Shoes",
-          "Workwear",
-          "Watches",
-          "Sunglasses",
-          "Bags",
-          "Luggage",
-          "Hats",
-          "Wallets",
-          "Accessories",
-          "Jewellery",
-          "Backpacks"],
-      validators: check_expected_links
-    },
-    {
-      id: 300,
-      when: "the mens's list is visited with an incorrect expected list",
-      then: 'we get an error',
-      dataTarget: 'mens-fashion',
-      expectedLinks: [
-          "Men's Clothing",
-          "Men's Shoes",
-          "Workwear",
-          "Watches",
-          "Sunglasses",
-          "Bags",
-          "Luggage",
-          "Hats",
-          "Wallets",
-          "Accessories",
-          "Jewellery",
-          "Mens Stuff",
-          "Backpacks"],
-      validators: check_expected_links
-    },
-    {
-      id: 400,
-      when: "there is an interactor error",
-      then: 'we get an error error',
-      dataTarget: 'cats-fashion',
-      expectedLinks: [],
-      validators: check_expected_links
-    },
-
-  ];
+  return [] // baseData();
 }
 
 export const testCase: TestCase<Item, ApState, DState>  = {

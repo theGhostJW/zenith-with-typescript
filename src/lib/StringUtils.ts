@@ -307,7 +307,7 @@ function fieldToRowTransformer(fieldTransformer: FieldTransformer): (m:{[key:str
   return (obj) => _.mapValues(obj, fieldTransformer);
 }
 
-export function stringToTableMap<T>(txt: string, rowTransformer: RowTransformer<T>, ...fieldTransformers: FieldTransformer[]) : {[k:string]: T[]} {
+export function stringToTableMap<T>(txt: string, rowTransformer: RowTransformer<T> = _.identity, ...fieldTransformers: FieldTransformer[]) : {[k:string]: T[]} {
   var sections = splitOnPropName(txt);
   return _.mapValues(sections, (txt) => stringToTable(txt, rowTransformer, ...fieldTransformers));
 }
