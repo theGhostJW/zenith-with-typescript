@@ -247,7 +247,7 @@ export function testRun<R extends BaseRunConfig, FR extends BaseRunConfig, T ext
       let testConfig = testConfigDefaulter(tcPartial);
       testCase.testConfig = <any>testConfig;
 
-      logStartTest(name, testConfig.when, testConfig.then, testConfig);
+      logStartTest(name, testConfig.title, testConfig);
       // dodgy cast for itemRunner I think the type issue is because the
       // TestItem type changes on every test
       testRunner(<any>testCase, rc, itemRunner, <any>mockFileNameGenerator);
@@ -339,8 +339,7 @@ export interface BaseItem  {
                   };
 
 export type BaseTestConfig = {
-                    when: string,
-                    then: string,
+                    title: string,
                     enabled: boolean
                   };
 

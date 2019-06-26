@@ -6,8 +6,7 @@ const wd = require('webdriverio');
 const moment = require('moment');
 
 let config: TestConfig = {
-  when: 'I cannot think of anything ~ Demo Web Case',
-  then: 'I just write something',
+  title: 'a randome demo case',
   owner: 'JW',
   enabled: true,
   countries: ["Australia", "New Zealand"]

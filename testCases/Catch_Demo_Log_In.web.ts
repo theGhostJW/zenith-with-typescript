@@ -6,8 +6,7 @@ import { check, checkFalse, checkEqual} from '../src/lib/CheckUtils';
 import  'webdriverio';
 
 let config: TestConfig = {
-  when: 'a log in is performed',
-  then: 'access is granted or denied as expected',
+  title: 'log in access is granted or denied as expected',
   owner: 'JW',
   enabled: true,
   countries: AllCountries

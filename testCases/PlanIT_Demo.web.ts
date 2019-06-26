@@ -4,8 +4,7 @@ import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl } from '../src/lib/WebUtils';
 
 const config: TestConfig = {
-  when: 'pages are viewed',
-  then: 'sub-menus are as expected',
+  title: 'planIT demo',
   owner: 'JW',
   enabled: true,
   countries: AllCountries

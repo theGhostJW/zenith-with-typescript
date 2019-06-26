@@ -3,8 +3,7 @@ import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth }
 import { checkTextContains } from '../src/lib/CheckUtils';
 
 const config: TestConfig = {
-  when: 'i test anther case',
-  then: 'it still works',
+  title: 'another test case',
   owner: 'JW',
   enabled: true,
   countries: "Australia"
@@ -31,10 +30,6 @@ function prepState(apState: ApState, item: Item, runConfig: RunConfig): DState {
   return {
     when: apState.theWhen
   }
-}
-
-function mockFilename(item: Item, runConfig: RunConfig) {
-  return '';
 }
 
 interface Item {

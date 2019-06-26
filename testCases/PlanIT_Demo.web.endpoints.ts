@@ -6,7 +6,7 @@ import { testCaseEndPoint } from './ProjectConfig';
 
 describe('endPoint', () => {
 
-  it('Demo_Case.web endpoint', () => {
+  it('PlanIT_Demo.web.endpoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,

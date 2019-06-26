@@ -85,8 +85,7 @@ export interface FullRunConfig {
 }
 
 export interface TestConfig {
-  when: string,
-  then: string,
+  title: string,
   owner: string,
   enabled: boolean,
   countries?: Country[] | Country,
@@ -95,8 +94,7 @@ export interface TestConfig {
 };
 
 export interface FullTestConfig {
-  when: string,
-  then: string,
+  title: string,
   owner: string,
   enabled: boolean,
   countries: Country[],

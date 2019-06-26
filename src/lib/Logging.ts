@@ -106,7 +106,7 @@ export const logStartRun = (runName: string, runConfig: any) => specialMessage('
 
 export const logEndRun = (runName: string) => specialMessage('RunEnd', PopControl.PopFolder)(`End Run: ${runName}`);
 
-export const logStartTest = (testName: string, when: string, then: string, testConfig: {}) =>
+export const logStartTest = (testName: string, title: string, testConfig: {}) =>
                                                                                                     {
                                                                                                       let plainName = changeExtension(testName, ''),
                                                                                                           addInfo = _.defaults(
@@ -115,7 +115,7 @@ export const logStartTest = (testName: string, when: string, then: string, testC
                                                                                                                               );
 
                                                                                                       return specialMessage('TestStart', PopControl.PushFolder)(
-                                                                                                      `Test: ${plainName} - When ${when} then ${then}`,
+                                                                                                      `Test: ${plainName} - ${title}`,
                                                                                                        objToYaml(addInfo));
                                                                                                      }
 

@@ -7,8 +7,7 @@ describe('test filters', () => {
 
   const baseCase = () => {
     return {
-              when: 'Blah',
-              then: 'Blah Blahh',
+              title: 'Blah Blahh Title',
               owner: 'JW',
               enabled: true,
               countries: <any>["Australia"],
