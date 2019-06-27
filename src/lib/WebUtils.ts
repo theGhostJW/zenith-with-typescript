@@ -10,7 +10,7 @@ import {
   toTempString,
 } from './FileUtils';
 
-import 'webdriverio';
+import "@wdio/sync";
 import {log} from './Logging';
 
 import { hasText, lowerCase, newLine, sameText,
@@ -41,7 +41,7 @@ export type SelectorOrElement = string | Element;
 // an incomplete type safe facade over element
 export interface Element {
   getText: () => string,
-  getValue: () => string,
+  getValue: () => string | [string],
   getTagName: () => string,
   getLocation: () => {x: number, y: number},
   getSize: () => {width: number, height: number},
@@ -51,53 +51,37 @@ export interface Element {
   isDisplayed: () => boolean,
   isDisplayedInViewport: () => boolean,
   click: () => void,
-  setValue: (s:string) => void,
+  setValue: (s: string) => void,
   selectByVisibleText: (text: string)  => void,
-  selectByValue: (value:string)  => void,
+  selectByValue: (value: string)  => void,
   selectByAttribute: (attribute: string, value: string)  => void,
-  $$: (css:string) => Element[],
-  $: (css:string) => Element
+  $$: (css: string) => Element[],
+  $: (css: string) => Element,
+  // -- new
+  addValue: (value:string) => void,
+  clearValue: () => void,
+  doubleClick: () => void,
+  dragAndDrop: (targetSelector: string, duration?: number) => void,
+  getCSSProperty: (cssProperty: string) => {},
+  getProperty: (property: string) => string,
+  isEnabled: () => boolean,
+  isExisting: () => boolean,
+  isFocused: () => boolean,
+  moveTo: (xoffset: number, yoffset: number) => void,
+  react$$: (selector: string, props?: {}, state?: any) => Element[],
+  react$: (selector: string, props?: {}, state?: any) => Element,
+  saveScreenshot: (filePath: string) => void,
+  scrollIntoView: (scrollIntoViewOptions?: {}) => void, // Todo: types
+  selectByIndex: (idx: number) => void, // Todo: types,
+  shadow$$: (css: string) => Element[],
+  shadow$: (css: string) => Element,
+  touchAction: (touchAction: any) => void, // Todo: types,
+  waitForDisplayed: (ms?: number, reverse?: boolean, error?: string) => void,
+  waitForEnabled: (ms?: number, reverse?: boolean, error?: string) => void,
+  waitForExist: (ms?: number, reverse?: boolean, error?: string) => void,
+  waitUntil: (condition: () => boolean, timeout?: number, timeoutMsg?: string, interval?: number) => void
 }
 
-/* All existing - review again when moved to TS - I think element exists 
-element
-
-    addValue
-    clearValue
-    click
-    doubleClick
-    dragAndDrop
-    getAttribute
-    getCSSProperty
-    getHTML
-    getLocation
-    getProperty
-    getSize
-    getTagName
-    getText
-    getValue
-    isDisplayed
-    isDisplayedInViewport
-    isEnabled
-    isExisting
-    isFocused
-    isSelected
-    moveTo
-    saveScreenshot
-    scrollIntoView
-    selectByAttribute
-    selectByIndex
-    selectByVisibleText
-    setValue
-    shadow$$
-    shadow$
-    touchAction
-    waitForDisplayed
-    waitForEnabled
-    waitForExist
-    waitUntil
-
-*/
 
 export const S : (selectorOrElement: SelectorOrElement) => Element = selectorOrElement => (typeof(selectorOrElement) === "string") 
                                                                           ? $(selectorOrElement) 
@@ -114,7 +98,7 @@ export const SS: (css:string) => Element[] = css => <any>$$(css);
 
 export type SimpleCellFunc<T> = (cell: Element, rowIndex: number, colIndex: number, row: Element) => T;
 export type CellFunc<T> = (cell: Element, colTitle: string, rowIndex: number, colIndex: number, row: Element) => T;
-export type ReadResult = boolean | string | null;
+export type ReadResult = boolean | string | [string] | null;
 
 type LookUpDef = {
   findVals: {[k:string]: ReadResult},
@@ -240,7 +224,7 @@ const setTablePriv = (onlyVisible: boolean) => (tableSelector: SelectorOrElement
 
   ensure(lookupCols.length > 0, 'No lookup columns defined in columnDefs (these are prepended by a tild e.g. ~Product)');
 
-  let tbl = S(tableSelector),
+  let tbl : Element = S(tableSelector),
       header = tbl.$('tr'),
       colMap = generateColMap(header);
 
@@ -1399,7 +1383,7 @@ export function elementIs(tagName: string) {
 }
 
 
-function readSelect(elementOrSelector: SelectorOrElement) : string {
+function readSelect(elementOrSelector: SelectorOrElement) : string | [string]{
   let el = S(elementOrSelector);
   return el.getValue();
 }

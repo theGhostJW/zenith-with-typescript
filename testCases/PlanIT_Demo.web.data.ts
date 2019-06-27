@@ -39,7 +39,6 @@ export function baseData() {
   return stringToTableMap(data, transformRow);
 }
 
-
 const 
   validPassword = "valid",
   validUserName = "valid",
@@ -56,9 +55,9 @@ id      username               password              errorFragment         when
 missingCreds::
 id      username                  password               errorFragment                  when
 ----------------------------------------------------------------------------------------------------
-200     .                         .                    user name required              user name and password is empty
-300     ${validUserName}          .                    password required               password is empty
-400     .                         ${validPassword}      user name required             user name is empty
+200     .                         .                      user name required             user name and password is empty
+300     ${validUserName}          .                      password required              password is empty
+400     .                         ${validPassword}       user name required             user name is empty
 
 
 incorrectCreds::
