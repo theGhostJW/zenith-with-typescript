@@ -1,7 +1,7 @@
 import { eachFile, testCaseFile, pathExists, mockFile, fromMock } from './FileUtils';
 import {
           forceArray, functionNameFromFunction, areEqual, fail,
-          translateErrorObj, 
+          translateErrorObj,
         } from './SysUtils';
 import { show, newLine, hasText} from './StringUtils';
 import { logStartRun, logEndRun, logStartTest, logEndTest, logStartIteration,
@@ -292,7 +292,7 @@ let allCases: any[] = [];
 
 export type BaseRunConfig = {
   name: string,
-  mocked: boolean
+  mocked?: boolean
 }
 
 export type TestFilter<FR, FT> = (s:string, tc:FT, rc:FR) => boolean;
@@ -429,7 +429,7 @@ function canUseMock<R extends BaseRunConfig, T extends BaseTestConfig, I extends
         mockPath = mockFile(mockFileName);
     return pathExists(mockPath);
   }
-  return rc.mocked && mockExists();
+  return (rc.mocked == null ? false : rc.mocked) && mockExists();
 }
 
 export function runTestItem<R extends BaseRunConfig, T extends BaseTestConfig, I extends BaseItem, S, V>(baseCase: NamedCase<R, T, I, S, V>, rc: R, item: I, mockFileNameFunc: MockFileNameFunction<R>) {
