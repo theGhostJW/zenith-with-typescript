@@ -28,6 +28,10 @@ type DState = {
   linkList: string[]
 }
 
+function check_expected_links(dState: DState) {
+  checkEqual(dState.expectedLinks, dState.linkList, "links should be the same");
+}
+
 function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   return {
     expectedLinks: [],
@@ -92,10 +96,6 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
     pageTitle: <any>title,
     linkList: catList
   }
-}
-
-function check_expected_links(dState: DState) {
-  checkEqual(dState.expectedLinks, dState.linkList, "links should be the same");
 }
 
 function  testItems(runConfig: RunConfig): Item[] {
