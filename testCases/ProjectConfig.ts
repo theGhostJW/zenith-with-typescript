@@ -68,7 +68,7 @@ export type TestCaseEndPointParams<R extends BaseRunConfig, T extends BaseTestCo
 
 export interface RunConfig {
   name: string,
-  mocked: boolean,
+  mocked?: boolean,
   country?: Country,
   environment?: Environment,
   testCases?: (number|string)[] | number | string,

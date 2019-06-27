@@ -1,5 +1,5 @@
 import { wildCardMatch } from '../src/lib/StringUtils';
-import { xOr} from '../src/lib/SysUtils';
+import { xOr, forceArray} from '../src/lib/SysUtils';
 import { Depth } from './ProjectConfig';
 import { FullRunConfig, FullTestConfig, depthNum } from '../testCases/ProjectConfig';
 import { TestFilter } from '../src/lib/TestRunner';
@@ -20,7 +20,7 @@ export function is_enabled(name: string, testConfig: FullTestConfig, runConfig: 
 }
 
 export function in_list(name: string, testConfig: FullTestConfig, runConfig: FullRunConfig): boolean {
-  let testCases = runConfig.testCases;
+  let testCases = forceArray(runConfig.testCases);
   return testCases.length == 0 ||
         testCases.find(s => typeof s == 'string' && wildCardMatch(name, s)) != null
 }
