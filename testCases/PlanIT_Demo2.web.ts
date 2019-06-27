@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { baseData, DataItem } from './PlanIT_Demo.web.data';
+import { baseData, DataItem } from './PlanIT_Demo2.web.data';
 import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl, setForm, getForm, SS } from '../src/lib/WebUtils';
 import { waitRetry, debug } from '../src/lib/SysUtils';
