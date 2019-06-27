@@ -727,7 +727,7 @@ function formatFormInfo(info: FormItems): string {
         ].join('\n\n');
 }
 
-export function getForm(parentElementorSelector: SelectorOrElement): string {
+export function getForm(parentElementorSelector: SelectorOrElement = 'form'): string {
   let result = formatFormInfo(extractFormInfo(parentElementorSelector));
   log(result);
   toTempString(result);
