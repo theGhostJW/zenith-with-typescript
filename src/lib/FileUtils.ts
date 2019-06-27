@@ -390,6 +390,10 @@ export function linesToFile(lines : string[], path : string, encoding : Characte
   fs.writeFileSync(path, lines.join(newLine()), CharacterEncoding[encoding]);
 }
 
+export function errorShotFile(fileName?: string) : string {
+  return subFile('errorShots', fileName);
+}
+
 export function tempFile(fileName?: string) : string {
   return subFile('temp', fileName);
 }

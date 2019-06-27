@@ -4,6 +4,7 @@ import { baseData, DataItem  } from './PlanIT_Demo.web.data';
 import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl, setForm, getForm, SS } from '../src/lib/WebUtils';
 import { waitRetry, debug } from '../src/lib/SysUtils';
+import { errorShotFile } from '../src/lib/FileUtils';
 
 const config: TestConfig = {
   title: 'planIT demo',
@@ -68,7 +69,9 @@ export function waitRetryDemo() {
 }
 
 export function dragAndDrop() {
-
+  url("https://the-internet.herokuapp.com/drag_and_drop");
+  S("#column-a").dragAndDrop(S("#column-b"), 6000);
+  browser.saveScreenshot(errorShotFile('dragdrop.png'));
 }
 
 

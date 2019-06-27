@@ -61,7 +61,7 @@ export interface Element {
   addValue: (value:string) => void,
   clearValue: () => void,
   doubleClick: () => void,
-  dragAndDrop: (targetSelector: string, duration?: number) => void,
+  dragAndDrop: (targetElement: Element, duration?: number) => void,
   getCSSProperty: (cssProperty: string) => {},
   getProperty: (property: string) => string,
   isEnabled: () => boolean,
