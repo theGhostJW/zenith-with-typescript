@@ -1,10 +1,5 @@
 import * as _ from 'lodash';
-import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { checkEqual} from '../src/lib/CheckUtils';
-import { S, url, getUrl, setForm, getForm, SS, clickLink } from '../src/lib/WebUtils';
-import { waitRetry, debug } from '../src/lib/SysUtils';
-import { errorShotFile } from '../src/lib/FileUtils';
-
+import { S, url, getUrl, setForm, SS} from '../src/lib/WebUtils';
 
 const homePage : string = 'http://jupiter.cloud.planittesting.com';
 

@@ -1,9 +1,7 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
 import { checkEqual} from '../src/lib/CheckUtils';
-import { S, url, getUrl, setForm, getForm, SS } from '../src/lib/WebUtils';
-import { waitRetry, debug } from '../src/lib/SysUtils';
-import { errorShotFile } from '../src/lib/FileUtils';
+import { S } from '../src/lib/WebUtils';
 import { validContactDetails, FormInput, goHome, goContacts, setContactForm, clickSubmit, getErrors, emptyData } from './PlanShared.web'
 
 const config: TestConfig = {
