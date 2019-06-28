@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 
 import { allItems } from '../src/lib/TestRunner';
-import { testCase, populateLogIn, clickLogin, smartbearUrl, logInSmartbear, waitRetryDemo, dragAndDrop } from './PlanIT_Demo.web';
+import { testCase, populateLogIn, clickLogin, logInSmartbear, waitRetryDemo, dragAndDrop } from './PlanIT_Demo.web';
 import { baseData } from './PlanIT_Demo.web.data';
 import { testCaseEndPoint, run } from './ProjectConfig';
 import { toTemp } from '../src/lib/FileUtils';
@@ -23,7 +23,7 @@ describe('endPoint', () => {
    toTemp(baseData());
  });
 
-
+ const smartbearUrl : string = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
  it('PlanIT_Demo.web loginSmartbear', () => {
   wdDebug(smartbearUrl, waitRetryDemo);
 });

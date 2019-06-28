@@ -39,7 +39,7 @@ function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   }
 }
 
-export const smartbearUrl : string = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
+export const homePage : string = 'http://jupiter.cloud.planittesting.com';
 
 export function populateLogIn() {
   setForm('form', {
@@ -54,7 +54,7 @@ export function clickLogin() {
 }
 
 export function logInSmartbear() {
-  url(smartbearUrl);
+ // url(smartbearUrl);
   populateLogIn();
   clickLogin();
 }
