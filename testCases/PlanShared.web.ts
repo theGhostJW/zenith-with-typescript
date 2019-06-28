@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { baseData, DataItem } from './PlanIT_Demo2.web.data';
 import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl, setForm, getForm, SS, clickLink } from '../src/lib/WebUtils';
 import { waitRetry, debug } from '../src/lib/SysUtils';
@@ -39,14 +38,12 @@ export interface CompleteFormInput
 export type FormInput = Partial<CompleteFormInput>;
 
 // Default Data
-const formDefaults = () => {
- return {
+export const emptyData =  {
   name: '',
   surname: '',
   email: '',
   phone: '',
   message: ''
-	}
 }
 
 export const clearContactForm = () => setContactForm({});
@@ -56,7 +53,7 @@ export function setContactForm(params: FormInput) {
           surname,
           email,
           phone,
-          message} = _.defaults(params, formDefaults());
+          message} = _.defaults(params, emptyData);
           
   const formParams = {
                     forename: name,
@@ -72,6 +69,6 @@ export function clickSubmit(){
   S(".btn-contact").click();
 }
 
-export function getErrors(){
- // $$('.help-inline')
+export function getErrors(): string[] {
+ return SS('.help-inline').map(e => e.getText());
 }

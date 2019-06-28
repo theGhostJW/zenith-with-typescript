@@ -1,10 +1,10 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { baseData, DataItem } from './PlanIT_Demo.web.data';
 import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl, setForm, getForm, SS } from '../src/lib/WebUtils';
 import { waitRetry, debug } from '../src/lib/SysUtils';
 import { errorShotFile } from '../src/lib/FileUtils';
+import { validContactDetails, FormInput, goHome, goContacts, setContactForm, clickSubmit, getErrors, emptyData } from './PlanShared.web'
 
 const config: TestConfig = {
   title: 'planIT demo',
@@ -13,93 +13,89 @@ const config: TestConfig = {
   countries: AllCountries
 }
 
-export interface Item extends DataItem {
+export interface Item {
+  id: number,
+  when: string,
+  then: string,
+  initalFormData: FormInput,
+  secondTryFormData: FormInput,
   validators: Validators<DState>
 }
 
-export type ApState = {
-  url: string,
-  pageTitle: string,
-  linkList: string[],
+export interface ApState {
+  finalMessage: string | null,
+  initialErrors: string[],
+  secondTryErrors: string[] | null
 }
 
-type DState = {
-  expectedLinks: string[],
-  linkList: string[]
+// trivial test no transformation needed
+type DState = ApState
+
+function check_expected_errors(initial: string[], retry?: string[]) {
+  return function check_expected_errors(dState: DState) {
+    checkEqual(initial, dState.initialErrors, "inital errors as expected");
+    checkEqual(retry, dState.secondTryErrors, "retry errors as expected");
+  }
+  
 }
 
-function check_expected_links(dState: DState) {
-  checkEqual(dState.expectedLinks, dState.linkList, "links should be the same");
+function check_final_message(expectred: string) {
+  return function check_final_message(dState: DState) {
+    checkEqual(expectred, dState.finalMessage, "final message as expected");
+  }
 }
 
 function prepState(a: ApState, i: Item, rc: RunConfig): DState {
-  return {
-    expectedLinks: [],
-    linkList: []
-  }
+  return a;
 }
 
-export const homePage : string = 'http://jupiter.cloud.planittesting.com';
-
-export function populateLogIn() {
-  setForm('form', {
-      ctl00_MainContent_username: 'Tester',
-      ctl00_MainContent_password: 'test'
-  }
- );
+function setFormReturnErrors(data: FormInput) {
+  setContactForm(data);
+  clickSubmit();
+  return getErrors();
 }
 
-export function clickLogin() {
-  S('#ctl00_MainContent_login_button.button').click();
+function readMessage(): string | null {
+  const messageSelector = "[class*=alert-success]";
+  S(messageSelector).waitForDisplayed(5000);
+  return S(messageSelector).getText();
 }
-
-export function logInSmartbear() {
- // url(smartbearUrl);
-  populateLogIn();
-  clickLogin();
-}
-
-export function waitRetryDemo() {
-  // browser.debug();
-  debug(waitRetry(() => S("nnoexistant").isExisting(), 2000), "does not exist");
-  debug(waitRetry(() => S("#ctl00_MainContent_login_button").isExisting(), 2000), "Exists ID");
-  debug(waitRetry(() => S(".button").isExisting(), 2000), "any button");
-  debug(waitRetry(() => S('.button[value^="Log"]').isExisting(), 2000), "button value prefix partial");
-  debug(waitRetry(() => S('.button[value*="og"]').isExisting(), 2000), "button value partial anywhere");
-  debug(waitRetry(() => S('#aspnetForm [value*=og]').isExisting(), 2000), "button text partial anywhere in form");
-  debug(waitRetry(() => SS('#aspnetForm .info').length > 0, 2000), "infos");
-  debug(waitRetry(() => SS('#aspnetForm .info').length > 0, 2000), "paragraphs");
-  // note you can use set
-}
-
-export function dragAndDrop() {
-  url("https://the-internet.herokuapp.com/drag_and_drop");
-  S("#column-a").dragAndDrop(S("#column-b"), 6000);
-  browser.saveScreenshot(errorShotFile('dragdrop.png'));
-}
-
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
-  //url(catchUrl);
-  S(`a[data-target="${item.dataTarget}"]`).click();
-  
-  const catList = S(
-                    "html.js.no-webp body.chunky-prices article#mainContentBlock.main-content section.container.grid-row div.category-visualiser div.category-visualiser__card div.category-visualiser__section.category-visualiser__subcategories div.category-visualiser__section-body ul.category-visualiser__subcategories-list")
-                    .$$("a")
-                    .filter(e => e.isDisplayedInViewport())
-                    .map(e => e.getText()),
-        title = browser.getTitle(),
-        thisUrl = getUrl();
+  goHome();
+  goContacts();
 
+  const initialErrors = setFormReturnErrors(item.initalFormData),
+        secondTryErrors = item.secondTryFormData == null 
+                              ? null 
+                              : setFormReturnErrors(item.secondTryFormData),
+        finalMessage = readMessage();
+        
   return {
-    url: thisUrl,
-    pageTitle: <any>title,
-    linkList: catList
+    finalMessage: finalMessage,
+    initialErrors: initialErrors,
+    secondTryErrors: secondTryErrors
   }
 }
 
 function  testItems(runConfig: RunConfig): Item[] {
-  return [] // baseData();
+  return [
+    {
+      id: 100,
+      when: "no data is entered",
+      then: "errors are expected",
+      initalFormData: emptyData,
+      secondTryFormData: validContactDetails,
+      validators: [
+                    check_expected_errors([
+                                            'Forename is required',
+                                            'Email is required',
+                                            'Message is required'
+                                          ], []) ,
+                    check_final_message("Thanks john, we appreciate your feedback.")
+                ]
+    }
+  ] 
 }
 
 export const testCase: TestCase<Item, ApState, DState>  = {
