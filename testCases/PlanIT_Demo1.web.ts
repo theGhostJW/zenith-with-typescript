@@ -5,6 +5,7 @@ import { checkEqual} from '../src/lib/CheckUtils';
 import { S, url, getUrl, setForm, getForm, SS } from '../src/lib/WebUtils';
 import { waitRetry, debug } from '../src/lib/SysUtils';
 import { errorShotFile } from '../src/lib/FileUtils';
+import { goHome, goContacts, clearContactForm, clickSubmit} from './PlanShared.web';
 
 const config: TestConfig = {
   title: 'planIT demo',
@@ -39,25 +40,7 @@ function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   }
 }
 
-export const smartbearUrl : string = 'http://secure.smartbearsoftware.com/samples/TestComplete12/WebOrders/Login.aspx';
 
-export function populateLogIn() {
-  setForm('form', {
-      ctl00_MainContent_username: 'Tester',
-      ctl00_MainContent_password: 'test'
-  }
- );
-}
-
-export function clickLogin() {
-  S('#ctl00_MainContent_login_button.button').click();
-}
-
-export function logInSmartbear() {
-  url(smartbearUrl);
-  populateLogIn();
-  clickLogin();
-}
 
 export function waitRetryDemo() {
   // browser.debug();
@@ -80,22 +63,11 @@ export function dragAndDrop() {
 
 
 export function interactor(item: Item, runConfig: RunConfig): ApState {
-  //url(catchUrl);
-  S(`a[data-target="${item.dataTarget}"]`).click();
-  
-  const catList = S(
-                    "html.js.no-webp body.chunky-prices article#mainContentBlock.main-content section.container.grid-row div.category-visualiser div.category-visualiser__card div.category-visualiser__section.category-visualiser__subcategories div.category-visualiser__section-body ul.category-visualiser__subcategories-list")
-                    .$$("a")
-                    .filter(e => e.isDisplayedInViewport())
-                    .map(e => e.getText()),
-        title = browser.getTitle(),
-        thisUrl = getUrl();
-
-  return {
-    url: thisUrl,
-    pageTitle: <any>title,
-    linkList: catList
-  }
+  goHome()
+  goContacts();
+  clearContactForm();
+  clickSubmit();
+  return <any>{ }
 }
 
 function  testItems(runConfig: RunConfig): Item[] {

@@ -14,15 +14,16 @@ export function goHome(){
 }
 
 export function goContacts(){
- // S('[href*="contact"]').click();
- setContactForm(
-   {
+ S('[href*="contact"]').click();
+}
+
+export const validContactDetails =  {
       name: 'john',
       surname: 'walker',
       email: 'a@b.com',
-      phone: '1234567'
-	})
-}
+      phone: '1234567',
+      message: 'hi'
+  }
 
 // Complete Form Input Type
 export interface CompleteFormInput 
@@ -30,7 +31,8 @@ export interface CompleteFormInput
 		name?: string,
 		surname?: string,
 		email?: string,
-		phone?: string
+    phone?: string,
+    message?: string
 	}
 
 // Form Input
@@ -42,20 +44,34 @@ const formDefaults = () => {
   name: '',
   surname: '',
   email: '',
-  phone: ''
+  phone: '',
+  message: ''
 	}
 }
 
-function setContactForm(params: FormInput) {
+export const clearContactForm = () => setContactForm({});
+
+export function setContactForm(params: FormInput) {
   const {name,
           surname,
           email,
-          phone} = _.defaults(params, formDefaults());
-  let formParams = {
+          phone,
+          message} = _.defaults(params, formDefaults());
+          
+  const formParams = {
                     forename: name,
                     surname: surname,
                     email: email,
                     telephone: phone
                   };
   setForm('form', formParams);
+  S("#message").setValue(message);
+}
+
+export function clickSubmit(){
+  S(".btn-contact").click();
+}
+
+export function getErrors(){
+ // $$('.help-inline')
 }
