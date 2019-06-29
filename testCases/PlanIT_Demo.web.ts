@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { chkEq, chkProp} from '../src/lib/CheckUtils';
+import { chkProp} from '../src/lib/CheckUtils';
 import { S } from '../src/lib/WebUtils';
 import { validContactDetails, FormInput, goHome, goContacts, setContactForm, clickSubmit, getErrors, emptyData } from './PlanShared.web'
 
@@ -30,7 +30,6 @@ export interface ApState {
 type DState = ApState
 
 const check_final_message = chkProp<DState>("finalMessage")
-const check_initial_errors = chkProp<DState>("initialErrors")
 const check_retry_errors = chkProp<DState>("secondTryErrors")
 
 function prepState(a: ApState, i: Item, rc: RunConfig): DState {
