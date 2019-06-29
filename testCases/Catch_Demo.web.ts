@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { checkEqual} from '../src/lib/CheckUtils';
+import { chkEq} from '../src/lib/CheckUtils';
 import { S, url, getUrl } from '../src/lib/WebUtils';
 
 const config: TestConfig = {
@@ -59,7 +59,7 @@ export function interactor(item: Item, runConfig: RunConfig): ApState {
 }
 
 function check_expected_links(dState: DState) {
-  checkEqual(dState.expectedLinks, dState.linkList, "links should be the same");
+  chkEq(dState.expectedLinks, dState.linkList, "links should be the same");
 }
 
 function  testItems(runConfig: RunConfig): Item[] {

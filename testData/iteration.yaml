@@ -110,7 +110,7 @@ issues:
               at logError (C:/ZWTF/src/lib/Logging.js:42:95)
               at logSpecial (C:/ZWTF/src/lib/Logging.js:153:5)
               at genericCheck (C:/ZWTF/src/lib/CheckUtils.js:90:3)
-              at checkTextContains (C:/ZWTF/src/lib/CheckUtils.js:48:10)
+              at chkTextContains (C:/ZWTF/src/lib/CheckUtils.js:48:10)
               at check_has_another (C:/ZWTF/testCases/Another_Demo_Case.js:62:3)
               at validate (C:/ZWTF/src/lib/TestRunner.js:99:7)
               at Array.forEach (native)

@@ -1,12 +1,12 @@
 import {it, describe} from 'mocha'
 import {chkFalse} from '../lib/AssertionUtils';
 import * as _ from 'lodash';
-import { checkText } from '../lib/CheckUtils';
+import { chkText } from '../lib/CheckUtils';
 
-describe('checkText', () => {
+describe('chkText', () => {
 
   it('failure', () => {
-    chkFalse(checkText('test1', 'text2', 'should fail'));
+    chkFalse(chkText('test1', 'text2', 'should fail'));
   });
 
 

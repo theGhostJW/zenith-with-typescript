@@ -2,7 +2,7 @@ import { def } from '../src/lib/SysUtils';
 import { fileToString } from '../src/lib/FileUtils';
 import { sameText  } from '../src/lib/StringUtils';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries } from './ProjectConfig';
-import { check, checkFalse, checkEqual} from '../src/lib/CheckUtils';
+import { chk chkFalse, chkEq} from '../src/lib/CheckUtils';
 import  'webdriverio';
 
 let config: TestConfig = {
@@ -51,15 +51,15 @@ function prepState(a: ApState, i: Item, rc: RunConfig): DState {
 }
 
 function check_logged_in(d: DState) {
-  check(d.loggedIn);
+  chk(d.loggedIn);
 }
 
 function check_not_logged_in(d: DState) {
-  checkFalse(d.loggedIn);
+  chkFalse(d.loggedIn);
 }
 
 function check_errors(d: DState) {
-  checkEqual(d.expectedErrors, d.errors, "errors should equal");
+  chkEq(d.expectedErrors, d.errors, "errors should equal");
 }
 
 const catchUrl : string = "https://www.catch.com.au";

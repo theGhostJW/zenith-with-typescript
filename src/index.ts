@@ -10,12 +10,12 @@
 // } from './lib/AssertionUtils';
 
 // export {
-//   check,
-//   checkFalse,
-//   checkEqual,
-//   checkTextContainsFragments,
-//   checkTextContains,
-//   checkText
+//   chk
+//   chkFalse,
+//   chkEq,
+//   chkTextContainsFragments,
+//   chkTextContains,
+//   chkText
 // } from './lib/CheckUtils';
 
 // export {

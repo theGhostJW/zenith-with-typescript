@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth } from './ProjectConfig';
-import { checkTextContains } from '../src/lib/CheckUtils';
+import { chkTextContains } from '../src/lib/CheckUtils';
 
 const config: TestConfig = {
   title: 'another test case',
@@ -40,7 +40,7 @@ interface Item {
 }
 
 function check_when_text_contains_another(dState: DState) {
-  checkTextContains(dState.when, 'another')
+  chkTextContains(dState.when, 'another')
 }
 
 function  testItems(runConfig: RunConfig): Item[] {

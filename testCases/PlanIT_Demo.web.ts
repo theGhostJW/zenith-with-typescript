@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { checkEqual} from '../src/lib/CheckUtils';
+import { chkEq} from '../src/lib/CheckUtils';
 import { S } from '../src/lib/WebUtils';
 import { validContactDetails, FormInput, goHome, goContacts, setContactForm, clickSubmit, getErrors, emptyData } from './PlanShared.web'
 
@@ -31,15 +31,15 @@ type DState = ApState
 
 function check_expected_errors(initial: string[], retry?: string[]) {
   return function check_expected_errors(dState: DState) {
-    checkEqual(initial, dState.initialErrors, "inital errors as expected");
-    checkEqual(retry, dState.secondTryErrors, "retry errors as expected");
+    chkEq(initial, dState.initialErrors, "inital errors as expected");
+    chkEq(retry, dState.secondTryErrors, "retry errors as expected");
   }
   
 }
 
 function check_final_message(expectred: string) {
   return function check_final_message(dState: DState) {
-    checkEqual(expectred, dState.finalMessage, "final message as expected");
+    chkEq(expectred, dState.finalMessage, "final message as expected");
   }
 }
 

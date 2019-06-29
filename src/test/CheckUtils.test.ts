@@ -1,40 +1,40 @@
-import {chk, chkFalse} from '../lib/AssertionUtils';
+import * as A from '../lib/AssertionUtils';
 const _ = require('lodash');
-import { check, checkText, checkEqual, checkTextContains, checkTextContainsFragments } from '../lib/CheckUtils';
+import { chk, chkText, chkEq, chkTextContains, chkTextContainsFragments } from '../lib/CheckUtils';
 import { describe, it } from 'mocha'
 
 describe('check', () => {
 
   it('check - pass', () => {
-    chk(check(true, 'should pass', 'more info about the pass'));
+    A.chk(chk(true, 'should pass', 'more info about the pass'));
   });
 
   it('check - fail', () => {
-    chkFalse(check(false, 'should fail', 'more info about the fail'));
+    A.chkFalse(chk(false, 'should fail', 'more info about the fail'));
   });
 
 });
 
-describe('checkText', () => {
+describe('chkText', () => {
 
   it('all fields', () => {
-    chk(checkText('sample text', 'sample text', 'test the same', 'same info'));
+    A.chk(chkText('sample text', 'sample text', 'test the same', 'same info'));
   });
 
   it('no additional info', () => {
-    chk(checkText('sample text', 'sample text', 'test the same'));
+    A.chk(chkText('sample text', 'sample text', 'test the same'));
   });
 
 });
 
-describe('checkEqual', () => {
+describe('chkEq', () => {
 
   it('numeric', () => {
-    chk(checkEqual(1, 1, 'test the same', 'same info'));
+    A.chk(chkEq(1, 1, 'test the same', 'same info'));
   });
 
   it('numeric - fail', () => {
-    chkFalse(checkEqual(1, 2, 'failing check'));
+    A.chkFalse(chkEq(1, 2, 'failing check'));
   });
 
   const OBJ = {
@@ -49,62 +49,62 @@ describe('checkEqual', () => {
   }
 
   it('object', () => {
-    chk(checkEqual(OBJ, OBJ, 'test the same', 'same info'));
+    A.chk(chkEq(OBJ, OBJ, 'test the same', 'same info'));
   });
 
   it('object - cloned', () => {
     let o2 = _.cloneDeep(OBJ);
-    chk(checkEqual(OBJ, o2, 'failing check'));
+    A.chk(chkEq(OBJ, o2, 'failing check'));
   });
 
   it('object - cloned - changed -should fail', () => {
     let o2 = _.cloneDeep(OBJ);
     o2.pets.pp1 = 'spoty';
-    chkFalse(checkEqual(OBJ, o2, 'failing check'));
+    A.chkFalse(chkEq(OBJ, o2, 'failing check'));
   });
 
 });
 
-describe('checkTextContains', () => {
+describe('chkTextContains', () => {
 
   it('pass minor message', () => {
-    chk(checkTextContains('the quick brown fox jusmps over the lazy dog', 'quick b', 'should pass'));
+    A.chk(chkTextContains('the quick brown fox jusmps over the lazy dog', 'quick b', 'should pass'));
   });
 
   it('no message pass', () => {
-    chk(checkTextContains('the quick brown fox jusmps over the lazy dog', 'quick b'));
+    A.chk(chkTextContains('the quick brown fox jusmps over the lazy dog', 'quick b'));
   });
 
   it('no message failMessage', () => {
-    chkFalse(checkTextContains('the quick brown fox jusmps over the lazy dog', 'quic b'));
+    A.chkFalse(chkTextContains('the quick brown fox jusmps over the lazy dog', 'quic b'));
   });
 
   it('pass message case insensitive', () => {
-    chk(checkTextContains('the quick brown fox jusmps over the lazy dog', 'qUick B', 'should pass !!', false));
+    A.chk(chkTextContains('the quick brown fox jusmps over the lazy dog', 'qUick B', 'should pass !!', false));
   });
 
 });
 
-describe('checkTextContainsFragments', () => {
+describe('chkTextContainsFragments', () => {
 
   it('pass single fragment', () => {
-    chk(checkTextContainsFragments('the quick brown fox jusmps over the lazy dog', 'quick b'));
+    A.chk(chkTextContainsFragments('the quick brown fox jusmps over the lazy dog', 'quick b'));
   });
 
   it('multi fragment pass', () => {
-    chk(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*y d'));
+    A.chk(chkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*y d'));
   });
 
   it('multi fragment fail', () => {
-    chkFalse(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*oov*y d'));
+    A.chkFalse(chkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*oov*y d'));
   });
 
   it('multi fragment pass - case insensitive', () => {
-    chk(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*Y d', false));
+    A.chk(chkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*Y d', false));
   });
 
   it('multi fragment fal - case sensitive', () => {
-    chkFalse(checkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*Y d'));
+    A.chkFalse(chkTextContainsFragments('the quick brown fox jumps over the lazy dog', 'quick b*ov*Y d'));
   });
 
 });

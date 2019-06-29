@@ -1,6 +1,6 @@
 import { log, expectDefect, endDefect } from '../src/lib/Logging';
 import { RunConfig, TestCase, TestConfig, Validators, Country, Depth, register } from './ProjectConfig';
-import { check, checkFalse} from '../src/lib/CheckUtils';
+import { chk, chkFalse} from '../src/lib/CheckUtils';
 import { Moment } from 'moment';
 const wd = require('webdriverio');
 const moment = require('moment');
@@ -65,12 +65,12 @@ function mockFilename(item: Item, runConfig: RunConfig) {
 
 function check_id_less_than_2(dState: DState) {
   expectDefect('should fail');
-  check(dState.id < 2, 'expect less than 2', `${dState.id} should be less than 2`);
+  chk(dState.id < 2, 'expect less than 2', `${dState.id} should be less than 2`);
   endDefect();
 }
 
 function check_less_than_3(dState: DState) {
-  check(dState.id < 3, 'expect less than 2')
+  chk(dState.id < 3, 'expect less than 2')
 }
 
 function check_bad_validator(dState: DState) {
@@ -79,13 +79,13 @@ function check_bad_validator(dState: DState) {
 
 function check_with_disabled_expectation(dState: DState) {
   expectDefect('should not fail', false);
-  check(true, 'true is true');
+  chk(true, 'true is true');
   endDefect();
 }
 
 function check_with_incorrect_disabled_expectation(dState: DState) {
   expectDefect('should fail', false);
-  checkFalse(true, 'false is true');
+  chkFalse(true, 'false is true');
   endDefect();
 }
 

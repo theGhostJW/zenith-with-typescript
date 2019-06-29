@@ -23,14 +23,14 @@ TDate 					To Do			Done			Completion
 /****** Exports *****/
 	DONE - checkExists = checkExists - depricated;
 	DONE -  checkExistsNot = checkExistsNot - depricated;
-	DONE - checkText = checkText;
+	DONE - chkText = chkText;
 	DONE -  checkTextAgainstTextFile = depricated;
-	DONE - checkEqual = checkEqual;
+	DONE - chkEq = chkEq;
 	DONE - checkContains = checkContains;
-	DONE - checkTextContainsFragments = checkTextContainsFragments;
+	DONE - chkTextContainsFragments = chkTextContainsFragments;
 	DONE - checkTextContainsFragmentsFromFile = Depricated;
 	DONE - check = check;
-	DONE - checkFalse = checkFalse;
+	DONE - chkFalse = chkFalse;
 ===== DateTimeUtils =====
 /****** Exports *****/
 	DONE - dateTimeToReadableString = dateTimeToReadableString; - YAML

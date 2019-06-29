@@ -5,10 +5,10 @@ import { logCheckFailure, logCheckPassed } from './Logging';
 import { stringToLogFile } from './FileUtils';
 const _ = require('lodash');
 
-export const check = (condition: boolean, message?: string, additionalInfo?: string) => genericCheck('Check', condition, message, additionalInfo);
-export const checkFalse = (condition: boolean, message?: string, additionalInfo?: string) => genericCheck('Check False', !condition, message, additionalInfo);
+export const chk = (condition: boolean, message?: string, additionalInfo?: string) => genericCheck('Check', condition, message, additionalInfo);
+export const chkFalse = (condition: boolean, message?: string, additionalInfo?: string) => genericCheck('Check False', !condition, message, additionalInfo);
 
-export const checkEqual = (expected: any, actual: any, message: string, additionalInfo?: string) => {
+export const chkEq = (expected: any, actual: any, message: string, additionalInfo?: string) => {
   let result = areEqual(expected, actual),
       updatedMessage = result  ? successMessage(expected, additionalInfo) : failMessage(expected, actual, additionalInfo, ' '),
       updatedInfo =  result ? message : failMessage(expected, actual, updatedMessage,  newLine());
@@ -16,7 +16,7 @@ export const checkEqual = (expected: any, actual: any, message: string, addition
   return genericCheck('EqualityChck', result, updatedMessage, updatedInfo);
 }
 
-export function checkTextContainsFragments(targetString: string, searchPattern: string, caseSensitive: boolean = true): boolean {
+export function chkTextContainsFragments(targetString: string, searchPattern: string, caseSensitive: boolean = true): boolean {
   function standardisNewLines(str: string){
     str = standardiseLineEndings(str);
     str = replaceAll(str, newLine() + ' ', ' ');
@@ -35,7 +35,7 @@ export function checkTextContainsFragments(targetString: string, searchPattern: 
   return wildCardMatch(actualContent, expectedContent, caseSensitive, true, processFoundResult);
 }
 
-export function checkTextContains(hayStack: string, needle: string, message?: string, caseSensitive: boolean = true){
+export function chkTextContains(hayStack: string, needle: string, message?: string, caseSensitive: boolean = true){
 
   let found = hasText(hayStack, needle, caseSensitive),
       baseMessage = message == null ? '' : message + newLine(),
@@ -56,7 +56,7 @@ function successMessage(expected: string, infoMessage?: string | null){
   return appendDelim(infoMessage, ' - ' , result);
 }
 
-export function checkText(expected: string, actual: string, message: string, additionalInfo?: string): boolean {
+export function chkText(expected: string, actual: string, message: string, additionalInfo?: string): boolean {
   let result = areEqual(expected, actual),
       prefix = 'Check Text';
 
