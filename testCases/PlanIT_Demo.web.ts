@@ -44,7 +44,7 @@ function setFormReturnErrors(data: FormInput) {
 
 function readMessage(): string | null {
   const messageSelector = "[class*=alert-success]";
-  S(messageSelector).waitForDisplayed(5000);
+  S(messageSelector).waitForDisplayed(30000);
   return S(messageSelector).getText();
 }
 

@@ -29,7 +29,7 @@ import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLinkReturnUr
 
 const _ = require('lodash');
 
-describe('Setform textArea', () => {
+it('Setform textArea', () => {
   wdDebug('http://jupiter.cloud.planittesting.com/#/contact', setTextAreaTest);
 })
 

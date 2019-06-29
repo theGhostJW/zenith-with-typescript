@@ -54,10 +54,10 @@ export function setContactForm(params: FormInput) {
                     forename: name,
                     surname: surname,
                     email: email,
-                    telephone: phone
+                    telephone: phone,
+                    message: message
                   };
   setForm('form', formParams);
-  S("#message").setValue(message);
 }
 
 export function clickSubmit(){
