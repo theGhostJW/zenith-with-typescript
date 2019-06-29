@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
-import { chkEq} from '../src/lib/CheckUtils';
+import { chkEq, chkProp} from '../src/lib/CheckUtils';
 import { S } from '../src/lib/WebUtils';
 import { validContactDetails, FormInput, goHome, goContacts, setContactForm, clickSubmit, getErrors, emptyData } from './PlanShared.web'
 
@@ -29,19 +29,9 @@ export interface ApState {
 // trivial test no transformation needed
 type DState = ApState
 
-function check_expected_errors(initial: string[], retry?: string[]) {
-  return function check_expected_errors(dState: DState) {
-    chkEq(initial, dState.initialErrors, "inital errors as expected");
-    chkEq(retry, dState.secondTryErrors, "retry errors as expected");
-  }
-  
-}
-
-function check_final_message(expectred: string) {
-  return function check_final_message(dState: DState) {
-    chkEq(expectred, dState.finalMessage, "final message as expected");
-  }
-}
+const check_final_message = chkProp<DState>("finalMessage")
+const check_initial_errors = chkProp<DState>("initialErrors")
+const check_retry_errors = chkProp<DState>("secondTryErrors")
 
 function prepState(a: ApState, i: Item, rc: RunConfig): DState {
   return a;
@@ -85,11 +75,12 @@ function  testItems(runConfig: RunConfig): Item[] {
       initalFormData: emptyData,
       secondTryFormData: validContactDetails,
       validators: [
-                    check_expected_errors([
-                                            'Forename is required',
-                                            'Email is required',
-                                            'Message is required'
-                                          ], []) ,
+                    chkProp("initialErrors")([
+                      'Forename is required',
+                      'Email is required',
+                      'Message is required'
+                    ]),
+                    check_retry_errors([]) ,
                     check_final_message("Thanks john, we appreciate your feedback.")
                 ]
     }

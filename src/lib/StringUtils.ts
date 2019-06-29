@@ -663,7 +663,7 @@ export function wildCardMatch(hayStack: string, needlePattern: string, caseSensi
   return result.result;
 }
 
-export function show<T>(val : T): string {
+export function show(val : any): string {
   if (val === null)
     return 'null';
 

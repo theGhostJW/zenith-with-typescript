@@ -56,6 +56,18 @@ function successMessage(expected: string, infoMessage?: string | null){
   return appendDelim(infoMessage, ' - ' , result);
 }
 
+export const chkProp = <T>(property: keyof T) => (expected: any) => (target: T) =>  {
+    const pVal = target[property],
+          result = areEqual(expected, pVal),
+          pValStr = show(pVal);
+
+    return genericCheck(null
+                        , result
+                        , (`property check for: ${property} - ${result ? 'passed' : 'failed'}.`)
+                        , result ? pValStr : "expected:\n" + show(expected) + "\n\n did not equal actual:\n" + pValStr
+                      );
+}
+
 export function chkText(expected: string, actual: string, message: string, additionalInfo?: string): boolean {
   let result = areEqual(expected, actual),
       prefix = 'Check Text';
@@ -79,7 +91,7 @@ export function chkText(expected: string, actual: string, message: string, addit
 }
 
 
-function genericCheck(prefix: string, condition: boolean, message?: string, additionalInfo?: string) {
+function genericCheck(prefix: string | null, condition: boolean, message?: string, additionalInfo?: string) {
   message = appendDelim(prefix, ': ', message);
   let logger = condition ? logCheckPassed : logCheckFailure;
   logger(message, additionalInfo);

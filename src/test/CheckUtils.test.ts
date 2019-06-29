@@ -1,6 +1,6 @@
 import * as A from '../lib/AssertionUtils';
 const _ = require('lodash');
-import { chk, chkText, chkEq, chkTextContains, chkTextContainsFragments } from '../lib/CheckUtils';
+import { chk, chkText, chkEq, chkTextContains, chkTextContainsFragments, chkProp } from '../lib/CheckUtils';
 import { describe, it } from 'mocha'
 
 describe('check', () => {
@@ -24,6 +24,29 @@ describe('chkText', () => {
   it('no additional info', () => {
     A.chk(chkText('sample text', 'sample text', 'test the same'));
   });
+
+});
+
+describe('chkProp', () => {
+  interface targ {a: number, b: number, c: number | null}
+  const target = {a: 1, b: 2, c: null};
+
+  it('existing prop same', () => {
+    A.chk(chkProp("a")(1)(target));
+  });
+
+  it('existing prop same null', () => {
+    A.chk(chkProp<targ>("c") (null) (target));
+  });
+
+  it('existing prop different', () => {
+    A.chkFalse(chkProp<targ>("b")(1)(target));
+  });
+
+  it('existing prop different null', () => {
+    A.chkFalse(chkProp<targ>("c") ("Hi") (target));
+  });
+
 
 });
 

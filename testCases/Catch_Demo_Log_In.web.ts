@@ -2,7 +2,7 @@ import { def } from '../src/lib/SysUtils';
 import { fileToString } from '../src/lib/FileUtils';
 import { sameText  } from '../src/lib/StringUtils';
 import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries } from './ProjectConfig';
-import { chk chkFalse, chkEq} from '../src/lib/CheckUtils';
+import { chk, chkFalse, chkEq} from '../src/lib/CheckUtils';
 import  'webdriverio';
 
 let config: TestConfig = {
