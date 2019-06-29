@@ -9,7 +9,7 @@ import {
 } from '../lib/AssertionUtils';
 import { show, startsWith } from '../lib/StringUtils';
 import { debug, debugStk, fail, waitRetry } from '../lib/SysUtils';
-import { read, wdDebug, set, setForm } from '../lib/WebUtils';
+import { read, wdDebug, set, setForm, url, S } from '../lib/WebUtils';
 import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLinkReturnUrl, clickOrderLink,
         /* setForm,*/ getForm,  invalidUncheckCheckBox, linkByTextText,  links, mapCellsLog, mapCellsLogNoInvisibles,
         mapCellsSimple, mapCellsSimpleLog, mapCellsSimpleLogNoInvisibles, parentHtml, radioItemVals,
@@ -23,12 +23,15 @@ import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLinkReturnUr
         FORM_INPUT_PROXIMAL_LABELS, smartBearLogInVoid,
         FORM_INPUT_RADIO_NAME,
         PRODUCT_SELECTOR,
-        TEST_LOG_IN
+        TEST_LOG_IN,
+        setTextAreaTest
         } from '../lib/WebUtilsTestImp';
 
 const _ = require('lodash');
 
-
+describe('Setform textArea', () => {
+  wdDebug('http://jupiter.cloud.planittesting.com/#/contact', setTextAreaTest);
+})
 
 describe('Table Utils', () => {
 

@@ -14,6 +14,7 @@ import {
         } from './WebUtils';
 
 import {mapCells, cell} from './WebUtils';
+import { chkEq } from './AssertionUtils';
 
 const _ = require('lodash');
 
@@ -107,6 +108,11 @@ export const FORM_INPUT_PROXIMAL_LABELS = {
      'Expire*': '12/24'
    }
 
+export function setTextAreaTest(){
+  setForm('form', {message: 'Message'});
+  chkEq('Message', S('#message').getValue());
+}  
+ 
 export function clickLinkReturnUrl(lnk: string): string {
   clickLink(lnk);
   return getUrl();

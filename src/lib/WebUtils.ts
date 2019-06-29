@@ -1132,7 +1132,6 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
         forLblMapFunc: () => {[k:string]: ElementWithForAndText} = () => forLabelsMapFromArray(forLabels(), idedEdits());
 
   let editsWithPlaceHolders = _.memoize(addPlaceHolders),
-      addCoords = _.memoize(addLocations),
       addCoordsCheckable = _.memoize(addLocationsAndCheckControl),
       addCoordsTxt = _.memoize(addLocationsAndText),
       elementsWithType = _.memoize(addType),
@@ -1147,8 +1146,6 @@ function defaultFinder(parentElementorSelector: SelectorOrElement, idedEdits: ()
   function nonForLabels(): Element[] {
     return partitionedForLabels().nonForLbls;
   }
-
-
 
   function sortedForTextsFunc(): string[] {
     return _.chain(forLabels())
@@ -1244,7 +1241,7 @@ function commonParent(radios: Element[]) : Element | null {
 }
 
 function canEditTag(tagName: string) {
-  return ['input', 'select'].includes(tagName);
+  return ['input', 'select', 'textarea'].includes(tagName);
 }
 
 function canEditTypeAttr(typeAttr: string | null | undefined) {
@@ -1439,7 +1436,10 @@ export function read(elementOrSelector: SelectorOrElement, includeRaioGroups: bo
   let tagName = el.getTagName();
   switch (tagName) {
     case 'select':  return readSelect(el);
+
+    case 'textarea':
     case 'input': return isCheckable(el) ? el.isSelected() : el.getValue();
+    
     default:
       return includeRaioGroups && isRadioGroup(el) ? readRadioGroup(el) : el.getText();
   }
@@ -1485,6 +1485,7 @@ function setPrivate(wantSet: boolean, elementOrSelector: SelectorOrElement, valu
         }
         break;
 
+      case 'textarea':
       case 'input':
         if (wantSet) {
           setInput(el, show(value));
