@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
-import { S, url, getUrl, setForm, SS, wdDebug} from '../src/lib/WebUtils';
+import { S, url, getUrl, setForm, SS, wdDebug, clickLink} from '../src/lib/WebUtils';
+import { hasText } from '../src/lib/StringUtils';
 
 const homePage : string = 'http://jupiter.cloud.planittesting.com';
 
@@ -8,7 +9,7 @@ export function goHome(){
 }
 
 export function goContacts(){
- S('[href*="contact"]').click();
+  clickLink((s) => hasText(s,'Contact'));
 }
 
 export const validContactDetails =  {

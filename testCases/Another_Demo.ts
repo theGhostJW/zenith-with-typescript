@@ -10,14 +10,12 @@ const config: TestConfig = {
   countries: "Australia"
 }
 
-it('demo endpoint jw', () => {
-  testCaseEndPoint(
-    {
-    testCase: testCase,
-    selector: allItems,
-    mocked: false
-  }
- );
+it('Another_Demo', () => {
+  testCaseEndPoint({
+      testCase: testCase,
+      selector: allItems,
+      mocked: false
+  });
 });
 
 interface ApState {

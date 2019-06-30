@@ -1,9 +1,7 @@
 import { log, expectDefect, endDefect } from '../src/lib/Logging';
-import { RunConfig, TestCase, TestConfig, Validators, Country, Depth, register } from './ProjectConfig';
+import { RunConfig, TestCase, TestConfig, Validators, Country, Depth, register, testCaseEndPoint } from './ProjectConfig';
 import { chk, chkFalse} from '../src/lib/CheckUtils';
-import { Moment } from 'moment';
-const wd = require('webdriverio');
-const moment = require('moment');
+import { allItems } from '../src/lib/TestRunner';
 
 let config: TestConfig = {
   title: 'a randome demo case',
@@ -11,6 +9,13 @@ let config: TestConfig = {
   enabled: true,
   countries: ["Australia", "New Zealand"]
 }
+
+it('Demo_Case.web', () => {
+  testCaseEndPoint({
+    testCase: testCase,
+    selector: allItems
+   });
+});
 
 export type Item = {
   id: number,

@@ -1,8 +1,9 @@
 import * as _ from 'lodash';
-import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
+import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries, testCaseEndPoint  } from './ProjectConfig';
 import { chkProp} from '../src/lib/CheckUtils';
 import { S } from '../src/lib/WebUtils';
 import { validContactDetails, FormInput, goHome, goContacts, setContactForm, clickSubmit, getErrors, emptyData } from './PlanShared.web'
+import { allItems } from '../src/lib/TestRunner';
 
 const config: TestConfig = {
   title: 'planIT demo',
@@ -10,6 +11,13 @@ const config: TestConfig = {
   enabled: true,
   countries: AllCountries
 }
+
+it('PlanIT_Demo.web', () => {
+  testCaseEndPoint({
+    testCase: testCase,
+    selector: allItems
+   });
+});
 
 export interface Item {
   id: number,

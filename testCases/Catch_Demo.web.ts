@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries  } from './ProjectConfig';
+import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries, testCaseEndPoint  } from './ProjectConfig';
 import { chkEq} from '../src/lib/CheckUtils';
 import { S, url, getUrl } from '../src/lib/WebUtils';
 
@@ -9,6 +9,14 @@ const config: TestConfig = {
   enabled: true,
   countries: AllCountries
 }
+
+it('Catch_Demo.web', () => {
+  testCaseEndPoint({
+    mocked: false,
+    testCase: testCase,
+    selector: 100
+  });
+});
 
 export type Item = {
   id: number,
