@@ -6,7 +6,7 @@ import { testCaseEndPoint } from './ProjectConfig';
 
 describe('endPoint', () => {
 
-  it('PlanIT_Demo.web.endpoint', () => {
+  it.only('PlanIT_Demo.web.endpoint', () => {
      testCaseEndPoint(
        {
        testCase: testCase,
@@ -14,4 +14,5 @@ describe('endPoint', () => {
       }
     );
   });
+  
 })

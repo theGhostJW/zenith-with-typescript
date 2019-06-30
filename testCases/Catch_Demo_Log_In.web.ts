@@ -1,9 +1,10 @@
 import { def } from '../src/lib/SysUtils';
 import { fileToString } from '../src/lib/FileUtils';
 import { sameText  } from '../src/lib/StringUtils';
-import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries } from './ProjectConfig';
+import { register, RunConfig, TestCase, TestConfig, Validators, AllCountries, testCaseEndPoint } from './ProjectConfig';
 import { chk, chkFalse, chkEq} from '../src/lib/CheckUtils';
 import  'webdriverio';
+import { allItems } from '../src/lib/TestRunner';
 
 let config: TestConfig = {
   title: 'log in access is granted or denied as expected',
@@ -11,6 +12,16 @@ let config: TestConfig = {
   enabled: true,
   countries: AllCountries
 }
+
+it('catch_demo_log_in_endpoint', () => {
+  testCaseEndPoint(
+    {
+    mocked: false,
+    testCase: testCase,
+    selector: allItems
+  }
+ );
+});
 
 export type Item = {
   id: number,

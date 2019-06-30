@@ -15,7 +15,8 @@ import {log} from './Logging';
 
 import { hasText, lowerCase, newLine, sameText,
          show, trim, trimLines, upperFirst,
-         wildCardMatch } from './StringUtils';
+         wildCardMatch, 
+         subStrBefore} from './StringUtils';
 import {
         areEqual, callstackStrings, def, ensure,
          ensureHasVal, ensureReturn, fail, 
@@ -1655,25 +1656,18 @@ export function zzzTestFunc() {
   return browser.getTitle();
 }
 
-export function browserEx(func: (...p: any) => any, ...params: any[]): any {
-   try {
-     let caller = firstTestModuleInStack();
-     return browserExBase(null, caller, func, ...params);
-   }
-  catch (e) {
-    fail('browserEx - fail', e)
-   } finally {
-    sendClientSessionDone();
-   }
-}
-
 export const TEST_SUFFIXES = ['.endpoints.', '.integration.', '.test.'];
 
-function firstTestModuleInStack(): string {
-  let fullStack = callstackStrings(),
-      line = fullStack.find(s => TEST_SUFFIXES.some(suffix => hasText(s, suffix)));
+function callingModule(): string {
+  function isItCall(line: string): boolean {
+    const preFilePath = hasText(line, '(') ? subStrBefore(line, '(') : line;
+    return hasText(preFilePath, '.it(') || hasText(preFilePath, '.it.') || hasText(preFilePath, '.it ');
+  }
 
-  ensureHasVal(line, `Could not find test module in callstack the calling function can only be executed from a test module: ${fullStack.join(newLine())}`);
+  const fullStack = callstackStrings(),
+        line = fullStack.find(s => isItCall(s));
+
+  ensureHasVal(line, `Could not find module calling it(..) or it.only(..) : ${fullStack.join(newLine())}`);
 
   return filePathFromCallStackLine(<string>line);
 }
@@ -1686,7 +1680,7 @@ export function lsTestFunc(b: any, f: any){
 
 function launchSession<T>(before: (() => void) | null | string | undefined, func: (...params: any) => T, ...params: any[]): T {
    try {
-     let caller = firstTestModuleInStack(),
+     let caller = callingModule(),
      {
        funcName,
        beforeFuncInfo,
@@ -1726,34 +1720,30 @@ function extractNamesAndSource(before: (() => void) | string | null | undefined,
   }
 }
 
-function browserExBase(before: (() => void) | null | string, caller: string, func: (...p: any) => any, ...params: any[]): any {
-  let {
-      funcName,
-      beforeFuncInfo,
-      sourcePath
-    } = extractNamesAndSource(before, caller, func);
-
-   ensure(params.every(isSerialisable), 'browserEx optional params ~ unserailisable parameter passed in (like a function)');
-   launchWebInteractor(sourcePath, beforeFuncInfo, funcName, true);
-   return interact(...params);
-}
-
 export function findMatchingSourceFile(callerPath: string): string {
-  const callerFileName = fileOrFolderName(callerPath);
-  let suffix = TEST_SUFFIXES.find(s => hasText(callerFileName, s, true));
+  const callerFileName = fileOrFolderName(callerPath),
+        suffix = TEST_SUFFIXES.find(s => hasText(callerFileName, s, true));
 
-  suffix = ensureHasVal(suffix, trimLines(`webUtilsTestLoad - calling file: ${callerPath} is not a standard test file.
-  This function can only be called from a standard test file that includes one of the following in the file name: ${TEST_SUFFIXES.join(', ')}`));
-
-  let sourceFileName = callerFileName.replace(suffix, '.');
-  function srcFile(fileName: string) {
-    return combine(projectDir(), 'src', 'lib', fileName);
+  var sourcePath;
+  if (suffix == null){
+    // a stub called from a non test file assumed 
+    // calling function in its own module
+    sourcePath = callerPath;
+  }
+  else {
+    // called from a tst file assumed to be calling function from
+    // module under test
+    let sourceFileName = callerFileName.replace(suffix, '.');
+    function srcFile(fileName: string) {
+      return combine(projectDir(), 'src', 'lib', fileName);
+    }
+  
+    let candidatePaths = [srcFile(sourceFileName), testCaseFile(sourceFileName)];
+    sourcePath = candidatePaths.find(pathExists);
+  
+    sourcePath = ensureHasVal(sourcePath, trimLines(`webUtilsTestLoad - target source file consistent with calling test file: ${callerPath} not found.
+                                                     tried: ${candidatePaths.join(', ')}`));
   }
 
-  let candidatePaths = [srcFile(sourceFileName), testCaseFile(sourceFileName)],
-    sourcePath = candidatePaths.find(pathExists);
-
-  sourcePath = ensureHasVal(sourcePath, trimLines(`webUtilsTestLoad - target source file consistent with calling test file: ${callerPath} not found.
-                                                   tried: ${candidatePaths.join(', ')}`));
   return sourcePath;
 }

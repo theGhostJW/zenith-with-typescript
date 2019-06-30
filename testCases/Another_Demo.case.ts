@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
-import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth } from './ProjectConfig';
+import { register, RunConfig, TestCase, TestConfig, Validators, Country, Depth, testCaseEndPoint } from './ProjectConfig';
 import { chkTextContains } from '../src/lib/CheckUtils';
+import { allItems } from '../src/lib/TestRunner';
 
 const config: TestConfig = {
   title: 'another test case',
@@ -8,6 +9,16 @@ const config: TestConfig = {
   enabled: true,
   countries: "Australia"
 }
+
+it('demo endpoint jw', () => {
+  testCaseEndPoint(
+    {
+    testCase: testCase,
+    selector: allItems,
+    mocked: false
+  }
+ );
+});
 
 interface ApState {
   theWhen: string,

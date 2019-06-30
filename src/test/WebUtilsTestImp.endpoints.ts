@@ -29,8 +29,10 @@ import { basicSet,  cellVal, checkReturnChecked, checkUncheck, clickLinkReturnUr
 
 const _ = require('lodash');
 
-it('Setform textArea', () => {
-  wdDebug('http://jupiter.cloud.planittesting.com/#/contact', setTextAreaTest);
+describe('mapCellsSimple', () => {
+  it('Setform textArea', () => {
+    wdDebug('http://jupiter.cloud.planittesting.com/#/contact', setTextAreaTest);
+  })
 })
 
 describe('Table Utils', () => {

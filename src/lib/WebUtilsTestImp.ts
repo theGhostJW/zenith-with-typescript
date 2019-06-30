@@ -3,7 +3,7 @@ import {show} from './StringUtils';
 
 import {debug, waitRetry} from './SysUtils';
 import {
-          browserEx, click, clickLink, elementType,
+          click, clickLink, elementType,
           elementIs, getForm, idAttribute, linkByText,
           links,  mapCellsSimple, parent, predicateToFinder, radioItemVals,
           read, wdDebug, set, setChecked, getUrl,

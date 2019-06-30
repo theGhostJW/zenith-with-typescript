@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { S, url, getUrl, setForm, SS} from '../src/lib/WebUtils';
+import { S, url, getUrl, setForm, SS, wdDebug} from '../src/lib/WebUtils';
 
 const homePage : string = 'http://jupiter.cloud.planittesting.com';
 
@@ -64,6 +64,14 @@ export function clickSubmit(){
   S(".btn-contact").click();
 }
 
+it('clickSubmit', () => {
+  wdDebug('http://jupiter.cloud.planittesting.com/#/contact', clickSubmit);
+})
+
 export function getErrors(): string[] {
  return SS('.help-inline').map(e => e.getText());
 }
+
+it('goContacts', () => {
+  wdDebug(homePage, goContacts)
+})
