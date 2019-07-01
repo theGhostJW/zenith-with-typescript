@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { S, url, getUrl, setForm, SS, wdDebug, clickLink} from '../src/lib/WebUtils';
+import { S, url, getUrl, setForm, SS, wdDebug, clickLink, getForm} from '../src/lib/WebUtils';
 import { hasText } from '../src/lib/StringUtils';
 
 const homePage : string = 'http://jupiter.cloud.planittesting.com';
@@ -19,6 +19,8 @@ export const validContactDetails =  {
       phone: '1234567',
       message: 'hi'
   }
+
+
 
 // Complete Form Input Type
 export interface CompleteFormInput 
@@ -76,3 +78,12 @@ export function getErrors(): string[] {
 it('goContacts', () => {
   wdDebug(homePage, goContacts)
 })
+
+export function getFormLocal(){
+  getForm();
+}
+
+it('getForm - jupiter', () => {
+  wdDebug('http://jupiter.cloud.planittesting.com/#/contact', getFormLocal);
+})
+

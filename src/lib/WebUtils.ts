@@ -535,29 +535,20 @@ function nearestLabel(edit: ElementPlusLoc, nonEditsRemaining: ElementPlusLoc[])
                                             });
 }
 
-function placeholderOrLabelText(edit: ElementPlusLoc, nonEditsRemaining: ElementPlusLoc[]) : {altIdStr: string | null, nonEdit: ElementPlusLoc | null} {
+function labelOrPlaceholderText(edit: ElementPlusLoc, nonEditsRemaining: ElementPlusLoc[]) : {altIdStr: string | null, nonEdit: ElementPlusLoc | null} {
   let ph = edit.getAttribute('placeholder'),
-      altIdStr = null,
-      nonEdit = null;
-
-  if (ph == null || ph == ''){
-    let nonEdit = def(
+      nonEdit = def(
                       nonEditsRemaining.find(l => l.getAttribute('for') == idAttribute(edit) && l.getAttribute('for') != null),
                       nearestLabel(edit, nonEditsRemaining.filter(l => l.getAttribute('for') == null ))
-                     );
-
-    altIdStr = nonEdit == null || !hasValue(nonEdit.getText()) ? 'idOrTextNotFound' : nonEdit.getText();
-  }
-  else {
-    altIdStr = ph;
-    nonEdit = null;
-  }
+                     ),
+      altIdStr = nonEdit == null || !hasValue(nonEdit.getText()) 
+               ? (ph == null || ph == '' ? 'placeholderOrLabelNotFound': ph )
+               : nonEdit.getText();
 
   return {
     altIdStr: altIdStr,
     nonEdit: nonEdit
   }
-
 }
 
 const isRadioOfName = (name: string) => (edit: ElementPlusLoc) => edit.getAttribute('type') == 'radio' && nameAttribute(edit) == name;
@@ -597,13 +588,13 @@ function getNextFormItems(items: FormItems): FormItems {
   let edit = _.head(editsRemaining),
       id = idAttribute(edit),
       result = items.result,
-      {altIdStr, nonEdit} = placeholderOrLabelText(edit, nonEditsRemaining),
+      { altIdStr } = labelOrPlaceholderText(edit, nonEditsRemaining),
       lblTextkey = def(altIdStr, '?????' + show(_.keys(result).length)),
       name = nameAttribute(edit),
       namedRadio = isRadio(edit) && name != null,
       dataPropName = toPropString(namedRadio ? <string>name : lblTextkey),
       typeName = upperFirst(dataPropName),
-      paramStr = 'params.' + dataPropName;
+      paramStr = dataPropName;
 
   editsRemaining = _.tail(editsRemaining);
 
@@ -693,6 +684,11 @@ function dataLines(data: {[k:string]: any}, dataType: {[k:string]: string}) {
   return lines.join(',\n');
 }
 
+function destructedProps(typeMap: {[k:string]: string}) {
+  const propNames = _.keys(typeMap).map((s: string) => '\n\t\t' + s).join(',')
+  return `{${propNames}\n\t}`
+}
+
 function formatFormInfo(info: FormItems): string {
   let {
       result,
@@ -709,20 +705,20 @@ function formatFormInfo(info: FormItems): string {
   let dataTypeStr = `// Complete Form Input Type\nexport type CompleteFormInput = \n\t{\n${typeLines(dataType)}\n\t}`;
 
   // default data
-  let defaultData = `// Default Data\nexport const formDefaults = () => {\n return {\n${dataLines(data, dataType)}\n\t}\n}`;
+  let defaultData = `// Default Data\nexport const formDefaults: CompleteFormInput = {\n${dataLines(data, dataType)}\n}`;
 
   // set form function
   let setFormStr =
 `export function setThisForm(parentElementorSelector: SelectorOrElement, params: FormInput) {
-  params = _.defaults(params, formDefaults());
-  let formParams = \n\t{\n${formParamLines(result)}\n\t};
+  let ${destructedProps(dataType)} = _.defaults(params, formDefaults),
+  formParams = {\n${formParamLines(result)}\n\t};
   setForm(parentElementorSelector, formParams);
 }`;
 
   return [
           sumTypeStr,
           dataTypeStr,
-          '// Form Input\nexport type FormInput = $Supertype<CompleteFormInput>;',
+          '// Form Input\nexport type FormInput = Partial<CompleteFormInput>;',
           defaultData,
           setFormStr
         ].join('\n\n');
